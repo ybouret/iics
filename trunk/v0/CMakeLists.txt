@@ -48,3 +48,6 @@ INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH} ${VISIT}/include/silo/include ${VISIT}/l
 LINK_DIRECTORIES(${VISIT}/lib ${VISIT}/libsim/V2/lib ${VISIT}/archives)
 ADD_EXECUTABLE(v0 v0.cpp arrays.c arrays.h types.c types.h)
 TARGET_LINK_LIBRARIES(v0 ${MPI_LIBRARIES} siloh5 simV2 z hdf5)
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	TARGET_LINK_LIBRARIES(v0 dl)
+ENDIF()
