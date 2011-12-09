@@ -60,6 +60,209 @@ typedef struct
 #define SIM_RUNNING       1
 void simulate_one_timestep(simulation_data *sim);
 
+/***************************************************************************
+ For interactive purposes: buttons interface for visit
+ **************************************************************************/
+const char *cmd_names[] = {"halt", "step", "run", "saveon","raz", "raz"}; /*For in*/
+static void init_fields();
+/******************************************************************************
+ *
+ * Purpose: This callback function returns simulation metadata.
+ *
+ *****************************************************************************/
+visit_handle
+SimGetMetaData(void *cbdata)
+{
+    visit_handle md = VISIT_INVALID_HANDLE;
+    simulation_data *sim = (simulation_data *)cbdata;
+    
+    /* Create metadata. */
+    if(VisIt_SimulationMetaData_alloc(&md) == VISIT_OKAY)
+    {
+        indx_t i;
+        visit_handle mmd = VISIT_INVALID_HANDLE;
+        visit_handle vmd = VISIT_INVALID_HANDLE;
+        // visit_handle cmd = VISIT_INVALID_HANDLE;
+        visit_handle emd = VISIT_INVALID_HANDLE;
+        
+        /* Set the simulation state. */
+        VisIt_SimulationMetaData_setMode(md, (sim->runMode == SIM_STOPPED) ?
+                                         VISIT_SIMMODE_STOPPED : VISIT_SIMMODE_RUNNING);
+        VisIt_SimulationMetaData_setCycleTime(md, sim->cycle, sim->time);
+        
+        /* Add mesh metadata. */
+        if(VisIt_MeshMetaData_alloc(&mmd) == VISIT_OKAY)
+        {
+            /* Set the mesh's properties.*/
+            VisIt_MeshMetaData_setName(mmd, "quadmesh");
+            VisIt_MeshMetaData_setMeshType(mmd, VISIT_MESHTYPE_RECTILINEAR);
+            VisIt_MeshMetaData_setTopologicalDimension(mmd, 3);
+            VisIt_MeshMetaData_setSpatialDimension(mmd, 3);
+            VisIt_MeshMetaData_setNumDomains(mmd, sim->par_size);
+            VisIt_MeshMetaData_setDomainTitle(mmd, "Domains");
+            VisIt_MeshMetaData_setDomainPieceName(mmd, "domain");
+            VisIt_MeshMetaData_setNumGroups(mmd, 0);
+            /*   VisIt_MeshMetaData_setXUnits(mmd, "cm");
+             VisIt_MeshMetaData_setYUnits(mmd, "cm");
+             VisIt_MeshMetaData_setZUnits(mmd, "cm");
+             VisIt_MeshMetaData_setXLabel(mmd, "Width");
+             VisIt_MeshMetaData_setYLabel(mmd, "Height");
+             VisIt_MeshMetaData_setZLabel(mmd, "Depth");
+             */
+            VisIt_SimulationMetaData_addMesh(md, mmd);
+            
+        }
+        
+        /* Add a variable. */
+        if(VisIt_VariableMetaData_alloc(&vmd) == VISIT_OKAY)
+        {
+            VisIt_VariableMetaData_setName(vmd, "u");
+            VisIt_VariableMetaData_setMeshName(vmd, "quadmesh");
+            VisIt_VariableMetaData_setType(vmd, VISIT_VARTYPE_SCALAR);
+            VisIt_VariableMetaData_setCentering(vmd, VISIT_VARCENTERING_ZONE);
+            
+            VisIt_SimulationMetaData_addVariable(md, vmd);
+        }
+        
+        
+        /* Add an expression. 
+         if(VisIt_ExpressionMetaData_alloc(&emd) == VISIT_OKAY)
+         {
+         VisIt_ExpressionMetaData_setName(emd, "zvec");
+         VisIt_ExpressionMetaData_setDefinition(emd, "{zonal, zonal}");
+         VisIt_ExpressionMetaData_setType(emd, VISIT_VARTYPE_VECTOR);
+         
+         VisIt_SimulationMetaData_addExpression(md, emd);
+         }
+         */
+        /* Add some commands. */
+        for(i = 0; i < (indx_t) (sizeof(cmd_names)/sizeof(const char *)); ++i)
+        {
+            visit_handle cmd = VISIT_INVALID_HANDLE;
+            if(VisIt_CommandMetaData_alloc(&cmd) == VISIT_OKAY)
+            {
+                VisIt_CommandMetaData_setName(cmd, cmd_names[i]);
+                VisIt_SimulationMetaData_addGenericCommand(md, cmd);
+            }
+        }
+    }
+    
+    return md;
+}
+
+visit_handle
+SimGetMesh(int domain, const char *name, void *cbdata)
+{
+    visit_handle res = VISIT_INVALID_HANDLE;
+    
+    if(strcmp(name, "quadmesh") == 0)
+    {
+        if(VisIt_RectilinearMesh_alloc(&res) != VISIT_ERROR)
+        {
+            int i,minRealIndex[3]={0,0,0}, maxRealIndex[3]={0,0,0};
+            float *rmesh[3];
+            visit_handle h[3];
+            
+            // fprintf(stderr,"proc %d\t:simgetmesh: %d\t%d\t%d\n",rank,rmesh_dims[0],rmesh_dims[1],rmesh_dims[2]);
+            fflush(stderr);
+            
+            for(i=0;i<3;i++)
+            {
+                minRealIndex[i] = 0;
+                maxRealIndex[i] = rmesh_dims[i]-1;
+                rmesh[i] = (float *)malloc(sizeof(float) * rmesh_dims[i]);
+            }
+            
+            for(i = 0; i < rmesh_dims[0]; ++i)
+                rmesh[0][i] = i*dx;
+            for(i = 0; i < rmesh_dims[1]; ++i)
+                rmesh[1][i] = i*dy;
+            for(i = 0; i < rmesh_dims[2]; ++i)
+                rmesh[2][i] =(zmin+i)*dz;
+            
+            
+            for(i=0;i<3;i++)
+            {
+                VisIt_VariableData_alloc(&h[i]);
+                VisIt_VariableData_setDataF(h[i], VISIT_OWNER_VISIT, 1,rmesh_dims[i], rmesh[i]);
+                
+            }
+            VisIt_RectilinearMesh_setCoordsXYZ(res, h[0], h[1],h[2]);
+            VisIt_RectilinearMesh_setRealIndices(res, minRealIndex, maxRealIndex);
+            /* for(i=0;i<3;i++)
+             free(rmesh[i]);
+             */   
+        }
+        else
+        {
+            fprintf(stderr,"proc: %d:Erreur allocation in SimGetMesh\n",rank);
+        }
+    }
+    
+    return res;
+}
+
+visit_handle
+SimGetVariable(int domain, const char *name, void *cbdata)
+{
+    visit_handle h = VISIT_INVALID_HANDLE;
+    //  simulation_data *sim = (simulation_data *)cbdata;
+    
+    // fprintf(stderr,"proc %d: SimGetVariable\n",rank);
+    
+    if(strcmp(name, "u") == 0)
+    {
+        float *zoneptr;
+        float  *rmesh_zonal;
+        int i, j, k, nTuples;
+        
+        
+        // Calculate a zonal variable that moves around. 
+        rmesh_zonal = (float*)malloc(sizeof(float) * (rmesh_dims[0]-1) * (rmesh_dims[1]-1)*(rmesh_dims[2]-1));
+        zoneptr = rmesh_zonal;
+        
+        for(k=zmin;k<zmax;k++)
+        {
+            for(j = 0; j < rmesh_dims[1]-1; ++j)
+            {
+                for(i = 0; i < rmesh_dims[0]-1; ++i)
+                {
+                    
+                    *zoneptr++ = fields[0][k][j][i];
+                }
+            }
+        }
+        nTuples = (rmesh_dims[0]-1) * (rmesh_dims[1]-1)*(rmesh_dims[2]-1);
+        VisIt_VariableData_alloc(&h);
+        VisIt_VariableData_setDataF(h, VISIT_OWNER_VISIT, 1,
+                                    nTuples, rmesh_zonal);
+    }
+    
+    return h;
+}
+
+visit_handle
+SimGetDomainList(const char *name, void *cbdata)
+{
+    visit_handle h = VISIT_INVALID_HANDLE;
+    
+    //fprintf(stderr,"proc %d: SimGetDomainList\n",rank);
+    
+    if(VisIt_DomainList_alloc(&h) != VISIT_ERROR)
+    {
+        visit_handle hdl;
+        int *iptr = NULL;
+        simulation_data *sim = (simulation_data *)cbdata;
+        
+        iptr = (int *)malloc(sizeof(int));
+        *iptr = sim->par_rank;
+        
+        VisIt_VariableData_alloc(&hdl);
+        VisIt_VariableData_setDataI(hdl, VISIT_OWNER_VISIT, 1, 1, iptr);
+        VisIt_DomainList_setDomains(h, sim->par_size, hdl);
+    }
+    return h;
+}
 void
 simulation_data_ctor(simulation_data *sim,int rank,int size)
 {
@@ -180,6 +383,8 @@ void ControlCommandCallback(const char *cmd, const char *args, void *cbdata)
         simulate_one_timestep(sim);
     else if(strcmp(cmd, "run") == 0)
         sim->runMode = SIM_RUNNING;
+    else if(strcmp(cmd, "raz") == 0)
+        init_fields();
     else if(strcmp(cmd, "addplot") == 0)
     {
         VisItExecuteCommand("AddPlot(\"Pseudocolor\", \"zonal\")\n");
@@ -220,6 +425,8 @@ ProcessConsoleCommand(simulation_data *sim)
         simulate_one_timestep(sim);
     else if(strcmp(cmd, "run") == 0)
         sim->runMode = SIM_RUNNING;
+    else if(strcmp(cmd, "raz") == 0)
+        init_fields();
     else if(strcmp(cmd, "update") == 0)
     {
         VisItTimeStepChanged();
@@ -276,13 +483,13 @@ void mainloop(simulation_data *sim)
                     fprintf(stderr, "VisIt connected\n");
                     VisItSetCommandCallback(ControlCommandCallback, (void*)sim);
                     VisItSetSlaveProcessCallback(SlaveProcessCallback);
-                    /*
+                    
                     VisItSetGetMetaData(SimGetMetaData, (void*)sim);
                     VisItSetGetMesh(SimGetMesh, (void*)sim);
-                    VisItSetGetCurve(SimGetCurve, (void*)sim);
+                   //VisItSetGetCurve(SimGetCurve, (void*)sim);
                     VisItSetGetVariable(SimGetVariable, (void*)sim);
                     VisItSetGetDomainList(SimGetDomainList, (void*)sim);
-                     */
+                     
                 }
                 else 
                 {
