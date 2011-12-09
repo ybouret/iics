@@ -7,9 +7,6 @@ SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS    TRUE) # lighter CMakeLists.txt
 #a name for the project
 PROJECT(v0)
 
-#packages
-FIND_PACKAGE(MPI REQUIRED)
-MESSAGE( STATUS "${MPIEXEC}" )
 #for VISIT
 EXECUTE_PROCESS(COMMAND hostname OUTPUT_VARIABLE HOSTNAME OUTPUT_STRIP_TRAILING_WHITESPACE)
 MESSAGE(STATUS "working on <${HOSTNAME}>")
@@ -18,21 +15,29 @@ SET(VISIT "")
 
 IF( "${HOSTNAME}" MATCHES "math7.*" )
 # do not forget to source /opt/intel/Compiler/11.1/072/bin/iccvars.sh intel64
+	FIND_PACKAGE(MPI REQUIRED)
 	MESSAGE( STATUS "flags for math7")
 	SET(VISIT "/usr/local/visit/2.4.0/linux-x86_64")
 ENDIF()
 
 IF( "${HOSTNAME}" MATCHES "math5.*" )
+	#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/OpenMPI/lib
+	#and launch with '/usr/local/OpenMPI/bin/mpirun -np ...'
+	SET(OPENMPI "/usr/local/OpenMPI")
+	SET(CMAKE_C_COMPILER    "${OPENMPI}/bin/mpicc")
+	SET(CMAKE_CXX_COMPILER  "${OPENMPI}/bin/mpic++")
         MESSAGE( STATUS "flags for math5")
         SET(VISIT "/usr/local/visit2_4_0.linux-x86_64/2.4.0/linux-x86_64")
 ENDIF()
 
 IF( "${HOSTNAME}" MATCHES "pcmath162.*" )
+	FIND_PACKAGE(MPI REQUIRED)
         MESSAGE( STATUS "flags for pcmath162")
         SET(VISIT "/usr/local/visit2_4_0.linux-x86_64/2.4.0/linux-x86_64/")
 ENDIF()
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	FIND_PACKAGE(MPI REQUIRED)
 	MESSAGE( STATUS "flags for Mac Os X")
 	SET(VISIT "/usr/local/visit/2.4.0/darwin-x86_64") 
 	SET(VISIT "/Applications/VisIt.app/Contents/Resources/2.4.0/darwin-x86_64")
