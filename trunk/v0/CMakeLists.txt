@@ -27,6 +27,11 @@ IF( "${HOSTNAME}" MATCHES "math5.*" )
         SET(VISIT "/usr/local/visit2_4_0.linux-x86_64/2.4.0/linux-x86_64")
 ENDIF()
 
+IF( "${HOSTNAME}" MATCHES "pcmath162.*" )
+        MESSAGE( STATUS "flags for pcmath162")
+        SET(VISIT "/usr/local/visit2_4_0.linux-x86_64/2.4.0/linux-x86_64/")
+ENDIF()
+
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	MESSAGE( STATUS "flags for Mac Os X")
 	SET(VISIT "/usr/local/visit/2.4.0/darwin-x86_64") 

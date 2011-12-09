@@ -401,14 +401,17 @@ void initSimulation(void)
 void simulate_one_timestep(simulation_data *sim)
 {
     /* simulate 1 time step. */
+    int i;
     ++sim->cycle;
     sim->time += dt;
 
     
     // Diffusion 
-       
-   // exchange_ghosts();
-    diffusion();
+    for(i=0;i<5;i++)
+    {
+        exchange_ghosts();
+        diffusion();
+    }
     
     if(sim->savingFiles==1)
     {
@@ -421,7 +424,7 @@ void simulate_one_timestep(simulation_data *sim)
         fprintf(stderr,"%d cores:simulating: cycle=%d, time=%lg \n",sim->par_size, sim->cycle, sim->time);
         fflush(stderr);
     }
-    if(1==0)
+   // if(1==0)
     {
        VisItTimeStepChanged();
        VisItUpdatePlots();
