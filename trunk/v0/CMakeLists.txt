@@ -1,0 +1,45 @@
+#introduction
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+SET(CMAKE_SKIP_PREPROCESSED_SOURCE_RULES TRUE) # lighter makefile
+SET(CMAKE_SKIP_ASSEMBLY_SOURCE_RULES     TRUE) # lighter makefile
+SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS    TRUE) # lighter CMakeLists.txt
+
+#a name for the project
+PROJECT(v0)
+
+#packages
+FIND_PACKAGE(MPI REQUIRED)
+MESSAGE( STATUS "${MPIEXEC}" )
+#for VISIT
+EXECUTE_PROCESS(COMMAND hostname OUTPUT_VARIABLE HOSTNAME OUTPUT_STRIP_TRAILING_WHITESPACE)
+MESSAGE(STATUS "working on <${HOSTNAME}>")
+
+SET(VISIT "")
+
+IF( "${HOSTNAME}" MATCHES "math7.*" )
+# do not forget to source /opt/intel/Compiler/11.1/072/bin/iccvars.sh intel64
+	MESSAGE( STATUS "flags for math7")
+	SET(VISIT "/usr/local/visit/2.4.0/linux-x86_64")
+ENDIF()
+
+IF( "${HOSTNAME}" MATCHES "math5.*" )
+        MESSAGE( STATUS "flags for math5")
+        SET(VISIT "/usr/local/visit2_4_0.linux-x86_64/2.4.0/linux-x86_64")
+ENDIF()
+
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	MESSAGE( STATUS "flags for Mac Os X")
+	SET(VISIT "/usr/local/visit/2.4.0/darwin-x86_64") 
+	SET(VISIT "/Applications/VisIt.app/Contents/Resources/2.4.0/darwin-x86_64")
+ENDIF()
+
+#define default flags
+SET(FLAGS "-O2 -g")
+
+SET(CMAKE_C_FLAGS ${FLAGS})
+SET(CMAKE_CXX_FLAGS ${FLAGS})
+
+INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH} ${VISIT}/include/silo/include ${VISIT}/libsim/V2/include)
+LINK_DIRECTORIES(${VISIT}/lib ${VISIT}/libsim/V2/lib ${VISIT}/archives)
+ADD_EXECUTABLE(v0 v0.cpp arrays.c arrays.h types.c types.h)
+TARGET_LINK_LIBRARIES(v0 ${MPI_LIBRARIES} siloh5 simV2 z hdf5)
