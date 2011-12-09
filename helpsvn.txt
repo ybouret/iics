@@ -1,0 +1,10 @@
+# downloader la dernière mise à jour
+	svn up pour
+# pour uploader le dernière mise à jour
+svn ci 
+
+#installer le projet  svn sur une nouvelle machine 
+svn checkout https://iics.googlecode.com/svn/trunk/ iics --username mederic.argentina@gmail.com
+
+#status du svn
+svn status
