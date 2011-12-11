@@ -10,15 +10,15 @@
 
 
 
-static const size_t NC = 4;     /*!< two components */
+static const size_t NC = 2;     /*!< two components */
 const char                *cpntName[] = {"u","v"};  /*Name of the components*/
 static indx_t       Nx = 100;   /*!< 0 -> Nx-1      */
 static indx_t       Ny = 120;   /*!< 0 -> Ny-1      */
-static indx_t       Nz = 100;   /*!< 0 -> Nz-1      */
+static indx_t       Nz = 128;   /*!< 0 -> Nz-1      */
 static indx_t       NG = 1;     /*!< #ghosts        */
 static real_t       Lx = 100.0;
 static real_t       Ly = 120.0;
-static real_t       Lz = 140.0;
+static real_t       Lz = 128.0;
 
 static real_t   ****fields          = NULL;
 static real_t    ***laplacian       = NULL;
@@ -351,7 +351,19 @@ static void diffusion2()
         
 	}
 }
-
+double  mesureTimeForExhangingGhost()
+{
+	double elapsedTime;
+	_BARRIER;
+	elapsedTime=-MPI_Wtime();
+	sendRequests(0);
+	waitRequests(0);
+	_BARRIER;
+	elapsedTime+=MPI_Wtime();
+	
+	return elapsedTime;
+		
+}
 
 #define alea rand()/(0.0+RAND_MAX)*2-1
 static void init_fields()
@@ -480,7 +492,7 @@ void simulate_one_timestep(simulation_data *sim)
         fprintf(stderr,"%d cores:simulating: cycle=%d, time=%lg \n",sim->par_size, sim->cycle, sim->time);
         fflush(stderr);
     }
-   // if(1==0)
+    if(1==0)
     {
        VisItTimeStepChanged();
        VisItUpdatePlots();
@@ -559,18 +571,24 @@ int main(int argc, char *argv[] )
 	init_fields();
     if(rank==0)
         VisItOpenTraceFile("./TraceFileOfLibSim.txt");
-   // mainloop(&sim);
+    mainloop(&sim);
     if(rank==0)
         VisItCloseTraceFile();
+     /***************************************************************************
+	 * measuring the communication time
+	 **************************************************************************/
+	 //fprintf(stderr,"Communication time of rank %d is %g\n",rank,mesureTimeForExhangingGhost);
+	    
 	/***************************************************************************
 	 * simulation
-	 **************************************************************************/
+	 **************************************************************************
+	 _BARRIER;
     startTime=MPI_Wtime();
-	for( count=0; count < 20; ++count )
+	for( count=0; count < 1; ++count )
 	{
         simulate_one_timestep(&sim);
 	}
-
+	_BARRIER;
     endTime=MPI_Wtime();
     if(rank==0)
         fprintf(stderr,"rank=%d\t ran %d counts in %g\n",rank,count,endTime-startTime);
