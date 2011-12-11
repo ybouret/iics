@@ -144,6 +144,7 @@ static void delete_requests()
 	}
 }
 
+
 static void exchange_ghosts()
 {
 	const size_t nitems = items_per_slice * NG;
@@ -176,33 +177,51 @@ static void exchange_ghosts()
     for(i=0;i<num_reqs;i++)
         _CHECK(MPI_Wait(&requests[i],&status));
 }
-static void sendRequests()
+/*****************************************************************************************************
+*     Here we start the send/recv requests for variable i
+*****************************************************************************************************/
+static void sendRequests(int i)
 {
-    int i;
-    const size_t nitems = items_per_slice * NG;
-
-    for( i=0; i < NC; ++i )
-	{
-		const size_t j = i * 4;
-		// send information to below 
-		_CHECK(MPI_Isend( &fields[i][zmin][ymin][xmin],    nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+0] ));
-		
-		// send information to above 
-		_CHECK(MPI_Isend( &fields[i][zmax-NG][ymin][xmin], nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+1] ));
-		
-		// recv information from below
-		_CHECK(MPI_Irecv( &fields[i][zlo][ymin][xmin],     nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+2] ));
-		
-		// recv information from above 
-		_CHECK(MPI_Irecv( &fields[i][zmax+1][ymin][xmin],  nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+3] ));
-	}
-}
-static void waitRequests()
-{
-    int i;
+	const size_t nitems = items_per_slice * NG;
     MPI_Status status;
-    for(i=0;i<num_reqs;i++)
-        _CHECK(MPI_Wait(&requests[i],&status));
+    const size_t j = i * 4;
+    
+	if( !requests )
+	{
+		perror("requests in sendRequests");
+		exit(-1);
+	}
+    
+    // send information to below 
+    _CHECK(MPI_Isend( &fields[i][zmin][ymin][xmin],    nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+0] ));
+    
+    // send information to above 
+    _CHECK(MPI_Isend( &fields[i][zmax-NG][ymin][xmin], nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+1] ));
+    
+    // recv information from below
+    _CHECK(MPI_Irecv( &fields[i][zlo][ymin][xmin],     nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+2] ));
+    
+    // recv information from above 
+    _CHECK(MPI_Irecv( &fields[i][zmax+1][ymin][xmin],  nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+3] ));
+	
+}
+/*****************************************************************************************************
+ *     Here we wait the send/recv requests for variable i
+ *****************************************************************************************************/
+static void waitRequests(int i)
+{
+    int k;
+    MPI_Status status;
+    
+    
+    if( !requests )
+	{
+		perror("requests in waitRequests");
+		exit(-1);
+	}
+    
+    for(k=0;i<k;i++)
+        _CHECK(MPI_Wait(&requests[4*i+k],&status));
 }
 
 
@@ -237,42 +256,54 @@ static void compute_laplacian( real_t ***f )
 		}
 	}
 }
-
-static void compute_laplacian2( real_t ***f )
+static void compute_laplacianAtZ( real_t ***f, indx_t k)
 {
-	indx_t i,j,k;
-    sendRequests();
-    waitRequests();
-    
-	for(k=zmax;k>=zmin;--k)
-	{
-		indx_t km=k-1; /* always valid for there are ghosts */
-		indx_t kp=k+1; /* always valid for there are ghosts */
-		for(j=ymax;j>=ymin;--j)
-		{
-			indx_t jm = j-1;
-			indx_t jp = j+1;
-			if( jm < ymin ) jm = ymax;
-			if( jp > ymax ) jp = ymin;
-			for(i=xmax;i>=xmin;--i)
-			{
-				indx_t im = i-1;
-				indx_t ip = i+1;
-				if( im < xmin ) im = xmax;
-				if( ip > xmax ) ip = xmin;
-				
-				const real_t f0  = f[k][j][i];
-				const real_t tf0 = f0 + f0;
-				const real_t lx    = idx2*(f[k][j][im]-tf0+f[k][j][ip]);
-				const real_t ly    = idy2*(f[k][jm][i]-tf0+f[k][jp][i]);
-				const real_t lz    = idz2*(f[km][j][i]-tf0+f[kp][j][i]);
-				laplacian[k][j][i] = lx + ly + lz;
-			}
-		}
-	}
-  //  waitRequests();
-
+    indx_t i,j;
+    indx_t km=k-1; /* always valid for there are ghosts */
+    indx_t kp=k+1; /* always valid for there are ghosts */
+    for(j=ymax;j>=ymin;--j)
+    {
+        indx_t jm = j-1;
+        indx_t jp = j+1;
+        if( jm < ymin ) jm = ymax;
+        if( jp > ymax ) jp = ymin;
+        for(i=xmax;i>=xmin;--i)
+        {
+            indx_t im = i-1;
+            indx_t ip = i+1;
+            if( im < xmin ) im = xmax;
+            if( ip > xmax ) ip = xmin;
+            
+            const real_t f0  = f[k][j][i];
+            const real_t tf0 = f0 + f0;
+            const real_t lx    = idx2*(f[k][j][im]-tf0+f[k][j][ip]);
+            const real_t ly    = idy2*(f[k][jm][i]-tf0+f[k][jp][i]);
+            const real_t lz    = idz2*(f[km][j][i]-tf0+f[kp][j][i]);
+            laplacian[k][j][i] = lx + ly + lz;
+        }
+    }
 }
+/**************************************************************************************************
+* we compute the laplacian of the field f. bulk=1 means we compute the bulk, 
+**************************************************************************************************/
+static void compute_laplacian2( real_t ***f, int bulk)
+{
+	indx_t k;
+
+    if(bulk)
+    {
+        for(k=zmax;k>=zmin;--k)
+            compute_laplacianAtZ(f,k);
+    }
+    else
+    {
+        compute_laplacianAtZ(f,zmax);
+        compute_laplacianAtZ(f,zmin);
+    }
+            
+}
+
+
 
 
 //static void reaction(){}
@@ -282,6 +313,7 @@ static void diffusion()
 	size_t i;
 	size_t j;
  
+    exchange_ghosts();
 	for( i=0; i < NC; ++i )
 	{
 		real_t ***f = fields[i];
@@ -295,6 +327,28 @@ static void diffusion()
 				dst[j] += dt * (src[j]+dst[j]-dst[j]*dst[j]*dst[j]);
 			}
 		}
+	}
+}
+static void diffusion2()
+{
+	size_t i;
+	size_t j;
+    
+	for( i=0; i < NC; ++i )
+	{
+		real_t ***f = fields[i];
+        sendRequests(i);
+		compute_laplacian2(f,1);
+        waitRequests(i);
+        compute_laplacian2(f,0);
+        
+        real_t       *dst = &f[zmin][ymin][xmin];
+        const real_t *src = &laplacian[zmin][ymin][xmin];
+        for( j=0; j < items_per_field; ++j )
+        {
+            dst[j] += dt * (src[j]+dst[j]-dst[j]*dst[j]*dst[j]);
+        }
+        
 	}
 }
 
@@ -341,6 +395,9 @@ void initSimulation(void)
 	fprintf( stderr, "-- ready %d.%d (%d->%d->%d)\n", rank, size, below, rank, above );
 	fflush( stderr );
 	
+    
+    num_reqs = 4 * NC;
+	requests = (MPI_Request *)calloc(num_reqs,sizeof(MPI_Request));
 	/***************************************************************************
 	 * Slicing along z, depending on rank and size
 	 **************************************************************************/
@@ -409,8 +466,7 @@ void simulate_one_timestep(simulation_data *sim)
     // Diffusion 
     for(i=0;i<5;i++)
     {
-        exchange_ghosts();
-        diffusion();
+        diffusion2();
     }
     
     if(sim->savingFiles==1)
@@ -503,12 +559,12 @@ int main(int argc, char *argv[] )
 	init_fields();
     if(rank==0)
         VisItOpenTraceFile("./TraceFileOfLibSim.txt");
-    mainloop(&sim);
+   // mainloop(&sim);
     if(rank==0)
         VisItCloseTraceFile();
 	/***************************************************************************
 	 * simulation
-	 **************************************************************************
+	 **************************************************************************/
     startTime=MPI_Wtime();
 	for( count=0; count < 20; ++count )
 	{
