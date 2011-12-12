@@ -210,6 +210,7 @@ static void sendRequests(int i)
  *****************************************************************************************************/
 static void waitRequests(int i)
 {
+    const size_t j = i * 4;
     int k;
     MPI_Status status;
     
@@ -220,8 +221,8 @@ static void waitRequests(int i)
 		exit(-1);
 	}
     
-    for(k=0;i<k;i++)
-        _CHECK(MPI_Wait(&requests[4*i+k],&status));
+    for(k=0;k<4;k++)
+        _CHECK(MPI_Wait(&requests[j+k],&status));
 }
 
 
@@ -292,13 +293,16 @@ static void compute_laplacian2( real_t ***f, int bulk)
 
     if(bulk)
     {
-        for(k=zmax;k>=zmin;--k)
+        for(k=zmax-NG;k>=zmin+NG;--k)
             compute_laplacianAtZ(f,k);
     }
     else
     {
-        compute_laplacianAtZ(f,zmax);
-        compute_laplacianAtZ(f,zmin);
+        for(k=0;k<NG;k++)
+        {
+            compute_laplacianAtZ(f,zmax-k);
+            compute_laplacianAtZ(f,zmin+k);
+        }
     }
             
 }
@@ -337,10 +341,12 @@ static void diffusion2()
 	for( i=0; i < NC; ++i )
 	{
 		real_t ***f = fields[i];
+        
         sendRequests(i);
-		compute_laplacian2(f,1);
+        
+		compute_laplacian2(f,1); //bulk
         waitRequests(i);
-        compute_laplacian2(f,0);
+        compute_laplacian2(f,0); //boundaries
         
         real_t       *dst = &f[zmin][ymin][xmin];
         const real_t *src = &laplacian[zmin][ymin][xmin];
@@ -351,7 +357,7 @@ static void diffusion2()
         
 	}
 }
-double  mesureTimeForExhangingGhost()
+double  mesureTimeForExchangingGhost()
 {
 	double elapsedTime;
 	_BARRIER;
@@ -408,7 +414,8 @@ void initSimulation(void)
 	fflush( stderr );
 	
     
-    num_reqs = 4 * NC;
+    num_reqs = 4* NC;
+    
 	requests = (MPI_Request *)calloc(num_reqs,sizeof(MPI_Request));
 	/***************************************************************************
 	 * Slicing along z, depending on rank and size
@@ -492,7 +499,7 @@ void simulate_one_timestep(simulation_data *sim)
         fprintf(stderr,"%d cores:simulating: cycle=%d, time=%lg \n",sim->par_size, sim->cycle, sim->time);
         fflush(stderr);
     }
-    if(1==0)
+    if(1==1)
     {
        VisItTimeStepChanged();
        VisItUpdatePlots();
@@ -569,11 +576,9 @@ int main(int argc, char *argv[] )
             fprintf(stderr,"problem with VisItInitializeSocketAndDumpSimFile \n");
 
 	init_fields();
-    if(rank==0)
-        VisItOpenTraceFile("./TraceFileOfLibSim.txt");
+  //  if(rank==0) VisItOpenTraceFile("./TraceFileOfLibSim.txt");
     mainloop(&sim);
-    if(rank==0)
-        VisItCloseTraceFile();
+  //  if(rank==0) VisItCloseTraceFile();
      /***************************************************************************
 	 * measuring the communication time
 	 **************************************************************************/

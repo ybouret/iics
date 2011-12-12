@@ -37,20 +37,10 @@ IF( "${HOSTNAME}" MATCHES "pcmath162.*" )
 ENDIF()
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    FIND_PACKAGE(MPI REQUIRED)
-    MESSAGE( STATUS "flags for Mac Os X")
-    SET(VISIT "/Applications/VisIt.app/Contents/Resources/2.4.0/darwin-x86_64")
-ENDIF()
-
-# for the macpro !
-IF( "${HOSTNAME}" MATCHES "jadwifi113.*" )
-	#export DYLD_LIBRARY_PATH=$VISIT/lib
 	FIND_PACKAGE(MPI REQUIRED)
-	MESSAGE( STATUS "flags for jadwifi113")
-	SET(VISIT "/usr/local/visit/2.4.0/darwin-x86_64")
+	MESSAGE( STATUS "flags for Mac Os X")
+	SET(VISIT "/usr/local/visit/2.4.0/darwin-x86_64") 
 ENDIF()
-
-
 
 #define default flags
 SET(FLAGS "-O2 -g")

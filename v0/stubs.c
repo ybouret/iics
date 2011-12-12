@@ -164,12 +164,13 @@ SimGetMesh(int domain, const char *name, void *cbdata)
             visit_handle h[3];
             
             // fprintf(stderr,"proc %d\t:simgetmesh: %d\t%d\t%d\n",rank,rmesh_dims[0],rmesh_dims[1],rmesh_dims[2]);
-            fflush(stderr);
+           // fflush(stderr);
             
             for(i=0;i<3;i++)
             {
                 minRealIndex[i] = 0;
                 maxRealIndex[i] = rmesh_dims[i]-1;
+                
                 rmesh[i] = (float *)malloc(sizeof(float) * rmesh_dims[i]);
             }
             
@@ -189,9 +190,9 @@ SimGetMesh(int domain, const char *name, void *cbdata)
             }
             VisIt_RectilinearMesh_setCoordsXYZ(res, h[0], h[1],h[2]);
             VisIt_RectilinearMesh_setRealIndices(res, minRealIndex, maxRealIndex);
-            /* for(i=0;i<3;i++)
-             free(rmesh[i]);
-             */   
+            for(i=0;i<3;i++)
+                 free(rmesh[i]);
+             
         }
         else
         {
@@ -201,7 +202,6 @@ SimGetMesh(int domain, const char *name, void *cbdata)
     
     return res;
 }
-
 visit_handle
 SimGetVariable(int domain, const char *name, void *cbdata)
 {
@@ -233,6 +233,44 @@ SimGetVariable(int domain, const char *name, void *cbdata)
             }
         }
         nTuples = (rmesh_dims[0]-1) * (rmesh_dims[1]-1)*(rmesh_dims[2]-1);
+        VisIt_VariableData_alloc(&h);
+        VisIt_VariableData_setDataF(h, VISIT_OWNER_VISIT, 1,
+                                    nTuples, rmesh_zonal);
+    }
+    
+    return h;
+}
+visit_handle
+SimGetVariableAtravailler(int domain, const char *name, void *cbdata)
+{
+    visit_handle h = VISIT_INVALID_HANDLE;
+    //  simulation_data *sim = (simulation_data *)cbdata;
+    
+    // fprintf(stderr,"proc %d: SimGetVariable\n",rank);
+    
+    if(strcmp(name, "u") == 0)
+    {
+        float *zoneptr;
+        float  *rmesh_zonal;
+        int i, j, k, nTuples;
+        
+        
+        // Calculate a zonal variable that moves around. 
+        rmesh_zonal = (float*)malloc(sizeof(float) * (rmesh_dims[0]) * (rmesh_dims[1])*(rmesh_dims[2]));
+        zoneptr = rmesh_zonal;
+        
+        for(k=zmin;k<=zmax;k++)
+        {
+            for(j = 0; j < rmesh_dims[1]; ++j)
+            {
+                for(i = 0; i < rmesh_dims[0]; ++i)
+                {
+                    
+                    *zoneptr++ = fields[0][k][j][i];
+                }
+            }
+        }
+        nTuples = (rmesh_dims[0]) * (rmesh_dims[1])*(rmesh_dims[2]);
         VisIt_VariableData_alloc(&h);
         VisIt_VariableData_setDataF(h, VISIT_OWNER_VISIT, 1,
                                     nTuples, rmesh_zonal);
@@ -470,6 +508,7 @@ void mainloop(simulation_data *sim)
         /* Broadcast the return value of VisItDetectInput to all procs. */
         MPI_Bcast(&visitstate, 1, MPI_INT, 0, MPI_COMM_WORLD);
         /* Do different things depending on the output from VisItDetectInput. */
+
         switch(visitstate)
         {
             case 0:
