@@ -20,14 +20,23 @@ IF( "${HOSTNAME}" MATCHES "math7.*" )
 	SET(VISIT "/usr/local/visit/2.4.0/linux-x86_64")
 ENDIF()
 
+#IF( "${HOSTNAME}" MATCHES "math5.*" )
+#	#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/OpenMPI/lib
+#	#and launch with '/usr/local/OpenMPI/bin/mpirun -np ...'
+#	SET(OPENMPI "/usr/local/OpenMPI")
+#	SET(CMAKE_C_COMPILER    "${OPENMPI}/bin/mpicc")
+#	SET(CMAKE_CXX_COMPILER  "${OPENMPI}/bin/mpic++")
+#       MESSAGE( STATUS "flags for math5")
+#        SET(VISIT "/usr/local/visit2_4_0.linux-x86_64/2.4.0/linux-x86_64")
+#ENDIF()
+
+
 IF( "${HOSTNAME}" MATCHES "math5.*" )
-	#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/OpenMPI/lib
-	#and launch with '/usr/local/OpenMPI/bin/mpirun -np ...'
-	SET(OPENMPI "/usr/local/OpenMPI")
-	SET(CMAKE_C_COMPILER    "${OPENMPI}/bin/mpicc")
-	SET(CMAKE_CXX_COMPILER  "${OPENMPI}/bin/mpic++")
-        MESSAGE( STATUS "flags for math5")
-        SET(VISIT "/usr/local/visit2_4_0.linux-x86_64/2.4.0/linux-x86_64")
+     SET(MPICH2 "/opt/ScaleMP/mpich2/1.4")
+     SET(CMAKE_C_COMPILER    "${MPICH2}/bin/mpicc")
+     SET(CMAKE_CXX_COMPILER  "${MPICH2}/bin/mpic++")
+     MESSAGE( STATUS "flags for math5")
+     SET(VISIT "/usr/local/visit2_4_0.linux-x86_64/2.4.0/linux-x86_64")
 ENDIF()
 
 IF( "${HOSTNAME}" MATCHES "pcmath162.*" )

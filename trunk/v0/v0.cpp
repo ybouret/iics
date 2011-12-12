@@ -343,7 +343,6 @@ static void diffusion2()
 		real_t ***f = fields[i];
         
         sendRequests(i);
-        
 		compute_laplacian2(f,1); //bulk
         waitRequests(i);
         compute_laplacian2(f,0); //boundaries
@@ -354,6 +353,7 @@ static void diffusion2()
         {
             dst[j] += dt * (src[j]+dst[j]-dst[j]*dst[j]*dst[j]);
         }
+
         
 	}
 }
@@ -580,9 +580,9 @@ int main(int argc, char *argv[] )
             fprintf(stderr,"problem with VisItInitializeSocketAndDumpSimFile \n");
 
 	init_fields();
-  //  if(rank==0) VisItOpenTraceFile("./TraceFileOfLibSim.txt");
+    if(rank==0) VisItOpenTraceFile("./TraceFileOfLibSim.txt");
     mainloop(&sim);
-  //  if(rank==0) VisItCloseTraceFile();
+    if(rank==0) VisItCloseTraceFile();
      /***************************************************************************
 	 * measuring the communication time
 	 **************************************************************************/
@@ -593,7 +593,7 @@ int main(int argc, char *argv[] )
 	 **************************************************************************
 	 _BARRIER;
     startTime=MPI_Wtime();
-	for( count=0; count < 1; ++count )
+	for( count=0; count < 100; ++count )
 	{
         simulate_one_timestep(&sim);
 	}
