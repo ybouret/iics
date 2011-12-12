@@ -478,12 +478,14 @@ void simulate_one_timestep(simulation_data *sim)
 {
     /* simulate 1 time step. */
     int i;
+    double elapsedTime;
     ++sim->cycle;
     sim->time += dt;
-
+    if(rank==0)
+        elapsedTime=MPI_Wtime();
     
     // Diffusion 
-    for(i=0;i<5;i++)
+    for(i=0;i<10;i++)
     {
         diffusion2();
     }
@@ -494,15 +496,17 @@ void simulate_one_timestep(simulation_data *sim)
         write_master(sim->cycle);
     }
     
-    if(rank==0)  
-    {
-        fprintf(stderr,"%d cores:simulating: cycle=%d, time=%lg \n",sim->par_size, sim->cycle, sim->time);
-        fflush(stderr);
-    }
+  
     if(1==1)
     {
        VisItTimeStepChanged();
        VisItUpdatePlots();
+    }
+    
+    if(rank==0)  
+    {
+        fprintf(stderr,"%d cores:simulating: cycle=%d, time=%lg in %g s\n",sim->par_size, sim->cycle, sim->time,MPI_Wtime()-elapsedTime);
+        fflush(stderr);
     }
      
   //  sleep(1);
