@@ -170,7 +170,7 @@ SimGetMesh(int domain, const char *name, void *cbdata)
             {
                 minRealIndex[i] = 0;
                 maxRealIndex[i] = rmesh_dims[i]-1;
-                
+                // attention do not free !
                 rmesh[i] = (float *)malloc(sizeof(float) * rmesh_dims[i]);
             }
             
@@ -190,8 +190,7 @@ SimGetMesh(int domain, const char *name, void *cbdata)
             }
             VisIt_RectilinearMesh_setCoordsXYZ(res, h[0], h[1],h[2]);
             VisIt_RectilinearMesh_setRealIndices(res, minRealIndex, maxRealIndex);
-            for(i=0;i<3;i++)
-                 free(rmesh[i]);
+       
              
         }
         else
