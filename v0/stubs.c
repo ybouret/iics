@@ -119,7 +119,10 @@ SimGetMetaData(void *cbdata)
             VisIt_VariableMetaData_setName(vmd, "u");
             VisIt_VariableMetaData_setMeshName(vmd, "quadmesh");
             VisIt_VariableMetaData_setType(vmd, VISIT_VARTYPE_SCALAR);
-            VisIt_VariableMetaData_setCentering(vmd, VISIT_VARCENTERING_ZONE);
+            // for zonal description
+            //VisIt_VariableMetaData_setCentering(vmd, VISIT_VARCENTERING_ZONE);
+            //for nodal description
+            VisIt_VariableMetaData_setCentering(vmd, VISIT_VARCENTERING_NODE);
             
             VisIt_SimulationMetaData_addVariable(md, vmd);
         }
@@ -202,7 +205,7 @@ SimGetMesh(int domain, const char *name, void *cbdata)
     return res;
 }
 visit_handle
-SimGetVariable(int domain, const char *name, void *cbdata)
+SimGetVariableWorking(int domain, const char *name, void *cbdata)
 {
     visit_handle h = VISIT_INVALID_HANDLE;
     //  simulation_data *sim = (simulation_data *)cbdata;
@@ -240,7 +243,7 @@ SimGetVariable(int domain, const char *name, void *cbdata)
     return h;
 }
 visit_handle
-SimGetVariableAtravailler(int domain, const char *name, void *cbdata)
+SimGetVariable(int domain, const char *name, void *cbdata)
 {
     visit_handle h = VISIT_INVALID_HANDLE;
     //  simulation_data *sim = (simulation_data *)cbdata;
@@ -252,27 +255,45 @@ SimGetVariableAtravailler(int domain, const char *name, void *cbdata)
         float *zoneptr;
         float  *rmesh_zonal;
         int i, j, k, nTuples;
-        
+        nTuples = (rmesh_dims[0]) * (rmesh_dims[1])*(rmesh_dims[2]);
+
         
         // Calculate a zonal variable that moves around. 
-        rmesh_zonal = (float*)malloc(sizeof(float) * (rmesh_dims[0]) * (rmesh_dims[1])*(rmesh_dims[2]));
+        rmesh_zonal = (float*)malloc(sizeof(float)*nTuples);
         zoneptr = rmesh_zonal;
         
-        for(k=zmin;k<=zmax;k++)
+        // A RETRAVAILLER
+        if((size==2)&&rank==0)      
         {
-            for(j = 0; j < rmesh_dims[1]; ++j)
+           // for(k=zmin;k<=zmax;k++)
+                for(k=zmax;k>=zmin;--k)
             {
-                for(i = 0; i < rmesh_dims[0]; ++i)
+                for(j = 0; j < rmesh_dims[1]; ++j)
                 {
-                    
-                    *zoneptr++ = fields[0][k][j][i];
+                    for(i = 0; i < rmesh_dims[0]; ++i)
+                    {
+                        
+                        *zoneptr++ = fields[0][k][j][i];
+                    }
                 }
             }
         }
-        nTuples = (rmesh_dims[0]) * (rmesh_dims[1])*(rmesh_dims[2]);
+        else
+        {
+            for(k=zmin;k<=zmax;k++)
+            {
+                for(j = 0; j < rmesh_dims[1]; ++j)
+                {
+                    for(i = 0; i < rmesh_dims[0]; ++i)
+                    {
+                        
+                        *zoneptr++ = fields[0][k][j][i];
+                    }
+                }
+            }
+        }
         VisIt_VariableData_alloc(&h);
-        VisIt_VariableData_setDataF(h, VISIT_OWNER_VISIT, 1,
-                                    nTuples, rmesh_zonal);
+        VisIt_VariableData_setDataF(h,VISIT_OWNER_VISIT,1,nTuples, rmesh_zonal);
     }
     
     return h;
