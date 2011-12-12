@@ -552,7 +552,7 @@ int main(int argc, char *argv[] )
 	 **************************************************************************/
     rmesh_dims[0]=Nx;
     rmesh_dims[1]=Ny;
-    rmesh_dims[2]=zmax-zmin+1;
+    rmesh_dims[2]=zmax-zmin+1+NG;
     
     simulation_data sim;
     simulation_data_ctor(&sim,rank,size);

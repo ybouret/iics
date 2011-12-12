@@ -204,6 +204,7 @@ SimGetMesh(int domain, const char *name, void *cbdata)
     
     return res;
 }
+/*
 visit_handle
 SimGetVariableWorking(int domain, const char *name, void *cbdata)
 {
@@ -242,6 +243,7 @@ SimGetVariableWorking(int domain, const char *name, void *cbdata)
     
     return h;
 }
+*/
 visit_handle
 SimGetVariable(int domain, const char *name, void *cbdata)
 {
@@ -266,7 +268,7 @@ SimGetVariable(int domain, const char *name, void *cbdata)
         if((size==2)&&rank==0)      
         {
            // for(k=zmin;k<=zmax;k++)
-                for(k=zmax;k>=zmin;--k)
+                for(k=zmax+NG;k>=zmin;--k)
             {
                 for(j = 0; j < rmesh_dims[1]; ++j)
                 {
@@ -280,7 +282,7 @@ SimGetVariable(int domain, const char *name, void *cbdata)
         }
         else
         {
-            for(k=zmin;k<=zmax;k++)
+            for(k=zmin;k<=zmax+NG;k++)
             {
                 for(j = 0; j < rmesh_dims[1]; ++j)
                 {
