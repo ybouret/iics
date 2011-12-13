@@ -497,7 +497,7 @@ void simulate_one_timestep(simulation_data *sim)
     }
     
   
-    if(1==1)
+    if(sim->visitIsConnected=1)
     {
        VisItTimeStepChanged();
        VisItUpdatePlots();
