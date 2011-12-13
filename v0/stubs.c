@@ -54,6 +54,7 @@ typedef struct
     int     done;
     int     savingFiles;
     int     saveCounter;
+    int     visitIsConnected;
 } simulation_data;
 
 #define SIM_STOPPED       0
@@ -334,6 +335,7 @@ simulation_data_ctor(simulation_data *sim,int rank,int size)
     sim->done = 0;
     sim->savingFiles = 0;
     sim->saveCounter = 0;
+    sim->visitIsConnected=0;
 }
 
 
@@ -550,6 +552,7 @@ void mainloop(simulation_data *sim)
                    //VisItSetGetCurve(SimGetCurve, (void*)sim);
                     VisItSetGetVariable(SimGetVariable, (void*)sim);
                     VisItSetGetDomainList(SimGetDomainList, (void*)sim);
+                    sim->visitIsConnected=1;
                      
                 }
                 else 
@@ -566,6 +569,8 @@ void mainloop(simulation_data *sim)
                 {
                     /* Disconnect on an error or closed connection. */
                     VisItDisconnect();
+                    sim->visitIsConnected=0;
+
                     /* Start running again if VisIt closes. */
                     /*sim->runMode = SIM_RUNNING;*/
                 }
