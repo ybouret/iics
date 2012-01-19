@@ -10,6 +10,7 @@ ui_run_clicked(void *cbdata)
 void set_interface(void *cbdata)
 {
    // if(rank==0)
-        VisItUI_clicked("RUN", ui_run_clicked,cbdata);
+    VisItUI_clicked("RUN", ui_run_clicked,cbdata);
+    VisItUI_clicked("RUN", ui_run_clicked,cbdata);
 
 }

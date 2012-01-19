@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>139</width>
+    <height>247</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Mon  Interface</string>
   </property>
   <widget class="QPushButton" name="RUN">
    <property name="geometry">
@@ -24,6 +24,32 @@
    </property>
    <property name="text">
     <string>run</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="DT">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>40</y>
+     <width>81</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>40</y>
+     <width>31</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>dt</string>
    </property>
   </widget>
  </widget>
