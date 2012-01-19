@@ -42,7 +42,7 @@ ENDIF()
 IF( "${HOSTNAME}" MATCHES "pcmath162.*" )
 	FIND_PACKAGE(MPI REQUIRED)
         MESSAGE( STATUS "flags for pcmath162")
-        SET(VISIT "/usr/local/visit2_4_0.linux-x86_64/2.4.0/linux-x86_64/")
+        SET(VISIT "/usr/local/visit/2.4.0/linux-x86_64")
 ENDIF()
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -59,8 +59,16 @@ SET(CMAKE_CXX_FLAGS ${FLAGS})
 
 INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH} ${VISIT}/include/silo/include ${VISIT}/libsim/V2/include)
 LINK_DIRECTORIES(${VISIT}/lib ${VISIT}/libsim/V2/lib ${VISIT}/archives)
-ADD_EXECUTABLE(v0 v0.cpp arrays.c arrays.h types.c types.h)
+ADD_EXECUTABLE(v0 v0.cpp arrays.c arrays.h types.c types.h v0.ui)
 TARGET_LINK_LIBRARIES(v0 ${MPI_LIBRARIES} siloh5 simV2 z hdf5)
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	TARGET_LINK_LIBRARIES(v0 dl)
 ENDIF()
+
+SET(VISIT_UI_DIR "$ENV{HOME}/.visit/ui")
+ADD_CUSTOM_COMMAND( TARGET v0 
+	POST_BUILD
+	COMMAND ${CMAKE_COMMAND} ARGS -E make_directory  "${VISIT_UI_DIR}"
+	COMMAND ${CMAKE_COMMAND} ARGS -E copy "${CMAKE_CURRENT_SOURCE_DIR}/v0.ui" "${VISIT_UI_DIR}/v0.ui"
+	COMMENT "Copy v0.ui to ${VISIT_UI_DIR}"
+	)
