@@ -11,9 +11,18 @@ int main( int argc, char *argv[] )
 		//
 		////////////////////////////////////////////////////////////////////////
 		mpi & MPI = mpi::init( &argc, &argv );
+		const size_t rank = MPI.CommWorldSize;
+		const size_t size = MPI.CommWorldSize;
 		
-		std::cerr << "-- size = " << MPI.CommWorldSize << std::endl;
-		std::cerr << "-- rank = " << MPI.CommWorldRank << std::endl;
+		std::cerr << "-- size = " << size << std::endl;
+		std::cerr << "-- rank = " << rank << std::endl;
+		
+		////////////////////////////////////////////////////////////////////////
+		//
+		// setup simulation
+		//
+		////////////////////////////////////////////////////////////////////////
+		
 		
 		return 0;
 	}
