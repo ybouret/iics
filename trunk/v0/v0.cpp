@@ -52,6 +52,7 @@ static const int    diff_tag = 7;
 int   rmesh_dims[3];
 
 #include "stubs.c"
+#include "ui.cpp"
 #include "writeToSilo.c"
 
 
@@ -105,8 +106,8 @@ static void delete_fields()
 
 static void create_requests()
 {
-	const size_t nitems = items_per_slice * NG;
-	size_t       i;
+	//const size_t nitems = items_per_slice * NG;
+	//size_t       i;
 	
 	num_reqs = 4 * NC;
 	requests = (MPI_Request *)calloc(num_reqs,sizeof(MPI_Request));
@@ -117,21 +118,21 @@ static void create_requests()
 	}
 	
     /*
-	for( i=0; i < NC; ++i )
-	{
-		const size_t j = i * 4;
-		// send information to below 
-		_CHECK(MPI_Send_init( &fields[i][zmin][ymin][xmin],    nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+0] ));
-		
-		// send information to above 
-		_CHECK(MPI_Send_init( &fields[i][zmax-NG][ymin][xmin], nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+1] ));
-		
-		// recv information from below
-		_CHECK(MPI_Recv_init( &fields[i][zlo][ymin][xmin],     nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+2] ));
-		
-		// recv information from above 
-		_CHECK(MPI_Recv_init( &fields[i][zmax+1][ymin][xmin],  nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+3] ));
-	}
+     for( i=0; i < NC; ++i )
+     {
+     const size_t j = i * 4;
+     // send information to below 
+     _CHECK(MPI_Send_init( &fields[i][zmin][ymin][xmin],    nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+0] ));
+     
+     // send information to above 
+     _CHECK(MPI_Send_init( &fields[i][zmax-NG][ymin][xmin], nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+1] ));
+     
+     // recv information from below
+     _CHECK(MPI_Recv_init( &fields[i][zlo][ymin][xmin],     nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+2] ));
+     
+     // recv information from above 
+     _CHECK(MPI_Recv_init( &fields[i][zmax+1][ymin][xmin],  nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+3] ));
+     }
      */
 }
 
@@ -178,12 +179,12 @@ static void exchange_ghosts()
         _CHECK(MPI_Wait(&requests[i],&status));
 }
 /*****************************************************************************************************
-*     Here we start the send/recv requests for variable i
-*****************************************************************************************************/
+ *     Here we start the send/recv requests for variable i
+ *****************************************************************************************************/
 static void sendRequests(int i)
 {
 	const size_t nitems = items_per_slice * NG;
-    MPI_Status status;
+    // MPI_Status status;
     const size_t j = i * 4;
     
 	if( !requests )
@@ -285,12 +286,12 @@ static void compute_laplacianAtZ( real_t ***f, indx_t k)
     }
 }
 /**************************************************************************************************
-* we compute the laplacian of the field f. bulk=1 means we compute the bulk, 
-**************************************************************************************************/
+ * we compute the laplacian of the field f. bulk=1 means we compute the bulk, 
+ **************************************************************************************************/
 static void compute_laplacian2( real_t ***f, int bulk)
 {
 	indx_t k;
-
+    
     if(bulk)
     {
         for(k=zmax-NG;k>=zmin+NG;--k)
@@ -304,7 +305,7 @@ static void compute_laplacian2( real_t ***f, int bulk)
             compute_laplacianAtZ(f,zmin+k);
         }
     }
-            
+    
 }
 
 
@@ -316,7 +317,7 @@ static void diffusion()
 {
 	size_t i;
 	size_t j;
- 
+    
     exchange_ghosts();
 	for( i=0; i < NC; ++i )
 	{
@@ -353,7 +354,7 @@ static void diffusion2()
         {
             dst[j] += dt * (src[j]+dst[j]-dst[j]*dst[j]*dst[j]);
         }
-
+        
         
 	}
 }
@@ -368,7 +369,7 @@ double  mesureTimeForExchangingGhost()
 	elapsedTime+=MPI_Wtime();
 	
 	return elapsedTime;
-		
+    
 }
 
 #define alea rand()/(0.0+RAND_MAX)*2-1
@@ -496,11 +497,11 @@ void simulate_one_timestep(simulation_data *sim)
         write_master(sim->cycle);
     }
     
-  
-    if(sim->visitIsConnected=1)
+    
+    if(sim->visitIsConnected==1)
     {
-       VisItTimeStepChanged();
-       VisItUpdatePlots();
+        VisItTimeStepChanged();
+        VisItUpdatePlots();
     }
     
     if(rank==0)  
@@ -508,14 +509,14 @@ void simulate_one_timestep(simulation_data *sim)
         fprintf(stderr,"%d cores:simulating: cycle=%d, time=%lg in %g s\n",sim->par_size, sim->cycle, sim->time,MPI_Wtime()-elapsedTime);
         fflush(stderr);
     }
-     
-  //  sleep(1);
+    
+    //  sleep(1);
 }
 int main(int argc, char *argv[] )
 {
-	unsigned count = 0;
-    int toWrite=0;
-    double startTime,endTime;
+	//unsigned count = 0;
+    //int toWrite=0;
+    //double startTime,endTime;
     
     
     
@@ -556,7 +557,7 @@ int main(int argc, char *argv[] )
     
     simulation_data sim;
     simulation_data_ctor(&sim,rank,size);
-  //  VisItSetDirectory("/Applications/VisIt.app/Contents/Resources/2.4.0/darwin-x86_64");
+    //  VisItSetDirectory("/Applications/VisIt.app/Contents/Resources/2.4.0/darwin-x86_64");
     VisItSetupEnvironment();
     
     /***************************************************************************
@@ -569,39 +570,47 @@ int main(int argc, char *argv[] )
      * Tell visit whether the simulation is parallel. 
 	 **************************************************************************/
     VisItSetParallel(sim.par_size > 1);
-    VisItSetParallelRank(sim.par_rank);
+    VisItSetParallelRank(sim.par_rank);   
     if(rank==0)
-        if
-            (VisItInitializeSocketAndDumpSimFile("v0",
-                                            "Parallel C prototype simulation connects to VisIt",
-                                            "/path/to/where/sim/was/started", NULL, NULL, NULL))
+    {
+        
+        if(VisItInitializeSocketAndDumpSimFile("v0",
+                                               "Parallel C prototype simulation connects to VisIt",
+                                               argv[0], NULL, "v0.ui", NULL))
+      
+        {
             fprintf(stderr,"VisItInitializeSocketAndDumpSimFile ok\n");
+        }
         else
+        {
             fprintf(stderr,"problem with VisItInitializeSocketAndDumpSimFile \n");
-
+        }
+    }
 	init_fields();
     if(rank==0) VisItOpenTraceFile("./TraceFileOfLibSim.txt");
+    set_interface(&sim);
+
     mainloop(&sim);
     if(rank==0) VisItCloseTraceFile();
-     /***************************************************************************
+    /***************************************************************************
 	 * measuring the communication time
 	 **************************************************************************/
-	 //fprintf(stderr,"Communication time of rank %d is %g\n",rank,mesureTimeForExhangingGhost);
-	    
+    //fprintf(stderr,"Communication time of rank %d is %g\n",rank,mesureTimeForExhangingGhost);
+    
 	/***************************************************************************
 	 * simulation
 	 **************************************************************************
 	 _BARRIER;
-    startTime=MPI_Wtime();
-	for( count=0; count < 100; ++count )
-	{
-        simulate_one_timestep(&sim);
-	}
-	_BARRIER;
-    endTime=MPI_Wtime();
-    if(rank==0)
-        fprintf(stderr,"rank=%d\t ran %d counts in %g\n",rank,count,endTime-startTime);
-	/***************************************************************************
+     startTime=MPI_Wtime();
+     for( count=0; count < 100; ++count )
+     {
+     simulate_one_timestep(&sim);
+     }
+     _BARRIER;
+     endTime=MPI_Wtime();
+     if(rank==0)
+     fprintf(stderr,"rank=%d\t ran %d counts in %g\n",rank,count,endTime-startTime);
+     ***************************************************************************
 	 * MPI cleanup
 	 **************************************************************************/
 	simulation_data_dtor(&sim);
