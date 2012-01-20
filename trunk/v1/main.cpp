@@ -1,4 +1,5 @@
 #include "common.hpp"
+#include "yocto/cliff/rwops.hpp"
 
 using namespace IICS;
 
@@ -6,6 +7,10 @@ static const char  *var_names[] = { "u", "v", "DeltaU","DeltaV" };
 static const size_t var_count   = sizeof(var_names)/sizeof(var_names[0]);
 static const size_t var_start   = 1; //-- variables from 1 to var_count
 
+static int rank  = 0;
+static int size  = 0;
+static int above = 0;
+static int below = 0;
 
 static
 inline void start_exchange( Workspace &W, const array<size_t> &cid, mpi::Requests &requests )
@@ -19,26 +24,70 @@ inline void start_exchange( Workspace &W, const array<size_t> &cid, mpi::Request
 		const Ghost &outer_ghost = W.outer_ghost(g); //!< outer ghost
 		const Ghost &inner_ghost = W.inner_ghost(g); //!< corresponding inner ghost
 		
-		if( outer_ghost.deferred )
+		switch( outer_ghost.position )
 		{
-			//-- MPI transfert
-			for( size_t i=cid.size();i>0;--i)
-			{
 				
-				assert(iRequest<requests.count);
-				++iRequest;
-			}
+				//-- using ghosts for PBC
+			case ghost_lower_x:
+			case ghost_lower_y:
+			case ghost_upper_x:
+			case ghost_upper_y:
+				assert( outer_ghost.deferred == false );
+				assert( inner_ghost.deferred == false );
+				for( size_t i=cid.size();i>0;--i)
+				{
+					Ghost::direct_copy( outer_ghost, inner_ghost, W[cid[i]] );
+				}
+				break;
+				
+				//-- using MPI
+			case ghost_lower_z:
+				assert( outer_ghost.deferred == true );
+				assert( inner_ghost.deferred == true );
+				assert( inner_ghost.position == ghost_upper_z);
+				for( size_t i=cid.size();i>0;--i)
+				{
+					const size_t j = cid[i];
+					outer_ghost.pull( W[j], i );
+					MPI.Irecv( outer_ghost[i], outer_ghost.count, IICS_REAL, below, 0, MPI_COMM_WORLD, requests[ iRequest++] );
+					
+					inner_ghost.pull( W[j], i );
+					MPI.Isend( inner_ghost[i], inner_ghost.count, IICS_REAL, above, 0, MPI_COMM_WORLD, requests[ iRequest++] );
+				}
+				break;
+				
+			case ghost_upper_z:
+				assert( outer_ghost.deferred == true );
+				assert( inner_ghost.deferred == true );
+				assert( inner_ghost.position == ghost_lower_z);
+				for( size_t i=cid.size();i>0;--i)
+				{
+					const size_t j = cid[i];
+					outer_ghost.pull( W[j], i );
+					MPI.Irecv( outer_ghost[i], outer_ghost.count, IICS_REAL, above, 0, MPI_COMM_WORLD, requests[ iRequest++] );
+					
+					inner_ghost.pull( W[j], i );
+					MPI.Isend( inner_ghost[i], inner_ghost.count, IICS_REAL, below, 0, MPI_COMM_WORLD, requests[ iRequest++] );
+				}
+				break;
 		}
-		else
-		{
-			//-- Direct transfert
-			for( size_t i=cid.size();i>0;--i)
-			{
-				Ghost::direct_copy( outer_ghost, inner_ghost, W[cid[i]] );
-			}
-		}
+		
+		
 	}
 	
+}
+
+
+static inline void finish_exchange(  Workspace &W, const array<size_t> &cid, mpi::Requests &requests )
+{
+	static const mpi & MPI = mpi::instance();
+	MPI.Waitall(requests);
+	for( size_t g = W.ghosts; g > 0; --g )
+	{
+		const Ghost &outer_ghost = W.outer_ghost(g); //!< outer ghost
+		const Ghost &inner_ghost = W.inner_ghost(g); //!< corresponding inner ghost
+		
+	}
 }
 
 int main( int argc, char *argv[] )
@@ -52,10 +101,11 @@ int main( int argc, char *argv[] )
 		//
 		////////////////////////////////////////////////////////////////////////
 		const mpi & MPI = mpi::init( &argc, &argv );
-		const int rank = MPI.CommWorldRank;
-		const int size = MPI.CommWorldSize;
-		
-		MPI.Printf(stderr, "-- Rank %d | Size=%d\n", rank, size );
+		rank  = MPI.CommWorldRank;
+		size  = MPI.CommWorldSize;
+		above = MPI.CommWorldNext();
+		below = MPI.CommWorldPrev();
+		MPI.Printf(stderr, "-- Rank %d | Size=%d | %d -> %d -> %d\n", rank, size, below, rank, above );
 		
 		
 		
@@ -137,7 +187,7 @@ int main( int argc, char *argv[] )
 		//
 		////////////////////////////////////////////////////////////////////////
 		Workspace W( sim_layout, sim_ghosts, sim_region, var_start, var_count, var_names );
-		//const Layout &inside  = W;           //!< inside layout, without ghosts
+		const Layout &inside  = W;           //!< inside layout, without ghosts
 		//const Layout &nucleus = W.nucleus;   //!< 
 		MPI.Printf0( stderr, "\n");
 		MPI.Printf( stderr, "Rank %d: #ghosts= %lu\n", rank, W.ghosts );
@@ -161,14 +211,51 @@ int main( int argc, char *argv[] )
 		
 		////////////////////////////////////////////////////////////////////////
 		//
-		// create MPI requests
+		// create MPI requests and ghosts memory
 		//
 		////////////////////////////////////////////////////////////////////////
-		mpi::Requests requests( 2*num_cid );
+		mpi::Requests requests( 4*num_cid );
+		W.acquire_ghosts_data( num_cid );
+		
+		
+		////////////////////////////////////////////////////////////////////////
+		//
+		// Initialize fields
+		//
+		////////////////////////////////////////////////////////////////////////
+		for( size_t i=num_cid; i>0; --i )
+		{
+			W[ cid[i] ].set_all( inside, rank );
+		}
+		
+		rwops<Real>::save_vtk( vformat( "ini%d.vtk", rank ), 
+							  "", 
+							  W.name( cid[1] ), 
+							  W[ cid[1] ],
+							  inside,
+							  W.region.min,
+							  W.delta
+							  );
+		
+		
+		////////////////////////////////////////////////////////////////////////
+		//
+		// Run...
+		//
+		////////////////////////////////////////////////////////////////////////
 		
 		
 		start_exchange( W, cid, requests );
 		
+		MPI.Waitall(requests);
+		rwops<Real>::save_vtk( vformat( "xch%d.vtk", rank ), 
+							  "", 
+							  W.name( cid[1] ), 
+							  W[ cid[1] ],
+							  inside,
+							  W.region.min,
+							  W.delta
+							  );
 		
 		return 0;
 	}
