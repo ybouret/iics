@@ -5,7 +5,7 @@
 ########################################################################
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-PROJECT(iics-v1)
+PROJECT(v1)
 MESSAGE( STATUS "Configuring Interactive Intensive Computing Software" )
 
 ########################################################################
