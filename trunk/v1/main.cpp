@@ -8,12 +8,37 @@ static const size_t var_start   = 1; //-- variables from 1 to var_count
 
 
 static
-inline void start_exchange( Workspace &W, const array<size_t> &var )
+inline void start_exchange( Workspace &W, const array<size_t> &cid, mpi::Requests &requests )
 {
+	static const mpi & MPI = mpi::instance();
+	
+	size_t iRequest = 0;
+	
 	for( size_t g = W.ghosts; g > 0; --g )
 	{
+		const Ghost &outer_ghost = W.outer_ghost(g); //!< outer ghost
+		const Ghost &inner_ghost = W.inner_ghost(g); //!< corresponding inner ghost
 		
+		if( outer_ghost.deferred )
+		{
+			//-- MPI transfert
+			for( size_t i=cid.size();i>0;--i)
+			{
+				
+				assert(iRequest<requests.count);
+				++iRequest;
+			}
+		}
+		else
+		{
+			//-- Direct transfert
+			for( size_t i=cid.size();i>0;--i)
+			{
+				Ghost::direct_copy( outer_ghost, inner_ghost, W[cid[i]] );
+			}
+		}
 	}
+	
 }
 
 int main( int argc, char *argv[] )
@@ -26,7 +51,7 @@ int main( int argc, char *argv[] )
 		// setup MPI
 		//
 		////////////////////////////////////////////////////////////////////////
-		mpi & MPI = mpi::init( &argc, &argv );
+		const mpi & MPI = mpi::init( &argc, &argv );
 		const int rank = MPI.CommWorldRank;
 		const int size = MPI.CommWorldSize;
 		
@@ -139,10 +164,10 @@ int main( int argc, char *argv[] )
 		// create MPI requests
 		//
 		////////////////////////////////////////////////////////////////////////
-		const size_t num_requests = 4 * num_cid;
+		mpi::Requests requests( 2*num_cid );
 		
 		
-		start_exchange( W, cid );
+		start_exchange( W, cid, requests );
 		
 		
 		return 0;
