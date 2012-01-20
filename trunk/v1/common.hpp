@@ -38,6 +38,9 @@ namespace IICS
 	typedef laplacian<Real,Real>     Laplacian;    //!< to compute laplacians
 	typedef fill<Real,Real>          Fill;         //!< to fill arrays
 	typedef Fill::function3          FillFunctor;  //!< with this functor
+	typedef ghosts_info<Coord>       GhostsInfo;   //!<
+	typedef ghosts_setup<Coord>      GhostsSetup;  //!<
+	
 }
 
 #endif
