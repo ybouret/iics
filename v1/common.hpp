@@ -40,6 +40,8 @@ namespace IICS
 	typedef Fill::function3          FillFunctor;  //!< with this functor
 	typedef ghosts_info<Coord>       GhostsInfo;   //!<
 	typedef ghosts_setup<Coord>      GhostsSetup;  //!<
+	typedef Workspace::data_block    DataBlock; 
+	
 #define IICS_REAL MPI_DOUBLE
 	
 }
