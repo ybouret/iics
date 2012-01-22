@@ -1,187 +1,49 @@
-#include "common.hpp"
+#include "domain.hpp"
 #include "yocto/cliff/rwops.hpp"
+
+#include "yocto/ios/ocstream.hpp"
+#include "yocto/ios/icstream.hpp"
+
 #include "yocto/auto-ptr.hpp"
-#include "yocto/wtime.hpp"
+#include "yocto/filesys/local-fs.hpp"
+#include "yocto/string/vfs-utils.hpp"
 
 using namespace IICS;
+using namespace filesys;
 
-static const char  *var_names[] = { "u", "v", "Lu","Lv" };
-static const size_t var_count   = sizeof(var_names)/sizeof(var_names[0]);
-static const size_t var_start   = 1; //-- variables from 1 to var_count
+static const char resdir[] = "results";
 
-
-static inline void __get_peer_for( const Ghost &G )
-{
-	assert(above>=0);
-	assert(below>=0);
-	switch( G.position )
-	{
-		case ghost_lower_z:
-			G.peer =  below;
-			return;
-			
-		case ghost_upper_z:
-			G.peer = above;
-			return;
-			
-		default:
-			throw exception( "No peer for for ghost@%s", G.label() );
-	}
-}
-
-static inline void setup_ghosts_peers( Workspace &W )
-{
-	for( size_t g = W.async_ghosts; g>0; --g )
-	{
-		__get_peer_for( W.async_inner_ghost(g) );
-		__get_peer_for( W.async_outer_ghost(g) );
-	}
-}
-
-static
-inline void start_exchange( Workspace &W, const array<size_t> &variables, mpi::Requests &requests )
+static inline void save_all( size_t iter, auto_ptr<Workspace> &pW0, const Workspace &W )
 {
 	static const mpi & MPI = mpi::instance();
+	vfs &fs = local_fs::instance();
+	const string outdir = _vfs::to_directory( resdir );
+	fs.create_dir( outdir, true);
 	
-	size_t iRequest = 0;
-	
-	for( size_t g = W.ghosts; g > 0; --g )
 	{
-		const Ghost &outer_ghost = W.outer_ghost(g); //!< outer ghost
-		const Ghost &inner_ghost = W.inner_ghost(g); //!< corresponding inner ghost
-		
-		switch( outer_ghost.position )
+		const string   output_name( outdir + vformat("sub%d.dat", mpi_rank) );
+		ios::ocstream  output( output_name, false );
+		W[1].save( output, W);
+	}
+	
+	MPI.Barrier( MPI_COMM_WORLD );
+	if( 0 == mpi_rank )
+	{
+		Workspace &W0 = *pW0;
+		Array     &A  = W0[1];
+		for( int r=0; r < mpi_size; ++r )
 		{
-				
-				//-- using ghosts for PBC
-			case ghost_lower_x:
-			case ghost_lower_y:
-			case ghost_upper_x:
-			case ghost_upper_y:
-				assert( outer_ghost.is_async == false );
-				assert( inner_ghost.is_async == false );
-				for( size_t i=variables.size();i>0;--i)
-				{
-					Ghost::direct_copy( outer_ghost, inner_ghost, W[ variables[i] ] );
-				}
-				break;
-				
-				//-- using MPI
-			case ghost_lower_z:
-			case ghost_upper_z:
-				assert( outer_ghost.is_async == true );
-				assert( inner_ghost.is_async == true );
-				assert( outer_ghost.peer >= 0 );
-				assert( inner_ghost.peer >= 0 );
-				
-				for( size_t i= variables.size();i>0;--i)
-				{
-					MPI.Irecv( outer_ghost[i], outer_ghost.count, IICS_REAL, outer_ghost.peer, 0, MPI_COMM_WORLD, requests[ iRequest++] );
-					
-					inner_ghost.pull( W[ variables[i] ], i );
-					MPI.Isend( inner_ghost[i], inner_ghost.count, IICS_REAL, inner_ghost.peer, 0, MPI_COMM_WORLD, requests[ iRequest++] );
-				}
-				break;
-				
+			const string  input_name( outdir + vformat("sub%d.dat",r) );
+			ios::icstream input( input_name );
+			const Layout  sub( W0.split(r,mpi_size) );
+			A.load( input, sub );
 		}
-		
-		
+		const string  var_name = W.name(1);
+		const string  output_name( outdir + var_name + vformat("%lu.vtk",iter) );
+		rwops<Real>::save_vtk( output_name, "", var_name, A, A, W0.region.min, W0.delta);		
 	}
-	
-	
+	MPI.Barrier( MPI_COMM_WORLD );
 }
-
-
-// compute laplacian on nucleus ( workspace layout minus the inner async ghosts )
-static inline void start_laplacian( Workspace &W, Real dt, const array<size_t> &variables, const array<size_t> &laplacians )
-{
-	assert( variables.size() == laplacians.size() );
-	const Layout &nucleus = W.nucleus;
-	const Vertex &idsq    = W.inv_dsq;
-	for( size_t i=variables.size();i>0;--i)
-	{
-		laplacian<Real,Real>::compute( W[ laplacians[i] ], dt, W[ variables[i] ], idsq, nucleus );
-	}
-}
-
-// compute laplacian on inner async ghosts
-static inline void finish_laplacian( Workspace &W, Real dt, const array<size_t> &variables, const array<size_t> &laplacians )
-{
-	assert( variables.size() == laplacians.size() );
-	const Vertex &idsq    = W.inv_dsq;
-	for( size_t g = W.async_ghosts; g>0;--g )
-	{
-		for( size_t i=variables.size();i>0;--i)
-		{
-			laplacian<Real,Real>::compute( W[ laplacians[i] ], dt, W[ variables[i] ], idsq, W.async_inner_ghost(g) );
-		}
-	}
-}
-
-
-static inline void finish_exchange(  Workspace &W, const array<size_t> &variables, mpi::Requests &requests )
-{
-	static const mpi & MPI = mpi::instance();
-	MPI.Waitall(requests);
-	for( size_t g = W.async_ghosts; g > 0; --g )
-	{
-		const Ghost &G = W.async_outer_ghost(g); 
-		for( size_t i=variables.size();i>0;--i)
-		{
-			G.push( W[ variables[i] ], i );
-		}
-	}
-}
-
-//! add the dt x laplacian field to each associated variable
-static inline void update_fields( Workspace &W,  const array<size_t> &variables, const array<size_t> &laplacians )
-{
-	assert( variables.size() == laplacians.size() );
-	for( size_t i=variables.size();i>0;--i)
-	{
-		W[ variables[i] ].add( W[ laplacians[i] ], W );
-	}
-}
-
-struct timings
-{
-	double total;
-	double comm;
-	double diff;
-};
-
-static inline 
-void cycle(Workspace           &W, 
-		   Real                 dt,
-		   const array<size_t> &variables, 
-		   const array<size_t> &laplacians, 
-		   mpi::Requests       &requests,
-		   wtime               &chrono,
-		   timings             &tmx
-		   )
-{
-	double t_comm   = 0;
-	double t_diff   = 0;
-	chrono.start();
-	start_exchange(W, variables, requests );
-	t_comm += chrono.query();
-	
-	chrono.start();
-	start_laplacian(W, dt, variables, laplacians);
-	t_diff += chrono.query();
-	
-	chrono.start();
-	finish_exchange(W, variables, requests);
-	t_comm += chrono.query();
-	
-	chrono.start();
-	finish_laplacian(W, dt, variables, laplacians);
-	update_fields(W, variables, laplacians);
-	t_comm += chrono.query();
-	
-	tmx.total = (tmx.comm=t_comm) + (tmx.diff=t_diff);
-}
-
 
 int main( int argc, char *argv[] )
 {
@@ -194,12 +56,11 @@ int main( int argc, char *argv[] )
 		//
 		////////////////////////////////////////////////////////////////////////
 		const mpi & MPI = mpi::init( &argc, &argv );
-		rank  = MPI.CommWorldRank;
-		size  = MPI.CommWorldSize;
-		above = MPI.CommWorldNext();
-		below = MPI.CommWorldPrev();
-		MPI.Printf(stderr, "-- Rank %d | Size=%d | %d -> %d -> %d\n", rank, size, below, rank, above );
-		
+		mpi_rank  = MPI.CommWorldRank;
+		mpi_size  = MPI.CommWorldSize;
+		mpi_above = MPI.CommWorldNext();
+		mpi_below = MPI.CommWorldPrev();
+		MPI.Printf(stderr, "-- Rank %d | Size=%d | %d -> %d -> %d\n", mpi_rank, mpi_size, mpi_below, mpi_rank, mpi_above );
 		
 		
 		
@@ -234,79 +95,23 @@ int main( int argc, char *argv[] )
 					full_region.length.y,
 					full_region.length.z );
 		
-		////////////////////////////////////////////////////////////////////////
-		//
-		// setup simulation layout and region: split along last dimesion
-		//
-		////////////////////////////////////////////////////////////////////////
-		const Layout sim_layout( full_layout.split(rank, size) );
-		MPI.Printf( stderr, "-- Rank %d Layout: [%ld %ld %ld] -> [%ld %ld %ld] :  width=[ %ld %ld %ld ]\n", 
-				   rank,
-				   sim_layout.lower.x,
-				   sim_layout.lower.y,
-				   sim_layout.lower.z,
-				   sim_layout.upper.x,
-				   sim_layout.upper.y,
-				   sim_layout.upper.z,
-				   sim_layout.width.x,
-				   sim_layout.width.y,
-				   sim_layout.width.z
-				   );
-		const Region sim_region( Region::extract( full_region, full_layout, sim_layout ) );
-		MPI.Printf( stderr, "-- Rank %d Region: : [%.2g %.2g %.2g] -> [%.2g %.2g %.2g] :  length=[ %.2g %.2g %.2g ]\n",
-				   rank,
-				   sim_region.min.x,
-				   sim_region.min.y,
-				   sim_region.min.z,
-				   sim_region.max.x,
-				   sim_region.max.y,
-				   sim_region.max.z,
-				   sim_region.length.x,
-				   sim_region.length.y,
-				   sim_region.length.z );
+		auto_ptr<Workspace> pW0(NULL);
+		if( mpi_rank == 0 )
+		{
+			GhostsInfos no_ghosts( Coord(0,0,0), Coord(0,0,0) );
+			GhostsSetup without_ghosts( no_ghosts, no_ghosts );
+			pW0.reset( new Workspace( full_layout, without_ghosts, full_region, 1, 1, NULL ) );
+		}
 		
 		////////////////////////////////////////////////////////////////////////
 		//
-		// create ghosts setup: 1 in each dimension for PBC
-		// the ghost in the last dimension is deferred for I/O overlapping
+		// setup simulation domain
 		//
 		////////////////////////////////////////////////////////////////////////
-		GhostsInfos ghosts_up_and_lo( Coord(1,1,1), Coord(0,0,1) );
-		GhostsSetup sim_ghosts(ghosts_up_and_lo,ghosts_up_and_lo);
+		static const char  *var_names[] = { "u", "v", "Lu", "Lv" };
+		static const size_t var_count   = (sizeof(var_names)/sizeof(var_names[0]))/2;
 		
-		////////////////////////////////////////////////////////////////////////
-		//
-		// create the workspace and assign async ghosts peers
-		//
-		////////////////////////////////////////////////////////////////////////
-		Workspace W( sim_layout, sim_ghosts, sim_region, var_start, var_count, var_names );
-		setup_ghosts_peers( W );
-		
-		const Layout &inside  = W;           //!< inside layout, without ghosts
-		MPI.Printf0( stderr, "\n");
-		
-		
-		
-		////////////////////////////////////////////////////////////////////////
-		//
-		// prepare the variables
-		//
-		////////////////////////////////////////////////////////////////////////
-		vector<size_t> variables;
-		vector<size_t> laplacians;
-		variables.push_back( W("u") ); laplacians.push_back( W("Lu") );
-		variables.push_back( W("v") ); laplacians.push_back( W("Lv") );
-		
-		const size_t num_fields = variables.size();
-		
-		////////////////////////////////////////////////////////////////////////
-		//
-		// create MPI requests and ghosts memory
-		//
-		////////////////////////////////////////////////////////////////////////
-		mpi::Requests requests( 4*num_fields );
-		W.acquire_ghosts_data( num_fields );
-		
+		Domain domain( full_layout, full_region, var_count, var_names );
 		
 		
 		
@@ -315,12 +120,12 @@ int main( int argc, char *argv[] )
 		// Initialize fields
 		//
 		////////////////////////////////////////////////////////////////////////
-		for( size_t i=num_fields; i>0; --i )
-		{
-			W[ variables[i] ].set_all( inside, 1+rank );
-		}
+		domain["v"].set_all( domain, 0 );
+		domain["u"].set_all( domain, mpi_rank+1 );
 		
 		
+		
+		save_all(0,pW0,domain);
 		
 		
 		////////////////////////////////////////////////////////////////////////
@@ -328,16 +133,15 @@ int main( int argc, char *argv[] )
 		// Run...
 		//
 		////////////////////////////////////////////////////////////////////////
-		wtime chrono;
-		const Real dt = 1e-4;
-		timings    tmx;
-		
-		for( size_t iter=1; iter <= 100; ++iter )
+		const Real dt      = 1e-3;
+		Timings    timings = { 0, 0 };
+		for( size_t iter=1; iter <= 1000; ++iter )
 		{
-			cycle(W, dt, variables, laplacians, requests, chrono, tmx);
-			MPI.Printf0( stderr, "time: %8.3f comm=%8.3f diff=%8.3f\n", 1000 * tmx.total, 1000 * tmx.comm, 1000 * tmx.diff);
+			domain.cycle(dt, MPI, timings);
+			MPI.Printf0(stderr,"cycle %5lu: COMM: %7.2f, DIFF: %7.2f        \r", iter, (timings.t_comm*1000)/iter, (timings.t_diff*1000)/iter );
+			save_all(iter,pW0,domain);
 		}
-		
+		MPI.Printf0(stderr,"\n");
 		
 		return 0;
 	}

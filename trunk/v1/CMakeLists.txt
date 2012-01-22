@@ -41,5 +41,5 @@ ENDIF()
 ########################################################################
 
 ADD_EXECUTABLE(v1 common.hpp common.cpp domain.hpp domain.cpp main.cpp)
-TARGET_LINK_YOCTO(v1 cliff mpi)
+TARGET_LINK_YOCTO(v1 cliff mpi fs)
 TARGET_LINK_LIBRARIES(v1 ${MPI_LIBRARIES})
