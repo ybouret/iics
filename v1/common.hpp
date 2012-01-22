@@ -38,11 +38,14 @@ namespace IICS
 	typedef laplacian<Real,Real>     Laplacian;    //!< to compute laplacians
 	typedef fill<Real,Real>          Fill;         //!< to fill arrays
 	typedef Fill::function3          FillFunctor;  //!< with this functor
-	typedef ghosts_info<Coord>       GhostsInfo;   //!<
-	typedef ghosts_setup<Coord>      GhostsSetup;  //!<
-	typedef Workspace::data_block    DataBlock; 
+	typedef ghosts_infos<Coord>      GhostsInfos;  //!< count/async
+	typedef ghosts_setup<Coord>      GhostsSetup;  //!< infos for lower an upper
 	
 #define IICS_REAL MPI_DOUBLE
+	extern int rank;
+	extern int size;
+	extern int above;
+	extern int below;
 	
 }
 
