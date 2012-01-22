@@ -9,10 +9,6 @@ static const char  *var_names[] = { "u", "v", "Lu","Lv" };
 static const size_t var_count   = sizeof(var_names)/sizeof(var_names[0]);
 static const size_t var_start   = 1; //-- variables from 1 to var_count
 
-static int rank  = -1;
-static int size  = -1;
-static int above = -1;
-static int below = -1;
 
 static inline void __get_peer_for( const Ghost &G )
 {
@@ -275,7 +271,7 @@ int main( int argc, char *argv[] )
 		// the ghost in the last dimension is deferred for I/O overlapping
 		//
 		////////////////////////////////////////////////////////////////////////
-		GhostsInfo  ghosts_up_and_lo( Coord(1,1,1), Coord(0,0,1) );
+		GhostsInfos ghosts_up_and_lo( Coord(1,1,1), Coord(0,0,1) );
 		GhostsSetup sim_ghosts(ghosts_up_and_lo,ghosts_up_and_lo);
 		
 		////////////////////////////////////////////////////////////////////////
