@@ -3,9 +3,9 @@
 namespace IICS
 {
 
-	int rank  = -1;
-	int size  = -1;
-	int below = -1;
-	int above = -1;
+	int mpi_rank  = -1;
+	int mpi_size  = -1;
+	int mpi_below = -1;
+	int mpi_above = -1;
 	
 }

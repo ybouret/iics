@@ -19,16 +19,16 @@ namespace IICS
 	
 	static inline void __get_peer_for( const Ghost &G )
 	{
-		assert(above>=0);
-		assert(below>=0);
+		assert(mpi_above>=0);
+		assert(mpi_below>=0);
 		switch( G.position )
 		{
 			case ghost_lower_z:
-				G.peer =  below;
+				G.peer =  mpi_below;
 				return;
 				
 			case ghost_upper_z:
-				G.peer = above;
+				G.peer = mpi_above;
 				return;
 				
 			default:
@@ -47,20 +47,21 @@ namespace IICS
 	
 	
 	
-	Domain:: Domain( const Layout &full_layout,
+	Domain:: Domain(const Layout &full_layout,
 					const Region &full_region,
 					size_t        fields,
 					const char   *names[]) :
-	Workspace(full_layout.split( rank, size ),
+	Workspace(full_layout.split( mpi_rank, mpi_size ),
 			  GSetup,
-			  Region::extract( full_region, full_layout, full_layout.split( rank, size ) ),
+			  Region::extract( full_region, full_layout, full_layout.split( mpi_rank, mpi_size ) ),
 			  VarStart,
 			  fields*2,
 			  names ),
 	field_index(fields,as_capacity),
 	delta_index(fields,as_capacity),
 	num_fields(fields),
-	requests( 4 * num_fields )
+	requests( 4 * num_fields ),
+	chrono()
 	{
 		
 		//! compute variables and laplacians indices
@@ -78,6 +79,104 @@ namespace IICS
 		setup_ghosts_peers(*this);
 		
 		
+	}
+	
+	double Domain:: start_exchanges( const mpi &MPI )
+	{
+		chrono.start();
+		Workspace &Field  = *this;
+		
+		//-- start asynchronous exchanges
+		size_t iRequest = 0;
+		for( size_t g = async_ghosts; g>0; --g )
+		{
+			const Ghost &outer_ghost = async_outer_ghost(g);
+			const Ghost &inner_ghost = async_inner_ghost(g);
+			for( size_t i= num_fields;i>0;--i)
+			{
+				MPI.Irecv( outer_ghost[i], outer_ghost.count, IICS_REAL, outer_ghost.peer, 0, MPI_COMM_WORLD, requests[ iRequest++] );
+				
+				inner_ghost.pull( Field[ field_index[i] ], i );
+				MPI.Isend( inner_ghost[i], inner_ghost.count, IICS_REAL, inner_ghost.peer, 0, MPI_COMM_WORLD, requests[ iRequest++] );
+			}
+		}
+		
+		//-- perform plain exchanges
+		for( size_t g = plain_ghosts; g>0; --g )
+		{
+			const Ghost &outer_ghost = plain_outer_ghost(g);
+			const Ghost &inner_ghost = plain_inner_ghost(g);
+			for( size_t i= num_fields;i>0;--i)
+			{
+				Ghost::direct_copy( outer_ghost, inner_ghost, Field[ field_index[i] ] );
+			}
+			
+		}
+		
+		return chrono.query();
+		
+	}
+	
+	double Domain:: finish_exchanges(  const mpi &MPI )	
+	{
+		chrono.start();
+		Workspace &Field  = *this;
+		MPI.Waitall(requests);
+		for( size_t g = async_ghosts; g > 0; --g )
+		{
+			const Ghost &G = async_outer_ghost(g); 
+			for( size_t i= num_fields;i>0;--i)
+			{
+				G.push( Field[ field_index[i] ], i );
+			}
+		}
+		
+		return chrono.query();
+	}
+	
+	double Domain:: start_laplacian( Real dt )
+	{
+		chrono.start();
+		Workspace &Field  = *this;
+		for( size_t i=num_fields;i>0;--i)
+		{
+			laplacian<Real,Real>::compute( Field[ delta_index[i] ], dt, Field[ field_index[i] ], inv_dsq, nucleus );
+		}
+		return chrono.query();
+	}
+	
+	double Domain:: finish_laplacian( Real dt )
+	{
+		chrono.start();
+		Workspace &Field  = *this;
+		for( size_t g = async_ghosts; g>0;--g )
+		{
+			for( size_t i=num_fields;i>0;--i)
+			{
+				 laplacian<Real,Real>::compute( Field[ delta_index[i] ], dt, Field[ field_index[i] ], inv_dsq, async_inner_ghost(g) );
+			}
+		}
+		return chrono.query();
+	}
+	
+	double Domain:: update()
+	{
+		chrono.start();
+		Workspace &Field  = *this;
+		for( size_t i= num_fields;i>0;--i)
+		{
+			Field[ field_index[i] ].add( Field[ delta_index[i] ], *this );
+		}
+		return chrono.query();
+	}
+	
+	void Domain::cycle( Real dt, const mpi &MPI, Timings &timings )
+	{
+		timings.t_comm += start_exchanges(MPI);
+		timings.t_diff += start_laplacian(dt);
+		timings.t_comm += finish_exchanges(MPI);
+		timings.t_diff += finish_laplacian(dt);
+		timings.t_diff += update();
 	}
 	
 }

@@ -42,10 +42,16 @@ namespace IICS
 	typedef ghosts_setup<Coord>      GhostsSetup;  //!< infos for lower an upper
 	
 #define IICS_REAL MPI_DOUBLE
-	extern int rank;
-	extern int size;
-	extern int above;
-	extern int below;
+	extern int mpi_rank;
+	extern int mpi_size;
+	extern int mpi_above;
+	extern int mpi_below;
+	
+	struct Timings 
+	{
+		double t_comm; //!< communication (async+plain)
+		double t_diff; //!< diffusion computation
+	};
 	
 }
 

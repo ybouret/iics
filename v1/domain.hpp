@@ -2,6 +2,7 @@
 #define IICS_DOMAIN_INCLUDED 1
 
 #include "common.hpp"
+#include "yocto/wtime.hpp"
 
 namespace  IICS {
 	
@@ -33,10 +34,21 @@ namespace  IICS {
 						);
 		virtual ~Domain() throw();
 		
+	
 		vector<size_t> field_index; //!< indices of active variables
 		vector<size_t> delta_index; //!< indices of corresponding laplacian
 		const size_t   num_fields;  //!< field_index.size(), same as delta_index.size()
 		mpi::Requests  requests;    //!< 4 * num_fields
+		wtime          chrono;
+		
+		double start_exchanges( const mpi &MPI );
+		double start_laplacian( Real dt );
+		double finish_exchanges( const mpi &MPI );
+		double finish_laplacian( Real dt );
+		double update();
+		
+		void   cycle( Real dt, const mpi &MPI, Timings &timings );
+		
 		
 	private:
 		YOCTO_DISABLE_COPY_AND_ASSIGN(Domain);
