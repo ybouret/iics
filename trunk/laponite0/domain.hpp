@@ -16,8 +16,9 @@ namespace Laponite
 		virtual ~Domain() throw();
 		
 		void exchange_start( const mpi &MPI );
+		void exchange_finish( const mpi &MPI );
 		
-		
+		const bool is_side;
 	private:
 		mpi::Requests requests;
 		YOCTO_DISABLE_COPY_AND_ASSIGN(Domain);

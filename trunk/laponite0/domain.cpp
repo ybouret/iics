@@ -47,9 +47,11 @@ namespace Laponite
 			  Region::extract( full_region, full_layout, full_layout.split(mpi_rank,mpi_size) ),
 			  VarCount,
 			  VarNames),
-	requests( number )
+	is_side( (0 == mpi_rank) || (mpi_last == mpi_rank) ),
+	requests( int( is_side  ? 2 : 4 ) * number )
 	{
-		
+		const mpi & MPI = mpi::instance();
+		MPI.Printf( stderr, "Rank %d: is_side=%d, #requests= %lu\n", mpi_rank, is_side ?  1 : 0 , requests.count );
 		//======================================================================
 		// set peer
 		//======================================================================
@@ -71,12 +73,24 @@ namespace Laponite
 	void Domain:: exchange_start( const mpi &MPI )
 	{
 		Workspace &Field = *this;
+		const int  tag   = 100;
 		//==============================================================
 		// start async ghosts
 		//==============================================================
+		size_t iRequest = 0;
 		for( size_t g = async_ghosts; g>0; --g )
 		{
 			const Ghost &outer_ghost = async_outer_ghost(g);
+			const Ghost &inner_ghost = async_inner_ghost(g);
+			for( size_t i = number; i >0; --i )
+			{
+				
+				MPI.Irecv( outer_ghost[i], outer_ghost.count, IICS_REAL, outer_ghost.peer, tag, MPI_COMM_WORLD, requests[ iRequest++ ] );
+			
+				inner_ghost.pull( Field[i], i );
+				MPI.Isend( inner_ghost[i], inner_ghost.count, IICS_REAL, inner_ghost.peer, tag, MPI_COMM_WORLD, requests[ iRequest++ ] );
+			}
+			
 		}
 		
 		//==============================================================
@@ -92,5 +106,19 @@ namespace Laponite
 		
 	}
 	
+	
+	void Domain:: exchange_finish( const mpi &MPI )
+	{
+		Workspace &Field = *this;
+		MPI.Waitall( requests );
+		for( size_t g = async_ghosts; g>0; --g )
+		{
+			const Ghost & inner_ghost = async_inner_ghost(g);
+			for( size_t i=number;i>0;--i)
+				inner_ghost.pull( Field[i], i );
+		}
+		
+	}
+
 	
 }
