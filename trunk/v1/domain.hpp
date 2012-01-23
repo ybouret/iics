@@ -9,9 +9,7 @@ namespace  IICS {
 	
 	class Domain : public Workspace
 	{
-	public:
-		static const size_t VarStart = 1;
-		
+	public:		
 		static const Coord        GCount;
 		static const Coord        GAsync;
 		static const GhostsInfos  GInfos;

@@ -24,8 +24,10 @@ namespace IICS
 		Real &dudt = dfdt[1];
 		Real &dvdt = dfdt[2];
 		
-		dudt =  u * ( alpha - beta * v);
-		dvdt = -v * ( delta - gamma * u );
+		//dudt =  u * ( alpha - beta * v);
+		//dvdt = -v * ( delta - gamma * u );
+		
+		dudt = u*(1.0-u*u);
 		
 	}
 	

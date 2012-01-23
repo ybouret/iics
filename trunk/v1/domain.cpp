@@ -54,7 +54,6 @@ namespace IICS
 	Workspace(full_layout.split( mpi_rank, mpi_size ),
 			  GSetup,
 			  Region::extract( full_region, full_layout, full_layout.split( mpi_rank, mpi_size ) ),
-			  VarStart,
 			  fields*2+1,
 			  names ),
 	field_index(fields,as_capacity),
@@ -68,11 +67,10 @@ namespace IICS
 	{
 		
 		//! compute variables and laplacians indices
-		for( size_t i=0; i < fields; ++i )
+		for( size_t i=1; i <= fields; ++i )
 		{
-			const size_t j = VarStart+i;
-			field_index.push_back( j );
-			delta_index.push_back( j+fields );
+			field_index.push_back( i );
+			delta_index.push_back( i+fields );
 		}
 		
 		//! prepare ghosts data

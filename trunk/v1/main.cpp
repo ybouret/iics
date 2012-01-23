@@ -67,6 +67,13 @@ Real initV( Real x, Real y, Real z )
 	return 1 + (0.5 - alea<Real>());
 }
 
+static inline
+Real initU( Real x, Real y, Real z )
+{
+	
+	return (double(mpi_rank)/mpi_size) * ( 2 * alea<Real>() - 1 );
+}
+
 
 int main( int argc, char *argv[] )
 {
@@ -123,7 +130,7 @@ int main( int argc, char *argv[] )
 		{
 			GhostsInfos no_ghosts( Coord(0,0,0), Coord(0,0,0) );
 			GhostsSetup without_ghosts( no_ghosts, no_ghosts );
-			pW0.reset( new Workspace( full_layout, without_ghosts, full_region, 1, 1, NULL ) );
+			pW0.reset( new Workspace( full_layout, without_ghosts, full_region, 1, NULL ) );
 		}
 		
 		////////////////////////////////////////////////////////////////////////
@@ -147,8 +154,10 @@ int main( int argc, char *argv[] )
 			Fill::function3 f3( cfunctor3( initV ) );
 			Fill::with( f3, domain["v"], domain, domain.X, domain.Y, domain.Z );
 		}
-		domain["u"].set_all( domain, 0.5 + Real(mpi_rank)/mpi_size );
-		
+		{
+			Fill::function3 f3( cfunctor3( initU ) );
+			Fill::with( f3, domain["u"], domain, domain.X, domain.Y, domain.Z );
+		}		
 		////////////////////////////////////////////////////////////////////////
 		//
 		// prepare reactions
@@ -165,7 +174,7 @@ int main( int argc, char *argv[] )
 		////////////////////////////////////////////////////////////////////////
 		const Real dt      = 1e-3;
 		Real        t      = 0.0;
-		domain["h"].set_all( domain, dt * 0.01 );
+		domain["h"].set_all( domain, dt * 0.01 ); //!< initial guest for ode solving
 		Timings    timings = { 0, 0 };
 		
 		save_all(0,pW0,domain);
@@ -175,10 +184,10 @@ int main( int argc, char *argv[] )
 		{
 			t = (iter-1) * dt;
 			domain.cycle(dt, MPI, timings);
-			(void) domain.reaction(reaction,t,t+dt);
+			timings.t_ode += domain.reaction(reaction,t,t+dt);
 			if( 0 == (iter%20) )
 			{
-				MPI.Printf0(stderr,"cycle %5lu: COMM: %7.2f, DIFF: %7.2f        \r", iter, (timings.t_comm*1000)/iter, (timings.t_diff*1000)/iter );
+				MPI.Printf0(stderr,"cycle %5lu: COMM: %7.2f, DIFF: %7.2f, ODE: %7.2f        \r", iter, (timings.t_comm*1000)/iter, (timings.t_diff*1000)/iter, (timings.t_ode*1000)/iter );
 				save_all(++counter,pW0,domain);
 			}
 		}
@@ -188,12 +197,14 @@ int main( int argc, char *argv[] )
 	}
 	catch( const exception &e )
 	{
+		std::cerr.flush();
 		std::cerr << std::endl;
 		std::cerr << "******** " << e.what() << std::endl;
 		std::cerr << "******** " << e.when() << std::endl;
 	}
 	catch(...)
 	{
+		std::cerr.flush();
 		std::cerr << std::endl;
 		std::cerr << "******** Unhandled Exception!" << std::endl;
 	}
