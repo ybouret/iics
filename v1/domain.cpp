@@ -55,13 +55,16 @@ namespace IICS
 			  GSetup,
 			  Region::extract( full_region, full_layout, full_layout.split( mpi_rank, mpi_size ) ),
 			  VarStart,
-			  fields*2,
+			  fields*2+1,
 			  names ),
 	field_index(fields,as_capacity),
 	delta_index(fields,as_capacity),
 	num_fields(fields),
 	requests( 4 * num_fields ),
-	chrono()
+	chrono(),
+	odeint(),
+	var( num_fields, 0 ),
+	irx()
 	{
 		
 		//! compute variables and laplacians indices
@@ -78,6 +81,12 @@ namespace IICS
 		//! prepare ghosts connectivity
 		setup_ghosts_peers(*this);
 		
+		//! prepare driver
+		odeint.start( num_fields );
+		
+		//! offsets to perform reaction
+		Workspace &Field = *this;
+		Field[1].load_offsets( irx, Field[1], outline );
 		
 	}
 	
@@ -170,6 +179,31 @@ namespace IICS
 		return chrono.query();
 	}
 	
+	double Domain:: reaction( ODE_Function &F, double t_curr, double t_next )
+	{
+		chrono.start();
+		Workspace &Field  = *this;
+		Real      *h      = Field["h"].entry;
+		
+		for( size_t i = irx.size(); i >0; --i )
+		{
+			//-- get the offset
+			const size_t j = irx[i];
+			
+			//-- query data
+			query( var, field_index, j);
+			
+			//-- solve
+			odeint( F, var, t_curr, t_next, h[j] );
+			
+			//-- store data back
+			store( var, field_index, j );
+		
+		}
+		return chrono.query();
+	}
+	
+	
 	void Domain::cycle( Real dt, const mpi &MPI, Timings &timings )
 	{
 		timings.t_comm += start_exchanges(MPI);
@@ -178,5 +212,6 @@ namespace IICS
 		timings.t_diff += finish_laplacian(dt);
 		timings.t_diff += update();
 	}
+	
 	
 }
