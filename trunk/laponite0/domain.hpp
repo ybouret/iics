@@ -19,6 +19,7 @@ namespace Laponite
 		
 		
 	private:
+		mpi::Requests requests;
 		YOCTO_DISABLE_COPY_AND_ASSIGN(Domain);
 	};
 }

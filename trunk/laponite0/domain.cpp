@@ -46,7 +46,8 @@ namespace Laponite
 			  g,
 			  Region::extract( full_region, full_layout, full_layout.split(mpi_rank,mpi_size) ),
 			  VarCount,
-			  VarNames)
+			  VarNames),
+	requests( number )
 	{
 		
 		//======================================================================
@@ -58,14 +59,35 @@ namespace Laponite
 			__get_peer_for( async_inner_ghost(g) );
 		}
 		
+		//======================================================================
+		// data for async ghosts
+		//======================================================================
+		acquire_ghosts_data( number );
+		
+		
+		
 	}
 	
 	void Domain:: exchange_start( const mpi &MPI )
 	{
-		
-		for( size_t g = async_ghosts; g > 0; --g )
+		Workspace &Field = *this;
+		//==============================================================
+		// start async ghosts
+		//==============================================================
+		for( size_t g = async_ghosts; g>0; --g )
 		{
-			
+			const Ghost &outer_ghost = async_outer_ghost(g);
+		}
+		
+		//==============================================================
+		// then plain ghosts
+		//==============================================================
+		for( size_t g = plain_ghosts; g > 0; --g )
+		{
+			for( size_t i=number;i>0;--i)
+			{
+				Ghost::direct_copy( plain_outer_ghost(g), plain_inner_ghost(g), Field[i] );
+			}
 		}
 		
 	}
