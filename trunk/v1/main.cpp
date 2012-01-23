@@ -1,4 +1,6 @@
 #include "domain.hpp"
+#include "reaction.hpp"
+
 #include "yocto/cliff/rwops.hpp"
 
 #include "yocto/ios/ocstream.hpp"
@@ -8,9 +10,17 @@
 #include "yocto/filesys/local-fs.hpp"
 #include "yocto/string/vfs-utils.hpp"
 
+#include "yocto/code/rand.hpp"
+
 using namespace IICS;
 using namespace filesys;
 
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// I/O routines to collect sub domains
+//
+////////////////////////////////////////////////////////////////////////////////
 static const char resdir[] = "results";
 
 static inline void save_all( size_t iter, auto_ptr<Workspace> &pW0, const Workspace &W )
@@ -45,11 +55,24 @@ static inline void save_all( size_t iter, auto_ptr<Workspace> &pW0, const Worksp
 	MPI.Barrier( MPI_COMM_WORLD );
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// Initializing functions
+//
+////////////////////////////////////////////////////////////////////////////////
+static inline
+Real initV( Real x, Real y, Real z )
+{
+	
+	return 1 + (0.5 - alea<Real>());
+}
+
+
 int main( int argc, char *argv[] )
 {
 	try
 	{
-		
+		_rand.wseed();
 		////////////////////////////////////////////////////////////////////////
 		//
 		// setup MPI
@@ -108,7 +131,7 @@ int main( int argc, char *argv[] )
 		// setup simulation domain
 		//
 		////////////////////////////////////////////////////////////////////////
-		static const char  *var_names[] = { "u", "v", "Lu", "Lv" };
+		static const char  *var_names[] = { "u", "v", "Lu", "Lv", "h" };
 		static const size_t var_count   = (sizeof(var_names)/sizeof(var_names[0]))/2;
 		
 		Domain domain( full_layout, full_region, var_count, var_names );
@@ -120,12 +143,19 @@ int main( int argc, char *argv[] )
 		// Initialize fields
 		//
 		////////////////////////////////////////////////////////////////////////
-		domain["v"].set_all( domain, 0 );
-		domain["u"].set_all( domain, mpi_rank+1 );
+		{
+			Fill::function3 f3( cfunctor3( initV ) );
+			Fill::with( f3, domain["v"], domain, domain.X, domain.Y, domain.Z );
+		}
+		domain["u"].set_all( domain, 0.5 + Real(mpi_rank)/mpi_size );
 		
-		
-		
-		save_all(0,pW0,domain);
+		////////////////////////////////////////////////////////////////////////
+		//
+		// prepare reactions
+		//
+		////////////////////////////////////////////////////////////////////////
+		Reaction     rxn;
+		ODE_Function reaction( &rxn, & Reaction::compute );
 		
 		
 		////////////////////////////////////////////////////////////////////////
@@ -134,12 +164,23 @@ int main( int argc, char *argv[] )
 		//
 		////////////////////////////////////////////////////////////////////////
 		const Real dt      = 1e-3;
+		Real        t      = 0.0;
+		domain["h"].set_all( domain, dt * 0.01 );
 		Timings    timings = { 0, 0 };
-		for( size_t iter=1; iter <= 1000; ++iter )
+		
+		save_all(0,pW0,domain);
+		
+		size_t counter = 0;
+		for( size_t iter=1; iter <= 6000; ++iter )
 		{
+			t = (iter-1) * dt;
 			domain.cycle(dt, MPI, timings);
-			MPI.Printf0(stderr,"cycle %5lu: COMM: %7.2f, DIFF: %7.2f        \r", iter, (timings.t_comm*1000)/iter, (timings.t_diff*1000)/iter );
-			save_all(iter,pW0,domain);
+			(void) domain.reaction(reaction,t,t+dt);
+			if( 0 == (iter%20) )
+			{
+				MPI.Printf0(stderr,"cycle %5lu: COMM: %7.2f, DIFF: %7.2f        \r", iter, (timings.t_comm*1000)/iter, (timings.t_diff*1000)/iter );
+				save_all(++counter,pW0,domain);
+			}
 		}
 		MPI.Printf0(stderr,"\n");
 		
