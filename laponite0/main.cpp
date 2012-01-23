@@ -18,7 +18,8 @@ int main( int argc, char *argv[] )
 		const mpi & MPI = mpi::init( &argc, &argv );
 		mpi_rank  = MPI.CommWorldRank;
 		mpi_size  = MPI.CommWorldSize;
-	
+		mpi_last  = MPI.CommWorldRankMax;
+		
 		GhostsInfos  ghosts_lo;
 		GhostsInfos  ghosts_up;
 		
@@ -33,12 +34,12 @@ int main( int argc, char *argv[] )
 				}
 				else
 				{
-					mpi_prev = MPI.CommWorldRankMax;
+					mpi_prev = mpi_last;
 					ghosts_lo.count = Coord(1,0); //!< only on X for rank=0
 					ghosts_lo.async = Coord(0,0); //!< plain ghosts for X
 				}
 			
-				if( mpi_rank < MPI.CommWorldRankMax )
+				if( mpi_rank < mpi_last )
 				{
 					mpi_next = mpi_rank + 1;
 					ghosts_up.count = Coord(1,1); //! one upper ghost in X and Y
@@ -80,7 +81,7 @@ int main( int argc, char *argv[] )
 		
 		
 		domain.exchange_start(MPI);
-		
+		domain.exchange_finish(MPI);
 			
 		return 0;
 	}

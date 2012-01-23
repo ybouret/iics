@@ -37,12 +37,12 @@ namespace Laponite
 	// for MPI
 	//
 	////////////////////////////////////////////////////////////////////////////
-	
+	#define IICS_REAL MPI_DOUBLE
 	extern int mpi_rank;
 	extern int mpi_size;
 	extern int mpi_prev; 
 	extern int mpi_next;
-	
+	extern int mpi_last;
 }
 
 #endif
