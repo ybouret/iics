@@ -70,6 +70,7 @@ namespace IICS
 	{
 		double t_comm; //!< communication (async+plain)
 		double t_diff; //!< diffusion computation
+		double t_ode;  //!< ode solving
 	};
 	
 }
