@@ -53,7 +53,7 @@ namespace IICS
 					const char   *names[]) :
 	Workspace(full_layout.split( mpi_rank, mpi_size ),
 			  GSetup,
-			  Region::extract( full_region, full_layout, full_layout.split( mpi_rank, mpi_size ) ),
+			  Region::extract( full_region, full_layout, full_layout.split(mpi_rank,mpi_size) ),
 			  fields*2+1,
 			  names ),
 	field_index(fields,as_capacity),
