@@ -39,7 +39,7 @@ ENDIF()
 ########################################################################
 ## main code
 ########################################################################
-
+INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
 ADD_EXECUTABLE(v1 common.hpp common.cpp domain.hpp domain.cpp main.cpp reaction.hpp reaction.cpp)
 TARGET_LINK_YOCTO(v1 cliff mpi fs mk)
 TARGET_LINK_LIBRARIES(v1 ${MPI_LIBRARIES})

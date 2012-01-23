@@ -78,6 +78,9 @@ int main( int argc, char *argv[] )
 		MPI.Printf( stderr, "Rank %d: #plainGhosts=%lu, #asyncGhosts=%lu\n", mpi_rank, domain.plain_ghosts, domain.async_ghosts);	
 		
 		
+		
+		domain.exchange_start(MPI);
+		
 			
 		return 0;
 	}
