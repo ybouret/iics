@@ -71,7 +71,7 @@ static inline
 Real initU( Real x, Real y, Real z )
 {
 	
-	return (double(mpi_rank)/mpi_size) * ( 2 * alea<Real>() - 1 );
+	return (double(mpi_rank+1)/mpi_size) * ( 2 * alea<Real>() - 1 );
 }
 
 
@@ -128,8 +128,7 @@ int main( int argc, char *argv[] )
 		auto_ptr<Workspace> pW0(NULL);
 		if( mpi_rank == 0 )
 		{
-			GhostsInfos no_ghosts( Coord(0,0,0), Coord(0,0,0) );
-			GhostsSetup without_ghosts( no_ghosts, no_ghosts );
+			GhostsSetup without_ghosts;
 			pW0.reset( new Workspace( full_layout, without_ghosts, full_region, 1, NULL ) );
 		}
 		
@@ -141,7 +140,28 @@ int main( int argc, char *argv[] )
 		static const char  *var_names[] = { "u", "v", "Lu", "Lv", "h" };
 		static const size_t var_count   = (sizeof(var_names)/sizeof(var_names[0]))/2;
 		
-		Domain domain( full_layout, full_region, var_count, var_names );
+		GhostsSetup g_setup;
+		
+		g_setup.outer.lower.count = Coord(1,1,1);
+		g_setup.outer.lower.async = Coord(0,0,1);
+		g_setup.outer.lower.peers = Coord(-1,-1,mpi_below);
+		
+		g_setup.outer.upper.count = Coord(1,1,1);
+		g_setup.outer.upper.async = Coord(0,0,1);
+		g_setup.outer.upper.peers = Coord(-1,-1,mpi_above);
+		
+		g_setup.inner.lower.count = Coord(1,1,1);
+		g_setup.inner.lower.async = Coord(0,0,1);
+		g_setup.inner.lower.peers = Coord(-1,-1,mpi_below);
+		
+		g_setup.inner.upper.count = Coord(1,1,1);
+		g_setup.inner.upper.async = Coord(0,0,1);
+		g_setup.inner.upper.peers = Coord(-1,-1,mpi_above);
+		
+		
+		
+		
+		Domain domain( full_layout, g_setup, full_region, var_count, var_names );
 		
 		
 		
