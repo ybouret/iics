@@ -11,48 +11,13 @@ namespace IICS
 	
 	
 	
-	const Coord       Domain::GCount(1,1,1);
-	const Coord       Domain::GAsync(0,0,1);
-	const GhostsInfos Domain::GInfos( Domain::GCount, Domain::GAsync );
-	const GhostsSetup Domain::GSetup( GInfos, GInfos );
-	
-	
-	static inline void __get_peer_for( const Ghost &G )
-	{
-		assert(mpi_above>=0);
-		assert(mpi_below>=0);
-		switch( G.position )
-		{
-			case ghost_lower_z:
-				G.peer =  mpi_below;
-				return;
-				
-			case ghost_upper_z:
-				G.peer = mpi_above;
-				return;
-				
-			default:
-				throw exception( "No peer for for ghost@%s", G.label() );
-		}
-	}
-	
-	static inline void setup_ghosts_peers( Workspace &W )
-	{
-		for( size_t g = W.async_ghosts; g>0; --g )
-		{
-			__get_peer_for( W.async_inner_ghost(g) );
-			__get_peer_for( W.async_outer_ghost(g) );
-		}
-	}
-	
-	
-	
-	Domain:: Domain(const Layout &full_layout,
-					const Region &full_region,
-					size_t        fields,
-					const char   *names[]) :
+	Domain:: Domain(const Layout      &full_layout,
+					const GhostsSetup &setup,
+					const Region      &full_region,
+					size_t             fields,
+					const char        *names[]) :
 	Workspace(full_layout.split( mpi_rank, mpi_size ),
-			  GSetup,
+			  setup,
 			  Region::extract( full_region, full_layout, full_layout.split(mpi_rank,mpi_size) ),
 			  fields*2+1,
 			  names ),
@@ -77,7 +42,7 @@ namespace IICS
 		acquire_ghosts_data( num_fields );
 		
 		//! prepare ghosts connectivity
-		setup_ghosts_peers(*this);
+		//setup_ghosts_peers(*this);
 		
 		//! prepare driver
 		odeint.start( num_fields );
@@ -160,7 +125,7 @@ namespace IICS
 		{
 			for( size_t i=num_fields;i>0;--i)
 			{
-				 laplacian<Real,Real>::compute( Field[ delta_index[i] ], dt, Field[ field_index[i] ], inv_dsq, async_inner_ghost(g) );
+				laplacian<Real,Real>::compute( Field[ delta_index[i] ], dt, Field[ field_index[i] ], inv_dsq, async_inner_ghost(g) );
 			}
 		}
 		return chrono.query();
@@ -196,7 +161,7 @@ namespace IICS
 			
 			//-- store data back
 			store( var, field_index, j );
-		
+			
 		}
 		return chrono.query();
 	}

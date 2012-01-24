@@ -10,29 +10,26 @@ namespace  IICS {
 	class Domain : public Workspace
 	{
 	public:		
-		static const Coord        GCount;
-		static const Coord        GAsync;
-		static const GhostsInfos  GInfos;
-		static const GhostsSetup  GSetup;
 		
 		//! constructor
 		/**
-			\param full_layout layout of the global simulation
-			\param full_region region of the global simulation
-			\param fields      number of fields
-			\param names       2*fields+1 valid names
+		 \param full_layout layout of the global simulation
+		 \param full_region region of the global simulation
+		 \param fields      number of fields
+		 \param names       2*fields+1 valid names
 		 
-			'names' must be of the form { "u", "v", ..., "Lu", "Lv", ..., "h" }
-			The MPI global variables rank, size, above and below must be set.
+		 'names' must be of the form { "u", "v", ..., "Lu", "Lv", ..., "h" }
+		 The MPI global variables rank, size, above and below must be set.
 		 */
-		explicit Domain( const Layout &full_layout, 
-						 const Region &full_region,
-						 const size_t  fields,
-						 const char   *names[]
+		explicit Domain( const Layout &full_layout,
+						const GhostsSetup &setup,
+						const Region &full_region,
+						const size_t  fields,
+						const char   *names[]
 						);
 		virtual ~Domain() throw();
 		
-	
+		
 		vector<size_t> field_index; //!< indices of active variables
 		vector<size_t> delta_index; //!< indices of corresponding laplacian
 		const size_t   num_fields;  //!< field_index.size(), same as delta_index.size()

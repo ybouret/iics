@@ -19,10 +19,10 @@ namespace IICS
 		
 		
 		const Real u = f[1];
-		const Real v = f[2];
+		//const Real v = f[2];
 		
 		Real &dudt = dfdt[1];
-		Real &dvdt = dfdt[2];
+		//Real &dvdt = dfdt[2];
 		
 		//dudt =  u * ( alpha - beta * v);
 		//dvdt = -v * ( delta - gamma * u );
