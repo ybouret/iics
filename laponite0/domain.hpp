@@ -1,7 +1,7 @@
 #ifndef LAPONITE_DOMAIN_INCLUDED 
 #define LAPONITE_DOMAIN_INCLUDED 1
 
-#include "./types.hpp"
+#include "./vdw.hpp"
 
 namespace Laponite
 {
@@ -12,13 +12,19 @@ namespace Laponite
 		static const char  *VarNames[];
 		static const size_t VarCount;
 		
-		explicit Domain( const Layout &full_layout, const GhostsSetup &, const Region &full_region);
+		const bool   is_first;
+		const bool   is_final;
+		const Layout bulk; //!< where grad P can be computed
+		
+		explicit Domain( const Layout &full_layout, const GhostsSetup &setup, const Region &full_region);
 		virtual ~Domain() throw();
 		
 		void exchange_start( const mpi &MPI );
 		void exchange_finish( const mpi &MPI );
+		void update_boundaries();
 		
-		const bool is_side;
+		void compute_P( const Layout &sub, const VanDerWaals &gas );
+		
 	private:
 		mpi::Requests requests;
 		YOCTO_DISABLE_COPY_AND_ASSIGN(Domain);

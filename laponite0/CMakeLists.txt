@@ -39,6 +39,6 @@ ENDIF()
 ## main code
 ########################################################################
 INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-ADD_EXECUTABLE(laponite0 types.hpp types.cpp domain.hpp domain.cpp main.cpp)
+ADD_EXECUTABLE(laponite0 types.hpp types.cpp domain.hpp domain.cpp main.cpp vdw.cpp vdw.hpp)
 TARGET_LINK_YOCTO(laponite0 cliff mpi fs mk)
 TARGET_LINK_LIBRARIES(laponite0 ${MPI_LIBRARIES})
