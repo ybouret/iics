@@ -3,6 +3,23 @@
 
 using namespace Laponite;
 
+const Real        Lx = 1;
+const Real        Ly = 2;
+const Real        Lz = 0.01;
+
+static inline
+Real initRho( Real x, Real y )
+{
+	return 1e-3 * ( 0.1 + (1+sin(2*y)) + 0.05 * alea<Real>() );
+}
+
+
+static inline
+double vproc( const Real &v )
+{
+	return v;
+}
+
 int main( int argc, char *argv[] )
 {
 	
@@ -18,50 +35,7 @@ int main( int argc, char *argv[] )
 		const mpi & MPI = mpi::init( &argc, &argv );
 		mpi_rank  = MPI.CommWorldRank;
 		mpi_size  = MPI.CommWorldSize;
-		mpi_last  = MPI.CommWorldRankMax;
-		
-		GhostsInfos  ghosts_lo;
-		GhostsInfos  ghosts_up;
-		
-		
-		if( mpi_size > 1 )
-		{
-				if( mpi_rank > 0 )
-				{
-					mpi_prev = mpi_rank -1;
-					ghosts_lo.count = Coord(1,1); //! one lower ghost in X and Y
-					ghosts_lo.async = Coord(0,1); //! communicating in Y direction
-				}
-				else
-				{
-					mpi_prev = mpi_last;
-					ghosts_lo.count = Coord(1,0); //!< only on X for rank=0
-					ghosts_lo.async = Coord(0,0); //!< plain ghosts for X
-				}
-			
-				if( mpi_rank < mpi_last )
-				{
-					mpi_next = mpi_rank + 1;
-					ghosts_up.count = Coord(1,1); //! one upper ghost in X and Y
-					ghosts_up.async = Coord(0,1); //! communicating in Y direction
-				}
-				else
-				{	
-					mpi_next = 0;
-					ghosts_up.count = Coord(1,0); //! only on X for rank=rank_max
-					ghosts_up.async = Coord(0,0); //! plain ghosts for X
-				}
-		}
-		else
-		{
-			ghosts_lo.count = ghosts_up.count = Coord(1,0); //! only on X
-			ghosts_lo.async = ghosts_up.async = Coord(0,0); //! only 
-		}
-		
-		MPI.Printf( stderr, "Rank %d: %d -> %d -> %d | ghosts_lo: (%ld,%ld) | ghosts_up (%ld,%ld)\n",
-				   mpi_rank, mpi_prev, mpi_rank, mpi_next,
-				   ghosts_lo.count.x, ghosts_lo.count.y,
-				   ghosts_up.count.x, ghosts_up.count.y);
+		mpi_last  = MPI.CommWorldLast;
 		
 		
 		////////////////////////////////////////////////////////////////////////
@@ -69,20 +43,97 @@ int main( int argc, char *argv[] )
 		// setup domain info
 		//
 		////////////////////////////////////////////////////////////////////////
-		const Real        Lx = 1;
-		const Real        Ly = 2;
-		const Layout      full_layout( Coord(0,0),  Coord(9,14)   );
-		const Region      full_region( Vertex(0,0), Vertex(Lx,Ly) );
-		const GhostsSetup topology( ghosts_lo, ghosts_up );
 		
+		//======================================================================
+		// coordinates/space
+		//======================================================================
+		
+		const Layout      full_layout( Coord(0,0),  Coord(99,199)   );
+		const Region      full_region( Vertex(0,0), Vertex(Lx,Ly) );
+		GhostsSetup       topology;
+		
+		//======================================================================
+		//-- default topology
+		//-- one ghost per dimension, async on Y, PBC on X
+		//======================================================================
+		topology.outer.lower.count = Coord(1,1);
+		topology.outer.lower.async = Coord(0,1);
+		topology.outer.lower.peers = Coord(-1,mpi_rank-1);
+		
+		topology.outer.upper.count = Coord(1,1);
+		topology.outer.upper.async = Coord(0,1);
+		topology.outer.upper.peers = Coord(-1,mpi_rank+1);
+		
+		topology.inner.lower.count = Coord(1,1);
+		topology.inner.lower.async = Coord(0,1);
+		topology.inner.lower.peers = Coord(-1,mpi_rank-1);
+		
+		topology.inner.upper.count = Coord(1,1);
+		topology.inner.upper.async = Coord(0,1);
+		topology.inner.upper.peers = Coord(-1,mpi_rank+1);
+		
+		
+		//======================================================================
+		// special case mpi_rank == 0
+		//======================================================================
+		if( mpi_rank == 0 )
+		{
+			//-- no lower outer ghost on Y
+			topology.outer.lower.count = Coord(1,0);
+			topology.outer.lower.async = Coord(0,0);
+			topology.outer.lower.peers = Coord(-1,-1);
+			
+			//-- no lower inner ghost on Y
+			topology.inner.lower.count = Coord(1,0);
+			topology.inner.lower.async = Coord(0,0);
+			topology.inner.lower.peers = Coord(-1,-1);
+			
+		}
+		
+		//======================================================================
+		// special case mpi_rank == mpi_last
+		//======================================================================
+		if( mpi_rank == mpi_last )
+		{
+			//-- no upper outer ghost on Y
+			topology.outer.upper.count = Coord(1,0);
+			topology.outer.upper.async = Coord(0,0);
+			topology.outer.upper.peers = Coord(-1,-1);
+			
+			//-- no upper inner ghost on Y
+			topology.inner.upper.count = Coord(1,0);
+			topology.inner.upper.async = Coord(0,0);
+			topology.inner.upper.peers = Coord(-1,-1);
+		}
+		
+		MPI.Printf( stderr, "Rank %d: %4ld -> %4d -> %4ld\n", mpi_rank, topology.outer.lower.peers.y, mpi_rank, topology.outer.upper.peers.y );
+		MPI.Printf0(stderr, "\n");
 		Domain domain(full_layout,topology,full_region);
 		MPI.Printf( stderr, "Rank %d: #plainGhosts=%lu, #asyncGhosts=%lu\n", mpi_rank, domain.plain_ghosts, domain.async_ghosts);	
 		
 		
+		//! argon, Lz thick at 25 C
+		VanDerWaals gas( 1.363, 0.03219, 40e-3, Lz, 273.15 + 25 );
+		
+		{
+			FillFunctor f( cfunctor2(initRho) );
+			Fill::with( f, domain["rho"], domain, domain.X, domain.Y );
+			//domain["rho"].set_all(domain,1);
+		}
 		
 		domain.exchange_start(MPI);
 		domain.exchange_finish(MPI);
-			
+		
+		domain.compute_P(domain,gas);
+		
+		Real vmax, vmin;
+		domain["rho"].get_min_max(vmin,NULL,vmax,NULL);
+		domain["rho"].ppm(  vformat( "rho%d.ppm", mpi_rank ), "", domain, vproc, NULL, vmin, vmax );
+		
+		domain["P"].get_min_max(vmin,NULL,vmax,NULL);
+		domain["P"].ppm(  vformat( "p%d.ppm", mpi_rank ), "", domain, vproc, NULL, vmin, vmax );
+		
+		
 		return 0;
 	}
 	catch( const exception &e )
