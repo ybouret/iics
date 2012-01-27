@@ -66,8 +66,21 @@ int main( int argc, char *argv[] )
 		sim_ghosts.inner.upper.peers = Coord(-1,-1,mpi_above);
 		
 		Domain domain( sim_layout, sim_ghosts, sim_region );
+		MPI.Printf( stderr, "Rank %d: #asyncGhosts= %2lu, #plainGhosts= %2lu\n", mpi_rank, domain.async_ghosts, domain.plain_ghosts );
 		
 		
+		////////////////////////////////////////////////////////////////////////
+		//
+		// Initial Conditions
+		//
+		////////////////////////////////////////////////////////////////////////
+		
+		
+		////////////////////////////////////////////////////////////////////////
+		//
+		// simulation
+		//
+		////////////////////////////////////////////////////////////////////////
 		domain.exchanges_start();
 		domain.exchanges_finish();
 		
