@@ -9,7 +9,12 @@ namespace Laponite
 	B( _b ),
 	MolarMass( _m ),
 	Thickness( _e ),
-	Temperature( _t )
+	Temperature( _t ),
+	T_c( 1e2 * 8 * A / ( 27 * R_CONSTANT * B ) ),
+	P_c( 1e5 * A/(27*B*B) ),
+	V_c( 1e3 * (3*B) ),
+	rho_c( MolarMass/V_c ),
+	A_Pa( 1e5 * A )
 	{
 		
 	}
@@ -25,7 +30,7 @@ namespace Laponite
 		if( Vm <= B )
 			throw exception("rho=%g => Vm=%g is too high!", surfacic_rho, Vm);
 		const Real Vr_SI  = (Vm -B)* 1e-3;                     //!< m^3/mol
-		return 1e-5 * (RT / Vr_SI) - A/(Vm*Vm);                 //!< in bar
+		return (RT / Vr_SI) - A_Pa/(Vm*Vm);                    //!< in Pa
 	}
 	
 }
