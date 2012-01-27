@@ -50,7 +50,7 @@ namespace Laponite
 		Workspace &Field = *this;
 		const int  tag   = 100;
 		//==============================================================
-		// start async ghosts
+		// start async ghosts: only for rho
 		//==============================================================
 		size_t iRequest = 0;
 		for( size_t g = async_ghosts; g>0; --g )
@@ -103,36 +103,46 @@ namespace Laponite
 		}
 	}
 	
-	void Domain:: compute_P( const Layout &sub, const VanDerWaals &gas )
+	void Domain:: compute_P( const VanDerWaals &gas )
 	{
 		Workspace   &Field = *this;
-		const Array &rho   = Field["rho"];
+		Array       &rho   = Field["rho"];
 		Array       &P     = Field["P"];
 		
-		//-- first pass: compute P
-		for( unit_t y=sub.upper.y; y >= sub.lower.y; --y )
+		if( 0 == mpi_rank )
 		{
-			for( unit_t x=sub.upper.x; x >= sub.lower.x; --x )
+			Row       &r0 = rho[lower.y];
+			const Row &r1 = rho[lower.y+1];
+			const Row &r2 = rho[lower.y+1];
+			
+			for( unit_t x = upper.x; x >= lower.x; --x )
+			{
+				r0[x] = (4*r1[x] - r2[x])/3.0;
+			}
+		}
+		
+		//-- first pass: compute P
+		for( unit_t y=outline.upper.y; y >= outline.lower.y; --y )
+		{
+			for( unit_t x=outline.upper.x; x >= outline.lower.x; --x )
 			{
 				P[y][x] = gas.pressure( rho[y][x] );
 			}
 		}
 		
-#if 0
 		//-- second pass: compute grapP and...
 		Array &dPdx = Field["dPdx"];
 		Array &dPdy = Field["dPdy"];
 		
-		for( unit_t y=sub.upper.y; y >= sub.lower.y; --y )
+		for( unit_t y=bulk.upper.y; y >= bulk.lower.y; --y )
 		{
-			for( unit_t x=sub.upper.x; x >= sub.lower.x; --x )
+			for( unit_t x=bulk.upper.x; x >= bulk.lower.x; --x )
 			{
 				dPdx[y][x] = (P[y][x+1] - P[y][x-1]);
 				dPdy[y][x] = (P[y+1][x] - P[y-1][x]);
 			}
 		}
 		
-#endif
 		
 	}
 	

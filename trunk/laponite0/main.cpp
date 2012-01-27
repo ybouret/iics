@@ -114,7 +114,7 @@ int main( int argc, char *argv[] )
 		
 		//! argon, Lz thick at 25 C
 		VanDerWaals gas( 1.363, 0.03219, 40e-3, Lz, 273.15 + 25 );
-		
+		MPI.Printf0( stderr, "Gas: Tc= %g K, Pc= %g Pa, Vc= %g m^3/mol, rho_c=%g kg/m^3\n", gas.T_c, gas.P_c, gas.V_c, gas.rho_c );
 		{
 			FillFunctor f( cfunctor2(initRho) );
 			Fill::with( f, domain["rho"], domain, domain.X, domain.Y );
@@ -124,7 +124,7 @@ int main( int argc, char *argv[] )
 		domain.exchange_start(MPI);
 		domain.exchange_finish(MPI);
 		
-		domain.compute_P(domain,gas);
+		domain.compute_P(gas);
 		
 		Real vmax, vmin;
 		domain["rho"].get_min_max(vmin,NULL,vmax,NULL);
@@ -132,6 +132,13 @@ int main( int argc, char *argv[] )
 		
 		domain["P"].get_min_max(vmin,NULL,vmax,NULL);
 		domain["P"].ppm(  vformat( "p%d.ppm", mpi_rank ), "", domain, vproc, NULL, vmin, vmax );
+		
+		domain["dPdx"].get_min_max(vmin,NULL,vmax,NULL);
+		domain["dPdx"].ppm(  vformat( "dPdx%d.ppm", mpi_rank ), "", domain, vproc, NULL, vmin, vmax );
+		
+		domain["dPdy"].get_min_max(vmin,NULL,vmax,NULL);
+		domain["dPdy"].ppm(  vformat( "dPdy%d.ppm", mpi_rank ), "", domain, vproc, NULL, vmin, vmax );
+		
 		
 		
 		return 0;

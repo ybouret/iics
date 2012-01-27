@@ -23,7 +23,8 @@ namespace Laponite
 		void exchange_finish( const mpi &MPI );
 		void update_boundaries();
 		
-		void compute_P( const Layout &sub, const VanDerWaals &gas );
+		//! update rho and compute P
+		void compute_P(  const VanDerWaals &gas );
 		
 	private:
 		mpi::Requests requests;
