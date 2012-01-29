@@ -20,7 +20,6 @@ namespace Bubble
 	typedef vertex3D<Real>::type     Vertex;        //!< vertices or Reals
 	typedef wksp3D<Real,Real>        Workspace;     //!< 3D workspace
 	typedef ghost<Real,Coord>        Ghost;         //!< ghost of Reals
-	//typedef laplacian<Real,Real>     Laplacian;     //!< to compute laplacians
 	typedef fill<Real,Real>          Fill;          //!< to fill arrays
 	typedef ghosts_infos<Coord>      GhostsInfos;   //!< count/async
 	typedef ghosts_setup<Coord>      GhostsSetup;   //!< infos for lower an upper
@@ -30,6 +29,8 @@ namespace Bubble
 	extern int mpi_last;
 	extern int mpi_above;
 	extern int mpi_below;
+	
+#define BUBBLE_REAL MPI_DOUBLE
 	
 }
 

@@ -1,7 +1,7 @@
 #ifndef BUBBLE_DOMAIN_INCLUDED
 #define BUBBLE_DOMAIN_INCLUDED 1
 
-#include "./common.hpp"
+#include "./fluid.hpp"
 
 namespace Bubble 
 {
@@ -14,7 +14,7 @@ namespace Bubble
 						const Region      &R );
 		virtual ~Domain() throw();
 		
-		static const char  *VarNames[]; // { "rho", "U", "V",... }
+		static const char  *VarNames[]; // { "rho", "U", "V", "P", ... }
 		static const size_t VarCount;   // sizeof(VarNames)/sizeof(VarNames[0])
 		
 		vector<size_t> field_index; //!< to be transferred
@@ -22,6 +22,8 @@ namespace Bubble
 		
 		double exchanges_start();
 		double exchanges_finish();
+		double compute_pressure( const Fluid &F); //! not on ghosts
+		double update_fields( Real dt );
 		
 		wtime chrono;
 	private:

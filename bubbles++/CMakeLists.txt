@@ -39,6 +39,6 @@ ENDIF()
 ## main code
 ########################################################################
 INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-ADD_EXECUTABLE(bubbles common.hpp common.cpp domain.hpp domain.cpp main.cpp)
+ADD_EXECUTABLE(bubbles common.hpp common.cpp domain.hpp domain.cpp fluid.hpp fluid.cpp main.cpp)
 TARGET_LINK_YOCTO(bubbles cliff mpi fs mk)
 TARGET_LINK_LIBRARIES(bubbles ${MPI_LIBRARIES})
