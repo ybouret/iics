@@ -1,4 +1,4 @@
-#include "./domain3d.hpp"
+#include "./domain2d.hpp"
 
 
 
@@ -6,9 +6,9 @@ using namespace Bubble;
 
 
 static inline 
-Real initRho( Real x, Real y, Real z )
+Real initRho( Real x, Real y )
 {
-	const Real r2 = x*x + y*y + z*z;
+	const Real r2 = x*x + y*y;
 	if( sqrt(r2) <= 0.1 )
 		return 1;
 	else
@@ -30,9 +30,9 @@ int main( int argc, char *argv[] )
 		mpi_rank  = MPI.CommWorldRank;
 		mpi_size  = MPI.CommWorldSize;
 		mpi_last  = MPI.CommWorldLast;
-		mpi_above = MPI.CommWorldNext();
-		mpi_below = MPI.CommWorldPrev();
-		MPI.Printf(stderr, "-- Rank %d | Size=%d | %d -> %d -> %d\n", mpi_rank, mpi_size, mpi_below, mpi_rank, mpi_above );
+		mpi_next  = MPI.CommWorldNext();
+		mpi_prev  = MPI.CommWorldPrev();
+		MPI.Printf(stderr, "-- Rank %d | Size=%d | %d -> %d -> %d\n", mpi_rank, mpi_size, mpi_prev, mpi_rank, mpi_next );
 		
 		
 		////////////////////////////////////////////////////////////////////////
@@ -44,14 +44,14 @@ int main( int argc, char *argv[] )
 		//======================================================================
 		// geometry
 		//======================================================================
-		const Layout   full_layout( Coord(1,1,1), Coord(20,30,40) );
+		const Layout   full_layout( Coord(1,1), Coord(30,40) );
 		vector<Layout> layouts(mpi_size,as_capacity);
 		for( int r=0; r < mpi_size; ++r )
 		{
 			layouts.push_back( full_layout.split(mpi_rank,mpi_size) );
 		}
-		const Real Lx=0.7,Ly=0.8,Lz=0.9;
-		const Region full_region( Vertex(-Lx/2,-Ly/2,-Lz/2), Vertex(Lx/2,Ly/2,Lz/2) );
+		const Real   Lx=0.7,Ly=0.8;
+		const Region full_region( Vertex(-Lx/2,-Ly/2), Vertex(Lx/2,Ly/2) );
 		
 		const Layout &sim_layout = layouts[ mpi_rank + 1 ];
 		const Region &sim_region = Region::extract( full_region, full_layout, sim_layout );
@@ -77,22 +77,22 @@ int main( int argc, char *argv[] )
 		//======================================================================
 		// topology: 1 ghost in each direction: x,y : PBC, z: MPI
 		//======================================================================
-		sim_ghosts.outer.lower.count = Coord(1,1,1);
-		sim_ghosts.outer.lower.async = Coord(0,0,1);
-		sim_ghosts.outer.lower.peers = Coord(-1,-1,mpi_below);
+		sim_ghosts.outer.lower.count = Coord(1,1);
+		sim_ghosts.outer.lower.async = Coord(0,1);
+		sim_ghosts.outer.lower.peers = Coord(-1,mpi_prev);
 		
-		sim_ghosts.outer.upper.count = Coord(1,1,1);
-		sim_ghosts.outer.upper.async = Coord(0,0,1);
-		sim_ghosts.outer.upper.peers = Coord(-1,-1,mpi_above);
+		sim_ghosts.outer.upper.count = Coord(1,1);
+		sim_ghosts.outer.upper.async = Coord(0,1);
+		sim_ghosts.outer.upper.peers = Coord(-1,mpi_next);
 		
-		sim_ghosts.inner.lower.count = Coord(1,1,1);
-		sim_ghosts.inner.lower.async = Coord(0,0,1);
-		sim_ghosts.inner.lower.peers = Coord(-1,-1,mpi_below);
+		sim_ghosts.inner.lower.count = Coord(1,1);
+		sim_ghosts.inner.lower.async = Coord(0,1);
+		sim_ghosts.inner.lower.peers = Coord(-1,mpi_prev);
 		
 		
-		sim_ghosts.inner.upper.count = Coord(1,1,1);
-		sim_ghosts.inner.upper.async = Coord(0,0,1);
-		sim_ghosts.inner.upper.peers = Coord(-1,-1,mpi_above);
+		sim_ghosts.inner.upper.count = Coord(1,1);
+		sim_ghosts.inner.upper.async = Coord(0,1);
+		sim_ghosts.inner.upper.peers = Coord(-1,mpi_next);
 		
 		Domain domain( sim_layout, sim_ghosts, sim_region );
 		MPI.Printf( stderr, "Rank %d: #asyncGhosts= %2lu, #plainGhosts= %2lu\n", mpi_rank, domain.async_ghosts, domain.plain_ghosts );
@@ -105,8 +105,8 @@ int main( int argc, char *argv[] )
 		////////////////////////////////////////////////////////////////////////
 		VdW fluid(1.1);
 		{
-			Fill::function3 f( cfunctor3(initRho) );
-			Fill::with(f, domain["rho"], domain, domain.X, domain.Y, domain.Z );
+			Fill::function2 f( cfunctor2(initRho) );
+			Fill::with(f, domain["rho"], domain, domain.X, domain.Y );
 			domain.compute_pressure(fluid);
 		}
 		
@@ -122,7 +122,7 @@ int main( int argc, char *argv[] )
 		
 		if( 0 == mpi_rank )
 		{
-			rwops<Real>::save_vtk( "fields3d_0.vtk", "", *pW, save_index, *pW );
+			rwops<Real>::save_vtk( "fields2d_0.vtk", "", *pW, save_index, *pW );
 		}
 		
 		
@@ -141,7 +141,7 @@ int main( int argc, char *argv[] )
 			_mpi::collect0<Real>( full_P,   domain["P"],   full_layout );
 			if( 0 == mpi_rank )
 			{
-				rwops<Real>::save_vtk( vformat("fields3d_%d.vtk",count), "", *pW, save_index, *pW );
+				rwops<Real>::save_vtk( vformat("fields2d_%d.vtk",count), "", *pW, save_index, *pW );
 			}
 			
 		}

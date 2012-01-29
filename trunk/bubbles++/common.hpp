@@ -25,6 +25,7 @@ namespace Bubble
 	
 #define BUBBLE_REAL MPI_DOUBLE
 	
+		
 }
 
 #endif
