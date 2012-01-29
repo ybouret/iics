@@ -1,11 +1,11 @@
-#include "./domain3d.hpp"
+#include "./domain2d.hpp"
 
 namespace Bubble
 {
 	
-	const char * Domain:: VarNames[] = { "rho", "U", "V", "W", "P" };
+	const char * Domain:: VarNames[] = { "rho", "U", "V", "P" };
 	const size_t Domain:: VarCount   = sizeof(VarNames)/sizeof(VarNames[0]);
-	const size_t Domain:: VarMPI     = 5;
+	const size_t Domain:: VarMPI     = 4;
 	
 	Domain:: ~Domain() throw() {}
 	
@@ -70,38 +70,30 @@ namespace Bubble
 		Array &rho = field["rho"];
 		Array &U   = field["U"];
 		Array &V   = field["V"];
-		Array &W   = field["W"];
 		Array &P   = field["P"];
 		const Real half = 0.5 * dt;
-		for( unit_t z=upper.z; z >= lower.z; --z )
+		
+		for( unit_t y=upper.y; y >= lower.y; --y )
 		{
-			for( unit_t y=upper.y; y >= lower.y; --y )
+			for(unit_t x=upper.x; x >= lower.x; --x )
 			{
-				for(unit_t x=upper.x; x >= lower.x; --x )
-				{
-					const Real divJ_x = inv_d.x * (U[z][y][x+1] - U[z][y][x-1]);
-					const Real divJ_y = inv_d.y * (V[z][y+1][x] - V[z][y-1][x]);
-					const Real divJ_z = inv_d.z * (W[z+1][y][x] - W[z-1][y][x]);
-					rho[z][y][x] -= half * ( divJ_x + divJ_y + divJ_z);
-				}
+				const Real divJ_x = inv_d.x * (U[y][x+1] - U[y][x-1]);
+				const Real divJ_y = inv_d.y * (V[y+1][x] - V[y-1][x]);
+				rho[y][x] -= half * ( divJ_x + divJ_y);
 			}
 		}
 		
-		for( unit_t z=upper.z; z >= lower.z; --z )
+		for( unit_t y=upper.y; y >= lower.y; --y )
 		{
-			for( unit_t y=upper.y; y >= lower.y; --y )
+			for(unit_t x=upper.x; x >= lower.x; --x )
 			{
-				for(unit_t x=upper.x; x >= lower.x; --x )
-				{
-					U[z][y][x] -= half * ( P[z][y][x+1] - P[z][y][x-1] );
-					V[z][y][x] -= half * ( P[z][y+1][x] - P[z][y-1][x] );
-					W[z][y][x] -= half * ( P[z+1][y][x] - P[z-1][y][x] );
-				}
+				U[y][x] -= half * ( P[y][x+1] - P[y][x-1] );
+				V[y][x] -= half * ( P[y+1][x] - P[y-1][x] );
 			}
 		}
 		
 		return chrono.query();
 	}
-
+	
 	
 }
