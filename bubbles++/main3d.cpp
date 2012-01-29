@@ -12,7 +12,7 @@ Real initRho( Real x, Real y, Real z )
 	if( sqrt(r2) <= 0.1 )
 		return 1;
 	else
-		return 0.5 + 0.1 * ( 0.5 - alea<Real>() );
+		return 0.5;// + 0.1 * ( 0.5 - alea<Real>() );
 }
 
 int main( int argc, char *argv[] )
