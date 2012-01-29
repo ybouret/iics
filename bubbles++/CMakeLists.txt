@@ -39,6 +39,6 @@ ENDIF()
 ## main code
 ########################################################################
 INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-ADD_EXECUTABLE(bubbles3d common.hpp common.cpp common3d.hpp common3d.cpp domaini3d.hpp domain3d.cpp fluid.hpp fluid.cpp main.cpp)
-TARGET_LINK_YOCTO(bubbles cliff mpi fs mk)
-TARGET_LINK_LIBRARIES(bubbles ${MPI_LIBRARIES})
+ADD_EXECUTABLE(bubbles3d common.hpp common.cpp common3d.hpp common3d.cpp domain3d.hpp domain3d.cpp fluid.hpp fluid.cpp main3d.cpp)
+TARGET_LINK_YOCTO(bubbles3d cliff mpi fs mk)
+TARGET_LINK_LIBRARIES(bubbles3d ${MPI_LIBRARIES})

@@ -1,7 +1,8 @@
-#ifndef BUBBLE_DOMAIN_INCLUDED
-#define BUBBLE_DOMAIN_INCLUDED 1
+#ifndef BUBBLE_DOMAIN3D_INCLUDED
+#define BUBBLE_DOMAIN3D_INCLUDED 1
 
 #include "./fluid.hpp"
+#include "./common3d.hpp"
 
 namespace Bubble 
 {
