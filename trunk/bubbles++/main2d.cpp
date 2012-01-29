@@ -12,7 +12,7 @@ Real initRho( Real x, Real y )
 	if( sqrt(r2) <= 0.1 )
 		return 1;
 	else
-		return 0.5 + 0.1 * ( 0.5 - alea<Real>() );
+		return 0.5; //+ 0.1 * ( 0.5 - alea<Real>() );
 }
 
 int main( int argc, char *argv[] )
@@ -44,7 +44,7 @@ int main( int argc, char *argv[] )
 		//======================================================================
 		// geometry
 		//======================================================================
-		const Layout   full_layout( Coord(1,1), Coord(30,40) );
+		const Layout   full_layout( Coord(1,1), Coord(100,100) );
 		vector<Layout> layouts(mpi_size,as_capacity);
 		for( int r=0; r < mpi_size; ++r )
 		{
@@ -126,7 +126,7 @@ int main( int argc, char *argv[] )
 		}
 		
 		
-		for( int count=1; count <= 100; ++count )
+		for( int count=1; count <= 500; ++count )
 		{
 			MPI.Printf0( stderr, "count=%5d      \r", count );
 			for( size_t iter=0; iter <10; ++iter )
