@@ -1,8 +1,6 @@
-#include "./domain.hpp"
+#include "./domain3d.hpp"
 
-#include "yocto/code/rand.hpp"
-#include "yocto/auto-ptr.hpp"
-#include "yocto/cliff/rwops.hpp"
+
 
 using namespace Bubble;
 
