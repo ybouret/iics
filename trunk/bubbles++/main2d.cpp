@@ -45,13 +45,13 @@ int main( int argc, char *argv[] )
 		//======================================================================
 		// geometry
 		//======================================================================
-		const Layout   full_layout( Coord(1,1), Coord(100,100) );
+		const Layout   full_layout( Coord(1,1), Coord(200,200) );
 		vector<Layout> layouts(mpi_size,as_capacity);
 		for( int r=0; r < mpi_size; ++r )
 		{
 			layouts.push_back( full_layout.split(mpi_rank,mpi_size) );
 		}
-		const Real   Lx=0.7,Ly=0.8;
+		const Real   Lx=1.5,Ly=2.0;
 		const Region full_region( Vertex(-Lx/2,-Ly/2), Vertex(Lx/2,Ly/2) );
 		
 		const Layout &sim_layout = layouts[ mpi_rank + 1 ];

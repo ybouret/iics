@@ -86,7 +86,7 @@ namespace Bubble
 		Array &LV   = field["LV"];
 		Array &Lrho = field["Lrho"];
 		
-		const Real half = 0.5 * dt;
+		const Real half    = 0.5 * dt;
 		const Real eta_fac = eta * dt;
 		
 		
