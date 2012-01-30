@@ -93,9 +93,9 @@ namespace Bubble
 			{
 				for(unit_t x=upper.x; x >= lower.x; --x )
 				{
-					U[z][y][x] -= half * ( P[z][y][x+1] - P[z][y][x-1] );
-					V[z][y][x] -= half * ( P[z][y+1][x] - P[z][y-1][x] );
-					W[z][y][x] -= half * ( P[z+1][y][x] - P[z-1][y][x] );
+					U[z][y][x] -= half * inv_d.x * ( P[z][y][x+1] - P[z][y][x-1] );
+					V[z][y][x] -= half * inv_d.y * ( P[z][y+1][x] - P[z][y-1][x] );
+					W[z][y][x] -= half * inv_d.z * ( P[z+1][y][x] - P[z-1][y][x] );
 				}
 			}
 		}

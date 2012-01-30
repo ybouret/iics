@@ -18,7 +18,7 @@ namespace Bubble
 	Real VdW:: pressure( Real rho ) const
 	{
 		static const Real fac = 8.0/3;
-		return fac * rho * T;
+		return fac * rho * T / ( 1.0 - rho/3.0 ) - 3*rho*rho;
 	}
 
 }
