@@ -200,7 +200,7 @@ static void sendRequests(int i)
     _CHECK(MPI_Isend( &fields[i][zmin][ymin][xmin],    nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+0] ));
     
     // send information to above 
-    _CHECK(MPI_Isend( &fields[i][zmax-NG][ymin][xmin], nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+1] ));
+    _CHECK(MPI_Isend( &fields[i][zmax+1-NG][ymin][xmin], nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+1] ));
     
     // recv information from below
     _CHECK(MPI_Irecv( &fields[i][zlo][ymin][xmin],     nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+2] ));
@@ -359,7 +359,7 @@ static void diffusion2()
  */
 real_t pressure(real_t x)
 {
-    return 0;
+    return x;
 }
 #define eta 0.1
 void computeDFieldsAtZ(indx_t k)
@@ -442,9 +442,10 @@ static void integrate()
     
     for( i=0; i < NC; ++i )
         sendRequests(i);
-    computeDFields(1); //bulk;
     for( i=0; i < NC; ++i )
         waitRequests(i);
+    
+    computeDFields(1); //bulk;
     computeDFields(0); //boundaries;
     
     
@@ -495,11 +496,10 @@ static void init_fields()
 			for(i=xmax;i>=xmin;--i)
 			{
                 x=i*dx-Lx*0.5;
-              //  if(x*x+y*y+z*z<10)
-                //    fields[0][k][j][i] =1+alea;
-                rho[k][j][i] =1+alea;
-                U[k][j][i] =1+alea;
-                V[k][j][i] =1+alea;
+                if(x*x+z*z<100)
+                    rho[k][j][i] =1;
+                U[k][j][i] =0;
+                V[k][j][i] =0;
             }
 		}
 	}
