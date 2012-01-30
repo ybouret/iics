@@ -98,7 +98,7 @@ SimGetMetaData(void *cbdata)
             /* Set the mesh's properties.*/
             VisIt_MeshMetaData_setName(mmd, "quadmesh");
             VisIt_MeshMetaData_setMeshType(mmd, VISIT_MESHTYPE_RECTILINEAR);
-           if(rmesh_dims[2]==0)
+           if(rmesh_dims[2]==1)
            {
             VisIt_MeshMetaData_setTopologicalDimension(mmd, 2);
             VisIt_MeshMetaData_setSpatialDimension(mmd, 2);
@@ -171,13 +171,11 @@ SimGetMesh(int domain, const char *name, void *cbdata)
     {
         if(VisIt_RectilinearMesh_alloc(&res) != VISIT_ERROR)
         {
-            if(rmesh_dims[2]==0) // we are in 2D
+            if(rmesh_dims[2]==1) // we are in 2D
             {
                 int i,minRealIndex[2]={0,0}, maxRealIndex[2]={0,0};
                 float *rmesh[2];
                 visit_handle h[2];
-                 fprintf(stderr,"proc %d\t:simgetmesh: %d\t%d\t%d in 2D\n",rank,rmesh_dims[0],rmesh_dims[1],rmesh_dims[2]);
-                 fflush(stderr);
                 
                 for(i=0;i<2;i++)
                 {
@@ -206,9 +204,7 @@ SimGetMesh(int domain, const char *name, void *cbdata)
                 int i,minRealIndex[3]={0,0,0}, maxRealIndex[3]={0,0,0};
                 float *rmesh[3];
                 visit_handle h[3];
-                
-                // fprintf(stderr,"proc %d\t:simgetmesh: %d\t%d\t%d\n",rank,rmesh_dims[0],rmesh_dims[1],rmesh_dims[2]);
-                // fflush(stderr);
+ 
                 
                 for(i=0;i<3;i++)
                 {
@@ -246,46 +242,7 @@ SimGetMesh(int domain, const char *name, void *cbdata)
     
     return res;
 }
-/*
-visit_handle
-SimGetVariableWorking(int domain, const char *name, void *cbdata)
-{
-    visit_handle h = VISIT_INVALID_HANDLE;
-    //  simulation_data *sim = (simulation_data *)cbdata;
-    
-    // fprintf(stderr,"proc %d: SimGetVariable\n",rank);
-    
-    if(strcmp(name, "u") == 0)
-    {
-        float *zoneptr;
-        float  *rmesh_zonal;
-        int i, j, k, nTuples;
-        
-        
-        // Calculate a zonal variable that moves around. 
-        rmesh_zonal = (float*)malloc(sizeof(float) * (rmesh_dims[0]-1) * (rmesh_dims[1]-1)*(rmesh_dims[2]-1));
-        zoneptr = rmesh_zonal;
-        
-        for(k=zmin;k<zmax;k++)
-        {
-            for(j = 0; j < rmesh_dims[1]-1; ++j)
-            {
-                for(i = 0; i < rmesh_dims[0]-1; ++i)
-                {
-                    
-                    *zoneptr++ = fields[0][k][j][i];
-                }
-            }
-        }
-        nTuples = (rmesh_dims[0]-1) * (rmesh_dims[1]-1)*(rmesh_dims[2]-1);
-        VisIt_VariableData_alloc(&h);
-        VisIt_VariableData_setDataF(h, VISIT_OWNER_VISIT, 1,
-                                    nTuples, rmesh_zonal);
-    }
-    
-    return h;
-}
-*/
+
 visit_handle
 SimGetVariable(int domain, const char *name, void *cbdata)
 {
@@ -296,11 +253,11 @@ SimGetVariable(int domain, const char *name, void *cbdata)
     
     // fprintf(stderr,"proc %d: SimGetVariable\n",rank);
     for(i=0;i<NC;i++)
-       if(strcmp(name, "u") == 0)
+       if(strcmp(name, cpntName[i]) == 0)
            toPlot=i;
         
    // if(strcmp(name, "u") == 0)
-     if(rmesh_dims[2]==0) // we are in 2D
+     if(rmesh_dims[2]==1) // we are in 2D
     {
         float *zoneptr;
         float  *rmesh_zonal;
