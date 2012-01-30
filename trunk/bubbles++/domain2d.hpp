@@ -19,6 +19,8 @@ namespace Bubble
 						const Region      &R );
 		virtual ~Domain() throw();
 		
+		Real           eta;         //!< viscosity
+		Real           gam;
 		vector<size_t> field_index; //!< to be transferred
 		
 		

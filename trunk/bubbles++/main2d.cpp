@@ -10,9 +10,10 @@ Real initRho( Real x, Real y )
 {
 	const Real r2 = x*x + y*y;
 	if( sqrt(r2) <= 0.1 )
-		return 1;
+		return 0.3;
 	else
-		return 0.5; //+ 0.1 * ( 0.5 - alea<Real>() );
+		return 1;
+
 }
 
 int main( int argc, char *argv[] )
@@ -75,22 +76,21 @@ int main( int argc, char *argv[] )
 		}
 		
 		//======================================================================
-		// topology: 1 ghost in each direction: x,y : PBC, z: MPI
+		// topology: 2 ghosts in each direction: x,y : PBC, z: MPI
 		//======================================================================
-		sim_ghosts.outer.lower.count = Coord(1,1);
+		sim_ghosts.outer.lower.count = Coord(2,2);
 		sim_ghosts.outer.lower.async = Coord(0,1);
 		sim_ghosts.outer.lower.peers = Coord(-1,mpi_prev);
 		
-		sim_ghosts.outer.upper.count = Coord(1,1);
+		sim_ghosts.outer.upper.count = Coord(2,2);
 		sim_ghosts.outer.upper.async = Coord(0,1);
 		sim_ghosts.outer.upper.peers = Coord(-1,mpi_next);
 		
-		sim_ghosts.inner.lower.count = Coord(1,1);
+		sim_ghosts.inner.lower.count = Coord(2,2);
 		sim_ghosts.inner.lower.async = Coord(0,1);
 		sim_ghosts.inner.lower.peers = Coord(-1,mpi_prev);
 		
-		
-		sim_ghosts.inner.upper.count = Coord(1,1);
+		sim_ghosts.inner.upper.count = Coord(2,2);
 		sim_ghosts.inner.upper.async = Coord(0,1);
 		sim_ghosts.inner.upper.peers = Coord(-1,mpi_next);
 		
@@ -103,7 +103,7 @@ int main( int argc, char *argv[] )
 		// Initial Conditions
 		//
 		////////////////////////////////////////////////////////////////////////
-		VdW fluid(1.1);
+		VdW fluid(0.9);
 		{
 			Fill::function2 f( cfunctor2(initRho) );
 			Fill::with(f, domain["rho"], domain, domain.X, domain.Y );
@@ -116,7 +116,7 @@ int main( int argc, char *argv[] )
 		//
 		////////////////////////////////////////////////////////////////////////
 		
-		Real dt = 0.001;
+		Real dt = 0.0001;
 		_mpi::collect0<Real>( full_rho, domain["rho"], full_layout );
 		_mpi::collect0<Real>( full_P,   domain["P"],   full_layout );
 		
@@ -126,10 +126,10 @@ int main( int argc, char *argv[] )
 		}
 		
 		
-		for( int count=1; count <= 500; ++count )
+		for( int count=1; count <= 200; ++count )
 		{
 			MPI.Printf0( stderr, "count=%5d      \r", count );
-			for( size_t iter=0; iter <10; ++iter )
+			for( size_t iter=0; iter <20; ++iter )
 			{
 				domain.exchanges_start();
 				domain.exchanges_finish();
