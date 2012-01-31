@@ -14,8 +14,8 @@ namespace Bubble
 					const GhostsSetup &G,
 					const Region      &R ) :
 	Workspace(L,G,R,VarCount,VarNames),
-	eta(0.001),
-	gam(0.001),
+	eta(0.1),
+	gam(1),
 	field_index(),
 	chrono(),
 	requests( VarMPI * (2*async_ghosts) )
@@ -67,7 +67,7 @@ namespace Bubble
 	
 	static inline Real __laplacian( const Array &F, unit_t x, unit_t y, const Vertex &fac )
 	{
-		const Real F0 = F[y][x];
+		const Real F0    = F[y][x];
 		const Real twoF0 = F0+F0;
 		
 		return fac.x * ( F[y][x+1] - twoF0 + F[y][x-1] ) + fac.y * ( F[y+1][x] - twoF0 + F[y-1][x] );
@@ -92,25 +92,31 @@ namespace Bubble
 		
 		
 		
+		for( unit_t y=upper.y+1; y >= lower.y-1; --y )
+		{
+			for(unit_t x=upper.x+1; x >= lower.x-1; --x )
+			{
+				Lrho[y][x] = __laplacian(rho,  x,y,inv_dsq);
+			}
+		}
+		
 		for( unit_t y=upper.y; y >= lower.y; --y )
 		{
 			for(unit_t x=upper.x; x >= lower.x; --x )
 			{
 				const Real divJ_x = inv_d.x * (U[y][x+1] - U[y][x-1]);
 				const Real divJ_y = inv_d.y * (V[y+1][x] - V[y-1][x]);
+				
 				rho[y][x] -= half * ( divJ_x + divJ_y);
+				
+				//rho[y][x] += dt * Lrho[y][x];
 				
 				LU[y][x]   = __laplacian(U,  x,y,inv_dsq);
 				LV[y][x]   = __laplacian(V,  x,y,inv_dsq);
-				Lrho[y][x] = __laplacian(rho,x,y,inv_dsq);
 			}
 		}
 		
-		for(unit_t x=upper.x+1; x >= lower.x-1; --x )
-		{
-			Lrho[upper.y+1][x] = __laplacian(rho,x,upper.y+1,inv_dsq);
-			Lrho[lower.y-1][x] = __laplacian(rho,x,lower.y-1,inv_dsq);
-		}
+			
 		
 		for( unit_t y=upper.y; y >= lower.y; --y )
 		{
