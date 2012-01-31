@@ -8,12 +8,14 @@ using namespace Bubble;
 static inline 
 Real initRho( Real x, Real y )
 {
-	const Real r2 = x*x + y*y;
-	if( sqrt(r2) <= 0.1 )
-		return 0.3;
-	else
-		return 1;
-
+	/*
+	 const Real r2 = x*x + y*y;
+	 if( sqrt(r2) <= 0.1 )
+	 return 0.3;
+	 else
+	 return 1;
+	 */
+	return 1 + 0.3 * ( 0.5 - alea<Real>() );
 }
 
 int main( int argc, char *argv[] )
@@ -51,7 +53,7 @@ int main( int argc, char *argv[] )
 		{
 			layouts.push_back( full_layout.split(mpi_rank,mpi_size) );
 		}
-		const Real   Lx=1.5,Ly=2.0;
+		const Real   Lx=100,Ly=100;
 		const Region full_region( Vertex(-Lx/2,-Ly/2), Vertex(Lx/2,Ly/2) );
 		
 		const Layout &sim_layout = layouts[ mpi_rank + 1 ];
@@ -116,7 +118,7 @@ int main( int argc, char *argv[] )
 		//
 		////////////////////////////////////////////////////////////////////////
 		
-		Real dt = 0.0001;
+		Real dt = 0.001;
 		_mpi::collect0<Real>( full_rho, domain["rho"], full_layout );
 		_mpi::collect0<Real>( full_P,   domain["P"],   full_layout );
 		
@@ -126,10 +128,10 @@ int main( int argc, char *argv[] )
 		}
 		
 		
-		for( int count=1; count <= 200; ++count )
+		for( int count=1; count <= 100; ++count )
 		{
 			MPI.Printf0( stderr, "count=%5d      \r", count );
-			for( size_t iter=0; iter <20; ++iter )
+			for( size_t iter=0; iter <100; ++iter )
 			{
 				domain.exchanges_start();
 				domain.exchanges_finish();
