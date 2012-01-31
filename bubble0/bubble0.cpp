@@ -15,7 +15,7 @@ const char                *cpntName[] = {"rho","u","v"};  /*Name of the componen
 static indx_t       Nx = 128;   /*!< 0 -> Nx-1      */
 static indx_t       Ny = 1;   /*!< 0 -> Ny-1      */
 static indx_t       Nz = 128;   /*!< 0 -> Nz-1      */
-static indx_t       NG = 1;     /*!< #ghosts        */
+static indx_t       NG = 2;     /*!< #ghosts        */
 static real_t       Lx = 128.0;
 static real_t       Ly = 128.0;
 static real_t       Lz = 128.0; 
@@ -359,9 +359,38 @@ static void diffusion2()
  */
 real_t pressure(real_t x)
 {
-    return x;
+    return x-1.9*x*x+x*x*x;
+ //   return x;
 }
 #define eta 0.1
+#define gamma 0.1
+
+
+real_t laprho(indx_t i,indx_t j,indx_t k,real_t idx2, real_t idy2,real_t idz2)
+{
+    real_t ***rho=fields[0];
+    
+    indx_t km=k-1; /* always valid for there are ghosts */
+    indx_t kp=k+1; /* always valid for there are ghosts */
+    
+    indx_t jm = j-1;
+    indx_t jp = j+1;
+    
+    indx_t im = i-1;
+    indx_t ip = i+1;
+    
+    if( jm < ymin ) jm = ymax;
+    if( jp > ymax ) jp = ymin;
+    
+    if( im < xmin ) im = xmax;
+    if( ip > xmax ) ip = xmin;
+    
+    return 
+    idx2*(rho[k][j][ip]-2*rho[k][j][i]+rho[k][j][im])+
+  //  idy2*(rho[k][jp][i]-2*rho[k][j][i]+rho[k][jm][i])+
+    idz2*(rho[kp][j][i]-2*rho[k][j][i]+rho[km][j][i]);
+}
+
 void computeDFieldsAtZ(indx_t k)
 {
 	indx_t i,j;
@@ -375,9 +404,11 @@ void computeDFieldsAtZ(indx_t k)
     real_t ***dU  =dfields[1];
     real_t ***dW  =dfields[2];
     real_t idx=1.0/dx;
+    real_t idy=1.0/dy;
     real_t idz=1.0/dz;
     
     real_t idx2=idx*idx;
+    real_t idy2=idy*idy;
     real_t idz2=idz*idz;
     
     
@@ -401,11 +432,14 @@ void computeDFieldsAtZ(indx_t k)
             
             dU[k][j][i]  =
             -idx*(pressure(rho[k][j][ip])-pressure(rho[k][j][i]))
+            +idx*gamma*(laprho(ip,j,k,idx2,idy2,idz2)-laprho(i,j,k,idx2,idy2,idz2))
             +eta*(
                   idx2*(U[k][j][ip]-2*U[k][j][i]+U[k][j][im])+
                   idz2*(U[kp][j][i]-2*U[k][j][i]+U[km][j][i])
                   );
-            dW[k][j][i]  =-idz*(pressure(rho[kp][j][i])-pressure(rho[k][j][i]))
+            dW[k][j][i]  =
+            -idz*(pressure(rho[kp][j][i])-pressure(rho[k][j][i]))
+            +idz*gamma*(laprho(i,j,kp,idx2,idy2,idz2)-laprho(i,j,k,idx2,idy2,idz2))
             +eta*(
                   idx2*(W[k][j][ip]-2*W[k][j][i]+W[k][j][im])+
                   idz2*(W[kp][j][i]-2*W[k][j][i]+W[km][j][i])
@@ -422,6 +456,7 @@ void computeDFields(int bulk)
     
     if(bulk)
     {
+        
         for(k=zmax-NG;k>=zmin+NG;--k)
             computeDFieldsAtZ(k);
     }
@@ -437,6 +472,7 @@ void computeDFields(int bulk)
 }
 static void integrate()
 {
+    
 	size_t i;
 	size_t j;
     
@@ -477,7 +513,7 @@ double  mesureTimeForExchangingGhost()
     
 }
 
-#define alea rand()/(0.0+RAND_MAX)*2-1
+#define alea (rand()/(0.0+RAND_MAX)*2-1)
 static void init_fields()
 {
 	indx_t i,j,k;
@@ -496,8 +532,8 @@ static void init_fields()
 			for(i=xmax;i>=xmin;--i)
 			{
                 x=i*dx-Lx*0.5;
-                if(x*x+z*z<100)
-                    rho[k][j][i] =1;
+              //  if(x*x+z*z<100)
+                rho[k][j][i] =0.6+0.001*alea;
                 U[k][j][i] =0;
                 V[k][j][i] =0;
             }
@@ -593,7 +629,7 @@ void simulate_one_timestep(simulation_data *sim)
         elapsedTime=MPI_Wtime();
     
     // Diffusion 
-    for(i=0;i<10;i++)
+    for(i=0;i<40;i++)
     {
         integrate();
     }
@@ -642,7 +678,7 @@ int main(int argc, char *argv[] )
 	idx2 = 1/(dx*dx); 
 	idy2 = 1/(dy*dy);
 	idz2 = 1/(dz*dz);
-	dt=0.1;
+	dt=0.05;
 	srand( time(NULL) );
 	setvbuf( stderr, NULL, 0, _IONBF );
     
