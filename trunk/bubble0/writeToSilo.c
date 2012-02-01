@@ -3,8 +3,70 @@
 /***************************************************************************
  * write mesh and values for all ranks
  ****************************************************************************/
+void writeDomain2D(int count)
+{
+    int prout;
+    
+    DBfile *dbfile = NULL;
+    
+    int nz=zmax-zmin+2;
+    int nx=Nx;
+    int ny=1;
+    int dims[] = {nx, nz};
+    int ndims = 2;
+    int nnodes=nx*ny*nz;
+    int zf=zmax+NG;
+    float *data[NC];
+    
+    float x[nx],z[nz];
+    float *coords[] = {x, z};
+    indx_t  i,j,k,p,l;
+    char dirname[100];
+    int cycle=count;
+    double Time=count*dt;
+    /* char *varName[] = {"nodal_comp0","nodal_comp1"};*/
+    DBoptlist *optlist = DBMakeOptlist(2);
+    DBAddOption(optlist, DBOPT_CYCLE, (void *)&cycle);
+    DBAddOption(optlist, DBOPT_DTIME, (void *)&Time);
+    
+    
+
+    /* prepare a rectilinear mesh. */
+    for(i=0;i<nx;i++)
+        x[i]=i*dx;
+
+    for(i=0;i<nz;i++)
+        z[i]=(zmin+i)*dz;
+    
+
+    sprintf(dirname, "results/bubble%d.%d", rank,count);
+    dbfile = DBCreate(dirname, DB_CLOBBER, DB_LOCAL,"domain data", DB_HDF5);    
+    
+    
+    /* write the local mesh*/
+    DBPutQuadmesh(dbfile, "quadmesh", NULL, coords, dims, ndims,
+                  DB_FLOAT, DB_COLLINEAR, optlist);
+    
+    
+    /* Write a node-centered var. */
+    for(i=0;i<(indx_t) NC;i++)
+    {
+        DBPutQuadvar1(dbfile, cpntName[i], "quadmesh", &fields[i][zmin][0][xmin], dims,ndims, NULL, 0, DB_DOUBLE, DB_NODECENT, NULL);
+    }
+    
+
+    DBClose(dbfile);
+    DBFreeOptlist(optlist);
+    
+    
+    
+    /*   DBSetDir(dbfile, "..");*/
+}
+
+
 void writeDomain(int count)
 {
+    int prout;
     
     DBfile *dbfile = NULL;
     
@@ -52,27 +114,30 @@ void writeDomain(int count)
     {
         data[i]=(float *)malloc(sizeof(float)*nnodes);
     }
-    
-    for(k=zmin;k<=zf;k++)
+    for(l=0;l<NC;l++)
     {
-        
-        for(j=ymax;j>=ymin;--j)
+        for(k=zmin;k<=zf;k++)
         {
             
-            for(i=xmax;i>=xmin;--i)
+            for(j=ymax;j>=ymin;--j)
             {
-                for(l=0;l<(indx_t) NC;l++)
+                
+                for(i=xmax;i>=xmin;--i)
                 {
-                    data[l][p] = (float) fields[l][k][j][i];
+                    for(l=0;l<(indx_t) NC;l++)
+                    {
+                        data[l][p] = (float) fields[l][k][j][i];
+                    }
+                    p++;
                 }
-                p++;
+                
             }
             
         }
-        
     }
     
-    sprintf(dirname, "results/multivar_proc%d.%d", rank,count);
+    
+    sprintf(dirname, "results/bubble%d.%d", rank,count);
     dbfile = DBCreate(dirname, DB_CLOBBER, DB_LOCAL,"domain data", DB_HDF5);    
     
     
@@ -102,7 +167,6 @@ void writeDomain(int count)
     /*   DBSetDir(dbfile, "..");*/
 }
 
-
 void write_multimesh(DBfile *dbfile, int cycle)
 {
     char **meshnames = NULL;
@@ -113,7 +177,7 @@ void write_multimesh(DBfile *dbfile, int cycle)
     for(dom = 0; dom < nmesh; ++dom)
     {
         char tmp[100];
-        sprintf(tmp, "multivar_proc%d.%d:quadmesh", dom,cycle);
+        sprintf(tmp, "bubble%d.%d:quadmesh", dom,cycle);
         meshnames[dom] = strdup(tmp);
     }
     /* Create the list of mesh types. */
@@ -130,6 +194,8 @@ void write_multimesh(DBfile *dbfile, int cycle)
     free(meshnames);
     free(meshtypes);
 }
+
+
 
 void
 write_multivar(DBfile *dbfile,int cycle)
@@ -156,7 +222,7 @@ write_multivar(DBfile *dbfile,int cycle)
         {
             char tmp[256]={0};
             
-            sprintf(tmp, "multivar_proc%d.%d:%s", dom,cycle,cpntName[i]);
+            sprintf(tmp, "bubble%d.%d:%s", dom,cycle,cpntName[i]);
             varnames[dom] = strdup(tmp);
         }
         // Write the multivar. 
@@ -181,7 +247,7 @@ write_master(int cycle)
         DBfile *dbfile = NULL;
         char fileName[100];
         
-        sprintf(fileName,"./results/multivar%d.silo",cycle);
+        sprintf(fileName,"./results/bubble%d.silo",cycle);
         
         /* Open the Silo file */
         dbfile = DBCreate(fileName, DB_CLOBBER, DB_LOCAL,
@@ -189,7 +255,6 @@ write_master(int cycle)
         
         write_multimesh(dbfile,cycle);
         write_multivar(dbfile,cycle);
-        
         
         /* Close the Silo file. */
         DBClose(dbfile);
