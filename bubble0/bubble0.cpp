@@ -636,8 +636,28 @@ void simulate_one_timestep(simulation_data *sim)
     
     if(sim->savingFiles==1)
     {
-        writeDomain(sim->cycle);
+        /* tentive for saving using python
+        char  export_cmd[1024];
+        const char *export_format =
+        "d = ExportDBAttributes()\n"
+        "d.db_type = \"Silo\"\n"
+        "d.dirname=\"results\"\n"
+        "d.filename = \"file%d\"\n"
+        "d.variables=(\"rho\",\"u\")\n"    // Tuple of variables to export. "default" means the plotted variable.
+        "ExportDatabase(d)\n";
+        sprintf(export_cmd,export_format,sim->cycle);
+        
+       
+        VisItExecuteCommand(export_cmd);
+        
+        sleep(0.2);
+        _BARRIER;
+        */
+        
+        writeDomain2D(sim->cycle);
         write_master(sim->cycle);
+        fprintf(stderr,"write_master done\n");
+        fflush(stderr);
     }
     
     
