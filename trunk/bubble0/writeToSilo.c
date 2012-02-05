@@ -9,18 +9,16 @@ void writeDomain2D(int count)
     
     DBfile *dbfile = NULL;
     
-    int nz=zmax-zmin+2;
+    int nz=zmax-zmin+1+NG;
     int nx=Nx;
-    int ny=1;
+ //   int ny=1;
     int dims[] = {nx, nz};
     int ndims = 2;
-    int nnodes=nx*ny*nz;
-    int zf=zmax+NG;
-    float *data[NC];
+
     
     float x[nx],z[nz];
     float *coords[] = {x, z};
-    indx_t  i,j,k,p,l;
+    indx_t  i;
     char dirname[100];
     int cycle=count;
     double Time=count*dt;
@@ -30,7 +28,6 @@ void writeDomain2D(int count)
     DBAddOption(optlist, DBOPT_DTIME, (void *)&Time);
     
     
-
     /* prepare a rectilinear mesh. */
     for(i=0;i<nx;i++)
         x[i]=i*dx;

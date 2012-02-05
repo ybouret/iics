@@ -84,6 +84,7 @@ SimGetMetaData(void *cbdata)
         visit_handle mmd = VISIT_INVALID_HANDLE;
       //  visit_handle vmd = VISIT_INVALID_HANDLE;
         visit_handle vmd[NC];
+        visit_handle vectormd;
         // visit_handle cmd = VISIT_INVALID_HANDLE;
         visit_handle emd = VISIT_INVALID_HANDLE;
         
@@ -137,6 +138,19 @@ SimGetMetaData(void *cbdata)
             }
             
         }
+        //here we define the meta data of the vector
+        /*
+        vectormd=VISIT_INVALID_HANDLE;
+        if(VisIt_VariableMetaData_alloc(&vectormd) == VISIT_OKAY)
+        {
+            VisIt_VariableMetaData_setName(vectormd, cpntName[NC]);
+            VisIt_VariableMetaData_setMeshName(vectormd, "quadmesh");
+            VisIt_VariableMetaData_setType(vectormd, VISIT_VARTYPE_VECTOR);
+            VisIt_VariableMetaData_setCentering(vectormd, VISIT_VARCENTERING_NODE);
+            VisIt_SimulationMetaData_addVariable(md, vectormd);
+
+        }
+         */
         /* Add an expression. 
          if(VisIt_ExpressionMetaData_alloc(&emd) == VISIT_OKAY)
          {
@@ -252,61 +266,46 @@ SimGetVariable(int domain, const char *name, void *cbdata)
     //  simulation_data *sim = (simulation_data *)cbdata;
     
     // fprintf(stderr,"proc %d: SimGetVariable\n",rank);
-    for(i=0;i<NC;i++)
+    for(i=0;i<NC+1;i++)
        if(strcmp(name, cpntName[i]) == 0)
            toPlot=i;
         
    // if(strcmp(name, "u") == 0)
      if(rmesh_dims[2]==1) // we are in 2D
     {
-        float *zoneptr;
-        float  *rmesh_zonal;
-        int i, j, k, nTuples;
-        if(rmesh_dims[2]==0) //we are in 2D
-            nTuples = (rmesh_dims[0]) * (rmesh_dims[1]);
 
-        else
-            nTuples = (rmesh_dims[0]) * (rmesh_dims[1])*(rmesh_dims[2]);
+        int nTuples = (rmesh_dims[0]) * (rmesh_dims[1])*(rmesh_dims[2]);
 
-        
-        // Calculate a zonal variable that moves around. 
-        rmesh_zonal = (float*)malloc(sizeof(float)*nTuples);
-        zoneptr = rmesh_zonal;
-        
-        // A RETRAVAILLER
-        if((size==2)&&rank==0)      
-        {
-           // for(k=zmin;k<=zmax;k++)
-                for(k=zmax+NG;k>=zmin;--k)
-            {
-                j=0;
-                // for(j = 0; j < rmesh_dims[1]; ++j)
-                {
-                    for(i = 0; i < rmesh_dims[0]; ++i)
-                    {
-                        
-                        *zoneptr++ = fields[toPlot][k][j][i];
-                    }
-                }
-            }
-        }
-        else
-        {
-            for(k=zmin;k<=zmax+NG;k++)
-            {
-                j=0;
-                // for(j = 0; j < rmesh_dims[1]; ++j)
-                {
-                    for(i = 0; i < rmesh_dims[0]; ++i)
-                    {
-                        
-                        *zoneptr++ = fields[toPlot][k][j][i];
-                    }
-                }
-            }
-        }
         VisIt_VariableData_alloc(&h);
-        VisIt_VariableData_setDataF(h,VISIT_OWNER_VISIT,1,nTuples, rmesh_zonal);
+        if(toPlot<NC) //we give a vector or a scalar
+        {
+            //scalar
+            VisIt_VariableData_setDataD(h,VISIT_OWNER_SIM,1,nTuples, &fields[toPlot][zmin][ymin][xmin]);
+        }
+        else
+        {
+            //vector;
+            
+            float *vec;
+            int p=0,i;
+            vec = (float*)malloc(sizeof(float)*2*nTuples);
+            double *ptrU=&fields[4][zmin][ymin][xmin];
+            double *ptrV=&fields[5][zmin][ymin][xmin];
+            
+            
+            for(i=0;i<nTuples;i++)
+            {
+                vec[p]=ptrU[i];
+                p++;
+                vec[p]=ptrV[i];
+                p++;
+            }
+            
+            VisIt_VariableData_setDataF(h,VISIT_OWNER_VISIT,2,nTuples, vec);            
+            free(vec);
+        }
+
+        
     }
     else // we are in 3D
     {
