@@ -10,14 +10,14 @@
 
  
 
-static const size_t NC = 3;     /*!< two components */
-const char                *cpntName[] = {"rho","u","v"};  /*Name of the components*/
+static const size_t NC = 4;     /*!< two components */
+const char                *cpntName[] = {"rho","u","v","pressure"};  /*Name of the components*/
 static indx_t       Nx = 128;   /*!< 0 -> Nx-1      */
 static indx_t       Ny = 1;   /*!< 0 -> Ny-1      */
 static indx_t       Nz = 128;   /*!< 0 -> Nz-1      */
 static indx_t       NG = 2;     /*!< #ghosts        */
 static real_t       Lx = 128.0;
-static real_t       Ly = 128.0;
+static real_t       Ly = 64.0;
 static real_t       Lz = 128.0; 
 
 static real_t   ****fields          = NULL;
@@ -39,8 +39,9 @@ static indx_t       zlo             = 0; /*!< with ghosts    */
 static indx_t       zhi             = 0; /*!< with ghosts    */
 
 static real_t       dx=1,dy=1,dz=1;
-static real_t       idx2,idy2,idz2;
-static real_t       dt = 0.0;
+static real_t       idx=1.0/dx,idy=1.0/dy,idz=1.0/dz;
+static real_t       idx2=idx*idx,idy2=idy*idy,idz2=idz*idz;
+static real_t       dt = 0.01;
 
 #define _CHECK(MPI_ROUTINE) do { const int __rc = MPI_ROUTINE; if( MPI_SUCCESS != __rc ) { fprintf( stderr, "Failure: " #MPI_ROUTINE "\n" ); exit(-1); } } while(0)
 #define _BARRIER _CHECK(MPI_Barrier(MPI_COMM_WORLD))
@@ -48,9 +49,10 @@ static MPI_Request *requests = NULL;
 static size_t       num_reqs = 0;
 static const int    diff_tag = 7;
 
+#define alea (rand()/(0.0+RAND_MAX)*2-1)
 
 int   rmesh_dims[3];
-
+static void initMetaBubble();
 #include "stubs.c"
 #include "ui.cpp"
 #include "writeToSilo.c"
@@ -93,7 +95,7 @@ static void delete_fields()
 {
 	if( fields)
 	{
-		size_t i=NC+1;
+		int i=NC;
 		while( i > 0 )
 		{
 			icp_delete_array3D(fields[--i],xmin,xmax,ymin,ymax,zlo,zhi);
@@ -229,43 +231,122 @@ static void waitRequests(int i)
         _CHECK(MPI_Wait(&requests[j+k],&status));
 }
 
-/*
 
-static void compute_laplacian( real_t ***f )
+real_t pressure(real_t x)
 {
-	indx_t i,j,k;
-	for(k=zmax;k>=zmin;--k)
-	{
-		indx_t km=k-1; // always valid for there are ghosts 
-		indx_t kp=k+1; // always valid for there are ghosts 
-		for(j=ymax;j>=ymin;--j)
-		{
-			indx_t jm = j-1;
-			indx_t jp = j+1;
-			if( jm < ymin ) jm = ymax;
-			if( jp > ymax ) jp = ymin;
-			for(i=xmax;i>=xmin;--i)
-			{
-				indx_t im = i-1;
-				indx_t ip = i+1;
-				if( im < xmin ) im = xmax;
-				if( ip > xmax ) ip = xmin;
-				
-				const real_t f0  = f[k][j][i];
-				const real_t tf0 = f0 + f0;
-				const real_t lx    = idx2*(f[k][j][im]-tf0+f[k][j][ip]);
-				const real_t ly    = idy2*(f[k][jm][i]-tf0+f[k][jp][i]);
-				const real_t lz    = idz2*(f[km][j][i]-tf0+f[kp][j][i]);
-				//laplacian[k][j][i] = lx + ly + lz;
-			}
-		}
-	}
+    return x-1.9*x*x+x*x*x;
+//    return x;
 }
-static void compute_laplacianAtZ( real_t ***f, indx_t k)
+#define eta 0.05
+#define gamma 0.1
+#define noise 0.0
+
+
+
+real_t dxx(indx_t var,indx_t i,indx_t j,indx_t k)
 {
-    indx_t i,j;
-    indx_t km=k-1; // always valid for there are ghosts 
-    indx_t kp=k+1; // always valid for there are ghosts 
+    real_t ***f=fields[var];
+    int im=i-1,ip=i+1;
+    
+    if( im < xmin ) im = xmax;
+    if( ip > xmax ) ip = xmin;
+    
+    return idx2*(f[k][j][ip]-2*f[k][j][i]+f[k][j][im]);
+}
+
+real_t dzz(indx_t var,indx_t i,indx_t j,indx_t k)
+{
+    real_t ***f=fields[var];
+    
+    indx_t km=k-1; /* always valid for there are ghosts */
+    indx_t kp=k+1; /* always valid for there are ghosts */
+
+    
+    return idz2*(f[kp][j][i]-2*f[k][j][i]+f[km][j][i]);
+}
+real_t lap(indx_t var,indx_t i,indx_t j,indx_t k)
+{
+    return dxx(var,i,j,k)+dzz(var,i,j,k);
+}
+real_t dxrho(indx_t i,indx_t j,indx_t k)
+{
+    real_t ***rho=fields[0];
+    int im=i-1,ip=i+1;
+    
+    if( im < xmin ) im = xmax;
+    if( ip > xmax ) ip = xmin;
+    return idx*(rho[k][j][ip]-rho[k][j][im])*0.5;
+}
+
+real_t dzrho(indx_t i,indx_t j,indx_t k)
+{
+    real_t ***rho=fields[0];
+    indx_t km=k-1; /* always valid for there are ghosts */
+    indx_t kp=k+1; /* always valid for there are ghosts */
+    
+    return idz*(rho[kp][j][i]-rho[km][j][i])*0.5;
+}
+real_t sigma_xx(indx_t i,indx_t j,indx_t k)
+{
+    real_t ***rho =fields[0];
+    real_t ***U   =fields[1];
+    
+    indx_t im=i-1;
+    if( im < xmin ) im = xmax;
+    
+    return 
+    -pressure(rho[k][j][i])
+    +gamma*lap(0,i,j,k)
+    +2.0*eta*idx*(U[k][j][i]-U[k][j][i-1]);
+    //+2.0*eta*idx*(U[k][j][i]/rho[k][j][i]-U[k][j][i-1]/rho[k][j][i-1]);
+}
+real_t sigma_xz(indx_t i,indx_t j,indx_t k)
+{
+//    real_t ***rho =fields[0];
+    real_t ***U   =fields[1];
+    real_t ***W   =fields[2];
+    
+    indx_t im=i-1;
+    if( im < xmin ) im = xmax;
+
+    return eta*(
+                idx*(W[k][j][i]-W[k][j][im])+
+                idz*(U[k][j][i]-U[k-1][j][i])   
+                //idx*(W[k][j][i]/rho[k][j][i]-W[k][j][im]/rho[k][j][im])+
+                //idz*(U[k][j][i]/rho[k][j][i]-U[k-1][j][i]/rho[k-1][j][i])     
+                     );
+}
+real_t sigma_zz(indx_t i,indx_t j,indx_t k)
+{
+    
+    real_t ***rho =fields[0];
+    real_t ***W   =fields[2];
+
+    return 
+    -pressure(rho[k][j][i])
+    +gamma*lap(0,i,j,k)
+    +2*eta*idz*(W[k][j][i]-W[k-1][j][i]);
+   // +2*eta*idz*(W[k][j][i]/rho[k][j][i]-W[k-1][j][i]/rho[k-1][j][i]);
+   
+}
+void computeDFieldsAtZ(indx_t k)
+{
+	indx_t i,j;
+    real_t ***rho =fields[0];
+    real_t ***U   =fields[1];
+    real_t ***W   =fields[2];
+    real_t ***pres=fields[3];
+    
+    real_t ***drho=dfields[0];
+    real_t ***dU  =dfields[1];
+    real_t ***dW  =dfields[2];
+    real_t ***dpres=fields[3];
+    
+    
+    
+    indx_t km=k-1; /* always valid for there are ghosts */
+    indx_t kp=k+1; /* always valid for there are ghosts */
+ 
     for(j=ymax;j>=ymin;--j)
     {
         indx_t jm = j-1;
@@ -279,138 +360,51 @@ static void compute_laplacianAtZ( real_t ***f, indx_t k)
             if( im < xmin ) im = xmax;
             if( ip > xmax ) ip = xmin;
             
-            const real_t f0  = f[k][j][i];
-            const real_t tf0 = f0 + f0;
-            const real_t lx    = idx2*(f[k][j][im]-tf0+f[k][j][ip]);
-            const real_t ly    = idy2*(f[k][jm][i]-tf0+f[k][jp][i]);
-            const real_t lz    = idz2*(f[km][j][i]-tf0+f[kp][j][i]);
-            //laplacian[k][j][i] = lx + ly + lz;
-        }
-    }
-}
+            drho[k][j][i]=-idx*(U[k][j][i]-U[k][j][im])-idz*(W[k][j][i]-W[km][j][i]);
+            
+            
+            dU[k][j][i]  =
+            idx*(sigma_xx(ip,j,k)-sigma_xx(i,j,k))+
+            idz*0.5*(
+                     (sigma_xz(i,j,kp)+sigma_xz(ip,j,kp))-
+                     (sigma_xz(i,j,km)+sigma_xz(ip,j,km))
+                     );
+            
+            dW[k][j][i]  =
+            idz*(sigma_zz(i,j,kp)-sigma_zz(i,j,k))+
+            idx*0.5*(
+                     (sigma_xz(ip,j,kp)+sigma_xz(ip,j,k))-
+                     (sigma_xz(im,j,kp)+sigma_xz(im,j,k))
+                     );
 
-static void compute_laplacian2( real_t ***f, int bulk)
-{
-	indx_t k;
-    
-    if(bulk)
-    {
-        for(k=zmax-NG;k>=zmin+NG;--k)
-            compute_laplacianAtZ(f,k);
-    }
-    else
-    {
-        for(k=0;k<NG;k++)
-        {
-            compute_laplacianAtZ(f,zmax-k);
-            compute_laplacianAtZ(f,zmin+k);
-        }
-    }
-    
-}
-
-
-
-static void diffusion()
-{
-	size_t i;
-	size_t j;
-    
-    exchange_ghosts();
-	for( i=0; i < NC; ++i )
-	{
-		real_t ***f = fields[i];
-		compute_laplacian(f);
-		{
-			real_t       *dst = &f[zmin][ymin][xmin];
-			const real_t *src = &f[zmin][ymin][xmin];
-			for( j=0; j < items_per_field; ++j )
-			{
-                
-				dst[j] += dt * (src[j]+dst[j]-dst[j]*dst[j]*dst[j]);
-			}
-		}
-	}
-}
-static void diffusion2()
-{
-	size_t i;
-	size_t j;
-    
-	for( i=0; i < NC; ++i )
-	{
-		real_t ***f = fields[i];
-        
-        sendRequests(i);
-		compute_laplacian2(f,1); //bulk
-        waitRequests(i);
-        compute_laplacian2(f,0); //boundaries
-        
-        real_t       *dst = &f[zmin][ymin][xmin];
-        const real_t *src = &f[zmin][ymin][xmin];
-        for( j=0; j < items_per_field; ++j )
-        {
-            dst[j] += dt * (src[j]+dst[j]-dst[j]*dst[j]*dst[j]);
+ 
+            dpres[k][j][i]=0;
+            pres[k][j][i]=pressure(rho[k][j][i]);
+            
         }
         
-        
-	}
-}
- */
-real_t pressure(real_t x)
-{
-    return x-1.9*x*x+x*x*x;
- //   return x;
-}
-#define eta 0.1
-#define gamma 0.1
-
-
-real_t laprho(indx_t i,indx_t j,indx_t k,real_t idx2, real_t idy2,real_t idz2)
-{
-    real_t ***rho=fields[0];
-    
-    indx_t km=k-1; /* always valid for there are ghosts */
-    indx_t kp=k+1; /* always valid for there are ghosts */
-    
-    indx_t jm = j-1;
-    indx_t jp = j+1;
-    
-    indx_t im = i-1;
-    indx_t ip = i+1;
-    
-    if( jm < ymin ) jm = ymax;
-    if( jp > ymax ) jp = ymin;
-    
-    if( im < xmin ) im = xmax;
-    if( ip > xmax ) ip = xmin;
-    
-    return 
-    idx2*(rho[k][j][ip]-2*rho[k][j][i]+rho[k][j][im])+
-  //  idy2*(rho[k][jp][i]-2*rho[k][j][i]+rho[k][jm][i])+
-    idz2*(rho[kp][j][i]-2*rho[k][j][i]+rho[km][j][i]);
+    }
+	
 }
 
-void computeDFieldsAtZ(indx_t k)
+void computeDFieldsAtZOld(indx_t k)
 {
 	indx_t i,j;
-    real_t ***rho=fields[0];
-    real_t ***U  =fields[1];
-    real_t ***W  =fields[2];
+    real_t ***rho =fields[0];
+    real_t ***U   =fields[1];
+    real_t ***W   =fields[2];
+    real_t ***pres=fields[3];
+ 
     
     
     
     real_t ***drho=dfields[0];
     real_t ***dU  =dfields[1];
     real_t ***dW  =dfields[2];
-    real_t idx=1.0/dx;
-    real_t idy=1.0/dy;
-    real_t idz=1.0/dz;
+    real_t ***dpres=fields[3];
+
     
-    real_t idx2=idx*idx;
-    real_t idy2=idy*idy;
-    real_t idz2=idz*idz;
-    
+ 
     
     indx_t km=k-1; /* always valid for there are ghosts */
     indx_t kp=k+1; /* always valid for there are ghosts */
@@ -432,18 +426,19 @@ void computeDFieldsAtZ(indx_t k)
             
             dU[k][j][i]  =
             -idx*(pressure(rho[k][j][ip])-pressure(rho[k][j][i]))
-            +idx*gamma*(laprho(ip,j,k,idx2,idy2,idz2)-laprho(i,j,k,idx2,idy2,idz2))
-            +eta*(
-                  idx2*(U[k][j][ip]-2*U[k][j][i]+U[k][j][im])+
-                  idz2*(U[kp][j][i]-2*U[k][j][i]+U[km][j][i])
-                  );
+            +idx*gamma*(lap(0,ip,j,k)-lap(0,i,j,k))
+            +eta*lap(1,i,j,k)
+            +noise*alea;
             dW[k][j][i]  =
             -idz*(pressure(rho[kp][j][i])-pressure(rho[k][j][i]))
-            +idz*gamma*(laprho(i,j,kp,idx2,idy2,idz2)-laprho(i,j,k,idx2,idy2,idz2))
-            +eta*(
-                  idx2*(W[k][j][ip]-2*W[k][j][i]+W[k][j][im])+
-                  idz2*(W[kp][j][i]-2*W[k][j][i]+W[km][j][i])
-                  );
+            +idz*gamma*(lap(0,i,j,kp)-lap(0,i,j,k))
+            +eta*lap(2,i,j,k)
+            +noise*alea;
+            
+
+            dpres[k][j][i]=0;
+            pres[k][j][i]=pressure(rho[k][j][i]);
+            
         }
         
     }
@@ -478,10 +473,11 @@ static void integrate()
     
     for( i=0; i < NC; ++i )
         sendRequests(i);
+    computeDFields(1); //bulk;
+
     for( i=0; i < NC; ++i )
         waitRequests(i);
     
-    computeDFields(1); //bulk;
     computeDFields(0); //boundaries;
     
     
@@ -512,8 +508,36 @@ double  mesureTimeForExchangingGhost()
 	return elapsedTime;
     
 }
+static void initMetaBubble()
+{
+	indx_t i,j,k;
+    real_t x,y,z;
+    real_t ***rho=fields[0];
+    real_t ***U  =fields[1];
+    real_t ***V  =fields[2];
+    srand(time(NULL)+rank);
+	
+    for(k=zmax;k>=zmin;--k)  
+	{
+        z=k*dz-Lz*0.5;
+		for(j=ymax;j>=ymin;--j)
+		{
+            y=j*dy-Ly*0.5;
+			for(i=xmax;i>=xmin;--i)
+			{
+                x=i*dx-Lx*0.5;
+                if(x*x+z*z<(Lx*Lx+Lz*Lz)*0.01)
+                    rho[k][j][i] =0.9+0.001*alea;
+                else
+                    rho[k][j][i] =1.1;
 
-#define alea (rand()/(0.0+RAND_MAX)*2-1)
+                U[k][j][i] =0;
+                V[k][j][i] =0;
+            }
+		}
+	}
+}
+#define initBubble 0
 static void init_fields()
 {
 	indx_t i,j,k;
@@ -533,9 +557,22 @@ static void init_fields()
 			{
                 x=i*dx-Lx*0.5;
               //  if(x*x+z*z<100)
-                rho[k][j][i] =0.6+0.001*alea;
-                U[k][j][i] =0;
-                V[k][j][i] =0;
+                if(initBubble)
+                {
+                    if(x*x+z*z<(Lx*Lx+Lz*Lz)*0.02)
+                        rho[k][j][i] =0.2+0.00*alea;
+                    else
+                        rho[k][j][i] =1.1;
+                    
+                   // rho[k][j][i]=1.09+0.001*alea;
+                }
+                else
+                {
+                    rho[k][j][i] =0.6+0.000*alea;
+                    U[k][j][i] =+0.001*alea;
+                    V[k][j][i] =+0.001*alea;
+                }
+               
             }
 		}
 	}
@@ -629,7 +666,7 @@ void simulate_one_timestep(simulation_data *sim)
         elapsedTime=MPI_Wtime();
     
     // Diffusion 
-    for(i=0;i<40;i++)
+    for(i=0;i<100;i++)
     {
         integrate();
     }
@@ -656,8 +693,7 @@ void simulate_one_timestep(simulation_data *sim)
         
         writeDomain2D(sim->cycle);
         write_master(sim->cycle);
-        fprintf(stderr,"write_master done\n");
-        fflush(stderr);
+       
     }
     
     
@@ -698,7 +734,6 @@ int main(int argc, char *argv[] )
 	idx2 = 1/(dx*dx); 
 	idy2 = 1/(dy*dy);
 	idz2 = 1/(dz*dz);
-	dt=0.05;
 	srand( time(NULL) );
 	setvbuf( stderr, NULL, 0, _IONBF );
     
