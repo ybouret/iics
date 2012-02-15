@@ -65,7 +65,7 @@ void simulate_one_timestep(simulation_data *sim);
  For interactive purposes: buttons interface for visit
  **************************************************************************/
 const char *cmd_names[] = {"halt", "step", "run", "saveon","raz", "raz"}; /*For in*/
-static void init_fields();
+static void init_fields(int cond);
 /******************************************************************************
  *
  * Purpose: This callback function returns simulation metadata.
@@ -188,35 +188,33 @@ SimGetMesh(int domain, const char *name, void *cbdata)
             if(rmesh_dims[2]==1) // we are in 2D
             {
                 int i,minRealIndex[2]={0,0}, maxRealIndex[2]={0,0};
-                float *rmesh[2];
+               // float *rmesh[2];
                 visit_handle h[2];
                 
                 for(i=0;i<2;i++)
                 {
                     minRealIndex[i] = 0;
                     maxRealIndex[i] = rmesh_dims[i]-1;
-                    // attention do not free ! since we set the flag VISIT_OWNER_VISIT
-                    rmesh[i] = (float *)malloc(sizeof(float) * rmesh_dims[i]);
                 }
                 
-                for(i = 0; i < rmesh_dims[0]; ++i)
-                    rmesh[0][i] = i*dx;
-                for(i = 0; i < rmesh_dims[1]; ++i)
-                   rmesh[1][i] = (zmin+i)*dz;
+                
                 
                 for(i=0;i<2;i++)
                 {
                     VisIt_VariableData_alloc(&h[i]);
-                    VisIt_VariableData_setDataF(h[i], VISIT_OWNER_VISIT, 1,rmesh_dims[i], rmesh[i]);
+                    VisIt_VariableData_setDataF(h[i], VISIT_OWNER_SIM, 1,rmesh_dims[i], rmesh[i]);
                     
                 }
                 VisIt_RectilinearMesh_setCoordsXY(res, h[0], h[1]);
                 VisIt_RectilinearMesh_setRealIndices(res, minRealIndex, maxRealIndex);
+                
+              //  for(i=0;i<2;i++)
+              //      free(rmesh[i]);
+
             }
             else
             {
                 int i,minRealIndex[3]={0,0,0}, maxRealIndex[3]={0,0,0};
-                float *rmesh[3];
                 visit_handle h[3];
  
                 
@@ -224,8 +222,6 @@ SimGetMesh(int domain, const char *name, void *cbdata)
                 {
                     minRealIndex[i] = 0;
                     maxRealIndex[i] = rmesh_dims[i]-1;
-                    // attention do not free !
-                    rmesh[i] = (float *)malloc(sizeof(float) * rmesh_dims[i]);
                 }
                 
                 for(i = 0; i < rmesh_dims[0]; ++i)
@@ -239,11 +235,12 @@ SimGetMesh(int domain, const char *name, void *cbdata)
                 for(i=0;i<3;i++)
                 {
                     VisIt_VariableData_alloc(&h[i]);
-                    VisIt_VariableData_setDataF(h[i], VISIT_OWNER_VISIT, 1,rmesh_dims[i], rmesh[i]);
+                    VisIt_VariableData_setDataF(h[i], VISIT_OWNER_SIM, 1,rmesh_dims[i], rmesh[i]);
                     
                 }
                 VisIt_RectilinearMesh_setCoordsXYZ(res, h[0], h[1],h[2]);
                 VisIt_RectilinearMesh_setRealIndices(res, minRealIndex, maxRealIndex);
+ 
             }
                 
              
@@ -265,7 +262,7 @@ SimGetVariable(int domain, const char *name, void *cbdata)
     int i;
     //  simulation_data *sim = (simulation_data *)cbdata;
     
-    // fprintf(stderr,"proc %d: SimGetVariable\n",rank);
+     fprintf(stderr,"proc %d: SimGetVariable\n",rank);
     for(i=0;i<NC+1;i++)
        if(strcmp(name, cpntName[i]) == 0)
            toPlot=i;
@@ -500,7 +497,7 @@ void ControlCommandCallback(const char *cmd, const char *args, void *cbdata)
     else if(strcmp(cmd, "run") == 0)
         sim->runMode = SIM_RUNNING;
     else if(strcmp(cmd, "raz") == 0)
-        init_fields();
+        init_fields(0);
     else if(strcmp(cmd, "addplot") == 0)
     {
         VisItExecuteCommand("AddPlot(\"Pseudocolor\", \"zonal\")\n");
@@ -542,7 +539,7 @@ ProcessConsoleCommand(simulation_data *sim)
     else if(strcmp(cmd, "run") == 0)
         sim->runMode = SIM_RUNNING;
     else if(strcmp(cmd, "raz") == 0)
-        init_fields();
+        init_fields(0);
     else if(strcmp(cmd, "update") == 0)
     {
         VisItTimeStepChanged();
