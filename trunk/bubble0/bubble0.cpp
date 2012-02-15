@@ -16,9 +16,9 @@ static indx_t       Nx = 128;   /*!< 0 -> Nx-1      */
 static indx_t       Ny = 1;   /*!< 0 -> Ny-1      */
 static indx_t       Nz = 128;   /*!< 0 -> Nz-1      */
 static indx_t       NG = 2;     /*!< #ghosts        */
-static real_t       Lx = 128.0;
+static real_t       Lx = 64.0;
 static real_t       Ly = 64.0;
-static real_t       Lz = 128.0; 
+static real_t       Lz = 64.0; 
 
 static real_t   ****fields          = NULL;
 static real_t   ****dfields         = NULL;
@@ -42,6 +42,8 @@ static real_t       dx=1,dy=1,dz=1;
 static real_t       idx=1.0/dx,idy=1.0/dy,idz=1.0/dz;
 static real_t       idx2=idx*idx,idy2=idy*idy,idz2=idz*idz;
 static real_t       dt = 0.01;
+float               *rmesh[3];
+
 
 #define _CHECK(MPI_ROUTINE) do { const int __rc = MPI_ROUTINE; if( MPI_SUCCESS != __rc ) { fprintf( stderr, "Failure: " #MPI_ROUTINE "\n" ); exit(-1); } } while(0)
 #define _BARRIER _CHECK(MPI_Barrier(MPI_COMM_WORLD))
@@ -52,7 +54,6 @@ static const int    diff_tag = 7;
 #define alea (rand()/(0.0+RAND_MAX)*2-1)
 
 int   rmesh_dims[3];
-static void initMetaBubble();
 #include "stubs.c"
 #include "ui.cpp"
 #include "writeToSilo.c"
@@ -239,7 +240,7 @@ real_t pressure(real_t x)
 }
 #define eta 0.05
 #define gamma 0.1
-#define noise 0.0
+#define noise 0.00
 
 
 
@@ -268,65 +269,72 @@ real_t lap(indx_t var,indx_t i,indx_t j,indx_t k)
 {
     return dxx(var,i,j,k)+dzz(var,i,j,k);
 }
-real_t dxrho(indx_t i,indx_t j,indx_t k)
+real_t gradx(indx_t var,indx_t i,indx_t j,indx_t k)
 {
-    real_t ***rho=fields[0];
+    real_t ***f=fields[var];
     int im=i-1,ip=i+1;
     
     if( im < xmin ) im = xmax;
     if( ip > xmax ) ip = xmin;
-    return idx*(rho[k][j][ip]-rho[k][j][im])*0.5;
+    return idx*(f[k][j][ip]-f[k][j][im])*0.5;
 }
 
-real_t dzrho(indx_t i,indx_t j,indx_t k)
+real_t gradz(indx_t var,indx_t i,indx_t j,indx_t k)
 {
-    real_t ***rho=fields[0];
+    real_t ***f=fields[var];
     indx_t km=k-1; /* always valid for there are ghosts */
     indx_t kp=k+1; /* always valid for there are ghosts */
     
-    return idz*(rho[kp][j][i]-rho[km][j][i])*0.5;
+    return idz*(f[kp][j][i]-f[km][j][i])*0.5;
 }
 real_t sigma_xx(indx_t i,indx_t j,indx_t k)
 {
     real_t ***rho =fields[0];
     real_t ***U   =fields[1];
-    
+    real_t gx=gradx(0,i,j,k);
+    real_t gz=gradz(0,i,j,k);
     indx_t im=i-1;
     if( im < xmin ) im = xmax;
     
     return 
     -pressure(rho[k][j][i])
-    +gamma*lap(0,i,j,k)
-    +2.0*eta*idx*(U[k][j][i]-U[k][j][i-1]);
-    //+2.0*eta*idx*(U[k][j][i]/rho[k][j][i]-U[k][j][i-1]/rho[k][j][i-1]);
+    +gamma*(rho[k][j][i]*lap(0,i,j,k)+0.5*(gx*gx-gz*gz))
+   // +2.0*eta*idx*(U[k][j][i]-U[k][j][im]);
+    +2.0*eta*idx*(U[k][j][i]/rho[k][j][i]-U[k][j][i-1]/rho[k][j][i-1]);
 }
 real_t sigma_xz(indx_t i,indx_t j,indx_t k)
 {
-//    real_t ***rho =fields[0];
+    real_t ***rho =fields[0];
     real_t ***U   =fields[1];
     real_t ***W   =fields[2];
+    real_t gx=gradx(0,i,j,k);
+    real_t gz=gradz(0,i,j,k);
     
     indx_t im=i-1;
     if( im < xmin ) im = xmax;
 
-    return eta*(
-                idx*(W[k][j][i]-W[k][j][im])+
-                idz*(U[k][j][i]-U[k-1][j][i])   
-                //idx*(W[k][j][i]/rho[k][j][i]-W[k][j][im]/rho[k][j][im])+
-                //idz*(U[k][j][i]/rho[k][j][i]-U[k-1][j][i]/rho[k-1][j][i])     
-                     );
+    return 
+    gamma*(gx*gz)
+    +eta*(
+                //idx*(W[k][j][i]-W[k][j][im])+
+                //idz*(U[k][j][i]-U[k-1][j][i])   
+                idx*(W[k][j][i]/rho[k][j][i]-W[k][j][im]/rho[k][j][im])+
+                idz*(U[k][j][i]/rho[k][j][i]-U[k-1][j][i]/rho[k-1][j][i])     
+                    ) ;
 }
 real_t sigma_zz(indx_t i,indx_t j,indx_t k)
 {
     
     real_t ***rho =fields[0];
     real_t ***W   =fields[2];
-
+    real_t gx=gradx(0,i,j,k);
+    real_t gz=gradz(0,i,j,k);
+    
     return 
     -pressure(rho[k][j][i])
-    +gamma*lap(0,i,j,k)
-    +2*eta*idz*(W[k][j][i]-W[k-1][j][i]);
-   // +2*eta*idz*(W[k][j][i]/rho[k][j][i]-W[k-1][j][i]/rho[k-1][j][i]);
+    +gamma*(rho[k][j][i]*lap(0,i,j,k)-0.5*(gx*gx-gz*gz))
+   // +2*eta*idz*(W[k][j][i]-W[k-1][j][i]);
+    +2*eta*idz*(W[k][j][i]/rho[k][j][i]-W[k-1][j][i]/rho[k-1][j][i]);
    
 }
 void computeDFieldsAtZ(indx_t k)
@@ -365,21 +373,23 @@ void computeDFieldsAtZ(indx_t k)
             
             dU[k][j][i]  =
             idx*(sigma_xx(ip,j,k)-sigma_xx(i,j,k))+
-            idz*0.5*(
+            idz*0.25*(
                      (sigma_xz(i,j,kp)+sigma_xz(ip,j,kp))-
                      (sigma_xz(i,j,km)+sigma_xz(ip,j,km))
-                     );
+                     )
+            +noise*alea;
             
             dW[k][j][i]  =
             idz*(sigma_zz(i,j,kp)-sigma_zz(i,j,k))+
-            idx*0.5*(
+            idx*0.25*(
                      (sigma_xz(ip,j,kp)+sigma_xz(ip,j,k))-
                      (sigma_xz(im,j,kp)+sigma_xz(im,j,k))
-                     );
+                     )
+            +noise*alea;
 
  
             dpres[k][j][i]=0;
-            pres[k][j][i]=pressure(rho[k][j][i]);
+            pres[k][j][i]=pressure(rho[k][j][i])-gamma*(rho[k][j][i]*lap(0,i,j,k)+0.5*(gradx(0,i,j,k)*gradx(0,i,j,k)+gradz(0,i,j,k)*gradz(0,i,j,k)));
             
         }
         
@@ -508,37 +518,8 @@ double  mesureTimeForExchangingGhost()
 	return elapsedTime;
     
 }
-static void initMetaBubble()
-{
-	indx_t i,j,k;
-    real_t x,y,z;
-    real_t ***rho=fields[0];
-    real_t ***U  =fields[1];
-    real_t ***V  =fields[2];
-    srand(time(NULL)+rank);
-	
-    for(k=zmax;k>=zmin;--k)  
-	{
-        z=k*dz-Lz*0.5;
-		for(j=ymax;j>=ymin;--j)
-		{
-            y=j*dy-Ly*0.5;
-			for(i=xmax;i>=xmin;--i)
-			{
-                x=i*dx-Lx*0.5;
-                if(x*x+z*z<(Lx*Lx+Lz*Lz)*0.01)
-                    rho[k][j][i] =0.9+0.001*alea;
-                else
-                    rho[k][j][i] =1.1;
 
-                U[k][j][i] =0;
-                V[k][j][i] =0;
-            }
-		}
-	}
-}
-#define initBubble 0
-static void init_fields()
+static void init_fields(int cond)
 {
 	indx_t i,j,k;
     real_t x,y,z;
@@ -547,6 +528,8 @@ static void init_fields()
     real_t ***V  =fields[2];
     srand(time(NULL)+rank);
 	
+    if(rank==0)
+        fprintf(stderr,"initial condition is %d",cond);
     for(k=zmax;k>=zmin;--k)  
 	{
         z=k*dz-Lz*0.5;
@@ -557,20 +540,34 @@ static void init_fields()
 			{
                 x=i*dx-Lx*0.5;
               //  if(x*x+z*z<100)
-                if(initBubble)
+                switch(cond)
                 {
-                    if(x*x+z*z<(Lx*Lx+Lz*Lz)*0.02)
-                        rho[k][j][i] =0.2+0.00*alea;
-                    else
-                        rho[k][j][i] =1.1;
-                    
-                   // rho[k][j][i]=1.09+0.001*alea;
-                }
-                else
-                {
-                    rho[k][j][i] =0.6+0.000*alea;
-                    U[k][j][i] =+0.001*alea;
-                    V[k][j][i] =+0.001*alea;
+                        
+                    case 0:   
+                            if(x*x+z*z<(Lx*Lx+Lz*Lz)*0.02)
+                                rho[k][j][i] =0.2+0.00*alea;
+                            else
+                                rho[k][j][i] =1.1;
+                        break;
+                    case 1:
+                        if(x<Lx*0.1)
+                        {
+                            rho[k][j][i] =0.2+0.000*alea;
+                            U[k][j][i] =+0.001*alea;
+                            V[k][j][i] =+0.001*alea;
+                        }
+                        else
+                        {
+                            rho[k][j][i] =1.1+0.000*alea;
+                            U[k][j][i] =+0.001*alea;
+                            V[k][j][i] =+0.001*alea;
+                        } 
+                        break;
+                    default:   
+                            rho[k][j][i] =0.6+0.000*alea;
+                            U[k][j][i] =+0.001*alea;
+                            V[k][j][i] =+0.001*alea;
+                        break;
                 }
                
             }
@@ -581,7 +578,8 @@ static void init_fields()
 
 
 void initSimulation(void)
-{
+{ 
+    int i;
     /***************************************************************************
 	 * MPI setup
 	 **************************************************************************/
@@ -649,11 +647,18 @@ void initSimulation(void)
 		fprintf( stderr, "-- ready to compute\n");
 		fflush(stderr);
 	}
-	
-	
-	/***************************************************************************
-	 * initialize fields, initially at 0
-	 **************************************************************************/
+    
+    
+    rmesh_dims[0]=Nx;
+    rmesh_dims[1]=zmax-zmin+1+NG;
+    rmesh_dims[2]=1;
+    for(i=0;i<3;i++)
+        rmesh[i] = (float *)malloc(sizeof(float) * rmesh_dims[i]);
+    
+    for(i = 0; i < rmesh_dims[0]; ++i)
+        rmesh[0][i] = i*dx;
+    for(i = 0; i < rmesh_dims[1]; ++i)
+        rmesh[1][i] = (zmin+i)*dz;
 }
 void simulate_one_timestep(simulation_data *sim)
 {
@@ -666,40 +671,21 @@ void simulate_one_timestep(simulation_data *sim)
         elapsedTime=MPI_Wtime();
     
     // Diffusion 
-    for(i=0;i<100;i++)
+    for(i=0;i<40;i++)
     {
         integrate();
     }
     
     if(sim->savingFiles==1)
     {
-        /* tentive for saving using python
-        char  export_cmd[1024];
-        const char *export_format =
-        "d = ExportDBAttributes()\n"
-        "d.db_type = \"Silo\"\n"
-        "d.dirname=\"results\"\n"
-        "d.filename = \"file%d\"\n"
-        "d.variables=(\"rho\",\"u\")\n"    // Tuple of variables to export. "default" means the plotted variable.
-        "ExportDatabase(d)\n";
-        sprintf(export_cmd,export_format,sim->cycle);
-        
-       
-        VisItExecuteCommand(export_cmd);
-        
-        sleep(0.2);
-        _BARRIER;
-        */
-        
         writeDomain2D(sim->cycle);
         write_master(sim->cycle);
-       
     }
     
     
     if(sim->visitIsConnected==1)
     {
-        VisItTimeStepChanged();
+       // VisItTimeStepChanged();
         VisItUpdatePlots();
     }
     
@@ -708,8 +694,6 @@ void simulate_one_timestep(simulation_data *sim)
         fprintf(stderr,"%d cores:simulating: cycle=%d, time=%lg in %g s\n",sim->par_size, sim->cycle, sim->time,MPI_Wtime()-elapsedTime);
         fflush(stderr);
     }
-    
-    //  sleep(1);
 }
 int main(int argc, char *argv[] )
 {
@@ -749,10 +733,8 @@ int main(int argc, char *argv[] )
     /***************************************************************************
      * Initialize environment variables. 
 	 **************************************************************************/
-    rmesh_dims[0]=Nx;
-  //  rmesh_dims[1]=Ny;
-    rmesh_dims[1]=zmax-zmin+1+NG;
-    rmesh_dims[2]=1;
+    
+
     
     
     simulation_data sim;
@@ -786,7 +768,7 @@ int main(int argc, char *argv[] )
             fprintf(stderr,"problem with VisItInitializeSocketAndDumpSimFile \n");
         }
     }
-	init_fields();
+	init_fields(0);
     if(rank==0) VisItOpenTraceFile("./TraceFileOfLibSim.txt");
     set_interface(&sim);
 
