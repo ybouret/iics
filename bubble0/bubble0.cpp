@@ -240,7 +240,7 @@ real_t pressure(real_t x)
 }
 #define eta 0.05
 #define gamma 0.1
-#define noise 0.00
+#define noise 0.1
 
 
 
@@ -563,6 +563,22 @@ static void init_fields(int cond)
                             V[k][j][i] =+0.001*alea;
                         } 
                         break;
+                        
+                    case 2:
+                        if(x<Lx*0.1)
+                        {
+                            rho[k][j][i] =0.2+0.000*alea;
+                            U[k][j][i] =+0.001*alea;
+                            V[k][j][i] =+0.001*alea;
+                        }
+                        else
+                        {
+                            rho[k][j][i] =1.1+0.000*alea;
+                            U[k][j][i] =+0.001*alea;
+                            V[k][j][i] =+0.001*alea;
+                        } 
+                        break;
+
                     default:   
                             rho[k][j][i] =0.6+0.000*alea;
                             U[k][j][i] =+0.001*alea;
@@ -685,7 +701,7 @@ void simulate_one_timestep(simulation_data *sim)
     
     if(sim->visitIsConnected==1)
     {
-       // VisItTimeStepChanged();
+        VisItTimeStepChanged();
         VisItUpdatePlots();
     }
     
@@ -768,7 +784,7 @@ int main(int argc, char *argv[] )
             fprintf(stderr,"problem with VisItInitializeSocketAndDumpSimFile \n");
         }
     }
-	init_fields(0);
+	init_fields(3);
     if(rank==0) VisItOpenTraceFile("./TraceFileOfLibSim.txt");
     set_interface(&sim);
 
