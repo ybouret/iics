@@ -34,7 +34,7 @@ public:
     
     
 #if defined(HAS_MPI)
-    //! send content from rank 0 
+    //! broadcast content from rank=0
     void dispatch( mpi &MPI );
     
     //! collect changed points

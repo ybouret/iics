@@ -10,7 +10,8 @@ Bubble:: Bubble( Point::Pool &pcache, Spot::Pool &scache ) throw() :
 Point::List( pcache ),
 lambda(1),
 area(0),
-spots( scache )
+spots( scache ),
+active( true )
 {
 }
 
@@ -38,7 +39,7 @@ void Bubble:: update_points()
             //------------------------------------------------------------------
             // compute length to next vertex
             //------------------------------------------------------------------
-            const V2D pq(*p,*q);
+            const V2D pq(p->vertex,q->vertex);
             p->s_next = pq.norm();
             //std::cerr << "s_next=" << p->s_next << std::endl;
             
@@ -49,8 +50,8 @@ void Bubble:: update_points()
             {
                 //std::cerr << "..split" << std::endl;
                 Point *I = create();
-                I->x = p->x + 0.5 * pq.x;
-                I->y = p->y + 0.5 * pq.y;
+                I->vertex.x = p->vertex.x + 0.5 * pq.x;
+                I->vertex.y = p->vertex.y + 0.5 * pq.y;
                 insert_after(p, I);
                 assert(p->next==I);
                 q = I;
@@ -76,7 +77,7 @@ void Bubble:: update_points()
     //--------------------------------------------------------------------------
     // differential properties
     //--------------------------------------------------------------------------
-        
+    
 }
 
 
@@ -87,7 +88,7 @@ double Bubble:: evaluate_area() const throw()
     for( size_t i=size;i>0;--i,p=p->next)
     {
         const Point *q = p->next;
-        ans +=  p->x * q->y - p->y * q->x;
+        ans +=  p->vertex.x * q->vertex.y - p->vertex.y * q->vertex.x;
     }
     return 0.5 * Fabs(ans);
 }
@@ -106,8 +107,8 @@ void Bubble:: map_circle(const V2D &center, Real radius)
     {
         const double theta = i * dtheta;
         Point       *p     = create();
-        p->x = center.x + radius * Cos( theta );
-        p->y = center.y + radius * Sin( theta );
+        p->vertex.x = center.x + radius * Cos( theta );
+        p->vertex.y = center.y + radius * Sin( theta );
         push_back(p);
     }
 }
@@ -116,11 +117,17 @@ void Bubble:: build_spots(const Real y_lo, const Real y_up)
 {
     spots.empty();
     Point *p = root;
-    for( size_t i=size;i>0;--i,p=p->next)
+    size_t last_index = 0;
+    for( size_t i=0;i<size;++i,p=p->next)
     {
-        const double y = p->y;
+        const double y = p->vertex.y;
         if( y_lo <= y && y < y_up )
-            spots.append(p);
+        {
+            
+            spots.append(p);           
+            spots.tail->jump = i-last_index;
+            last_index = i;
+        }
     }
     active = spots.size > 0 ;
 }

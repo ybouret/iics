@@ -6,14 +6,14 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 Point:: Point() throw()  :
-V2D(),
+vertex(),
 s_next(0),
 next(0), prev(0)
 {
 }
 
 Point:: Point( const Point &other ) throw() : 
-V2D(other),
+vertex( other.vertex) ,
 s_next( other.s_next ),
 next(0), prev(0)
 {
@@ -26,8 +26,7 @@ Point::~Point() throw()
 
 Point & Point:: operator=( const Point & other ) throw() 
 {
-    V2D &self = *this;
-    self      = other;
+    vertex    = other.vertex;
     s_next    = other.s_next;
     return *this;
 }
@@ -71,9 +70,9 @@ Point * Point::List:: create()
     if( cache_.size > 0 )
     {
         Point *p = cache_.query();
-        p->x      =  0;
-        p->y      =  0;
-        p->s_next =  0;
+        p->vertex.x = 0;
+        p->vertex.y = 0;
+        p->s_next   = 0;
         return p;
     }
     else 

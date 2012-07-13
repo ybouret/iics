@@ -5,9 +5,11 @@
 #include "yocto/core/pool.hpp"
 #include "yocto/core/circular-list.hpp"
 
-class Point : public V2D
+//! a point on a border of a bubble
+class Point 
 {
 public:
+    V2D      vertex;  //!< x,y
     Real     s_next;  //!< distance to next point
     
     explicit Point() throw(); //!< x=y=0, domain=-1, d2next=0
@@ -19,6 +21,7 @@ public:
     Point *next; //!< for linked list
     Point *prev; //!< for linked list
     
+    //! Cache for Points
     typedef core::pool_of<Point> CorePool;
     class Pool : public CorePool
     {
@@ -31,7 +34,10 @@ public:
         YOCTO_DISABLE_COPY_AND_ASSIGN(Pool);
     };
     
+    
     typedef core::clist_of<Point> CoreList;
+    
+    //! a circular linked list
     class List : public CoreList
     {
     public:
