@@ -8,6 +8,8 @@ using namespace yocto;
 using namespace math;
 
 typedef double          Real;
+#define MPI_REAL_TYPE   MPI_DOUBLE
+
 typedef geom::v2d<Real> V2D;
 
 
