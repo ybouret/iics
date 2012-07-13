@@ -11,4 +11,5 @@ ADD_LIBRARY( laphs STATIC
 types.hpp types.cpp
 bubble.cpp bubble.hpp )
 
+ADD_SUBDIRECTORY(tests)
 
