@@ -9,8 +9,7 @@
 class Point : public V2D
 {
 public:
-    int      domain; //!< MPI style owner
-    Real     d2next; //!< distance to next point
+    Real     s_next;  //!< distance to next point
     
     explicit Point() throw(); //!< x=y=0, domain=-1, d2next=0
     virtual ~Point() throw(); //!< do nothing
@@ -43,30 +42,68 @@ public:
         void empty() throw(); //!< empty the points back into cache
         
         Point *create();  //!< get a new point (from cache if possible)
+        void   remove( Point *p ) throw(); //!< unlink and cache the point
         
     private:
         Pool &cache_;
         YOCTO_DISABLE_COPY_AND_ASSIGN(List);
     };
-    
+        
 };
 
-typedef Point::Pool PCache;
+struct Spot
+{
+    Point *point;
+    Spot  *next;
+    Spot  *prev;
+    
+    typedef core::pool_of<Spot> CorePool;
+    class Pool : public CorePool
+    {
+    public:
+        explicit Pool() throw();
+        virtual ~Pool() throw();
+        
+    private:
+        YOCTO_DISABLE_COPY_AND_ASSIGN(Pool);
+    };
+    
+    typedef core::list_of<Spot> CoreList;
+    class List : public CoreList
+    {
+    public:
+        explicit List( Pool &cache ) throw();
+        virtual ~List() throw();
+        void     empty() throw();
+        
+        void append( Point *p );
+        
+    private:
+        Pool &cache_;
+        YOCTO_DISABLE_COPY_AND_ASSIGN(List);
+    };
+};
 
-//! a non intersectiong polygon
+
+//! a non intersecting polygon
 class Bubble : public Point::List
 {
 public:
-    explicit Bubble( Point::Pool &cache ) throw();
+    explicit Bubble( Point::Pool &cache, Spot::Pool &spot_cache ) throw();
     virtual ~Bubble() throw();
     
-    double lambda; //!< critical length, default is 1
-    double area;   //!< area
+    double     lambda; //!< critical length, default is 1
+    double     area;   //!< area
+    Spot::List spots;  //!< keep trace of points
     
     void   update();
+    double evaluate_area() const throw(); //!< evaluate area, doesn't set it !
     
     //! empty list and put points on circle
     void map_circle( const V2D &center, Real radius );
+    
+    //! empty spots and find out point within y_lo <= y < y_up
+    void build_spots( const Real y_lo, const Real y_up );
     
 private:
     YOCTO_DISABLE_ASSIGN(Bubble);
