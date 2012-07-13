@@ -1,156 +1,16 @@
 #include "bubble.hpp"
 #include "yocto/code/utils.hpp"
 
-#include <cstring>
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-Point:: Point() throw()  :
-V2D(),
-s_next(0),
-next(0), prev(0)
-{
-}
-
-Point:: Point( const Point &other ) throw() : 
-V2D(other),
-s_next( other.s_next ),
-next(0), prev(0)
-{
-    
-}
-
-Point::~Point() throw()
-{
-}
-
-Point & Point:: operator=( const Point & other ) throw() 
-{
-    V2D &self = *this;
-    self      = other;
-    s_next    = other.s_next;
-    return *this;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
-Point:: Pool:: Pool() throw() : CorePool()
-{
-    
-}
-
-Point:: Pool:: Pool( size_t cache_size ) : CorePool()
-{
-    while( size < cache_size ) store( new Point() );
-}
-
-Point:: Pool:: ~Pool() throw()
-{
-    while( size ) delete query();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
-Point:: List:: List( Pool &cache ) throw() : CoreList(), cache_(cache)
-{
-}
-
-Point:: List:: ~List() throw()
-{
-    empty();
-}
-
-Point * Point::List:: create()
-{
-    if( cache_.size > 0 )
-    {
-        Point *p = cache_.query();
-        p->x      =  0;
-        p->y      =  0;
-        p->s_next =  0;
-        return p;
-    }
-    else 
-    {
-        return new Point();
-    }
-}
-
-void Point:: List:: empty() throw()
-{
-     while( size) cache_.store( pop_back() );
-}
-
-void Point:: List:: remove( Point *p ) throw()
-{
-    assert(p!=NULL);
-    assert(this->owns(p));
-    cache_.store( unlink(p) );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
-Spot:: Pool:: Pool() throw() : CorePool()
-{
-}
-
-Spot:: Pool:: ~Pool() throw()
-{
-    while( size ) delete query();
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
-Spot:: List:: List( Spot::Pool &cache ) throw() : CoreList(), cache_( cache )
-{
-    
-}
-
-Spot:: List:: ~List() throw()
-{
-    empty();
-}
-
-void Spot:: List:: empty() throw()
-{
-    while( size ) cache_.store( pop_back() );
-}
-
-void Spot::List:: append( Point *p )
-{
-    assert(p!=NULL);
-    Spot *spot = cache_.size > 0 ? cache_.query() : new Spot;
-    memset(spot,0,sizeof(Spot));
-    spot->point = p;
-    push_back(spot);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////
-Bubble:: Bubble( Point::Pool &cache, Spot::Pool &spot_cache ) throw() : 
-Point::List( cache ),
+Bubble:: Bubble( Point::Pool &pcache, Spot::Pool &scache ) throw() : 
+Point::List( pcache ),
 lambda(1),
 area(0),
-spots( spot_cache )
+spots( scache )
 {
 }
 
@@ -159,11 +19,11 @@ Bubble::~Bubble() throw()
 }
 
 
-void Bubble:: update()
+void Bubble:: update_points()
 {
     assert(size>=3);
     assert(root!=NULL);
-    area = 0;
+    // area=0
     
     Point *p = root;
     Point *q = p->next;
@@ -203,7 +63,7 @@ void Bubble:: update()
         //----------------------------------------------------------------------
         // update area
         //----------------------------------------------------------------------
-        area += p->x * q->y - p->y * q->x;
+        //area += p->x * q->y - p->y * q->x;
         
         
         //----------------------------------------------------------------------
@@ -212,7 +72,7 @@ void Bubble:: update()
         p = q;
         q = q->next;
     }
-    area = 0.5 * Fabs( area );
+    //area = 0.5 * Fabs( area );
     //--------------------------------------------------------------------------
     // differential properties
     //--------------------------------------------------------------------------
@@ -231,6 +91,8 @@ double Bubble:: evaluate_area() const throw()
     }
     return 0.5 * Fabs(ans);
 }
+
+void Bubble:: update_area() throw() { area = evaluate_area(); }
 
 void Bubble:: map_circle(const V2D &center, Real radius)
 {
@@ -260,5 +122,6 @@ void Bubble:: build_spots(const Real y_lo, const Real y_up)
         if( y_lo <= y && y < y_up )
             spots.append(p);
     }
+    active = spots.size > 0 ;
 }
 

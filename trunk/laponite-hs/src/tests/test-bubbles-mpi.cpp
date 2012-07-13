@@ -3,7 +3,6 @@
 #include "yocto/string/conv.hpp"
 #include "yocto/ios/ocstream.hpp"
 
-
 static inline void save_bubble( const Bubble &b, int level )
 {
     assert(b.size>=3);
@@ -32,11 +31,12 @@ static inline void save_spots( const Bubble &b, int level )
 
 
 
-int main( int argc, char * argv[] )
+int main( int argc, char *argv[] )
 {
-    AleaInit();
+    
     try 
     {
+        mpi &MPI = mpi::init( &argc, &argv);
         double radius = 1;
         if( argc > 1 )
         {
@@ -44,39 +44,40 @@ int main( int argc, char * argv[] )
         }
         Point::Pool pcache;
         Spot::Pool  scache;
-        
-        Bubble      b(pcache,scache);
-        
-        b.map_circle( V2D(0,0), radius);
-        save_bubble(b,0);
-        b.build_spots(-2, 2);
-        save_spots(b, 0);
-        std::cerr << "Update 1/2" << std::endl;
-        
-        b.update_points();
-        b.update_area();
-        std::cerr << "Area=" << b.area << std::endl;
-        
+        Bubble b(pcache,scache);
+        if( MPI.IsMaster )
         {
-            Point *p = b.root;
-            for( size_t i=0; i < (3*b.size)/4; ++i,p=p->next )
+            b.map_circle( V2D(0,0), radius);
+            b.update_points();
+        }
+        b.dispatch(MPI);
+        save_bubble( b, MPI.CommWorldRank );
+        
+        const double R    = radius * 1.1;
+        const double H    = R+R;
+        const double dH   = H / MPI.CommWorldSize;
+        const double y0   = -R;
+        const double y_lo = y0 + MPI.CommWorldRank * dH;
+        const double y_hi = y_lo + dH;
+        
+        b.build_spots(y_lo,y_hi);
+        MPI.Printf( stderr, "Rank %d> [%g,%g](+%g): #spots= %u\n", MPI.CommWorldRank, y_lo,y_hi, dH, unsigned(b.spots.size) );
+        save_spots(b,MPI.CommWorldRank);
+        if( b.active )
+        {
+            b.update_area();
+            //-- move concerned points
+            for( Spot *sp = b.spots.head; sp; sp = sp->next )
             {
-                V2D &v = *p;
-                v *= 2.0 + 3.0 * Alea();
+                Point *p = sp->point;
+                p->x += 0.2 * radius * (0.5 - Alea() );
+                p->y += 0.2 * radius * (0.5 - Alea() );
             }
         }
-        save_bubble(b,1);
-        b.build_spots(-2, 2);
-        save_spots(b, 1);
-        std::cerr << "Update 2/2" << std::endl;
-        std::cerr << "Area1=" << b.evaluate_area() << std::endl;
-        b.update_points();
-        b.update_area();
         
-        std::cerr << "Area2=" << b.area << std::endl;
-        save_bubble(b,2);
-        b.build_spots(-2, 2);
-        save_spots(b, 2);
+        b.collect(MPI);
+        
+        
         return 0;
     }
     catch(...)
