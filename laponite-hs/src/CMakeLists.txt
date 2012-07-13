@@ -1,0 +1,12 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+PROJECT(laponite-hs)
+
+SET(YROOT $ENV{HOME}/program/yocto4/sdk)
+INCLUDE(${YROOT}/share/yocto/rules.cmake)
+
+INCLUDE_DIRECTORIES( ${YROOT}/include )
+LINK_DIRECTORIES(    ${YROOT}/lib     )
+
+ADD_LIBRARY( laphs STATIC bubble.cpp bubble.hpp )
+
+
