@@ -1,14 +1,14 @@
 #include "arrays.h"
 #include <mpi.h>
 /*** For Silo ***/
-#include <silo.h>
+//#include <silo.h>
 #include <stdio.h> 
 /* Instrumenting with visit */
 
 
 
 
- 
+
 
 static const size_t NC = 4;     /*!< two components */
 const char                *cpntName[] = {"rho","u","v","pressure"};  /*Name of the components*/
@@ -184,6 +184,7 @@ static void exchange_ghosts()
     for(i=0;i<num_reqs;i++)
         _CHECK(MPI_Wait(&requests[i],&status));
 }
+
 /*****************************************************************************************************
  *     Here we start the send/recv requests for variable i
  *****************************************************************************************************/
@@ -210,7 +211,7 @@ static void sendRequests(int i)
     
     // recv information from above 
     _CHECK(MPI_Irecv( &fields[i][zmax+1][ymin][xmin],  nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+3] ));
-	   
+    
 }
 /*****************************************************************************************************
  *     Here we wait the send/recv requests for variable i
@@ -236,7 +237,7 @@ static void waitRequests(int i)
 real_t pressure(real_t x)
 {
     return x-1.9*x*x+x*x*x;
-//    return x;
+    //    return x;
 }
 #define eta 0.05
 #define gamma 0.1
@@ -261,7 +262,7 @@ real_t dzz(indx_t var,indx_t i,indx_t j,indx_t k)
     
     indx_t km=k-1; /* always valid for there are ghosts */
     indx_t kp=k+1; /* always valid for there are ghosts */
-
+    
     
     return idz2*(f[kp][j][i]-2*f[k][j][i]+f[km][j][i]);
 }
@@ -299,7 +300,7 @@ real_t sigma_xx(indx_t i,indx_t j,indx_t k)
     return 
     -pressure(rho[k][j][i])
     +gamma*(rho[k][j][i]*lap(0,i,j,k)+0.5*(gx*gx-gz*gz))
-   // +2.0*eta*idx*(U[k][j][i]-U[k][j][im]);
+    // +2.0*eta*idx*(U[k][j][i]-U[k][j][im]);
     +2.0*eta*idx*(U[k][j][i]/rho[k][j][i]-U[k][j][i-1]/rho[k][j][i-1]);
 }
 real_t sigma_xz(indx_t i,indx_t j,indx_t k)
@@ -312,15 +313,15 @@ real_t sigma_xz(indx_t i,indx_t j,indx_t k)
     
     indx_t im=i-1;
     if( im < xmin ) im = xmax;
-
+    
     return 
     gamma*(gx*gz)
     +eta*(
-                //idx*(W[k][j][i]-W[k][j][im])+
-                //idz*(U[k][j][i]-U[k-1][j][i])   
-                idx*(W[k][j][i]/rho[k][j][i]-W[k][j][im]/rho[k][j][im])+
-                idz*(U[k][j][i]/rho[k][j][i]-U[k-1][j][i]/rho[k-1][j][i])     
-                    ) ;
+          //idx*(W[k][j][i]-W[k][j][im])+
+          //idz*(U[k][j][i]-U[k-1][j][i])   
+          idx*(W[k][j][i]/rho[k][j][i]-W[k][j][im]/rho[k][j][im])+
+          idz*(U[k][j][i]/rho[k][j][i]-U[k-1][j][i]/rho[k-1][j][i])     
+          ) ;
 }
 real_t sigma_zz(indx_t i,indx_t j,indx_t k)
 {
@@ -333,9 +334,9 @@ real_t sigma_zz(indx_t i,indx_t j,indx_t k)
     return 
     -pressure(rho[k][j][i])
     +gamma*(rho[k][j][i]*lap(0,i,j,k)-0.5*(gx*gx-gz*gz))
-   // +2*eta*idz*(W[k][j][i]-W[k-1][j][i]);
+    // +2*eta*idz*(W[k][j][i]-W[k-1][j][i]);
     +2*eta*idz*(W[k][j][i]/rho[k][j][i]-W[k-1][j][i]/rho[k-1][j][i]);
-   
+    
 }
 void computeDFieldsAtZ(indx_t k)
 {
@@ -354,7 +355,7 @@ void computeDFieldsAtZ(indx_t k)
     
     indx_t km=k-1; /* always valid for there are ghosts */
     indx_t kp=k+1; /* always valid for there are ghosts */
- 
+    
     for(j=ymax;j>=ymin;--j)
     {
         indx_t jm = j-1;
@@ -374,20 +375,20 @@ void computeDFieldsAtZ(indx_t k)
             dU[k][j][i]  =
             idx*(sigma_xx(ip,j,k)-sigma_xx(i,j,k))+
             idz*0.25*(
-                     (sigma_xz(i,j,kp)+sigma_xz(ip,j,kp))-
-                     (sigma_xz(i,j,km)+sigma_xz(ip,j,km))
-                     )
+                      (sigma_xz(i,j,kp)+sigma_xz(ip,j,kp))-
+                      (sigma_xz(i,j,km)+sigma_xz(ip,j,km))
+                      )
             +noise*alea;
             
             dW[k][j][i]  =
             idz*(sigma_zz(i,j,kp)-sigma_zz(i,j,k))+
             idx*0.25*(
-                     (sigma_xz(ip,j,kp)+sigma_xz(ip,j,k))-
-                     (sigma_xz(im,j,kp)+sigma_xz(im,j,k))
-                     )
+                      (sigma_xz(ip,j,kp)+sigma_xz(ip,j,k))-
+                      (sigma_xz(im,j,kp)+sigma_xz(im,j,k))
+                      )
             +noise*alea;
-
- 
+            
+            
             dpres[k][j][i]=0;
             pres[k][j][i]=pressure(rho[k][j][i])-gamma*(rho[k][j][i]*lap(0,i,j,k)+0.5*(gradx(0,i,j,k)*gradx(0,i,j,k)+gradz(0,i,j,k)*gradz(0,i,j,k)));
             
@@ -404,7 +405,7 @@ void computeDFieldsAtZOld(indx_t k)
     real_t ***U   =fields[1];
     real_t ***W   =fields[2];
     real_t ***pres=fields[3];
- 
+    
     
     
     
@@ -412,9 +413,9 @@ void computeDFieldsAtZOld(indx_t k)
     real_t ***dU  =dfields[1];
     real_t ***dW  =dfields[2];
     real_t ***dpres=fields[3];
-
     
- 
+    
+    
     
     indx_t km=k-1; /* always valid for there are ghosts */
     indx_t kp=k+1; /* always valid for there are ghosts */
@@ -445,7 +446,7 @@ void computeDFieldsAtZOld(indx_t k)
             +eta*lap(2,i,j,k)
             +noise*alea;
             
-
+            
             dpres[k][j][i]=0;
             pres[k][j][i]=pressure(rho[k][j][i]);
             
@@ -484,7 +485,7 @@ static void integrate()
     for( i=0; i < NC; ++i )
         sendRequests(i);
     computeDFields(1); //bulk;
-
+    
     for( i=0; i < NC; ++i )
         waitRequests(i);
     
@@ -539,15 +540,15 @@ static void init_fields(int cond)
 			for(i=xmax;i>=xmin;--i)
 			{
                 x=i*dx-Lx*0.5;
-              //  if(x*x+z*z<100)
+                //  if(x*x+z*z<100)
                 switch(cond)
                 {
                         
                     case 0:   
-                            if(x*x+z*z<(Lx*Lx+Lz*Lz)*0.02)
-                                rho[k][j][i] =0.2+0.00*alea;
-                            else
-                                rho[k][j][i] =1.1;
+                        if(x*x+z*z<(Lx*Lx+Lz*Lz)*0.02)
+                            rho[k][j][i] =0.2+0.00*alea;
+                        else
+                            rho[k][j][i] =1.1;
                         break;
                     case 1:
                         if(x<Lx*0.1)
@@ -580,12 +581,12 @@ static void init_fields(int cond)
                         break;
 
                     default:   
-                            rho[k][j][i] =0.6+0.000*alea;
-                            U[k][j][i] =+0.001*alea;
-                            V[k][j][i] =+0.001*alea;
+                        rho[k][j][i] =0.6+0.000*alea;
+                        U[k][j][i] =+0.001*alea;
+                        V[k][j][i] =+0.001*alea;
                         break;
                 }
-               
+                
             }
 		}
 	}
@@ -692,12 +693,14 @@ void simulate_one_timestep(simulation_data *sim)
         integrate();
     }
     
+    
+#if 0
     if(sim->savingFiles==1)
     {
         writeDomain2D(sim->cycle);
         write_master(sim->cycle);
     }
-    
+#endif
     
     if(sim->visitIsConnected==1)
     {
@@ -750,7 +753,7 @@ int main(int argc, char *argv[] )
      * Initialize environment variables. 
 	 **************************************************************************/
     
-
+    
     
     
     simulation_data sim;
@@ -775,7 +778,7 @@ int main(int argc, char *argv[] )
         if(VisItInitializeSocketAndDumpSimFile("bubble0",
                                                "Parallel C prototype simulation connects to VisIt",
                                                argv[0], NULL, "bubble0.ui", NULL))
-      
+            
         {
             fprintf(stderr,"VisItInitializeSocketAndDumpSimFile ok\n");
         }
@@ -787,7 +790,7 @@ int main(int argc, char *argv[] )
 	init_fields(3);
     if(rank==0) VisItOpenTraceFile("./TraceFileOfLibSim.txt");
     set_interface(&sim);
-
+    
     mainloop(&sim);
     if(rank==0) VisItCloseTraceFile();
     /***************************************************************************

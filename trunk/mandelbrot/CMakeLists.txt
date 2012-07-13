@@ -48,7 +48,7 @@ ENDIF()
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	FIND_PACKAGE(MPI REQUIRED)
 	MESSAGE( STATUS "flags for Mac Os X")
-	SET(VISIT "/usr/local/visit/2.4.0/darwin-x86_64") 
+	SET(VISIT "/usr/local/visit/2.4.1/darwin-x86_64") 
 ENDIF()
 
 #define default flags

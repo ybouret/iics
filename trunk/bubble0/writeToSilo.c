@@ -3,6 +3,7 @@
 /***************************************************************************
  * write mesh and values for all ranks
  ****************************************************************************/
+#if 0
 void writeDomain2D(int count)
 {
     int prout;
@@ -257,3 +258,4 @@ write_master(int cycle)
         DBClose(dbfile);
     }
 }
+#endif

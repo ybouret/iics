@@ -1,40 +1,40 @@
 /*****************************************************************************
-*
-* Copyright (c) 2000 - 2010, Lawrence Livermore National Security, LLC
-* Produced at the Lawrence Livermore National Laboratory
-* LLNL-CODE-400142
-* All rights reserved.
-*
-* This file is  part of VisIt. For  details, see https://visit.llnl.gov/.  The
-* full copyright notice is contained in the file COPYRIGHT located at the root
-* of the VisIt distribution or at http://www.llnl.gov/visit/copyright.html.
-*
-* Redistribution  and  use  in  source  and  binary  forms,  with  or  without
-* modification, are permitted provided that the following conditions are met:
-*
-*  - Redistributions of  source code must  retain the above  copyright notice,
-*    this list of conditions and the disclaimer below.
-*  - Redistributions in binary form must reproduce the above copyright notice,
-*    this  list of  conditions  and  the  disclaimer (as noted below)  in  the
-*    documentation and/or other materials provided with the distribution.
-*  - Neither the name of  the LLNS/LLNL nor the names of  its contributors may
-*    be used to endorse or promote products derived from this software without
-*    specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT  HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR  IMPLIED WARRANTIES, INCLUDING,  BUT NOT  LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND  FITNESS FOR A PARTICULAR  PURPOSE
-* ARE  DISCLAIMED. IN  NO EVENT  SHALL LAWRENCE  LIVERMORE NATIONAL  SECURITY,
-* LLC, THE  U.S.  DEPARTMENT OF  ENERGY  OR  CONTRIBUTORS BE  LIABLE  FOR  ANY
-* DIRECT,  INDIRECT,   INCIDENTAL,   SPECIAL,   EXEMPLARY,  OR   CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT  LIMITED TO, PROCUREMENT OF  SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF  USE, DATA, OR PROFITS; OR  BUSINESS INTERRUPTION) HOWEVER
-* CAUSED  AND  ON  ANY  THEORY  OF  LIABILITY,  WHETHER  IN  CONTRACT,  STRICT
-* LIABILITY, OR TORT  (INCLUDING NEGLIGENCE OR OTHERWISE)  ARISING IN ANY  WAY
-* OUT OF THE  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
-* DAMAGE.
-*
-*****************************************************************************/
+ *
+ * Copyright (c) 2000 - 2010, Lawrence Livermore National Security, LLC
+ * Produced at the Lawrence Livermore National Laboratory
+ * LLNL-CODE-400142
+ * All rights reserved.
+ *
+ * This file is  part of VisIt. For  details, see https://visit.llnl.gov/.  The
+ * full copyright notice is contained in the file COPYRIGHT located at the root
+ * of the VisIt distribution or at http://www.llnl.gov/visit/copyright.html.
+ *
+ * Redistribution  and  use  in  source  and  binary  forms,  with  or  without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  - Redistributions of  source code must  retain the above  copyright notice,
+ *    this list of conditions and the disclaimer below.
+ *  - Redistributions in binary form must reproduce the above copyright notice,
+ *    this  list of  conditions  and  the  disclaimer (as noted below)  in  the
+ *    documentation and/or other materials provided with the distribution.
+ *  - Neither the name of  the LLNS/LLNL nor the names of  its contributors may
+ *    be used to endorse or promote products derived from this software without
+ *    specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT  HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR  IMPLIED WARRANTIES, INCLUDING,  BUT NOT  LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND  FITNESS FOR A PARTICULAR  PURPOSE
+ * ARE  DISCLAIMED. IN  NO EVENT  SHALL LAWRENCE  LIVERMORE NATIONAL  SECURITY,
+ * LLC, THE  U.S.  DEPARTMENT OF  ENERGY  OR  CONTRIBUTORS BE  LIABLE  FOR  ANY
+ * DIRECT,  INDIRECT,   INCIDENTAL,   SPECIAL,   EXEMPLARY,  OR   CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT  LIMITED TO, PROCUREMENT OF  SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF  USE, DATA, OR PROFITS; OR  BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED  AND  ON  ANY  THEORY  OF  LIABILITY,  WHETHER  IN  CONTRACT,  STRICT
+ * LIABILITY, OR TORT  (INCLUDING NEGLIGENCE OR OTHERWISE)  ARISING IN ANY  WAY
+ * OUT OF THE  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ *
+ *****************************************************************************/
 
 /* DUMMY IMPLEMENTATIONS */
 #include <unistd.h>
@@ -82,11 +82,11 @@ SimGetMetaData(void *cbdata)
     {
         indx_t i;
         visit_handle mmd = VISIT_INVALID_HANDLE;
-      //  visit_handle vmd = VISIT_INVALID_HANDLE;
+        //  visit_handle vmd = VISIT_INVALID_HANDLE;
         visit_handle vmd[NC];
-        visit_handle vectormd;
+        //visit_handle vectormd;
         // visit_handle cmd = VISIT_INVALID_HANDLE;
-        visit_handle emd = VISIT_INVALID_HANDLE;
+        //visit_handle emd = VISIT_INVALID_HANDLE;
         
         /* Set the simulation state. */
         VisIt_SimulationMetaData_setMode(md, (sim->runMode == SIM_STOPPED) ?
@@ -99,11 +99,11 @@ SimGetMetaData(void *cbdata)
             /* Set the mesh's properties.*/
             VisIt_MeshMetaData_setName(mmd, "quadmesh");
             VisIt_MeshMetaData_setMeshType(mmd, VISIT_MESHTYPE_RECTILINEAR);
-           if(rmesh_dims[2]==1)
-           {
-            VisIt_MeshMetaData_setTopologicalDimension(mmd, 2);
-            VisIt_MeshMetaData_setSpatialDimension(mmd, 2);
-           }
+            if(rmesh_dims[2]==1)
+            {
+                VisIt_MeshMetaData_setTopologicalDimension(mmd, 2);
+                VisIt_MeshMetaData_setSpatialDimension(mmd, 2);
+            }
             else
             {
                 VisIt_MeshMetaData_setTopologicalDimension(mmd, 3);
@@ -140,16 +140,16 @@ SimGetMetaData(void *cbdata)
         }
         //here we define the meta data of the vector
         /*
-        vectormd=VISIT_INVALID_HANDLE;
-        if(VisIt_VariableMetaData_alloc(&vectormd) == VISIT_OKAY)
-        {
-            VisIt_VariableMetaData_setName(vectormd, cpntName[NC]);
-            VisIt_VariableMetaData_setMeshName(vectormd, "quadmesh");
-            VisIt_VariableMetaData_setType(vectormd, VISIT_VARTYPE_VECTOR);
-            VisIt_VariableMetaData_setCentering(vectormd, VISIT_VARCENTERING_NODE);
-            VisIt_SimulationMetaData_addVariable(md, vectormd);
-
-        }
+         vectormd=VISIT_INVALID_HANDLE;
+         if(VisIt_VariableMetaData_alloc(&vectormd) == VISIT_OKAY)
+         {
+         VisIt_VariableMetaData_setName(vectormd, cpntName[NC]);
+         VisIt_VariableMetaData_setMeshName(vectormd, "quadmesh");
+         VisIt_VariableMetaData_setType(vectormd, VISIT_VARTYPE_VECTOR);
+         VisIt_VariableMetaData_setCentering(vectormd, VISIT_VARCENTERING_NODE);
+         VisIt_SimulationMetaData_addVariable(md, vectormd);
+         
+         }
          */
         /* Add an expression. 
          if(VisIt_ExpressionMetaData_alloc(&emd) == VISIT_OKAY)
@@ -188,7 +188,7 @@ SimGetMesh(int domain, const char *name, void *cbdata)
             if(rmesh_dims[2]==1) // we are in 2D
             {
                 int i,minRealIndex[2]={0,0}, maxRealIndex[2]={0,0};
-               // float *rmesh[2];
+                // float *rmesh[2];
                 visit_handle h[2];
                 
                 for(i=0;i<2;i++)
@@ -208,15 +208,15 @@ SimGetMesh(int domain, const char *name, void *cbdata)
                 VisIt_RectilinearMesh_setCoordsXY(res, h[0], h[1]);
                 VisIt_RectilinearMesh_setRealIndices(res, minRealIndex, maxRealIndex);
                 
-              //  for(i=0;i<2;i++)
-              //      free(rmesh[i]);
-
+                //  for(i=0;i<2;i++)
+                //      free(rmesh[i]);
+                
             }
             else
             {
                 int i,minRealIndex[3]={0,0,0}, maxRealIndex[3]={0,0,0};
                 visit_handle h[3];
- 
+                
                 
                 for(i=0;i<3;i++)
                 {
@@ -240,10 +240,10 @@ SimGetMesh(int domain, const char *name, void *cbdata)
                 }
                 VisIt_RectilinearMesh_setCoordsXYZ(res, h[0], h[1],h[2]);
                 VisIt_RectilinearMesh_setRealIndices(res, minRealIndex, maxRealIndex);
- 
-            }
                 
-             
+            }
+            
+            
         }
         else
         {
@@ -262,17 +262,17 @@ SimGetVariable(int domain, const char *name, void *cbdata)
     int i;
     //  simulation_data *sim = (simulation_data *)cbdata;
     
-     fprintf(stderr,"proc %d: SimGetVariable\n",rank);
+    fprintf(stderr,"proc %d: SimGetVariable\n",rank);
     for(i=0;i<NC+1;i++)
-       if(strcmp(name, cpntName[i]) == 0)
-           toPlot=i;
-        
-   // if(strcmp(name, "u") == 0)
-     if(rmesh_dims[2]==1) // we are in 2D
+        if(strcmp(name, cpntName[i]) == 0)
+            toPlot=i;
+    
+    // if(strcmp(name, "u") == 0)
+    if(rmesh_dims[2]==1) // we are in 2D
     {
-
+        
         int nTuples = (rmesh_dims[0]) * (rmesh_dims[1])*(rmesh_dims[2]);
-
+        
         VisIt_VariableData_alloc(&h);
         if(toPlot<NC) //we give a vector or a scalar
         {
@@ -301,7 +301,7 @@ SimGetVariable(int domain, const char *name, void *cbdata)
             VisIt_VariableData_setDataF(h,VISIT_OWNER_VISIT,2,nTuples, vec);            
             free(vec);
         }
-
+        
         
     }
     else // we are in 3D
@@ -485,7 +485,7 @@ int ProcessVisItCommand(simulation_data *sim)
  *Callback function for control commands, which are the buttons in the 
  * GUI's Simulation window. This type of command is handled automatically
  * provided that you have registered a command callback such as this.
-**************************************************************************/
+ **************************************************************************/
 void ControlCommandCallback(const char *cmd, const char *args, void *cbdata)
 {
     simulation_data *sim = (simulation_data *)cbdata;
@@ -583,7 +583,7 @@ void mainloop(simulation_data *sim)
         /* Broadcast the return value of VisItDetectInput to all procs. */
         MPI_Bcast(&visitstate, 1, MPI_INT, 0, MPI_COMM_WORLD);
         /* Do different things depending on the output from VisItDetectInput. */
-
+        
         switch(visitstate)
         {
             case 0:
@@ -600,11 +600,11 @@ void mainloop(simulation_data *sim)
                     
                     VisItSetGetMetaData(SimGetMetaData, (void*)sim);
                     VisItSetGetMesh(SimGetMesh, (void*)sim);
-                   //VisItSetGetCurve(SimGetCurve, (void*)sim);
+                    //VisItSetGetCurve(SimGetCurve, (void*)sim);
                     VisItSetGetVariable(SimGetVariable, (void*)sim);
                     VisItSetGetDomainList(SimGetDomainList, (void*)sim);
                     sim->visitIsConnected=1;
-                     
+                    
                 }
                 else 
                 {
@@ -621,7 +621,7 @@ void mainloop(simulation_data *sim)
                     /* Disconnect on an error or closed connection. */
                     VisItDisconnect();
                     sim->visitIsConnected=0;
-
+                    
                     /* Start running again if VisIt closes. */
                     /*sim->runMode = SIM_RUNNING;*/
                 }
