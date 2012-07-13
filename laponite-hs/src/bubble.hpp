@@ -4,8 +4,9 @@
 #include "types.hpp"
 #include "yocto/core/list.hpp"
 #include "yocto/core/pool.hpp"
+#include "yocto/core/circular-list.hpp"
 
-class Point : public object, public V2D
+class Point : public V2D
 {
 public:
     int      domain;
@@ -30,14 +31,16 @@ public:
         YOCTO_DISABLE_COPY_AND_ASSIGN(Pool);
     };
     
-    typedef core::list_of<Point> CoreList;
+    typedef core::clist_of<Point> CoreList;
     class List : public CoreList
     {
     public:
         explicit List( Pool &cache ) throw(); //!< empty list with a new cache
         virtual ~List() throw();              //!< put back into cache
         
-        Point *New();  //!< get a new point (from cache if possible)
+        void empty() throw(); //!< empty the points back into cache
+        
+        Point *create();  //!< get a new point (from cache if possible)
         
     private:
         Pool &cache_;
@@ -46,19 +49,23 @@ public:
     
 };
 
+typedef Point::Pool PCache;
 
-class Polygon : public Point::List
+class Bubble : public Point::List
 {
 public:
-    explicit Polygon( Point::Pool &cache ) throw();
-    virtual ~Polygon() throw();
+    explicit Bubble( Point::Pool &cache ) throw();
+    virtual ~Bubble() throw();
     
-    double area;
+    double lambda; //!< critical length, default is 1
+    double area;   //!< area
     void   Update() throw();
     
+    //! empty list and put points on circle
+    void map_circle( const V2D &center, Real radius );
     
 private:
-    YOCTO_DISABLE_ASSIGN(Polygon);
+    YOCTO_DISABLE_ASSIGN(Bubble);
 };
 
 

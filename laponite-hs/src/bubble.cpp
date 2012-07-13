@@ -1,4 +1,5 @@
 #include "bubble.hpp"
+#include "yocto/code/utils.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -21,8 +22,8 @@ Point::~Point() throw()
 Point & Point:: operator=( const Point & other ) throw() 
 {
     V2D &self = *this;
-    self   = other;
-    domain = other.domain;
+    self      = other;
+    domain    = other.domain;
     return *this;
 }
 
@@ -35,7 +36,6 @@ Point:: Pool:: Pool() throw() : CorePool()
 {
     
 }
-
 
 Point:: Pool:: Pool( size_t cache_size ) : CorePool()
 {
@@ -58,10 +58,10 @@ Point:: List:: List( Pool &cache ) throw() : CoreList(), cache_(cache)
 
 Point:: List:: ~List() throw()
 {
-    while( size) cache_.store( pop_back() );
+    empty();
 }
 
-Point * Point::List:: New()
+Point * Point::List:: create()
 {
     if( cache_.size > 0 )
     {
@@ -76,26 +76,49 @@ Point * Point::List:: New()
     }
 }
 
+void Point:: List:: empty() throw()
+{
+     while( size) cache_.store( pop_back() );
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-Polygon:: Polygon( Point::Pool &cache ) throw() : 
+Bubble:: Bubble( Point::Pool &cache ) throw() : 
 Point::List( cache ),
+lambda(1),
 area(0)
 {
 }
 
-Polygon:: ~Polygon() throw()
+Bubble::~Bubble() throw()
 {
 }
 
 
-void Polygon:: Update() throw()
+void Bubble:: Update() throw()
 {
     area = 0;
-    
 }
 
+
+void Bubble:: map_circle(const V2D &center, Real radius)
+{
+    assert(lambda>0);
+    empty();
+    const double theta_max = 2 * atan( lambda/(radius+radius) );
+    const size_t nmin      = max_of<size_t>(3,size_t( ceil( numeric<Real>::two_pi/theta_max) ));
+    std::cerr << "lambda=" << lambda << ", radius=" << radius << " => nmin=" << nmin << std::endl;
+    const double dtheta = numeric<Real>::two_pi / nmin;
+    for( size_t i=0; i < nmin; ++i )
+    {
+        const double theta = i * dtheta;
+        Point       *p     = create();
+        p->x = center.x + radius * Cos( theta );
+        p->y = center.y + radius * Sin( theta );
+        push_back(p);
+    }
+}
 
