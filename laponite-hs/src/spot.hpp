@@ -4,12 +4,13 @@
 #include "point.hpp"
 #include "yocto/core/list.hpp"
 
-//! attach a point
+//! attach a point within a domain
 struct Spot
 {
-    Point *point;
-    Spot  *next;
-    Spot  *prev;
+    Point   *point; //!< the point
+    unsigned jump;  //!< encoding: number of extra nodes to walk within the bubble
+    Spot    *next;  //!< for the linked list
+    Spot    *prev;  //!< for the linked list
     
     typedef core::pool_of<Spot> CorePool;
     class Pool : public CorePool
@@ -30,6 +31,7 @@ struct Spot
         virtual ~List() throw();
         void     empty() throw();
         
+        //! create a new Spot and attach p
         void append( Point *p );
         
     private:

@@ -12,9 +12,9 @@ static inline void save_bubble( const Bubble &b, int level )
     const Point *p = b.root;
     for( size_t i=0; i < b.size; ++i, p = p->next )
     {
-        fp("%g %g\n", p->x, p->y );
+        fp("%g %g\n", p->vertex.x, p->vertex.y );
     }
-    fp("%g %g\n", p->x, p->y );
+    fp("%g %g\n", p->vertex.x, p->vertex.y );
 }
 
 static inline void save_spots( const Bubble &b, int level )
@@ -26,7 +26,7 @@ static inline void save_spots( const Bubble &b, int level )
     for( size_t i=0; i < b.spots.size; ++i, spot = spot->next )
     {
         Point *p = spot->point;
-        fp("%g %g\n", p->x, p->y );
+        fp("%g %g\n", p->vertex.x, p->vertex.y );
     }
 }
 
@@ -61,8 +61,7 @@ int main( int argc, char * argv[] )
             Point *p = b.root;
             for( size_t i=0; i < (3*b.size)/4; ++i,p=p->next )
             {
-                V2D &v = *p;
-                v *= 2.0 + 3.0 * Alea();
+                p->vertex *= 2.0 + 3.0 * Alea();
             }
         }
         save_bubble(b,1);

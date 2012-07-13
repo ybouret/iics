@@ -12,8 +12,10 @@ typedef double          Real;
 
 typedef geom::v2d<Real> V2D;
 
-
+//! initialize random number
 void AleaInit() throw();
+
+//! in ]0:1[
 Real Alea() throw();
 
 //! return the nearest integer

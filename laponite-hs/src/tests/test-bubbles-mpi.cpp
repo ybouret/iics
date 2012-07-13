@@ -3,32 +3,31 @@
 #include "yocto/string/conv.hpp"
 #include "yocto/ios/ocstream.hpp"
 
-static inline void save_bubble( const Bubble &b, int level )
+static inline void save_bubble( const char *pfx, const Bubble &b, int level )
 {
     assert(b.size>=3);
     
-    ios::ocstream fp( vformat("bubble%d.dat",level), false );
+    ios::ocstream fp( vformat("%s%d.dat",pfx,level), false );
     const Point *p = b.root;
     for( size_t i=0; i < b.size; ++i, p = p->next )
     {
-        fp("%g %g\n", p->x, p->y );
+        fp("%g %g\n", p->vertex.x, p->vertex.y );
     }
-    fp("%g %g\n", p->x, p->y );
+    fp("%g %g\n", p->vertex.x, p->vertex.y );
 }
 
-static inline void save_spots( const Bubble &b, int level )
+static inline void save_spots( const char *pfx, const Bubble &b, int level )
 {
     assert(b.size>=3);
     
-    ios::ocstream fp( vformat("spot%d.dat",level), false );
+    ios::ocstream fp( vformat("%s%d.dat",pfx,level), false );
     const Spot *spot = b.spots.head;
     for( size_t i=0; i < b.spots.size; ++i, spot = spot->next )
     {
         Point *p = spot->point;
-        fp("%g %g\n", p->x, p->y );
+        fp("%g %g\n", p->vertex.x, p->vertex.y );
     }
 }
-
 
 
 int main( int argc, char *argv[] )
@@ -51,7 +50,7 @@ int main( int argc, char *argv[] )
             b.update_points();
         }
         b.dispatch(MPI);
-        save_bubble( b, MPI.CommWorldRank );
+        save_bubble( "bubble", b, MPI.CommWorldRank );
         
         const double R    = radius * 1.1;
         const double H    = R+R;
@@ -62,7 +61,7 @@ int main( int argc, char *argv[] )
         
         b.build_spots(y_lo,y_hi);
         MPI.Printf( stderr, "Rank %d> [%g,%g](+%g): #spots= %u\n", MPI.CommWorldRank, y_lo,y_hi, dH, unsigned(b.spots.size) );
-        save_spots(b,MPI.CommWorldRank);
+        save_spots("spot",b,MPI.CommWorldRank);
         if( b.active )
         {
             b.update_area();
@@ -70,13 +69,18 @@ int main( int argc, char *argv[] )
             for( Spot *sp = b.spots.head; sp; sp = sp->next )
             {
                 Point *p = sp->point;
-                p->x += 0.2 * radius * (0.5 - Alea() );
-                p->y += 0.2 * radius * (0.5 - Alea() );
+                p->vertex.x += b.lambda * (0.5 - Alea() );
+                p->vertex.y += b.lambda * (0.5 - Alea() );
             }
         }
+        save_spots("new-spot",b,MPI.CommWorldRank);
         
+        MPI.Barrier(MPI_COMM_WORLD);
+        MPI.Printf0(stderr, "Collecting New Positions\n");
         b.collect(MPI);
         
+        if( MPI.IsMaster )
+            save_bubble( "full", b, -1);
         
         return 0;
     }

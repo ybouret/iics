@@ -34,9 +34,9 @@ void Bubble:: dispatch(mpi &MPI)
                 push_back(p);
             }
             assert(p!=NULL);
-            V2D &v = *p;
             
-            MPI.Bcast(&v, 2, MPI_REAL_TYPE, 0, MPI_COMM_WORLD);
+            
+            MPI.Bcast(& p->vertex, 2, MPI_REAL_TYPE, 0, MPI_COMM_WORLD);
             
             if(master)
                 p = p->next;
@@ -59,15 +59,66 @@ void Bubble:: collect(mpi &MPI)
             fprintf( stderr, "master changed=%u\n", unsigned(spots.size) );
             for( int r = 1; r < MPI.CommWorldSize; ++r )
             {
+                //--------------------------------------------------------------
+                // receive the num_changed
+                //--------------------------------------------------------------
                 unsigned num_changed = 0;
                 MPI.Recv(&num_changed, 1, MPI_UNSIGNED, r, tag, MPI_COMM_WORLD, status);
                 fprintf( stderr, "rank %d changed=%u\n", r, num_changed );
+                
+                //--------------------------------------------------------------
+                // far all changed
+                //--------------------------------------------------------------
+                Point *p = root;
+                for( unsigned i=0; i < num_changed; ++i )
+                {
+                    //----------------------------------------------------------
+                    // receive the #jump to perform
+                    //----------------------------------------------------------
+                    unsigned jump = 0;
+                    MPI.Recv(&jump, 1, MPI_UNSIGNED, r, tag, MPI_COMM_WORLD, status);
+                    
+                    //----------------------------------------------------------
+                    // move forward
+                    //----------------------------------------------------------
+                    while(jump-->0) 
+                    { 
+                        assert(p!=NULL);
+                        p=p->next; 
+                    }
+                    assert(p!=NULL);
+                    
+                    //----------------------------------------------------------
+                    // receive the new coordinates
+                    //----------------------------------------------------------
+                    MPI.Recv(& p->vertex, 2, MPI_REAL_TYPE, r, tag, MPI_COMM_WORLD, status);
+                }
             }
         }
         else 
         {
+            //------------------------------------------------------------------
+            // send the num_changed
+            //------------------------------------------------------------------
             const unsigned num_changed = spots.size;
             MPI.Send(&num_changed, 1, MPI_UNSIGNED, 0, tag, MPI_COMM_WORLD);
+            
+            //------------------------------------------------------------------
+            // far all changed
+            //------------------------------------------------------------------
+            const Spot *spot = spots.head;
+            for( unsigned i=0; i<num_changed; ++i , spot=spot->next)
+            {
+                //--------------------------------------------------------------
+                // send the #jump to perform
+                //--------------------------------------------------------------
+                MPI.Send( &spot->jump, 1, MPI_UNSIGNED, 0, tag, MPI_COMM_WORLD);
+                
+                //--------------------------------------------------------------
+                // send the new coordinates
+                //--------------------------------------------------------------
+                MPI.Send(& spot->point->vertex, 2, MPI_REAL_TYPE, 0, tag, MPI_COMM_WORLD);
+            }
         }
     }
 }
