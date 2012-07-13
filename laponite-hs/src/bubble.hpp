@@ -9,8 +9,10 @@
 class Point : public V2D
 {
 public:
-    int      domain;
-    explicit Point() throw(); //!< x=y=0, domain=-1
+    int      domain; //!< MPI style owner
+    Real     d2next; //!< distance to next point
+    
+    explicit Point() throw(); //!< x=y=0, domain=-1, d2next=0
     virtual ~Point() throw(); //!< do nothing
     
     Point( const Point & ) throw(); //! copy
@@ -51,6 +53,7 @@ public:
 
 typedef Point::Pool PCache;
 
+//! a non intersectiong polygon
 class Bubble : public Point::List
 {
 public:
@@ -59,7 +62,8 @@ public:
     
     double lambda; //!< critical length, default is 1
     double area;   //!< area
-    void   Update() throw();
+    
+    void   update();
     
     //! empty list and put points on circle
     void map_circle( const V2D &center, Real radius );

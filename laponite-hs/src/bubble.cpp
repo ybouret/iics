@@ -6,7 +6,11 @@
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-Point:: Point() throw()  : V2D(), domain(-1), next(0), prev(0)
+Point:: Point() throw()  :
+V2D(),
+domain(-1), 
+d2next(0),
+next(0), prev(0)
 {
 }
 
@@ -98,9 +102,29 @@ Bubble::~Bubble() throw()
 }
 
 
-void Bubble:: Update() throw()
+void Bubble:: update()
 {
+    assert(size>=3);
+    assert(root!=NULL);
     area = 0;
+    
+    Point *p = root;
+    Point *q = p->next;
+    for( size_t i=0; i < size; ++i )
+    {
+        for(;;)
+        {
+            const V2D pq(*p,*q);
+            p->d2next = pq.norm();
+            std::cerr << "d2next=" << p->d2next << std::endl;
+            p = q;
+            q = q->next;
+            break;
+        }
+    }
+    
+    
+    
 }
 
 
