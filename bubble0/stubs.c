@@ -263,7 +263,7 @@ SimGetVariable(int domain, const char *name, void *cbdata)
     //  simulation_data *sim = (simulation_data *)cbdata;
     
     fprintf(stderr,"proc %d: SimGetVariable\n",rank);
-    for(i=0;i<NC+1;i++)
+    for(i=0;i<NC;i++)
         if(strcmp(name, cpntName[i]) == 0)
             toPlot=i;
     
