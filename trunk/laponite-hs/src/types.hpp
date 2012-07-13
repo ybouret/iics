@@ -14,6 +14,15 @@ typedef geom::v2d<Real> V2D;
 void AleaInit() throw();
 Real Alea() throw();
 
+//! return the nearest integer
+Real Anint( Real x ) throw();
+
+//! return the Periodic Boundary Condition value of x
+/**
+ -L/2 <= x <= L/2
+ */
+Real PBC1( Real x, const Real L, const Real invL ) throw();
+
 
 
 #endif

@@ -4,11 +4,11 @@
 #include "yocto/ios/ocstream.hpp"
 
 
-static inline void save_bubble( const Bubble &b )
+static inline void save_bubble( const Bubble &b, int level )
 {
     assert(b.size>=3);
     
-    ios::ocstream fp( vformat("bubble%u.dat", unsigned(b.size)), false );
+    ios::ocstream fp( vformat("bubble%d.dat",level), false );
     const Point *p = b.root;
     for( size_t i=0; i < b.size; ++i, p = p->next )
     {
@@ -17,9 +17,24 @@ static inline void save_bubble( const Bubble &b )
     fp("%g %g\n", p->x, p->y );
 }
 
+static inline void save_spots( const Bubble &b, int level )
+{
+    assert(b.size>=3);
+    
+    ios::ocstream fp( vformat("spot%d.dat",level), false );
+    const Spot *spot = b.spots.head;
+    for( size_t i=0; i < b.spots.size; ++i, spot = spot->next )
+    {
+        Point *p = spot->point;
+        fp("%g %g\n", p->x, p->y );
+    }
+}
+
+
 
 int main( int argc, char * argv[] )
 {
+    AleaInit();
     try 
     {
         double radius = 1;
@@ -27,26 +42,39 @@ int main( int argc, char * argv[] )
         {
             radius = strconv::to_real<Real>( argv[1], "radius" );
         }
-        PCache cache;
-        Bubble b(cache);
+        Point::Pool pcache;
+        Spot::Pool  scache;
+        
+        Bubble      b(pcache,scache);
         
         b.map_circle( V2D(0,0), radius);
-        save_bubble(b);
+        save_bubble(b,0);
+        b.build_spots(-2, 2);
+        save_spots(b, 0);
         std::cerr << "Update 1/2" << std::endl;
         
         b.update();
+        std::cerr << "Area=" << b.area << std::endl;
         
         {
             Point *p = b.root;
-            for( size_t i=0; i < b.size/2; ++i,p=p->next )
+            for( size_t i=0; i < (3*b.size)/4; ++i,p=p->next )
             {
                 V2D &v = *p;
-                v *= 2.0;
+                v *= 2.0 + 3.0 * Alea();
             }
         }
+        save_bubble(b,1);
+        b.build_spots(-2, 2);
+        save_spots(b, 1);
         std::cerr << "Update 2/2" << std::endl;
+        std::cerr << "Area1=" << b.evaluate_area() << std::endl;
         b.update();
         
+        std::cerr << "Area2=" << b.area << std::endl;
+        save_bubble(b,2);
+        b.build_spots(-2, 2);
+        save_spots(b, 2);
         return 0;
     }
     catch(...)
