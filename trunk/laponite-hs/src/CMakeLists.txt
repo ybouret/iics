@@ -7,6 +7,8 @@ INCLUDE(${YROOT}/share/yocto/rules.cmake)
 INCLUDE_DIRECTORIES( ${YROOT}/include )
 LINK_DIRECTORIES(    ${YROOT}/lib     )
 
-ADD_LIBRARY( laphs STATIC bubble.cpp bubble.hpp )
+ADD_LIBRARY( laphs STATIC
+types.hpp types.cpp
+bubble.cpp bubble.hpp )
 
 
