@@ -20,7 +20,7 @@ void Bubble:: dispatch(mpi &MPI)
             empty();
         }
         MPI.BcastAs(num_points, 0, MPI_COMM_WORLD);
-        MPI.Printf( stderr, "Rank %d> num_points=%u\n", MPI.CommWorldRank, unsigned(num_points) );
+        //MPI.Printf( stderr, "Rank %d> num_points=%u\n", MPI.CommWorldRank, unsigned(num_points) );
         
         //======================================================================
         // broadcast the components
@@ -41,7 +41,7 @@ void Bubble:: dispatch(mpi &MPI)
             if(master)
                 p = p->next;
         }
-        MPI.Printf(stderr,"Rank %d> bubble.size=%u\n", MPI.CommWorldRank, unsigned(size) );
+        //MPI.Printf(stderr,"Rank %d> bubble.size=%u\n", MPI.CommWorldRank, unsigned(size) );
     }
 }
 

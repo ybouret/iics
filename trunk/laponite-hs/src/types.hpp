@@ -19,13 +19,13 @@ void AleaInit() throw();
 Real Alea() throw();
 
 //! return the nearest integer
-Real Anint( Real x ) throw();
+Real Anint( Real u ) throw();
 
-//! return the Periodic Boundary Condition value of x
+//! return the Periodic Boundary Condition value of y
 /**
- -L/2 <= x <= L/2
+ -L/2 <= y <= L/2
  */
-Real PBC1( Real x, const Real L, const Real invL ) throw();
+Real PBC1( Real y, const Real L, const Real invL ) throw();
 
 class PBC
 {
@@ -36,7 +36,8 @@ public:
     ~PBC() throw();
     PBC( const PBC &other ) throw();
     
-    Real operator()( Real x ) throw();
+    Real operator()( Real y ) throw(); //!< make -L/2 <= y <= L/2
+    void operator()( V2D &v ) throw(); //!< act on y
     
 private:
     YOCTO_DISABLE_ASSIGN(PBC);

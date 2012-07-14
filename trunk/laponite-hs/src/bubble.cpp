@@ -107,9 +107,10 @@ void Bubble:: map_circle(const V2D &center, Real radius)
     const size_t nmin      = max_of<size_t>(3,size_t( ceil( numeric<Real>::two_pi/theta_max) ));
     std::cerr << "lambda=" << lambda << ", radius=" << radius << " => nmin=" << nmin << std::endl;
     const double dtheta = numeric<Real>::two_pi / nmin;
+    const double theta0 = numeric<Real>::two_pi * Alea();
     for( size_t i=0; i < nmin; ++i )
     {
-        const double theta = i * dtheta;
+        const double theta = i * dtheta + theta0;
         Point       *p     = create();
         p->vertex.x = center.x + radius * Cos( theta );
         p->vertex.y = center.y + radius * Sin( theta );
