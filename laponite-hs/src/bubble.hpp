@@ -21,8 +21,8 @@ public:
     Spot::List     spots;  //!< keep trace of points
     bool           active; //!< spots.size > 0 
       
-    void   update_points(); // update #points
-    void   update_area() throw(); //!< area = evaluate_area
+    void   update_points();               // update #points
+    void   update_area() throw();         //!< area = evaluate_area
     double evaluate_area() const throw(); //!< evaluate area, doesn't set it !
     
     //! empty list and put points on circle
@@ -44,7 +44,7 @@ public:
     Bubble *prev;
     
 private:
-    YOCTO_DISABLE_ASSIGN(Bubble);
+    YOCTO_DISABLE_COPY_AND_ASSIGN(Bubble);
 };
 
 
