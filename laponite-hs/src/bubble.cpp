@@ -6,6 +6,7 @@
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 Bubble:: Bubble( Point::Pool &pcache, Spot::Pool &scache ) throw() : 
 Point::List( pcache ),
 lambda(1),
@@ -20,6 +21,7 @@ prev(0)
 Bubble::~Bubble() throw()
 {
 }
+
 
 
 void Bubble:: update_points()

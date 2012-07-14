@@ -10,7 +10,7 @@ void Bubble:: dispatch(mpi &MPI)
         // broadcast the number of points
         //======================================================================
         const bool master     = MPI.IsMaster;
-        unsigned   num_points = 0;
+        size_t     num_points = 0;
         if( master )
         {
             num_points = size;
@@ -19,8 +19,8 @@ void Bubble:: dispatch(mpi &MPI)
         {
             empty();
         }
-        MPI.Bcast(&num_points, 1, MPI_UNSIGNED, 0, MPI_COMM_WORLD);
-        MPI.Printf( stderr, "Rank %d> num_points=%u\n", MPI.CommWorldRank, num_points );
+        MPI.BcastAs(num_points, 0, MPI_COMM_WORLD);
+        MPI.Printf( stderr, "Rank %d> num_points=%u\n", MPI.CommWorldRank, unsigned(num_points) );
         
         //======================================================================
         // broadcast the components
