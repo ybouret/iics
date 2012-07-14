@@ -23,3 +23,18 @@ Real PBC1( Real x, const Real L, const Real invL ) throw()
 {
      return x - L * Anint( invL * x );
 }
+
+PBC:: PBC( Real length ) throw() : L(length), invL(1/L)
+{
+}
+
+PBC::~PBC() throw() {}
+
+PBC:: PBC( const PBC &other ) throw() : L(other.L), invL(other.invL) 
+{
+}
+
+Real PBC:: operator()( Real x ) throw()
+{
+    return PBC1(x,L,invL);
+}

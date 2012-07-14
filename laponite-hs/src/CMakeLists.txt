@@ -8,10 +8,12 @@ INCLUDE_DIRECTORIES( ${YROOT}/include )
 LINK_DIRECTORIES(    ${YROOT}/lib     )
 
 SET(SOURCES_SER 
-types.hpp types.cpp
-point.hpp point.cpp
-spot.hpp  spot.cpp
-bubble.cpp bubble.hpp)
+types.hpp 	types.cpp
+point.hpp 	point.cpp
+spot.hpp  	spot.cpp
+bubble.cpp 	bubble.hpp
+bubbles.hpp 	bubbles.cpp
+)
 
 FIND_PACKAGE(MPI)
 

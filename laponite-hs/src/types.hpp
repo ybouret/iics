@@ -27,6 +27,21 @@ Real Anint( Real x ) throw();
  */
 Real PBC1( Real x, const Real L, const Real invL ) throw();
 
+class PBC
+{
+public:
+    const Real L;
+    const Real invL;
+    PBC( Real length ) throw();
+    ~PBC() throw();
+    PBC( const PBC &other ) throw();
+    
+    Real operator()( Real x ) throw();
+    
+private:
+    YOCTO_DISABLE_ASSIGN(PBC);
+};
+
 
 
 #endif

@@ -41,6 +41,9 @@ public:
     void collect(mpi &MPI);
 #endif
     
+    Bubble *next;
+    Bubble *prev;
+    
 private:
     YOCTO_DISABLE_ASSIGN(Bubble);
 };

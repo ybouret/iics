@@ -8,7 +8,7 @@
 struct Spot
 {
     Point   *point; //!< the point
-    unsigned jump;  //!< encoding: number of extra nodes to walk within the bubble
+    size_t   jump;  //!< encoding: number of extra nodes to walk within the bubble
     Spot    *next;  //!< for the linked list
     Spot    *prev;  //!< for the linked list
     

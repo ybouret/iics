@@ -9,8 +9,8 @@ void Bubble:: dispatch(mpi &MPI)
         //======================================================================
         // broadcast the number of points
         //======================================================================
-        const bool master   = MPI.IsMaster;
-        unsigned num_points = 0;
+        const bool master     = MPI.IsMaster;
+        unsigned   num_points = 0;
         if( master )
         {
             num_points = size;
@@ -62,21 +62,20 @@ void Bubble:: collect(mpi &MPI)
                 //--------------------------------------------------------------
                 // receive the num_changed
                 //--------------------------------------------------------------
-                unsigned num_changed = 0;
-                MPI.Recv(&num_changed, 1, MPI_UNSIGNED, r, tag, MPI_COMM_WORLD, status);
-                fprintf( stderr, "rank %d changed=%u\n", r, num_changed );
+                
+                const size_t num_changed = MPI.RecvAs<size_t>(r, tag, MPI_COMM_WORLD, status);
+                fprintf( stderr, "rank %d changed=%u\n", r, unsigned(num_changed) );
                 
                 //--------------------------------------------------------------
                 // far all changed
                 //--------------------------------------------------------------
                 Point *p = root;
-                for( unsigned i=0; i < num_changed; ++i )
+                for( size_t i=0; i < num_changed; ++i )
                 {
                     //----------------------------------------------------------
                     // receive the #jump to perform
                     //----------------------------------------------------------
-                    unsigned jump = 0;
-                    MPI.Recv(&jump, 1, MPI_UNSIGNED, r, tag, MPI_COMM_WORLD, status);
+                    size_t jump = MPI.RecvAs<size_t>(r, tag, MPI_COMM_WORLD, status);
                     
                     //----------------------------------------------------------
                     // move forward
@@ -100,19 +99,19 @@ void Bubble:: collect(mpi &MPI)
             //------------------------------------------------------------------
             // send the num_changed
             //------------------------------------------------------------------
-            const unsigned num_changed = spots.size;
-            MPI.Send(&num_changed, 1, MPI_UNSIGNED, 0, tag, MPI_COMM_WORLD);
+            const size_t num_changed = spots.size;
+            MPI.SendAs<size_t>(num_changed, 0, tag, MPI_COMM_WORLD);
             
             //------------------------------------------------------------------
             // far all changed
             //------------------------------------------------------------------
             const Spot *spot = spots.head;
-            for( unsigned i=0; i<num_changed; ++i , spot=spot->next)
+            for( size_t i=0; i<num_changed; ++i , spot=spot->next)
             {
                 //--------------------------------------------------------------
                 // send the #jump to perform
                 //--------------------------------------------------------------
-                MPI.Send( &spot->jump, 1, MPI_UNSIGNED, 0, tag, MPI_COMM_WORLD);
+                MPI.SendAs<size_t>(spot->jump, 0, tag, MPI_COMM_WORLD);
                 
                 //--------------------------------------------------------------
                 // send the new coordinates

@@ -11,7 +11,9 @@ Point::List( pcache ),
 lambda(1),
 area(0),
 spots( scache ),
-active( true )
+active( true ),
+next(0),
+prev(0)
 {
 }
 
