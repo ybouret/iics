@@ -36,8 +36,8 @@ public:
     ~PBC() throw();
     PBC( const PBC &other ) throw();
     
-    Real operator()( Real y ) throw(); //!< make -L/2 <= y <= L/2
-    void operator()( V2D &v ) throw(); //!< act on y
+    Real operator()( Real y ) const throw(); //!< make -L/2 <= y <= L/2
+    void operator()( V2D &v ) const throw(); //!< act on y
     
 private:
     YOCTO_DISABLE_ASSIGN(PBC);

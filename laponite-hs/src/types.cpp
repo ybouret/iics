@@ -34,12 +34,12 @@ PBC:: PBC( const PBC &other ) throw() : L(other.L), invL(other.invL)
 {
 }
 
-Real PBC:: operator()( Real y ) throw()
+Real PBC:: operator()( Real y ) const throw()
 {
     return PBC1(y,L,invL);
 }
 
-void PBC:: operator()( V2D &v ) throw()
+void PBC:: operator()( V2D &v ) const throw()
 {
     v.y = (*this)(v.y);
 }

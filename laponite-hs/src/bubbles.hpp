@@ -8,7 +8,7 @@
 class Bubbles 
 {
 public:
-    explicit Bubbles() throw();
+    explicit Bubbles(Real box_height) throw();
     virtual ~Bubbles() throw();
     
     size_t         count() const throw();
@@ -25,6 +25,7 @@ public:
     void dispatch_all( mpi &MPI );
     void collect_all( mpi &MPI );
 #endif
+    const Real            Ly;
     
 private:
     core::list_of<Bubble> b_list;

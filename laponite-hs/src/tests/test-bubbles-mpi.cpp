@@ -34,7 +34,7 @@ int main( int argc, char *argv[] )
         {
             radius = strconv::to_real<Real>( argv[1], "radius" );
         }
-        Bubbles bubbles;
+        Bubbles bubbles(100);
         if( MPI.IsMaster )
         {
             for( size_t i=5;i>0;--i)

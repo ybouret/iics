@@ -1,7 +1,8 @@
 #include "bubbles.hpp"
 
 
-Bubbles:: Bubbles() throw() :
+Bubbles:: Bubbles( Real box_height ) throw() :
+Ly(box_height),
 b_list(),
 b_pool(),
 pcache(),
@@ -28,7 +29,7 @@ void Bubbles:: none() throw()
 Bubble * Bubbles:: create()
 {
     
-    Bubble *pB = b_pool.size > 0 ? b_pool.query() : new  Bubble( pcache, scache );
+    Bubble *pB = b_pool.size > 0 ? b_pool.query() : new  Bubble( Ly, pcache, scache );
     
     assert(pB->size == 0 );
     b_list.push_back(pB);

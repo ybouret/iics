@@ -13,9 +13,10 @@
 class Bubble :  public Point::List
 {
 public:
-    explicit Bubble( Point::Pool &pcache, Spot::Pool &scache ) throw();
+    explicit Bubble( Real L, Point::Pool &pcache, Spot::Pool &scache ) throw();
     virtual ~Bubble() throw();
     
+    const PBC      pbc;
     double         lambda; //!< critical length, default is 1
     double         area;   //!< area, to be broadcasted
     Spot::List     spots;  //!< keep trace of points

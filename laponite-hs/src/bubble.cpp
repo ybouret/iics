@@ -7,8 +7,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-Bubble:: Bubble( Point::Pool &pcache, Spot::Pool &scache ) throw() : 
+Bubble:: Bubble( Real L, Point::Pool &pcache, Spot::Pool &scache ) throw() : 
 Point::List( pcache ),
+pbc(L),
 lambda(1),
 area(0),
 spots( scache ),
@@ -28,22 +29,31 @@ void Bubble:: update_points()
 {
     assert(size>=3);
     assert(root!=NULL);
-    // area=0
     
+    //--------------------------------------------------------------------------
+    // pass 0: pbc
+    //--------------------------------------------------------------------------
     Point *p = root;
+    
+    for( size_t i=size;i>0;--i,p=p->next)
+        pbc(p->vertex);
+    
+    p        = root;
     Point *q = p->next;
     
     //--------------------------------------------------------------------------
-    // first pass : refinement
+    // pass : refinement
     //--------------------------------------------------------------------------
     for( size_t i=0; i < size; ++i )
     {
+        
         for(;;)
         {
             //------------------------------------------------------------------
             // compute length to next vertex
             //------------------------------------------------------------------
-            const V2D pq(p->vertex,q->vertex);
+            V2D pq(p->vertex,q->vertex);
+            pbc(pq);
             p->s_next = pq.norm();
             //std::cerr << "s_next=" << p->s_next << std::endl;
             
@@ -56,12 +66,13 @@ void Bubble:: update_points()
                 Point *I = create();
                 I->vertex.x = p->vertex.x + 0.5 * pq.x;
                 I->vertex.y = p->vertex.y + 0.5 * pq.y;
+                pbc(I->vertex);
                 insert_after(p, I);
                 assert(p->next==I);
                 q = I;
                 continue;
             }
-            
+            p->r_next = pq;
             break;
         }
         
