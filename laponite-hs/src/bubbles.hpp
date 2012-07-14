@@ -23,6 +23,7 @@ public:
     
 #if defined(HAS_MPI)
     void dispatch_all( mpi &MPI );
+    void collect_all( mpi &MPI );
 #endif
     
 private:

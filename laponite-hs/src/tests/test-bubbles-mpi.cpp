@@ -44,6 +44,24 @@ int main( int argc, char *argv[] )
         MPI.Printf(stderr, "Rank %d> #bubbles=%u\n", MPI.CommWorldRank, unsigned( bubbles.count() ) );
         
         info_bubbles(bubbles, MPI.CommWorldRank);
+        const double y0 = -6;
+        const double H  = 12;
+        const double dH = H / MPI.CommWorldSize;
+        const double y_lo = y0 + MPI.CommWorldRank * dH;
+        const double y_hi = y_lo + dH;
+
+        
+        //-- do something with bubbles
+        size_t total_count = 0;
+        for( Bubble *b = bubbles.first(); b; b=b->next)
+        {
+            b->build_spots(y_lo, y_hi);
+            total_count += b->spots.size;
+        }
+        MPI.Printf(stderr, "Rank %d> total #spots=%u\n", MPI.CommWorldRank, unsigned(total_count) );
+        
+        //-- and collect changes
+        bubbles.collect_all(MPI);
         
         return 0;
     }
