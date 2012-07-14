@@ -29,7 +29,11 @@ int main( int argc, char *argv[] )
     try 
     {
         mpi &MPI = mpi::init( &argc, &argv);
-
+        double radius = 1;
+        if( argc > 1 )
+        {
+            radius = strconv::to_real<Real>( argv[1], "radius" );
+        }
         Bubbles bubbles;
         if( MPI.IsMaster )
         {
