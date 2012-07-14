@@ -8,7 +8,9 @@
 Point:: Point() throw()  :
 vertex(),
 s_next(0),
-next(0), prev(0)
+r_next(),
+next(0), 
+prev(0)
 {
 }
 
@@ -73,6 +75,8 @@ Point * Point::List:: create()
         p->vertex.x = 0;
         p->vertex.y = 0;
         p->s_next   = 0;
+        p->r_next.x = 0;
+        p->r_next.y = 0;
         return p;
     }
     else 
