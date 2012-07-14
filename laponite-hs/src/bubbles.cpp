@@ -25,15 +25,21 @@ void Bubbles:: none() throw()
     }
 }
 
-Bubble & Bubbles:: create()
+Bubble * Bubbles:: create()
 {
     
     Bubble *pB = b_pool.size > 0 ? b_pool.query() : new  Bubble( pcache, scache );
     
     assert(pB->size == 0 );
     b_list.push_back(pB);
-    return *pB;
+    return pB;
     
+}
+
+
+void Bubbles:: create( size_t n )
+{
+    while(n-->0) (void) create();
 }
 
 size_t Bubbles:: count() const throw()

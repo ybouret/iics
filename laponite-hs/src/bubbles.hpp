@@ -17,7 +17,9 @@ public:
     
     void   none() throw();
     
-    Bubble &create();
+    Bubble *create(); //!< return a new bubble, already in list
+    void    create( size_t n ); //!< create n extra new bubbles
+    
     
 #if defined(HAS_MPI)
     void dispatch_all( mpi &MPI );

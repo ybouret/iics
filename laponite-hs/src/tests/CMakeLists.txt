@@ -1,8 +1,13 @@
-ADD_EXECUTABLE(test-bubbles test-bubbles.cpp)
-TARGET_LINK_LIBRARIES(test-bubbles laphs)
-TARGET_LINK_YOCTO(test-bubbles)
+ADD_EXECUTABLE(test-bubble test-bubble.cpp)
+TARGET_LINK_LIBRARIES(test-bubble laphs)
+TARGET_LINK_YOCTO(test-bubble)
 
 IF(MPI_FOUND)
+	ADD_EXECUTABLE(test-bubble-mpi test-bubble-mpi.cpp)
+        TARGET_LINK_LIBRARIES(test-bubble-mpi laphs)
+        TARGET_LINK_YOCTO(test-bubble-mpi mpi)
+        TARGET_LINK_LIBRARIES(test-bubble-mpi ${MPI_LIBRARIES})
+
 	ADD_EXECUTABLE(test-bubbles-mpi test-bubbles-mpi.cpp)
 	TARGET_LINK_LIBRARIES(test-bubbles-mpi laphs)
 	TARGET_LINK_YOCTO(test-bubbles-mpi mpi)
