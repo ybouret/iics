@@ -72,6 +72,10 @@ void Bubble:: update_points()
                 q = I;
                 continue;
             }
+            
+            //------------------------------------------------------------------
+            // ok, keep that in mind...
+            //------------------------------------------------------------------
             p->r_next = pq;
             break;
         }
@@ -98,12 +102,14 @@ void Bubble:: update_points()
 
 double Bubble:: evaluate_area() const throw()
 {
-    double ans = 0;
-    const Point *p = root;
+    double       ans = 0;
+    const Point *p   = root;
+    V2D          v0(0,0);
     for( size_t i=size;i>0;--i,p=p->next)
     {
-        const Point *q = p->next;
-        ans +=  p->vertex.x * q->vertex.y - p->vertex.y * q->vertex.x;
+        const V2D    v1 = v0 + p->r_next;
+        ans += v0.x * v1.y - v0.y * v1.x;
+        v0 = v1;
     }
     return 0.5 * Fabs(ans);
 }
