@@ -109,7 +109,31 @@ double Bubble:: evaluate_area() const throw()
     return 0.5 * Fabs(ans);
 }
 
-void Bubble:: update_area() throw() { area = evaluate_area(); }
+void Bubble:: update_values() throw() 
+{ 
+    
+    area         = 0;
+    Point   *p   = root;
+    V2D          v0(0,0); // translate p to origin
+    for( size_t i=size;i>0;--i,p=p->next)
+    {
+        // construct next point by effective difference vector
+        const V2D    D1 = p->r_next;
+        const Real   s1 = p->s_next;
+        const V2D    v1 = v0 + D1;
+        area += v0.x * v1.y - v0.y * v1.x;
+        v0 = v1;
+        
+        // construct tangent vector
+        const Point *q  = p->prev;
+        const V2D    D0 = q->r_next;
+        const Real   S0 = q->s_next;
+        const V2D    tp = S0 * D1  - s1 * D0; //!< tangent vector
+        const Real   tp_norm = tp.norm();     //!< its norm
+        p->tangent = (1/tp_norm) * tp;
+    }
+    area = 0.5 * Fabs( area );
+}
 
 void Bubble:: map_circle(const V2D &center, Real radius)
 {
@@ -138,7 +162,7 @@ void Bubble:: build_spots(const Real y_lo, const Real y_up)
     for( size_t i=0;i<size;++i,p=p->next)
     {
         const double y = p->vertex.y;
-        if( y_lo <= y && y < y_up )
+        if( y_lo <= y && y <= y_up )
         {
             
             spots.append(p);           

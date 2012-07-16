@@ -1,6 +1,6 @@
 #include "bubbles.hpp"
 
-void Bubbles:: dispatch_all(mpi &MPI)
+void Bubbles:: dispatch_all(const mpi &MPI)
 {
     const bool master   = MPI.IsMaster;
     //==========================================================================
@@ -33,7 +33,7 @@ void Bubbles:: dispatch_all(mpi &MPI)
     
 }
 
-void Bubbles:: collect_all( mpi &MPI )
+void Bubbles:: collect_all(const mpi &MPI )
 {
 #if !defined (NDEBUG)
     const bool master   = MPI.IsMaster;

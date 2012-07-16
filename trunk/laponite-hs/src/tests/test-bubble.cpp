@@ -54,7 +54,7 @@ int main( int argc, char * argv[] )
         std::cerr << "Update 1/2" << std::endl;
         
         b.update_points();
-        b.update_area();
+        b.update_values();
         std::cerr << "Area=" << b.area << std::endl;
         
         {
@@ -70,7 +70,7 @@ int main( int argc, char * argv[] )
         std::cerr << "Update 2/2" << std::endl;
         std::cerr << "Area1=" << b.evaluate_area() << std::endl;
         b.update_points();
-        b.update_area();
+        b.update_values();
         
         std::cerr << "Area2=" << b.area << std::endl;
         save_bubble(b,2);

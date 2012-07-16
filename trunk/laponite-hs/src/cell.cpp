@@ -1,10 +1,10 @@
 #include "cell.hpp"
 
-Parameters:: Parameters(unit_t Nx, 
-                        unit_t Ny,
-                        Real   Lx,
-                        Real   Ly,
-                        mpi   &MPI) :
+Parameters:: Parameters(unit_t      Nx, 
+                        unit_t      Ny,
+                        Real        Lx,
+                        Real        Ly,
+                        const mpi & MPI) :
 FieldsSetup(),
 Lower(0,0),
 Upper(Nx,Ny),
@@ -15,7 +15,6 @@ TopRight(Length.x,Length.y/2),
 FullRegion(BotLeft,TopRight),
 SubLayout( FullLayout.split(MPI.CommWorldRank, MPI.CommWorldSize) ),
 SubRegion( FullRegion.split(MPI.CommWorldRank, MPI.CommWorldSize) ),
-pbc(Length.y),
 gs()
 {
     assert(Lx>0);
@@ -41,13 +40,14 @@ Parameters:: ~Parameters() throw()
 }
 
 
-Cell:: Cell(unit_t Nx, 
-            unit_t Ny,
-            Real   Lx,
-            Real   Ly,
-            mpi   &MPI ) :
+Cell:: Cell(unit_t      Nx, 
+            unit_t      Ny,
+            Real        Lx,
+            Real        Ly,
+            const mpi & MPI ) :
 Parameters( Nx, Ny, Lx, Ly, MPI),
-WorkspaceBase( SubLayout, gs, *this)
+WorkspaceBase( SubLayout, gs, *this),
+bubbles( Length.y )
 {
     //! build the sub mesh
     mesh.regular_map_to(FullRegion, SubLayout);
@@ -58,4 +58,11 @@ Cell:: ~Cell() throw()
 {
     
 }
+
+void Cell:: dispatch_bubbles( const mpi &MPI ) 
+{
+    bubbles.dispatch_all(MPI);
+    
+}
+
 

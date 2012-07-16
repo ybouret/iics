@@ -64,7 +64,7 @@ int main( int argc, char *argv[] )
         save_spots("spot",b,MPI.CommWorldRank);
         if( b.active )
         {
-            b.update_area();
+            b.update_values();
             //-- move concerned points
             for( Spot *sp = b.spots.head; sp; sp = sp->next )
             {

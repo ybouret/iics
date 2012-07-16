@@ -12,6 +12,7 @@ public:
     V2D      vertex;  //!< x,y (PBC)
     Real     s_next;  //!< distance to next point
     V2D      r_next;  //!< vector to next point (using PBC)
+    V2D      tangent; //!< tangent vector
     
     explicit Point() throw(); //!< x=y=0, domain=-1, d2next=0
     virtual ~Point() throw(); //!< do nothing
