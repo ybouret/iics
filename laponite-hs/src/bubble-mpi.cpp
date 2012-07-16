@@ -1,7 +1,7 @@
 #include "bubble.hpp"
 
 
-void Bubble:: dispatch(mpi &MPI)
+void Bubble:: dispatch(const mpi &MPI)
 {
     
     if( MPI.CommWorldSize >0 )
@@ -46,7 +46,7 @@ void Bubble:: dispatch(mpi &MPI)
 }
 
 
-void Bubble:: collect(mpi &MPI)
+void Bubble:: collect(const mpi &MPI)
 {
     static const int tag = 1000;
     if( MPI.CommWorldSize >0 )

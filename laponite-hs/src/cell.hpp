@@ -1,7 +1,7 @@
 #ifndef CELL_INCLUDED
 #define CELL_INCLUDED 1
 
-#include "bubble.hpp"
+#include "bubbles.hpp"
 #include "yocto/swamp/array2d.hpp"
 #include "yocto/swamp/workspace.hpp"
 #include "yocto/swamp/rmesh.hpp"
@@ -26,11 +26,11 @@ class Parameters : public FieldsSetup
 {
 public:
     //! declare all fields
-    explicit Parameters(unit_t Nx, 
-                        unit_t Ny,
-                        Real   Lx,
-                        Real   Ly,
-                        mpi   &MPI
+    explicit Parameters(unit_t      Nx, 
+                        unit_t      Ny,
+                        Real        Lx,
+                        Real        Ly,
+                        const mpi  &MPI
                         );
     
     //! cleanup
@@ -45,7 +45,6 @@ public:
     const Region FullRegion; //!< BotLeft->TopRight
     const Layout SubLayout;  //!< splitted
     const Region SubRegion;  //!< spliited from SubLayout
-    PBC          pbc;        //!< for latter computation
     GhostsSetup  gs;         //!< info about ghosts
     
 private:
@@ -53,16 +52,21 @@ private:
 };
 
 
+//! Hele-Shaw Cell
 class Cell : public Parameters, public WorkspaceBase
 {
 public:
-    explicit Cell(unit_t Nx, 
-                  unit_t Ny,
-                  Real   Lx,
-                  Real   Ly,
-                  mpi   &MPI);
+    explicit Cell(unit_t     Nx, 
+                  unit_t     Ny,
+                  Real       Lx,
+                  Real       Ly,
+                  const mpi &MPI);
     virtual ~Cell() throw();
     
+    Bubbles bubbles;
+    
+    //! dispatch bubbles and build spots
+    void    dispatch_bubbles( const mpi &MPI );
     
     
 private:

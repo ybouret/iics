@@ -23,7 +23,7 @@ public:
     bool           active; //!< spots.size > 0 
       
     void   update_points();               // update #points
-    void   update_area() throw();         //!< area = evaluate_area
+    void   update_values() throw();       //!< area = evaluate_area
     double evaluate_area() const throw(); //!< evaluate area, doesn't set it !
     
     //! empty list and put points on circle
@@ -35,10 +35,10 @@ public:
     
 #if defined(HAS_MPI)
     //! broadcast content from rank=0
-    void dispatch( mpi &MPI );
+    void dispatch( const mpi &MPI );
     
     //! collect changed points
-    void collect(mpi &MPI);
+    void collect( const mpi &MPI);
 #endif
     
     Bubble *next;
