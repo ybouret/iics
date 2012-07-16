@@ -6,6 +6,8 @@ all:
 
 clean:
 	@echo "-- removing .dat" && rm -f *.dat
+	@echo "-- removing .curve" && rm -f *.curve
+
 
 veryclean:
 	@echo "-- removing out of sources builds" && cd forge && touch targets && ( cat targets | xargs rm -rf ) && rm -f targets

@@ -59,10 +59,20 @@ Cell:: ~Cell() throw()
     
 }
 
+void Cell:: update_topologies() throw()
+{
+    bubbles.update_all_points();
+}
+
+
 void Cell:: dispatch_bubbles( const mpi &MPI ) 
 {
     bubbles.dispatch_all(MPI);
-    
+    bubbles.update_all_spots(SubRegion.vmin.y, SubRegion.vmax.y);
 }
 
+void Cell:: collect_bubbles( const mpi &MPI )
+{
+    bubbles.collect_all(MPI);
+}
 

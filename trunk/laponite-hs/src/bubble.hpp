@@ -21,7 +21,8 @@ public:
     double         area;   //!< area, to be broadcasted
     Spot::List     spots;  //!< keep trace of points
     bool           active; //!< spots.size > 0 
-      
+    
+    
     void   update_points();               // update #points
     void   update_values() throw();       //!< area = evaluate_area
     double evaluate_area() const throw(); //!< evaluate area, doesn't set it !
