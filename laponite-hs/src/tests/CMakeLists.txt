@@ -12,6 +12,11 @@ IF(MPI_FOUND)
 	TARGET_LINK_LIBRARIES(test-bubbles-mpi laphs)
 	TARGET_LINK_YOCTO(test-bubbles-mpi mpi)
 	TARGET_LINK_LIBRARIES(test-bubbles-mpi ${MPI_LIBRARIES})
+
+	ADD_EXECUTABLE(test-cell test-cell.cpp)
+	TARGET_LINK_LIBRARIES(test-cell laphs)
+	TARGET_LINK_YOCTO(test-cell mpi swamp)
+        TARGET_LINK_LIBRARIES(test-cell ${MPI_LIBRARIES})
 ENDIF(MPI_FOUND)
 
 

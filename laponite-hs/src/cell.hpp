@@ -44,6 +44,8 @@ public:
     const V2D    TopRight;   //!< (0,Ly/2)
     const Region FullRegion; //!< BotLeft->TopRight
     const Layout SubLayout;  //!< splitted
+    const Region SubRegion;  //!< spliited from SubLayout
+    PBC          pbc;        //!< for latter computation
     GhostsSetup  gs;         //!< info about ghosts
     
 private:
@@ -51,7 +53,21 @@ private:
 };
 
 
-
+class Cell : public Parameters, public WorkspaceBase
+{
+public:
+    explicit Cell(unit_t Nx, 
+                  unit_t Ny,
+                  Real   Lx,
+                  Real   Ly,
+                  mpi   &MPI);
+    virtual ~Cell() throw();
+    
+    
+    
+private:
+    YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);
+};
 
 
 
