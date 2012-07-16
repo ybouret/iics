@@ -79,20 +79,14 @@ void Bubble:: update_points()
             p->r_next = pq;
             break;
         }
-        
-        //----------------------------------------------------------------------
-        // update area
-        //----------------------------------------------------------------------
-        //area += p->x * q->y - p->y * q->x;
-        
-        
+    
         //----------------------------------------------------------------------
         // next edge
         //----------------------------------------------------------------------
         p = q;
         q = q->next;
     }
-    //area = 0.5 * Fabs( area );
+
     //--------------------------------------------------------------------------
     // differential properties
     //--------------------------------------------------------------------------
@@ -104,9 +98,10 @@ double Bubble:: evaluate_area() const throw()
 {
     double       ans = 0;
     const Point *p   = root;
-    V2D          v0(0,0);
+    V2D          v0(0,0); // translate p to origin
     for( size_t i=size;i>0;--i,p=p->next)
     {
+        // construct next point by effective difference vector
         const V2D    v1 = v0 + p->r_next;
         ans += v0.x * v1.y - v0.y * v1.x;
         v0 = v1;
