@@ -20,7 +20,9 @@ FIND_PACKAGE(MPI)
 IF(MPI_FOUND)
 	ADD_DEFINITIONS( -DHAS_MPI )
 	INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-	SET(SOURCES_PAR bubble-mpi.cpp bubbles-mpi.cpp)
+	SET(SOURCES_PAR 
+cell.hpp cell.cpp
+bubble-mpi.cpp bubbles-mpi.cpp)
 ENDIF(MPI_FOUND)
 
 

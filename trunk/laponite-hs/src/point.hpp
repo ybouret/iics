@@ -3,7 +3,7 @@
 
 #include "types.hpp"
 #include "yocto/core/pool.hpp"
-#include "yocto/core/circular-list.hpp"
+#include "yocto/core/clist.hpp"
 
 //! a point on a border of a bubble
 class Point 
