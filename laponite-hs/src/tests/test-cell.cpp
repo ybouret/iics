@@ -22,6 +22,7 @@ int main( int argc, char *argv[] )
     
     try 
     {
+        AleaInit();
         mpi &MPI = mpi::init( &argc, &argv);
         
         Cell cell(10,20,5.0,6.0,MPI);
@@ -56,6 +57,7 @@ int main( int argc, char *argv[] )
                 for( Spot *spot = b->spots.head; spot != NULL; spot = spot->next )
                 {
                     spot->point->vertex.y += 0.01;
+                    spot->point->vertex.x *= 1.05;
                 }
             }
             
