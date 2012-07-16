@@ -51,5 +51,29 @@ size_t Bubbles:: count() const throw()
 Bubble * Bubbles:: first() throw() { return b_list.head; }
 const Bubble * Bubbles:: first() const throw() { return b_list.head; }
 
+void Bubbles:: update_all_points()
+{
+    for( Bubble *b = b_list.head; b; b=b->next )
+    {
+        b->update_points();
+    }
+}
 
+void Bubbles:: update_all_values()
+{
+    for( Bubble *b = b_list.head; b; b=b->next )
+    {
+        b->update_values();
+    }
+}
+
+void Bubbles:: update_all_spots( const Real y_lo, const Real y_up )
+{
+    for( Bubble *b = b_list.head; b; b=b->next )
+    {
+        b->build_spots(y_lo,y_up);
+        if(b->active)
+            b->update_values();
+    }
+}
 
