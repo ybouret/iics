@@ -51,29 +51,31 @@ size_t Bubbles:: count() const throw()
 Bubble * Bubbles:: first() throw() { return b_list.head; }
 const Bubble * Bubbles:: first() const throw() { return b_list.head; }
 
-void Bubbles:: update_all_points()
+void Bubbles:: update_topologies()
 {
     for( Bubble *b = b_list.head; b; b=b->next )
     {
-        b->update_points();
+        b->update_contour();
     }
 }
 
-void Bubbles:: update_all_values()
+#if 0
+void Bubbles:: update_properties()
 {
     for( Bubble *b = b_list.head; b; b=b->next )
     {
-        b->update_values();
+        b->compute_values();
     }
 }
+#endif
 
-void Bubbles:: update_all_spots( const Real y_lo, const Real y_up )
+void Bubbles:: spots_and_values_within( const Real y_lo, const Real y_up )
 {
     for( Bubble *b = b_list.head; b; b=b->next )
     {
-        b->build_spots(y_lo,y_up);
+        b->find_spots_within(y_lo,y_up);
         if(b->active)
-            b->update_values();
+            b->compute_values();
     }
 }
 

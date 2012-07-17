@@ -49,12 +49,12 @@ int main( int argc, char * argv[] )
         
         b.map_circle( V2D(0,0), radius);
         save_bubble(b,0);
-        b.build_spots(-2, 2);
+        b.find_spots_within(-2, 2);
         save_spots(b, 0);
         std::cerr << "Update 1/2" << std::endl;
         
-        b.update_points();
-        b.update_values();
+        b.update_contour();
+        b.compute_values();
         std::cerr << "Area=" << b.area << std::endl;
         
         {
@@ -65,16 +65,14 @@ int main( int argc, char * argv[] )
             }
         }
         save_bubble(b,1);
-        b.build_spots(-2, 2);
+        b.find_spots_within(-2, 2);
         save_spots(b, 1);
         std::cerr << "Update 2/2" << std::endl;
-        std::cerr << "Area1=" << b.evaluate_area() << std::endl;
-        b.update_points();
-        b.update_values();
-        
-        std::cerr << "Area2=" << b.area << std::endl;
+        b.update_contour();
+        b.compute_values();        
+        std::cerr << "Area=" << b.area << std::endl;
         save_bubble(b,2);
-        b.build_spots(-2, 2);
+        b.find_spots_within(-2, 2);
         save_spots(b, 2);
         return 0;
     }

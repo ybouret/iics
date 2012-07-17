@@ -25,7 +25,7 @@ Bubble::~Bubble() throw()
 
 
 
-void Bubble:: update_points()
+void Bubble:: update_contour()
 {
     assert(size>=3);
     assert(root!=NULL);
@@ -93,7 +93,7 @@ void Bubble:: update_points()
     
 }
 
-
+#if 0
 double Bubble:: evaluate_area() const throw()
 {
     double       ans = 0;
@@ -108,8 +108,9 @@ double Bubble:: evaluate_area() const throw()
     }
     return 0.5 * Fabs(ans);
 }
+#endif
 
-void Bubble:: update_values() throw() 
+void Bubble:: compute_values() throw() 
 { 
     
     area         = 0;
@@ -154,7 +155,7 @@ void Bubble:: map_circle(const V2D &center, Real radius)
     }
 }
 
-void Bubble:: build_spots(const Real y_lo, const Real y_up)
+void Bubble:: find_spots_within(const Real y_lo, const Real y_up)
 {
     spots.empty();
     Point *p = root;

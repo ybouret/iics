@@ -33,7 +33,7 @@ void Bubbles:: dispatch_all(const mpi &MPI)
     
 }
 
-void Bubbles:: collect_all(const mpi &MPI )
+void Bubbles:: assemble_all(const mpi &MPI )
 {
 #if !defined (NDEBUG)
     const bool master   = MPI.IsMaster;
@@ -52,7 +52,7 @@ void Bubbles:: collect_all(const mpi &MPI )
     
     for( Bubble *b = b_list.head;b;b=b->next)
     {
-        b->collect(MPI);
+        b->assemble(MPI);
     }
     
 }

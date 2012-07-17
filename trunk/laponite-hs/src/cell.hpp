@@ -65,14 +65,14 @@ public:
     
     Bubbles bubbles;
     
-    //! for rank 0: update_points for each bubble
-    void    update_topologies() throw();
+    //! for rank 0: update_contour for each bubble
+    void    master_update_topologies() throw();
     
-    //! dispatch bubbles and build their spots
+    //! dispatch bubbles, find their spots and their values (area,...)
     void    dispatch_bubbles( const mpi &MPI );
     
     //! collect all the bubbles motions
-    void    collect_bubbles( const mpi &MPI );
+    void    assemble_bubbles( const mpi &MPI );
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);

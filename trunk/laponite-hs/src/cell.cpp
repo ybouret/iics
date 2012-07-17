@@ -59,20 +59,23 @@ Cell:: ~Cell() throw()
     
 }
 
-void Cell:: update_topologies() throw()
+void Cell:: master_update_topologies() throw()
 {
-    bubbles.update_all_points();
+    bubbles.update_topologies();
 }
 
 
 void Cell:: dispatch_bubbles( const mpi &MPI ) 
 {
+    //! broadcast
     bubbles.dispatch_all(MPI);
-    bubbles.update_all_spots(SubRegion.vmin.y, SubRegion.vmax.y);
+    
+    //! compute local properties
+    bubbles.spots_and_values_within(SubRegion.vmin.y, SubRegion.vmax.y);
 }
 
-void Cell:: collect_bubbles( const mpi &MPI )
+void Cell:: assemble_bubbles( const mpi &MPI )
 {
-    bubbles.collect_all(MPI);
+    bubbles.assemble_all(MPI);
 }
 
