@@ -17,7 +17,7 @@ const char          *cpntName_v[] = {"velocity"};  /*Name of the components*/
 static indx_t       Nx = ANX;   /*!< 0 -> Nx-1      */
 static indx_t       Ny = 1;   /*!< 0 -> Ny-1      */
 static indx_t       Nz = ANX;   /*!< 0 -> Nz-1      */
-static indx_t       NG = 1;     /*!< #ghosts        */
+static indx_t       NG = 2;     /*!< #ghosts        */
 static real_t       Lx = L;
 static real_t       Ly = L;
 static real_t       Lz = L; 
@@ -63,7 +63,7 @@ int   rmesh_dims[3];
 #define eta 0.05
 #define gamma 0.1
 #define noise 0.1
-#define NB 200
+#define NB 400
 typedef struct { 
     real_t x[NB];
     real_t z[NB]; 
@@ -73,6 +73,7 @@ typedef struct {
 }          Bubble; 
 MPI_Datatype bubbletype, oldtypes[2];  
 Bubble b0;
+Bubble b1;
 Bubble *bt;
 
 
@@ -80,6 +81,19 @@ Bubble *bt;
 #include "ui.cpp"
 #include "writeToSilo.c"
 #include "mpiPartition.c"
+
+void copyBubble(Bubble *source, Bubble *desti)
+{
+    int i;
+    for(i=0;i<NB;i++)
+    {
+        desti->x[i]=source->x[i];
+        desti->z[i]=source->z[i];
+        desti->domain[i]=source->domain[i];
+    }
+    desti->pressure=source->pressure;
+    desti->n=source->n;
+}
 
 void initiateBubble()
 {
@@ -119,9 +133,9 @@ void initiateBubble()
         
         for(i=0;i<NB;i++)
         {
-            b0.x[i]=R*cos(2*3.1415*i/(NB-1.0))+Lx*0.5;
+            b0.x[i]=R*cos(2*3.1415*i/(NB))+Lx*0.5;
          //   b0.x[i]=10;
-            b0.z[i]=R*sin(2*3.1415*i/(NB-1.0))+Lz*0.5;
+            b0.z[i]=R*sin(2*3.1415*i/(NB))+Lz*0.5;
            // b0.z[i]=i/(NB-1.0)*Lz;
           //  b0.z[i]=i/(Nx-1.0)*Lz;
             b0.domain[i]=-1;
@@ -185,6 +199,7 @@ double gaussSeidel(int color,real_t omega)
     {
        // p[k][j][xmax]=p[k][j][xmax-1];
         p[k][j][xmax]=1;
+        p[k][j][xmax]=0;
        // p[k][j][xmin]=p[k][j][xmin+1];
         p[k][j][xmin]=0;
     }
@@ -396,8 +411,48 @@ void computeVelocity()
     waitRequests(3);
 
 }
-void advectBubble(simulation_data *sim)
+real_t giveU(real_t x,real_t z, int i, int k)
 {
+    real_t ***u=fields[2];
+
+    
+    real_t zt=z-(k+0.5)*dz;
+    real_t ua=0,ub=0;
+
+    if(zt>0)
+    {
+        ua=u[k][0][i]  +zt/dz*(u[k+1][0][i]  -u[k][0][i]);
+        ub=u[k][0][i-1]+zt/dz*(u[k+1][0][i-1]-u[k][0][i-1]);
+    }
+    else
+    {
+        ua=u[k][0][i]  -zt/dz*(u[k-1][0][i]    -u[k][0][i]);
+        ub=u[k][0][i-1]-zt/dz*(u[k-1][0][i-1]  -u[k][0][i-1]);
+    }
+    return ua+(x-(i+1)*dx)/dx*(ua-ub);
+}
+real_t giveV(real_t x,real_t z, indx_t i, indx_t k)
+{
+    real_t xt=x-(i+0.5)*dx;
+    
+    real_t va,vb;
+    real_t ***v=fields[3];
+    if(xt>0)
+    {
+        va=v[k]  [0][i]+xt/dx*(  v[k][0][i+1]  -v[k][0][i]);
+        vb=v[k-1][0][i]+xt/dx*(v[k-1][0][i+1]-v[k-1][0][i]);
+    }
+    else
+    {
+        va=v[k]  [0][i]-xt/dx*(  v[k][0][i-1]  -v[k][0][i]);
+        vb=v[k-1][0][i]-xt/dx*(v[k-1][0][i-1]-v[k-1][0][i]);
+    }
+    return va+(z-(k+1)*dz)/dz*(va-vb);
+}
+
+void advectBubble(simulation_data *sim,Bubble *b2, real_t adt)
+{
+    //b1 is the new position of the bubble, calculated from b0
     
     int i,k;
     int ip,kp;
@@ -421,31 +476,31 @@ void advectBubble(simulation_data *sim)
             c[k][0][i]=0;
         }
     
-    dt=0.05;
-
     for(i=0;i<NB;i++)
     {
-        //b0.domain[i]=-2;
-        particleDomain=(int)floor(b0.z[i]/Lz*size);
+        particleDomain=(int)floor(b2->z[i]/Lz*size);
         
         if(particleDomain==rank)
         {
             indx_t kshift;
             indx_t ishift;
             
-            b0.domain[i]=particleDomain;
+            b2->domain[i]=particleDomain;
 
-            ip=(int)(b0.x[i]/Lx*(Nx));
+            ip=(int)(b2->x[i]/Lx*(Nx));
             if(ip<0 ||(ip>xmax))
                     fprintf(stderr,"sortie de tableau x dans advecBubble ip=%d\n", (int) ip);
 
-            kp=(int)(b0.z[i]/Lz*(Nz));
+            kp=(int)(b2->z[i]/Lz*(Nz));
             if(kp<zmin-1 ||(kp>zmax+1))
                 fprintf(stderr,"sortie de tableau z dans advecBubble : %d<=kp=%d<=%d\n",(int) zmin,(int) kp,(int) zmax);
             
             // interpolated velocity
-            b0.x[i]+=dt*(u[kp][0][ip-1]+(b0.x[i]-(ip-1)*dx)/dx*(u[kp][0][ip]-u[kp][0][ip-1]));
-            b0.z[i]+=dt*(v[kp-1][0][ip]+(b0.z[i]-(kp-1)*dz)/dz*(v[kp][0][ip]-v[kp][0][ip]));
+            b2->x[i]=b0.x[i]+adt*giveU(b0.x[i],b0.z[i],ip,kp);
+            b2->z[i]=b0.z[i]+adt*giveV(b0.x[i],b0.z[i],ip,kp);
+           // b2->x[i]=b0.x[i]+adt*(u[kp][0][ip-1]+(b2->x[i]-(ip-1)*dx)/dx*(u[kp][0][ip]-u[kp][0][ip-1]));
+        //    b2->z[i]=b0.z[i]+adt*(v[kp-1][0][ip]+(b2->z[i]-(kp-1)*dz)/dz*(v[kp][0][ip]-v[kp][0][ip]));
+            
             
             // we impose the pressure inside the bubble in order to avoid numerical problems.
             ipp=i+1;
@@ -455,92 +510,113 @@ void advectBubble(simulation_data *sim)
             if(i==NB-1)
                 ipp=0;
         
-            tx=(b0.x[ipp]-b0.x[ipm]);
-            tz=(b0.z[ipp]-b0.z[ipm]);
+            tx=(b2->x[ipp]-b2->x[ipm]);
+            tz=(b2->z[ipp]-b2->z[ipm]);
             idis=sqrt(tx*tx+tz*tz);
             if(idis==0)
-                fprintf(stderr,"error in advectBubble: two particles are at the same place\n");
+            {
+                int pp;
+                fprintf(stderr,"error in advectBubble: two particles are at the same place :%d \n",i);
+                for(pp=0;pp<NB;pp++)
+                    fprintf(stderr,"x[%d]=%g\tz[%d]==%g \n",pp,b2->x[pp],pp,b2->z[pp]);
+
+            }
             else
                 idis=1.0/idis;
             cosTheta=tx*idis;
             kshift=
             sinTheta=tz*idis;
-        //    fprintf(stderr,"particule %d cos=%d,sin=%d\n",i,(int) lrint(cosTheta),(int) lrint(sinTheta));
-            //pt[kp-2*((int) cosTheta)][0][ip+2*((int) -sinTheta)]=b0.pressure;
-            //c[kp-((int) lrint(cosTheta))][0][ip-((int)lrint(-sinTheta))]=b0.pressure;
-            //c[kp-((int) lrint(cosTheta))][0][ip-((int)lrint(-sinTheta))]=b0.pressure;
+
             kshift=((int) lrint(cosTheta));
             ishift=((int)lrint(-sinTheta));
-                if((zmin<=kp+kshift)&&(kp+kshift<=zmax))
+            if((zmin<=kp+kshift)&&(kp+kshift<=zmax))
             {
-                pt[kp+kshift][0][ip+ishift]=b0.pressure;
-                c[kp+kshift][0][ip+ishift]=b0.pressure;
+                pt[kp+kshift][0][ip+ishift]=b2->pressure;
+                c[kp+kshift][0][ip+ishift]=b2->pressure;
 
             }
             else
             {
-                pt[kp][0][ip+ishift]=b0.pressure;
-                c[kp][0][ip+ishift]=b0.pressure;
+                pt[kp][0][ip+ishift]=b2->pressure;
+                c[kp][0][ip+ishift]=b2->pressure;
             }
-
+            
+            //pt[kp][0][ip]=b2->pressure;
+            //c[kp][0][ip]=b2->pressure;
             
         }
         else
         {
-            b0.domain[i]=-1;
+            b2->domain[i]=-1;
         }
     }
     /***** problem avec le changement de domaine !!!!!*/
-   _CHECK(MPI_Gather(&b0, 1, bubbletype, bt, 1, bubbletype, 0,MPI_COMM_WORLD));
+   _CHECK(MPI_Gather(b2, 1, bubbletype, bt, 1, bubbletype, 0,MPI_COMM_WORLD));
     if(rank==0)
     {
         for(i=0;i<NB;i++)
         {
             for(k=0;k<size;k++)
             {  
-               // if(b0.domain[i]==-2)
-                 //   exit(0);
+
                 if(bt[k].domain[i]>=0)
                 {
-                    
-                   // particleDomain=(int)floor(b0.z[i]/Lz*size);
-                    b0.domain[i]=bt[k].domain[i];
-                    b0.x[i]=bt[k].x[i];
-                    b0.z[i]=bt[k].z[i];                     
+                    b2->domain[i]=bt[k].domain[i];
+                    b2-> x[i]=bt[k].x[i];
+                    b2->z[i]=bt[k].z[i];                     
                 }
             }
            
         }
     }
     
-    _CHECK(MPI_Bcast(&b0,1,bubbletype,0,MPI_COMM_WORLD));
+    _CHECK(MPI_Bcast(b2,1,bubbletype,0,MPI_COMM_WORLD));
 }
 static void integrate(simulation_data *sim)
 {
     indx_t i,j;
     
-    computeVelocity();
-    advectBubble(sim);
+    dt=0.01;
     
     computePressure(100000,1e-4);
+    computeVelocity();
     
- //   computeNLPressure(100,1e-3);
+    copyBubble(&b0,&b1);
+    /*
+    if(rank==0)
+    {
+        fprintf(stderr,"apres copy from b0 to b1\n");
+        for(i=0;i<NB;i++)
+            fprintf(stderr,"x[%d]=%g\tz[%d]==%g \n",i,b1.x[i],i,b1.z[i]);
+    }
+     */
+    
+     advectBubble(sim,&b1,dt*0.5);
+     
+     computePressure(100000,1e-4);
+     computeVelocity();
+     advectBubble(sim,&b0,dt);
+     
+     
+     
+    
+    //   computeNLPressure(100,1e-3);
     
     /*
-    
-    //euler integration
-	for( i=0; i < NC; ++i )
-	{
-		real_t ***f = fields[i];
-		real_t ***df = dfields[i];
-        
-        real_t       *dst = &f[zmin][ymin][xmin];
-        const real_t *src = &df[zmin][ymin][xmin];
-        for( j=0; j < items_per_field; ++j )
-        {
-            dst[j] += dt * (src[j]);
-        }
-    }
+     
+     //euler integration
+     for( i=0; i < NC; ++i )
+     {
+     real_t ***f = fields[i];
+     real_t ***df = dfields[i];
+     
+     real_t       *dst = &f[zmin][ymin][xmin];
+     const real_t *src = &df[zmin][ymin][xmin];
+     for( j=0; j < items_per_field; ++j )
+     {
+     dst[j] += dt * (src[j]);
+     }
+     }
      */
 }
 
