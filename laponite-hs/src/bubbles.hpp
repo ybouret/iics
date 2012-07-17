@@ -20,15 +20,14 @@ public:
     Bubble *create(); //!< return a new bubble, already in list
     void    create( size_t n ); //!< create n extra new bubbles
     
-    void    update_all_points(); //!< for all bubbles
-    void    update_all_values(); //!< for all bubbles, debugging on rank 0
+    void    update_topologies(); //!< for all bubbles
     
-    //! build spots and update only active bubbles
-    void    update_all_spots(const Real y_lo, const Real y_up);
+    //! find spots and compute values only for active bubbles
+    void    spots_and_values_within(const Real y_lo, const Real y_up);
     
 #if defined(HAS_MPI)
     void dispatch_all( const mpi &MPI ); //!< broacast master->everybody
-    void collect_all( const mpi &MPI );  //!< collect changed points
+    void assemble_all( const mpi &MPI );  //!< collect changed points
 #endif
     
     const Real            Ly; //!< for bubble PBC

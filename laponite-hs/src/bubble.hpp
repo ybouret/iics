@@ -23,23 +23,22 @@ public:
     bool           active; //!< spots.size > 0 
     
     
-    void   update_points();               // update #points
-    void   update_values() throw();       //!< area = evaluate_area
-    double evaluate_area() const throw(); //!< evaluate area, doesn't set it !
+    void   update_contour();              //!< update #points
+    void   compute_values() throw();      //!< area, tangents...
     
     //! empty list and put points on circle
     void map_circle( const V2D &center, Real radius );
     
-    //! empty spots and find out points within y_lo <= y < y_up
-    void build_spots( const Real y_lo, const Real y_up );
+    //! empty spots and find out points within y_lo <= y <= y_up
+    void find_spots_within( const Real y_lo, const Real y_up );
     
     
 #if defined(HAS_MPI)
     //! broadcast content from rank=0
     void dispatch( const mpi &MPI );
     
-    //! collect changed points
-    void collect( const mpi &MPI);
+    //! assemble changed points
+    void assemble( const mpi &MPI);
 #endif
     
     Bubble *next;

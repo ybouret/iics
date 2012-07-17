@@ -59,13 +59,13 @@ int main( int argc, char *argv[] )
         size_t total_count = 0;
         for( Bubble *b = bubbles.first(); b; b=b->next)
         {
-            b->build_spots(y_lo, y_hi);
+            b->find_spots_within(y_lo, y_hi);
             total_count += b->spots.size;
         }
         MPI.Printf(stderr, "Rank %d> total #spots=%u\n", MPI.CommWorldRank, unsigned(total_count) );
         
         //-- and collect changes
-        bubbles.collect_all(MPI);
+        bubbles.assemble_all(MPI);
         
         return 0;
     }

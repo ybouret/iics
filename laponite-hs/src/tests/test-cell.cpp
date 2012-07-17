@@ -39,7 +39,7 @@ int main( int argc, char *argv[] )
         
         if( MPI.IsMaster )
         {
-            cell.update_topologies();
+            cell.master_update_topologies();
             save_bubble( *cell.bubbles.first() );
         }
         
@@ -62,11 +62,11 @@ int main( int argc, char *argv[] )
             }
             
             //! and everybody -> rank 0
-            cell.collect_bubbles(MPI);
+            cell.assemble_bubbles(MPI);
             MPI.Printf0( stderr, "." );
             if( MPI.IsMaster )
             {
-                cell.update_topologies();
+                cell.master_update_topologies();
                 save_bubble( *cell.bubbles.first() );
             }
         }

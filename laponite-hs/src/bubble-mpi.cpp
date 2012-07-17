@@ -46,7 +46,7 @@ void Bubble:: dispatch(const mpi &MPI)
 }
 
 
-void Bubble:: collect(const mpi &MPI)
+void Bubble:: assemble(const mpi &MPI)
 {
     static const int tag = 1000;
     if( MPI.CommWorldSize >0 )

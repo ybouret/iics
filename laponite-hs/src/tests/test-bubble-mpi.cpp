@@ -47,7 +47,7 @@ int main( int argc, char *argv[] )
         if( MPI.IsMaster )
         {
             b.map_circle( V2D(0,0), radius);
-            b.update_points();
+            b.update_contour();
         }
         b.dispatch(MPI);
         save_bubble( "bubble", b, MPI.CommWorldRank );
@@ -59,12 +59,12 @@ int main( int argc, char *argv[] )
         const double y_lo = y0 + MPI.CommWorldRank * dH;
         const double y_hi = y_lo + dH;
         
-        b.build_spots(y_lo,y_hi);
+        b.find_spots_within(y_lo,y_hi);
         MPI.Printf( stderr, "Rank %d> [%g,%g](+%g): #spots= %u\n", MPI.CommWorldRank, y_lo,y_hi, dH, unsigned(b.spots.size) );
         save_spots("spot",b,MPI.CommWorldRank);
         if( b.active )
         {
-            b.update_values();
+            b.compute_values();
             //-- move concerned points
             for( Spot *sp = b.spots.head; sp; sp = sp->next )
             {
@@ -77,7 +77,7 @@ int main( int argc, char *argv[] )
         
         MPI.Barrier(MPI_COMM_WORLD);
         MPI.Printf0(stderr, "Collecting New Positions\n");
-        b.collect(MPI);
+        b.assemble(MPI);
         
         if( MPI.IsMaster )
             save_bubble( "full", b, -1);
