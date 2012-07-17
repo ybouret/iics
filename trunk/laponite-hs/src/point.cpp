@@ -9,6 +9,8 @@ Point:: Point() throw()  :
 vertex(),
 s_next(0),
 r_next(),
+t(),
+n(),
 next(0), 
 prev(0)
 {
@@ -17,6 +19,8 @@ prev(0)
 Point:: Point( const Point &other ) throw() : 
 vertex( other.vertex) ,
 s_next( other.s_next ),
+t( other.t ),
+n( other.n ),
 next(0), prev(0)
 {
     
@@ -77,6 +81,10 @@ Point * Point::List:: create()
         p->s_next   = 0;
         p->r_next.x = 0;
         p->r_next.y = 0;
+        p->t.x      = 0;
+        p->t.y      = 0;
+        p->n.x      = 0;
+        p->n.y      = 0;
         return p;
     }
     else 
