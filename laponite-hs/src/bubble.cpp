@@ -118,22 +118,58 @@ void Bubble:: compute_values() throw()
     V2D          v0(0,0); // translate p to origin
     for( size_t i=size;i>0;--i,p=p->next)
     {
+        //----------------------------------------------------------------------
         // construct next point by effective difference vector
+        //----------------------------------------------------------------------
         const V2D    D1 = p->r_next;
         const Real   s1 = p->s_next;
         const V2D    v1 = v0 + D1;
+        
+        //----------------------------------------------------------------------
+        // update area
+        //----------------------------------------------------------------------
         area += v0.x * v1.y - v0.y * v1.x;
+        
+        //----------------------------------------------------------------------
+        // forward current position
+        //----------------------------------------------------------------------
         v0 = v1;
         
+        //----------------------------------------------------------------------
         // construct tangent vector
+        //----------------------------------------------------------------------
         const Point *q  = p->prev;
         const V2D    D0 = q->r_next;
         const Real   S0 = q->s_next;
         const V2D    tp = S0 * D1  - s1 * D0; //!< tangent vector
         const Real   tp_norm = tp.norm();     //!< its norm
-        p->tangent = (1/tp_norm) * tp;
+        p->t   = (1/tp_norm) * tp;
+        
+        //----------------------------------------------------------------------
+        // deduce normal vector
+        //----------------------------------------------------------------------
+        p->n.x = - p->t.y;
+        p->n.y =   p->t.x;
+        
     }
     area = 0.5 * Fabs( area );
+    
+    
+    //----------------------------------------------------------------------
+    // compute curvature
+    //----------------------------------------------------------------------
+    p = root;
+    for( size_t i=size;i>0;--i,p=p->next)
+    {
+        const V2D  t1 = p->next->t;
+        const Real s1 = p->s_next; assert(s1>0);
+        
+        const V2D  t0 = p->prev->t;
+        const Real s0 = p->prev->s_next; assert(s0>0);
+        const V2D  tmp = s0 * t1 - s1 * t0;
+        const Real norm_kappa = tmp.norm() / (s0*s1);
+        p->kappa = sign_of( V2D::dot_(tmp, p->n) ) * norm_kappa;
+    }
 }
 
 void Bubble:: map_circle(const V2D &center, Real radius)
@@ -142,7 +178,7 @@ void Bubble:: map_circle(const V2D &center, Real radius)
     empty();
     const double theta_max = 2 * atan( lambda/(radius+radius) );
     const size_t nmin      = max_of<size_t>(3,size_t( ceil( numeric<Real>::two_pi/theta_max) ));
-    std::cerr << "lambda=" << lambda << ", radius=" << radius << " => nmin=" << nmin << std::endl;
+    //std::cerr << "lambda=" << lambda << ", radius=" << radius << " => nmin=" << nmin << std::endl;
     const double dtheta = numeric<Real>::two_pi / nmin;
     const double theta0 = numeric<Real>::two_pi * Alea();
     for( size_t i=0; i < nmin; ++i )

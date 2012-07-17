@@ -17,6 +17,19 @@ static inline void save_bubble( const Bubble &b, int level )
     fp("%g %g\n", p->vertex.x, p->vertex.y );
 }
 
+static inline void save_curvature( const Bubble &b, int level )
+{
+    assert(b.size>=3);
+    
+    ios::ocstream fp( vformat("curv%d.dat",level), false );
+    const Point *p = b.root;
+    for( size_t i=0; i < b.size; ++i, p = p->next )
+    {
+        fp("%u %g\n", unsigned(i), p->kappa );
+    }
+    
+}
+
 static inline void save_spots( const Bubble &b, int level )
 {
     assert(b.size>=3);
@@ -55,6 +68,7 @@ int main( int argc, char * argv[] )
         
         b.update_contour();
         b.compute_values();
+        save_curvature(b, 0);
         std::cerr << "Area=" << b.area << std::endl;
         
         {
@@ -70,6 +84,7 @@ int main( int argc, char * argv[] )
         std::cerr << "Update 2/2" << std::endl;
         b.update_contour();
         b.compute_values();        
+        save_curvature(b, 1);
         std::cerr << "Area=" << b.area << std::endl;
         save_bubble(b,2);
         b.find_spots_within(-2, 2);
