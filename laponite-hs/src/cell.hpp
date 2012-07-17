@@ -63,10 +63,10 @@ public:
                   const mpi &MPI);
     virtual ~Cell() throw();
     
-    Array    &P;
-    ArrayVec &U;
-    Array1D  &X;
-    Array1D  &Y;
+    Array          &P;
+    ArrayVec       &U;
+    const Array1D  &X;
+    const Array1D  &Y;
     
     
     Bubbles bubbles;
@@ -81,8 +81,8 @@ public:
     //! collect all the bubbles motions
     void    assemble_bubbles( const mpi &MPI );
     
-    
-    void locate_point( Point &p );
+    //! locate p->i, p->j on the mesh
+    void locate_point( Point &p ) const;
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);
