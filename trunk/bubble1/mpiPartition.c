@@ -5,18 +5,34 @@ static void create_fields()
 	 **************************************************************************/
 	size_t i;
 	fields  = (real_t ****)calloc(NC,sizeof(real_t ***));
+    fieldst = (real_t ****)calloc(NC_t,sizeof(real_t ***));
+
 	dfields = (real_t ****)calloc(NC,sizeof(real_t ***));
-	if( !fields || !dfields )
+	if( !fields || !dfields || !fieldst )
 	{
 		perror("memory allocation error in fields level-1");
 		exit(-1);
 	}
     
+    for(i=0;i<NC_t;++i)
+    {
+        fieldst[i]  = icp_create_array3D(xmin,xmax,ymin,ymax,zlo,zhi);
+        if(!fieldst[i])
+        {
+            while(i>0)
+            {
+                icp_delete_array3D(fieldst[--i],xmin,xmax,ymin,ymax,zlo,zhi);
+            }
+            free(fields);
+            perror("fields level-2");
+        }
+    }
+
 	for(i=0;i<NC;++i)
 	{
 		dfields[i] = icp_create_array3D(xmin,xmax,ymin,ymax,zlo,zhi);
 		fields[i]  = icp_create_array3D(xmin,xmax,ymin,ymax,zlo,zhi);
-		if( !fields[i] || !dfields[i])
+		if( !fields[i] || !dfields[i]) 
 		{
 			while( i > 0 )
 			{
@@ -24,7 +40,9 @@ static void create_fields()
 				icp_delete_array3D(dfields[--i],xmin,xmax,ymin,ymax,zlo,zhi);
 			}
 			free(dfields);
+			free(fields);
 			dfields=NULL;
+			fields=NULL;
 			perror("fields level-2");
 			exit(-1);
 		}
@@ -46,6 +64,16 @@ static void delete_fields()
 		fields = NULL;
 		dfields = NULL;
 	}
+    if(fieldst)
+    {
+        int i=NC_t;
+		while( i > 0 )
+		{
+			icp_delete_array3D(fieldst[--i],xmin,xmax,ymin,ymax,zlo,zhi);
+		}
+		free(fieldst);
+		fieldst = NULL;    
+    }
 }
 
 
