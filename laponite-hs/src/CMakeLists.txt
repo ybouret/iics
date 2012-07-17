@@ -25,11 +25,26 @@ cell.hpp cell.cpp
 bubble-mpi.cpp bubbles-mpi.cpp)
 ENDIF(MPI_FOUND)
 
+INCLUDE( ${YROOT}/share/yocto/visit.cmake )
+
+IF( VISIT_FOUND )
+	SET(SOURCES_VIS
+	simulation.hpp simulation.cpp )
+	
+ENDIF( VISIT_FOUND )
 
 ADD_LIBRARY( laphs STATIC
  ${SOURCES_SER}
  ${SOURCES_PAR}
+ ${SOURCES_VIS}
  )
 
 ADD_SUBDIRECTORY(tests)
+
+IF( VISIT_FOUND )
+	ADD_EXECUTABLE(sim sim.cpp)
+	TARGET_LINK_LIBRARIES(sim laphs)
+	TARGET_LINK_YOCTO( sim swamp )
+	TARGET_LINK_VISIT( sim )
+ENDIF( VISIT_FOUND)
 

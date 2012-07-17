@@ -63,6 +63,12 @@ public:
                   const mpi &MPI);
     virtual ~Cell() throw();
     
+    Array    &P;
+    ArrayVec &U;
+    Array1D  &X;
+    Array1D  &Y;
+    
+    
     Bubbles bubbles;
     
     //! for rank 0: update_contour for each bubble
