@@ -75,7 +75,9 @@ void Bubbles:: spots_and_values_within( const Real y_lo, const Real y_up )
     {
         b->find_spots_within(y_lo,y_up);
         if(b->active)
+        {
             b->compute_values();
+        }
     }
 }
 

@@ -36,7 +36,7 @@ void Bubble:: dispatch(const mpi &MPI)
             assert(p!=NULL);
             
             
-            MPI.Bcast(& p->vertex, 2, MPI_REAL_TYPE, 0, MPI_COMM_WORLD);
+            MPI.Bcast(& p->vertex, Point::IO_COUNT, MPI_REAL_TYPE, 0, MPI_COMM_WORLD);
             
             if(master)
                 p = p->next;

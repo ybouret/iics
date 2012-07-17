@@ -77,6 +77,7 @@ public:
     //! dispatch bubbles, find their spots and their values (area,...)
     void    dispatch_bubbles( const mpi &MPI );
     
+    
     //! collect all the bubbles motions
     void    assemble_bubbles( const mpi &MPI );
     

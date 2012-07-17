@@ -31,7 +31,7 @@ void Bubble:: update_contour()
     assert(root!=NULL);
     
     //--------------------------------------------------------------------------
-    // pass 0: pbc
+    // pass 0: pbc on vertices
     //--------------------------------------------------------------------------
     Point *p = root;
     
@@ -50,11 +50,11 @@ void Bubble:: update_contour()
         for(;;)
         {
             //------------------------------------------------------------------
-            // compute length to next vertex
+            // compute length to next vertex, with pbc
             //------------------------------------------------------------------
             V2D pq(p->vertex,q->vertex);
             pbc(pq);
-            p->s_next = pq.norm();
+            p->s_next = pq.norm(); assert(p->s_next>0);
             //std::cerr << "s_next=" << p->s_next << std::endl;
             
             //------------------------------------------------------------------
@@ -69,6 +69,7 @@ void Bubble:: update_contour()
                 pbc(I->vertex);
                 insert_after(p, I);
                 assert(p->next==I);
+                assert(I->prev==p);
                 q = I;
                 continue;
             }
@@ -77,6 +78,8 @@ void Bubble:: update_contour()
             // ok, keep that in mind...
             //------------------------------------------------------------------
             p->r_next = pq;
+            //std::cerr << "|" << pq << "|=" << p->s_next << std::endl;
+            assert(p->s_next>0);
             break;
         }
     
@@ -87,10 +90,12 @@ void Bubble:: update_contour()
         q = q->next;
     }
 
-    //--------------------------------------------------------------------------
-    // differential properties
-    //--------------------------------------------------------------------------
-    
+    p = root;
+    for( size_t i=0; i < size; ++i, p=p->next)
+    {
+        assert(p->s_next>0);
+    }
+
 }
 
 #if 0
@@ -121,9 +126,9 @@ void Bubble:: compute_values() throw()
         //----------------------------------------------------------------------
         // construct next point by effective difference vector
         //----------------------------------------------------------------------
-        const V2D    D1 = p->r_next;
-        const Real   s1 = p->s_next;
-        const V2D    v1 = v0 + D1;
+        const V2D    r1 = p->r_next;
+        const Real   s1 = p->s_next; assert(s1>0);
+        const V2D    v1 = v0 + r1;
         
         //----------------------------------------------------------------------
         // update area
@@ -139,9 +144,9 @@ void Bubble:: compute_values() throw()
         // construct tangent vector
         //----------------------------------------------------------------------
         const Point *q  = p->prev;
-        const V2D    D0 = q->r_next;
-        const Real   S0 = q->s_next;
-        const V2D    tp = S0 * D1  - s1 * D0; //!< tangent vector
+        const V2D    r0 = q->r_next;
+        const Real   s0 = q->s_next; assert(s0>0);
+        const V2D    tp = s0 * r1  - s1 * r0; //!< tangent vector
         const Real   tp_norm = tp.norm();     //!< its norm
         p->t   = (1/tp_norm) * tp;
         
