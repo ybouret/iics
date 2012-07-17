@@ -83,6 +83,16 @@ void Cell:: dispatch_bubbles( const mpi &MPI )
     
     //! compute local properties
     bubbles.spots_and_values_within(SubRegion.vmin.y, SubRegion.vmax.y);
+    
+    //MPI.Printf( stderr, "rank %d> locating all points\n", MPI.CommWorldRank);
+    //! find were spots are
+    for( Bubble *b = bubbles.first(); b; b=b->next )
+    {
+        for( Spot *sp = b->spots.head; sp; sp=sp->next )
+        {
+            locate_point( *(sp->point) );
+        }
+    }
 }
 
 void Cell:: assemble_bubbles( const mpi &MPI )
