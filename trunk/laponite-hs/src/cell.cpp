@@ -47,6 +47,10 @@ Cell:: Cell(unit_t      Nx,
             const mpi & MPI ) :
 Parameters( Nx, Ny, Lx, Ly, MPI),
 WorkspaceBase( SubLayout, gs, *this),
+P( (*this)["P"].as<Array>()    ),
+U( (*this)["U"].as<ArrayVec>() ),
+X( mesh.X() ),
+Y( mesh.Y() ),
 bubbles( Length.y )
 {
     //! build the sub mesh
