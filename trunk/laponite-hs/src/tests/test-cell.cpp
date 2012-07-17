@@ -19,7 +19,6 @@ static inline void save_bubble( const Bubble &b )
 
 int main( int argc, char *argv[] )
 {
-    
     try 
     {
         AleaInit();

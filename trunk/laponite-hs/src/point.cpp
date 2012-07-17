@@ -1,4 +1,6 @@
 #include "point.hpp"
+#include "yocto/core/offset.hpp"
+#include <cstring>
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -76,15 +78,7 @@ Point * Point::List:: create()
     if( cache_.size > 0 )
     {
         Point *p = cache_.query();
-        p->vertex.x = 0;
-        p->vertex.y = 0;
-        p->s_next   = 0;
-        p->r_next.x = 0;
-        p->r_next.y = 0;
-        p->t.x      = 0;
-        p->t.y      = 0;
-        p->n.x      = 0;
-        p->n.y      = 0;
+        memset( &p->vertex,0,sizeof(Point)-YOCTO_OFFSET_OF(Point, vertex));
         return p;
     }
     else 

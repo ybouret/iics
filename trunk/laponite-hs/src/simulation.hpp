@@ -41,6 +41,8 @@ public:
     virtual visit_handle get_variable( int domain, const string &name ) const;
     virtual visit_handle get_curve( const string &name ) const;
     
+    virtual void step();
+    
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Simulation);
 };

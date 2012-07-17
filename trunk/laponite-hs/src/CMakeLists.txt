@@ -21,7 +21,7 @@ IF(MPI_FOUND)
 	ADD_DEFINITIONS( -DHAS_MPI )
 	INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
 	SET(SOURCES_PAR 
-cell.hpp cell.cpp
+cell.hpp cell.cpp cell-ops.cpp
 bubble-mpi.cpp bubbles-mpi.cpp)
 ENDIF(MPI_FOUND)
 
@@ -29,7 +29,7 @@ INCLUDE( ${YROOT}/share/yocto/visit.cmake )
 
 IF( VISIT_FOUND )
 	SET(SOURCES_VIS
-	simulation.hpp simulation.cpp )
+	simulation.hpp simulation.cpp simulation-visit.cpp)
 	
 ENDIF( VISIT_FOUND )
 

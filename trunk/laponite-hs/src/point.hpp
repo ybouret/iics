@@ -15,6 +15,8 @@ public:
     V2D      t;       //!< tangent vector
     V2D      n;       //!< normal vector
     Real     kappa;   //!< curvature
+    int      i;
+    int      j;
     
     static const size_t IO_COUNT = 5;
     

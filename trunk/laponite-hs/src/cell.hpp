@@ -81,6 +81,9 @@ public:
     //! collect all the bubbles motions
     void    assemble_bubbles( const mpi &MPI );
     
+    
+    void locate_point( Point &p );
+    
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);
 };
