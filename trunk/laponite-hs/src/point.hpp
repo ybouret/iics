@@ -9,12 +9,14 @@
 class Point 
 {
 public:
-    V2D      vertex;  //!< x,y (PBC)
-    Real     s_next;  //!< distance to next point
-    V2D      r_next;  //!< vector to next point (using PBC)
+    V2D      vertex;  //!< x,y (PBC)                         : I/O +2
+    Real     s_next;  //!< distance to next point            : I/O +1
+    V2D      r_next;  //!< vector to next point (using PBC)  : I/O +2
     V2D      t;       //!< tangent vector
     V2D      n;       //!< normal vector
     Real     kappa;   //!< curvature
+    
+    static const size_t IO_COUNT = 5;
     
     explicit Point() throw(); //!< x=y=0, domain=-1, d2next=0
     virtual ~Point() throw(); //!< do nothing

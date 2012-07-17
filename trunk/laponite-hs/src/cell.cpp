@@ -54,7 +54,7 @@ Y( mesh.Y() ),
 bubbles( Length.y )
 {
     //! build the sub mesh
-    mesh.regular_map_to(FullRegion, SubLayout);
+    mesh.regular_map_to(FullRegion, FullLayout);
         
 }
 
@@ -73,6 +73,13 @@ void Cell:: dispatch_bubbles( const mpi &MPI )
 {
     //! broadcast
     bubbles.dispatch_all(MPI);
+    
+#if 0
+    Bubble *b = bubbles.first();
+    MPI.Printf( stderr, "rank %d> #bubble= %u, first #points=%u \n", MPI.CommWorldRank, unsigned(bubbles.count()), b ? unsigned(b->size) : 0 );
+    if(b)
+        MPI.Printf(stderr, "rank %d> first coordinate: %g %g\n", MPI.CommWorldRank, b->root->vertex.x, b->root->vertex.y);
+#endif
     
     //! compute local properties
     bubbles.spots_and_values_within(SubRegion.vmin.y, SubRegion.vmax.y);
