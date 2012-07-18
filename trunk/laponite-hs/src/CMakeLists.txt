@@ -11,7 +11,7 @@ SET(SOURCES_SER
 types.hpp 	types.cpp
 point.hpp 	point.cpp
 spot.hpp  	spot.cpp
-bubble.cpp 	bubble.hpp
+bubble.cpp 	bubble.hpp bubble-io.cpp
 bubbles.hpp 	bubbles.cpp
 )
 

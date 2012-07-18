@@ -4,6 +4,18 @@ static const char MeshName[] = "mesh";
 
 void Simulation:: get_meta_data( visit_handle &md ) const
 {
+    
+    //! append an UI command
+    {
+        visit_handle cmd = VISIT_INVALID_HANDLE;
+        if(VisIt_CommandMetaData_alloc(&cmd) == VISIT_OKAY)
+        {
+            VisIt_CommandMetaData_setName(cmd, "save1" );
+            VisIt_SimulationMetaData_addGenericCommand(md, cmd);
+        }
+    }
+    
+    
     //! append the mesh
     {
         visit_handle mmd = _visit::mesh_meta_data(mesh, MeshName, par_size);
@@ -78,7 +90,7 @@ visit_handle Simulation:: get_variable( int domain, const string &name ) const
         }
         return h;
     }
-
+    
     
     if( name == "U" )
     {
@@ -170,6 +182,20 @@ visit_handle Simulation:: get_curve( const string &name ) const
     return h;
 }
 
+
+void Simulation:: perform(const string &cmd)
+{
+    if( cmd == "save1" )
+    {
+        if( master )
+        {
+            bubbles.first()->save_vtk("bubble.vtk");
+            bubbles.first()->save_vtk_t("bubble_t.vtk");
+            bubbles.first()->save_vtk_n("bubble_n.vtk");
+        }
+    }
+}
+
 void Simulation:: step()
 {
     VisIt::Simulation::step();
@@ -187,3 +213,5 @@ void Simulation:: step()
     wait_exchange();
     
 }
+
+

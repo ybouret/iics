@@ -55,14 +55,12 @@ void Bubble:: update_contour()
             V2D pq(p->vertex,q->vertex);
             pbc(pq);
             p->s_next = pq.norm(); assert(p->s_next>0);
-            //std::cerr << "s_next=" << p->s_next << std::endl;
             
             //------------------------------------------------------------------
             // do we refine ?
             //------------------------------------------------------------------
             if( p->s_next > lambda )
             {
-                //std::cerr << "..split" << std::endl;
                 Point *I = create();
                 I->vertex.x = p->vertex.x + 0.5 * pq.x;
                 I->vertex.y = p->vertex.y + 0.5 * pq.y;
@@ -78,24 +76,23 @@ void Bubble:: update_contour()
             // ok, keep that in mind...
             //------------------------------------------------------------------
             p->r_next = pq;
-            //std::cerr << "|" << pq << "|=" << p->s_next << std::endl;
             assert(p->s_next>0);
             break;
         }
-    
+        
         //----------------------------------------------------------------------
         // next edge
         //----------------------------------------------------------------------
         p = q;
         q = q->next;
     }
-
+    
     p = root;
     for( size_t i=0; i < size; ++i, p=p->next)
     {
         assert(p->s_next>0);
     }
-
+    
 }
 
 #if 0
@@ -107,7 +104,7 @@ double Bubble:: evaluate_area() const throw()
     for( size_t i=size;i>0;--i,p=p->next)
     {
         // construct next point by effective difference vector
-        const V2D    v1 = v0 + p->r_next;
+        const V2D v1 = v0 + p->r_next;
         ans += v0.x * v1.y - v0.y * v1.x;
         v0 = v1;
     }
@@ -146,7 +143,7 @@ void Bubble:: compute_values() throw()
         const Point *q  = p->prev;
         const V2D    r0 = q->r_next;
         const Real   s0 = q->s_next; assert(s0>0);
-        const V2D    tp = s0 * r1  - s1 * r0; //!< tangent vector
+        const V2D    tp = s0 * r1  + s1 * r0; //!< tangent vector
         const Real   tp_norm = tp.norm();     //!< its norm
         p->t   = (1/tp_norm) * tp;
         

@@ -2,6 +2,7 @@
 #define BUBBLE_INCLUDED 1
 
 #include "spot.hpp"
+#include "yocto/ios/ocstream.hpp"
 
 #if defined(HAS_MPI)
 #include "yocto/mpi/mpi.hpp"
@@ -45,6 +46,10 @@ public:
     Bubble *next;
     Bubble *prev;
     
+    void save_vtk( const string &filename ) const;
+    void save_vtk_t( const string &filename ) const;
+    void save_vtk_n( const string &filename ) const;
+
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Bubble);
 };

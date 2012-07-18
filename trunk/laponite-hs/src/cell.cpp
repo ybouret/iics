@@ -78,12 +78,15 @@ void Cell:: master_update_topologies() throw()
 void Cell:: dispatch_bubbles( const mpi &MPI ) 
 {
     //! broadcast
+    MPI.Printf0(stderr, "\t*** dispatch all bubbles\n");
     bubbles.dispatch_all(MPI);
     
     //! compute spots and local properties
+    MPI.Printf0(stderr, "\t*** build spots and values\n");
     bubbles.spots_and_values_within(SubRegion.vmin.y, SubRegion.vmax.y);
     
     //! locate points
+    MPI.Printf0(stderr, "\t*** locate points\n");
     locate_points();
 }
 

@@ -40,6 +40,7 @@ public:
     virtual visit_handle get_mesh( int domain, const string &name ) const;
     virtual visit_handle get_variable( int domain, const string &name ) const;
     virtual visit_handle get_curve( const string &name ) const;
+    virtual void         perform( const string &cmd );
     
     virtual void step();
     

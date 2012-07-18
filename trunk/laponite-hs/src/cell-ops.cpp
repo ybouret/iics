@@ -42,11 +42,32 @@ void Cell:: locate_point( Point &p ) const
     p.w.x = (v.x - X[i])/dX[i];
     p.w.y = (v.y - Y[j])/dY[j];
     
+    const unit_t shift[4][2] =
+    {
+        { 0, 0 },
+        { 1, 0 },
+        { 1, 1 },
+        { 0, 1 }
+    };
+    
+    // find inside points
+    for( size_t k=0; k <4; ++k )
+    {
+        const unit_t I  = i+shift[k][0];
+        const unit_t J  = j+shift[k][1];
+        const V2D    dr( X[I] - v.x, Y[J] - v.y );
+        if( dr * p.n >= 0 )
+            B[J][I] = 1;
+        else {
+            B[J][i] = -1;
+        }
+    }
+    
     // updated bubble status
-    B[j][i]     = 1;
-    B[j+1][i]   = 1;
-    B[j+1][i+1] = 1;
-    B[j][i+1]   = 1;
+    //B[j][i]     = 1;
+    //B[j+1][i]   = 1;
+    //B[j+1][i+1] = 1;
+    //B[j][i+1]   = 1;
     
 }
 
