@@ -65,27 +65,44 @@ public:
     
     Array          &P;
     ArrayVec       &U;
+    Array          &B; //!< bubble or not bubble
     const Array1D  &X;
     const Array1D  &Y;
-    
+    const Array1D  &dX;
+    const Array1D  &dY;
+
     
     Bubbles bubbles;
     
     //! for rank 0: update_contour for each bubble
     void    master_update_topologies() throw();
     
-    //! dispatch bubbles, find their spots and their values (area,...)
+    //! dispatch bubbles
+    /**
+     find their spots and their values (area,...),
+     and locate each spot on the mesh.
+     */
     void    dispatch_bubbles( const mpi &MPI );
     
     
     //! collect all the bubbles motions
     void    assemble_bubbles( const mpi &MPI );
     
-    //! locate p->i, p->j on the mesh
+    //! locate p->pos on the mesh
     void locate_point( Point &p ) const;
+    
+    //! advect a previously located point with field U
+    void advect_point( Point &p, double dt ) const;
+    
+    
+    //! advect all located points
+    void advect_points( double dt );
+    
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);
+    //! locate all points in all spots
+    void locate_points();
 };
 
 

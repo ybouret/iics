@@ -21,6 +21,7 @@ gs()
     assert(Ly>0);
     Y_SWAMP_DECL_SELF_VAR("P", Array);
     Y_SWAMP_DECL_SELF_VAR("U", ArrayVec);
+    Y_SWAMP_DECL_SELF_VAR("B", Array);
     
     if( MPI.IsParallel )
     {
@@ -49,13 +50,16 @@ Parameters( Nx, Ny, Lx, Ly, MPI),
 WorkspaceBase( SubLayout, gs, *this),
 P( (*this)["P"].as<Array>()    ),
 U( (*this)["U"].as<ArrayVec>() ),
+B( (*this)["B"].as<Array>()    ),
 X( mesh.X() ),
 Y( mesh.Y() ),
+dX( mesh.dX() ),
+dY( mesh.dY() ),
 bubbles( Length.y )
 {
     //! build the sub mesh
     mesh.regular_map_to(FullRegion, FullLayout);
-        
+    
 }
 
 Cell:: ~Cell() throw()
@@ -74,25 +78,11 @@ void Cell:: dispatch_bubbles( const mpi &MPI )
     //! broadcast
     bubbles.dispatch_all(MPI);
     
-#if 0
-    Bubble *b = bubbles.first();
-    MPI.Printf( stderr, "rank %d> #bubble= %u, first #points=%u \n", MPI.CommWorldRank, unsigned(bubbles.count()), b ? unsigned(b->size) : 0 );
-    if(b)
-        MPI.Printf(stderr, "rank %d> first coordinate: %g %g\n", MPI.CommWorldRank, b->root->vertex.x, b->root->vertex.y);
-#endif
-    
-    //! compute local properties
+    //! compute spots and local properties
     bubbles.spots_and_values_within(SubRegion.vmin.y, SubRegion.vmax.y);
     
-    //MPI.Printf( stderr, "rank %d> locating all points\n", MPI.CommWorldRank);
-    //! find were spots are
-    for( Bubble *b = bubbles.first(); b; b=b->next )
-    {
-        for( Spot *sp = b->spots.head; sp; sp=sp->next )
-        {
-            locate_point( *(sp->point) );
-        }
-    }
+    //! locate points
+    locate_points();
 }
 
 void Cell:: assemble_bubbles( const mpi &MPI )

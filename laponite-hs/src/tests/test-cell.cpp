@@ -50,13 +50,6 @@ int main( int argc, char *argv[] )
             //! rank 0 -> everybody
             cell.dispatch_bubbles(MPI);
             
-            //! locate first point
-#if 0
-            MPI.Printf0( stderr, "locating points\n" );
-            Point *p = cell.bubbles.first()->root;
-            cell.locate_point( *p  );
-            MPI.Printf0( stderr, " (%g,%g) <= (%g,%g) <= (%g,%g)\n", cell.X[p->i],cell.Y[p->j], p->vertex.x, p->vertex.y, cell.X[p->i+1], cell.Y[p->j+1]);
-#endif
             //! move bubble
             for( Bubble *b = cell.bubbles.first(); b; b=b->next )
             {

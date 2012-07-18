@@ -15,8 +15,8 @@ public:
     V2D      t;       //!< tangent vector
     V2D      n;       //!< normal vector
     Real     kappa;   //!< curvature
-    int      i;
-    int      j;
+    U2D      pos;     //!< lower coordinate of including mesh       
+    V2D      w;       //!< bilinear interpolation weights
     
     static const size_t IO_COUNT = 5;
     
