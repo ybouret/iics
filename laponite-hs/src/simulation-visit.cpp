@@ -34,6 +34,12 @@ void Simulation:: get_meta_data( visit_handle &md ) const
         VisIt_SimulationMetaData_addVariable(md, vmd);
     }
     
+    //! append B on mesh
+    {
+        visit_handle vmd = variable_meta_data<Real>("B", MeshName);                
+        VisIt_SimulationMetaData_addVariable(md, vmd);
+    }
+    
     //! append U on mesh
     {
         visit_handle vmd = variable_meta_data<V2D>("U", MeshName);                
@@ -57,7 +63,22 @@ visit_handle Simulation:: get_variable( int domain, const string &name ) const
         {
             VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, P.entry);
         }
+        return h;
     }
+    
+    if( name == "B" )
+    {
+        const int nComponents= 1;
+        const int nTuples    = B.items;
+        //MPI.Printf0( stderr, "Sending B: %dx%d\n", nComponents, nTuples);
+        assert(B.entry!=NULL);
+        if(VisIt_VariableData_alloc(&h) == VISIT_OKAY)
+        {
+            VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, B.entry);
+        }
+        return h;
+    }
+
     
     if( name == "U" )
     {
@@ -69,6 +90,7 @@ visit_handle Simulation:: get_variable( int domain, const string &name ) const
         {
             VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, (double*)(U.entry));
         }
+        return h;
     }
     
     
@@ -84,8 +106,8 @@ visit_handle Simulation:: get_mesh( int domain, const string &name ) const
         if( VisIt_RectilinearMesh_alloc(&h) == VISIT_OKAY )
         {
             assert( h != VISIT_INVALID_HANDLE );
-            const Array1D &X  = mesh.X();
-            const Array1D &Y  = mesh.Y();
+            //const Array1D &X  = mesh.X();
+            //const Array1D &Y  = mesh.Y();
             
             visit_handle   hx = VISIT_INVALID_HANDLE;
             visit_handle   hy = VISIT_INVALID_HANDLE;
@@ -121,8 +143,7 @@ visit_handle Simulation:: get_curve( const string &name ) const
         if( VisIt_CurveData_alloc(&h) == VISIT_OKAY )
         {
             // copy bubble spots coordinates
-            const size_t bn = b->size;
-            //std::cerr << "#spots=" << bn << std::endl;
+            const size_t bn = b->size+1;
             vector<Real> bx(bn,0);
             vector<Real> by(bn,0);
             const Point *p = b->root;
@@ -133,7 +154,6 @@ visit_handle Simulation:: get_curve( const string &name ) const
             {
                 bx[i] = p->vertex.x;
                 by[i] = p->vertex.y;
-                //fp("%g %g\n",bx[i],by[i]);
             }
             
             
@@ -153,4 +173,17 @@ visit_handle Simulation:: get_curve( const string &name ) const
 void Simulation:: step()
 {
     VisIt::Simulation::step();
+    // move concerned points
+    advect_points(1);
+    
+    // send back information to master
+    assemble_bubbles(MPI);
+    
+    //process topologies on master
+    check_and_dispatch_bubbles();
+    
+    
+    init_exchange();
+    wait_exchange();
+    
 }

@@ -29,7 +29,7 @@ void Simulation:: initialize()
         for( unit_t i=lower.x;i<=upper.x;++i)
         {
             P[j][i]   = Y[j] / Length.y;
-            U[j][i].y = 0.04;
+            U[j][i].y = 0.04 + 0.02 * cos( numeric<double>::pi * Y[j] / Length.y );
         }
     }
     if( master )
