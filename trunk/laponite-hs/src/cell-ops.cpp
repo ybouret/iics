@@ -31,11 +31,22 @@ void Cell:: locate_point( Point &p ) const
     const V2D    v = p.vertex;
     const unit_t i = p.pos.x = __locate_point(v.x, X);
     const unit_t j = p.pos.y = __locate_point(v.y, Y);
-    fprintf( stderr, " (%g,%g) <= (%g,%g) <= (%g,%g)\n", X[i],Y[j], v.x, v.y, X[i+1], Y[j+1]);
+    assert(v.x>=0);
+    assert(v.x<=Length.x);
+    assert(v.y>=-Length.y/2);
+    assert(v.y<=Length.y/2);
+
+    //fprintf( stderr, " (%g,%g) <= (%g,%g) <= (%g,%g)\n", X[i],Y[j], v.x, v.y, X[i+1], Y[j+1]);
     
     // compute coefficient of bilinear interpolations
     p.w.x = (v.x - X[i])/dX[i];
     p.w.y = (v.y - Y[j])/dY[j];
+    
+    // updated bubble status
+    B[j][i]     = 1;
+    B[j+1][i]   = 1;
+    B[j+1][i+1] = 1;
+    B[j][i+1]   = 1;
     
 }
 
@@ -80,6 +91,7 @@ void Cell:: advect_point( Point &p, double dt ) const
 //! locate all points in all spots
 void Cell:: locate_points( )
 {
+    B.ldz();
     for( Bubble *b = bubbles.first(); b; b=b->next )
     {
         for( Spot *s = b->spots.head; s; s=s->next )

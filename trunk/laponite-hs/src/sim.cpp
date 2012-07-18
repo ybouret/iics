@@ -29,7 +29,7 @@ int main( int argc, char *argv[] )
         //----------------------------------------------------------------------
         VisIt:: SetupParallel( MPI, sim_name, sim_comment, sim_path, NULL);
         
-        Simulation sim(10,20,5.0,6.0,MPI);
+        Simulation sim(50,60,5.0,6.0,MPI);
         
         //----------------------------------------------------------------------
         // sim initialize P,U,bubbles
