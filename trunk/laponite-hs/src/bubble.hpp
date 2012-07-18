@@ -28,6 +28,7 @@ public:
     
     //! empty list and put points on circle
     void map_circle( const V2D &center, Real radius );
+    void map_astroid( const V2D &center, Real radius );
     
     //! empty spots and find out points within y_lo <= y <= y_up
     void find_spots_within( const Real y_lo, const Real y_up );

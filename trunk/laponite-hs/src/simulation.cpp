@@ -29,14 +29,14 @@ void Simulation:: initialize()
         for( unit_t i=lower.x;i<=upper.x;++i)
         {
             P[j][i]   = Y[j] / Length.y;
-            U[j][i].y = 0.04 + 0.02 * cos( numeric<double>::pi * Y[j] / Length.y );
+            U[j][i].y = 0.04 + 0.08 * cos( numeric<double>::pi * Y[j] / Length.y );
         }
     }
     if( master )
     {
         Bubble *b = bubbles.create();
-        b->lambda = Length.x / (width.x*2);
-        b->map_circle( V2D(Length.x/2,0), 0.2 * Length.y);
+        b->lambda = Lambda;
+        b->map_astroid( V2D(Length.x/2,0), 0.2 * Length.y);
     }
 }
 
