@@ -70,7 +70,7 @@ public:
     const Array1D  &Y;
     const Array1D  &dX;
     const Array1D  &dY;
-
+    double          Lambda; // for bubbles;
     
     Bubbles bubbles;
     

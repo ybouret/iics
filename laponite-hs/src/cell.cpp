@@ -55,11 +55,13 @@ X( mesh.X() ),
 Y( mesh.Y() ),
 dX( mesh.dX() ),
 dY( mesh.dY() ),
+Lambda(1),
 bubbles( Length.y )
 {
     //! build the sub mesh
     mesh.regular_map_to(FullRegion, FullLayout);
-    
+    const V2D v( dX[lower.x], dY[lower.y]);
+    Lambda = 0.5 * v.norm();
 }
 
 Cell:: ~Cell() throw()

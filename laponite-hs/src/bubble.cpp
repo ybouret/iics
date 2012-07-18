@@ -196,6 +196,26 @@ void Bubble:: map_circle(const V2D &center, Real radius)
     }
 }
 
+void Bubble:: map_astroid( const V2D &center, Real radius )
+{
+    assert(lambda>0);
+    empty();
+    const size_t ntop = max_of<size_t>(1,0.71*radius/lambda);
+    const double dtheta = numeric<Real>::pi / (2*ntop);
+    const size_t n = 4*ntop;
+    const double theta0 = numeric<Real>::two_pi * Alea();
+    for( size_t i=0; i < n; ++i )
+    {
+        const double theta = i * dtheta + theta0;
+        Point       *p     = create();
+        const Real C = Cos( theta );
+        const Real S = Sin( theta );
+        p->vertex.x = center.x + radius * C*C*C;
+        p->vertex.y = center.y + radius * S*S*S;
+        push_back(p);
+    }
+}
+
 void Bubble:: find_spots_within(const Real y_lo, const Real y_up)
 {
     spots.empty();
@@ -206,7 +226,6 @@ void Bubble:: find_spots_within(const Real y_lo, const Real y_up)
         const double y = p->vertex.y;
         if( y_lo <= y && y <= y_up )
         {
-            
             spots.append(p);           
             spots.tail->jump = i-last_index;
             last_index = i;
