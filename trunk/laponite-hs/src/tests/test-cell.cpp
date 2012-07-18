@@ -24,14 +24,14 @@ int main( int argc, char *argv[] )
         AleaInit();
         mpi &MPI = mpi::init( &argc, &argv);
         
-        Cell cell(25,50,5.0,10.0,MPI);
+        Cell cell(25,50,15.0,30.0,MPI);
         MPI.Printf(stderr, "rank %d> SubRegion y: %g -> %g\n", MPI.CommWorldRank, cell.SubRegion.vmin.y, cell.SubRegion.vmax.y );
         
         
         if( MPI.IsMaster )
         {
             Bubble *b = cell.bubbles.create();
-            b->map_circle(V2D(cell.Length.x/2,0), 1.2);
+            b->map_circle(V2D(cell.Length.x/2,0), 2);
         }
         
         
@@ -62,8 +62,12 @@ int main( int argc, char *argv[] )
             {
                 for( Spot *spot = b->spots.head; spot != NULL; spot = spot->next )
                 {
-                    spot->point->vertex.y += 0.1;
-                    spot->point->vertex.x *= 1.01;
+                    V2D &v = spot->point->vertex;
+                    v.y += 0.6;
+                    const Real dx = v.x - cell.Length.x / 2;
+                    v.x = cell.Length.x / 2 + 1.02 * dx;
+                    if( v.x < 0 ) v.x = 0;
+                    if( v.x > cell.Length.x ) v.x = cell.Length.x;
                 }
             }
             
