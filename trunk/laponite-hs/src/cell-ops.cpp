@@ -35,7 +35,7 @@ void Cell:: locate_point( Point &p ) const
     assert(v.x<=Length.x);
     assert(v.y>=-Length.y/2);
     assert(v.y<=Length.y/2);
-
+    
     //fprintf( stderr, " (%g,%g) <= (%g,%g) <= (%g,%g)\n", X[i],Y[j], v.x, v.y, X[i+1], Y[j+1]);
     
     // compute coefficient of bilinear interpolations
@@ -59,16 +59,17 @@ void Cell:: locate_point( Point &p ) const
         if( dr * p.n >= 0 )
             B[J][I] = 1;
         else {
-            B[J][i] = -1;
+            //B[J][i] = -1;
         }
     }
     
     // updated bubble status
-    //B[j][i]     = 1;
-    //B[j+1][i]   = 1;
-    //B[j+1][i+1] = 1;
-    //B[j][i+1]   = 1;
-    
+#if 0
+    B[j][i]     = 1;
+    B[j+1][i]   = 1;
+    B[j+1][i+1] = 1;
+    B[j][i+1]   = 1;
+#endif
 }
 
 void Cell:: advect_point( Point &p, double dt ) const
@@ -133,3 +134,19 @@ void Cell:: advect_points( double dt )
     }
 }
 
+
+void Cell:: collect_inside( vector<V2D> &pts ) const
+{
+    pts.free();
+    for( unit_t j=lower.y; j <= upper.y; ++j )
+    {
+        for( unit_t i=lower.x; i <= upper.x; ++i )
+        {
+            if( B[j][i] > 0 )
+            {
+                const V2D v(X[i],Y[j]);
+                pts.push_back( v );
+            }
+        }
+    }
+}

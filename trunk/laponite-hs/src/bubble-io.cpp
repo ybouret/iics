@@ -1,5 +1,17 @@
 #include "bubble.hpp"
 
+
+void Bubble:: save_dat( const string &filename ) const
+{
+    ios::ocstream fp( filename, false );
+    const Point *p = root;
+    for( size_t i=size;i>0;--i,p=p->next )
+    {
+        fp("%.15g %.15g\n",p->vertex.x,p->vertex.y);
+    }
+    fp("%.15g %.15g\n",p->vertex.x,p->vertex.y);
+}
+
 void Bubble:: save_vtk( const string &filename ) const 
 {
     const unsigned n = size;
