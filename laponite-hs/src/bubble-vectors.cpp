@@ -52,12 +52,12 @@ void Bubble:: compute_values() throw()
     p = root;
     for( size_t i=size;i>0;--i,p=p->next)
     {
-        const V2D  t1 = p->next->t;
+        const V2D  t1 = p->next->t - p->t;
         const Real s1 = p->s_next; assert(s1>0);
         
-        const V2D  t0 = p->prev->t;
+        const V2D  t0 = p->t - p->prev->t;
         const Real s0 = p->prev->s_next; assert(s0>0);
-        const V2D  tmp = s0 * t1 - s1 * t0;
+        const V2D  tmp = s0 * t1 + s1 * t0;
         const Real norm_kappa = tmp.norm() / (s0*s1);
         p->kappa = sign_of( V2D::dot_(tmp, p->n) ) * norm_kappa;
     }
