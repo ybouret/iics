@@ -109,7 +109,7 @@ public:
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);
     vector<Segment> segments;
-    //! locate all points in all spots
+    //! locate all points in all spots,
     void locate_points();
 };
 
