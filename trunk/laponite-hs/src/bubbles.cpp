@@ -57,11 +57,6 @@ size_t Bubbles:: count() const throw()
     return b_list.size;
 }
 
-Spot::Pool &Bubbles:: get_spot_cache() throw()
-{
-    return scache;
-}
-
 
 Bubble * Bubbles:: first() throw() { return b_list.head; }
 const Bubble * Bubbles:: first() const throw() { return b_list.head; }
