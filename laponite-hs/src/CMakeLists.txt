@@ -22,7 +22,7 @@ IF(MPI_FOUND)
 	ADD_DEFINITIONS( -DHAS_MPI )
 	INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
 	SET(SOURCES_PAR 
-cell.hpp cell.cpp cell-ops.cpp
+cell.hpp cell.cpp cell-advect.cpp cell-locate.cpp
 bubble-mpi.cpp bubbles-mpi.cpp)
 ENDIF(MPI_FOUND)
 
