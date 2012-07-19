@@ -1,12 +1,13 @@
 #include "cell.hpp"
 
-static unit_t __locate_point( Real x, const Array1D &a )
+static unit_t __locate_point(Real           x, 
+                             const Array1D &a,
+                             unit_t         ilo,
+                             unit_t         ihi)
 {
-    unit_t ilo = a.lower;
     if( x <= a[ilo] )
         return ilo;
     
-    unit_t ihi = a.upper;
     assert(ihi-ilo>=1);
     if( x >= a[ihi] )
         return ihi -1;
@@ -28,48 +29,34 @@ static unit_t __locate_point( Real x, const Array1D &a )
 
 void Cell:: locate_point( Point &p ) const
 {
+    //==========================================================================
+    // first pass: locate in which grid we are
+    //==========================================================================
+    
+    //--------------------------------------------------------------------------
+    // by simple bissection
+    //--------------------------------------------------------------------------
     const V2D    v = p.vertex;
-    const unit_t i = p.pos.x = __locate_point(v.x, X);
-    const unit_t j = p.pos.y = __locate_point(v.y, Y);
     assert(v.x>=0);
     assert(v.x<=Length.x);
     assert(v.y>=-Length.y/2);
     assert(v.y<=Length.y/2);
+    const unit_t i = p.pos.x = __locate_point(v.x, X, lower.x, upper.x);
+    const unit_t j = p.pos.y = __locate_point(v.y, Y, lower.y, upper.y);
+   
     
     //fprintf( stderr, " (%g,%g) <= (%g,%g) <= (%g,%g)\n", X[i],Y[j], v.x, v.y, X[i+1], Y[j+1]);
     
+    //--------------------------------------------------------------------------
     // compute coefficient of bilinear interpolations
+    //--------------------------------------------------------------------------
     p.w.x = (v.x - X[i])/dX[i];
     p.w.y = (v.y - Y[j])/dY[j];
     
-    const unit_t shift[4][2] =
-    {
-        { 0, 0 },
-        { 1, 0 },
-        { 1, 1 },
-        { 0, 1 }
-    };
+    //==========================================================================
+    // second pass: find intersections with neighbors
+    //==========================================================================
     
-    // find inside points
-    for( size_t k=0; k <4; ++k )
-    {
-        const unit_t I  = i+shift[k][0];
-        const unit_t J  = j+shift[k][1];
-        const V2D    dr( X[I] - v.x, Y[J] - v.y );
-        if( dr * p.n >= 0 )
-            B[J][I] = 1;
-        else {
-            //B[J][i] = -1;
-        }
-    }
-    
-    // updated bubble status
-#if 0
-    B[j][i]     = 1;
-    B[j+1][i]   = 1;
-    B[j+1][i+1] = 1;
-    B[j][i+1]   = 1;
-#endif
 }
 
 void Cell:: advect_point( Point &p, double dt ) const

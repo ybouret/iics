@@ -1,14 +1,5 @@
 #include "simulation.hpp"
 
-static 
-void save_inside( const array<V2D> &pts )
-{
-    ios::ocstream fp( "inside.dat", false );
-    for( size_t i=pts.size(); i>0; --i )
-    {
-        fp("%g %g\n",pts[i].x, pts[i].y);
-    }
-}
 
 int main( int argc, char *argv[] )
 {
@@ -50,15 +41,7 @@ int main( int argc, char *argv[] )
         // Initialize bubbles
         //----------------------------------------------------------------------
         sim.check_and_dispatch_bubbles();
-        vector<V2D> pts;
         
-        sim.collect_inside(pts);
-        sim.bubbles.first()->save_dat("bubble.dat");
-        save_inside(pts);
-        
-        
-        
-        return 0;
         
         //----------------------------------------------------------------------
         // Initialize ghosts

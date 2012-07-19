@@ -45,3 +45,13 @@ void Spot::List:: append( Point *p )
     spot->point = p;
     push_back(spot);
 }
+
+Spot:: List:: List( const List &other ) :
+CoreList(), cache_( other.cache_ )
+{
+    for( const Spot *spot = other.head; spot; spot=spot->next )
+    {
+        append( spot->point );
+    }
+}
+

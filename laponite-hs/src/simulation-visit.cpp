@@ -15,6 +15,15 @@ void Simulation:: get_meta_data( visit_handle &md ) const
         }
     }
     
+    //! append an UI command
+    {
+        visit_handle cmd = VISIT_INVALID_HANDLE;
+        if(VisIt_CommandMetaData_alloc(&cmd) == VISIT_OKAY)
+        {
+            VisIt_CommandMetaData_setName(cmd, "ins" );
+            VisIt_SimulationMetaData_addGenericCommand(md, cmd);
+        }
+    }
     
     //! append the mesh
     {
@@ -192,6 +201,21 @@ void Simulation:: perform(const string &cmd)
             bubbles.first()->save_vtk("bubble.vtk");
             bubbles.first()->save_vtk_t("bubble_t.vtk");
             bubbles.first()->save_vtk_n("bubble_n.vtk");
+        }
+    }
+    
+    if( cmd == "ins" )
+    {
+        if( master )
+        {
+            vector<V2D> pts;
+            collect_inside(pts);
+            bubbles.first()->save_dat("bubble.dat");
+            ios::ocstream fp( "inside.dat", false );
+            for( size_t i=pts.size(); i>0; --i )
+            {
+                fp("%g %g\n",pts[i].x, pts[i].y);
+            }
         }
     }
 }

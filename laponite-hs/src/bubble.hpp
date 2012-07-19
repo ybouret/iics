@@ -8,15 +8,16 @@
 #include "yocto/mpi/mpi.hpp"
 #endif
 
-// TODO: update/update area/update differential ppties
+typedef ptrdiff_t BubbleID;
 
 //! a non intersecting polygon
 class Bubble :  public Point::List
 {
 public:
-    explicit Bubble( Real L, Point::Pool &pcache, Spot::Pool &scache ) throw();
+    explicit Bubble( BubbleID who, Real L, Point::Pool &pcache, Spot::Pool &scache ) throw();
     virtual ~Bubble() throw();
     
+    const BubbleID id;
     const PBC      pbc;
     double         lambda; //!< critical length, default is 1
     double         area;   //!< area, to be broadcasted

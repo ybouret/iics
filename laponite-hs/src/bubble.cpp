@@ -7,8 +7,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-Bubble:: Bubble( Real L, Point::Pool &pcache, Spot::Pool &scache ) throw() : 
+Bubble:: Bubble( BubbleID who, Real L, Point::Pool &pcache, Spot::Pool &scache ) throw() : 
 Point::List( pcache ),
+id(who),
 pbc(L),
 lambda(1),
 area(0),
