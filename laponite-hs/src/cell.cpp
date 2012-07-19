@@ -59,6 +59,7 @@ Lambda(1),
 bubbles( Length.y ),
 xseg(0),
 yseg(0),
+inter( bubbles.pcache ),
 segments()
 {
     //! build the sub mesh
@@ -66,11 +67,11 @@ segments()
     const V2D v( dX[lower.x], dY[lower.y]);
     Lambda = 0.5 * v.norm();
     
-    //! prepare the segments
-    const Spot::List seg( bubbles.get_spot_cache() );
-    segments.make(width.x +width.y ,seg);
-    xseg = &segments[1] - lower.y;
-    yseg = xseg + width.y;
+    //! prepare the segments: for each X/Y
+    const Spot::List seg( bubbles.scache );
+    segments.make(X.width+Y.width ,seg);
+    xseg = &segments[1] - Y.lower;
+    yseg = xseg + Y.width;
 }
 
 Cell:: ~Cell() throw()
@@ -87,15 +88,15 @@ void Cell:: master_update_topologies() throw()
 void Cell:: dispatch_bubbles( const mpi &MPI ) 
 {
     //! broadcast
-    MPI.Printf0(stderr, "\t*** dispatch all bubbles\n");
+    //MPI.Printf0(stderr, "\t*** dispatch all bubbles\n");
     bubbles.dispatch_all(MPI);
     
     //! compute spots and local properties
-    MPI.Printf0(stderr, "\t*** build spots and values\n");
+    //MPI.Printf0(stderr, "\t*** build spots and values\n");
     bubbles.spots_and_values_within(SubRegion.vmin.y, SubRegion.vmax.y);
     
     //! locate points
-    MPI.Printf0(stderr, "\t*** locate points\n");
+    //MPI.Printf0(stderr, "\t*** locate points\n");
     locate_points();
 }
 

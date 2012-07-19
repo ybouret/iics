@@ -75,9 +75,11 @@ public:
     const Array1D  &dY;
     double          Lambda; // for bubbles;
     
-    Bubbles  bubbles;
-    Segment *xseg; // along x, lower.y->upper.y
-    Segment *yseg; // along y, lower.x->upper.x
+    Bubbles     bubbles;
+    Segment    *xseg;  // along x, lower.y->upper.y
+    Segment    *yseg;  // along y, lower.x->upper.x
+    Point::List inter; // and intersection
+    
     
     //! for rank 0: update_contour for each bubble
     void    master_update_topologies() throw();
@@ -94,7 +96,10 @@ public:
     void    assemble_bubbles( const mpi &MPI );
     
     //! locate p->pos on the mesh
-    void locate_point( Point &p ) const;
+    /**
+     find intersection
+     */
+    void locate_point( Point &p );
     
     void collect_inside( vector<V2D> &pts ) const;
     
@@ -109,6 +114,7 @@ public:
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);
     vector<Segment> segments;
+    
     //! locate all points in all spots,
     void locate_points();
 };

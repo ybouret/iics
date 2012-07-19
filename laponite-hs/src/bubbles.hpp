@@ -32,11 +32,12 @@ public:
     
     const Real            Ly; //!< for bubble PBC
    
-    Spot::Pool &get_spot_cache() throw();
     
 private:
     core::list_of<Bubble> b_list;
     core::pool_of<Bubble> b_pool;
+    
+public:
     Point::Pool           pcache;
     Spot::Pool            scache;
     
