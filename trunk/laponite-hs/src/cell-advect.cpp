@@ -1,64 +1,5 @@
 #include "cell.hpp"
 
-static unit_t __locate_point(Real           x, 
-                             const Array1D &a,
-                             unit_t         ilo,
-                             unit_t         ihi)
-{
-    if( x <= a[ilo] )
-        return ilo;
-    
-    assert(ihi-ilo>=1);
-    if( x >= a[ihi] )
-        return ihi -1;
-    
-    while(ihi-ilo>1)
-    {
-        const int mid = (ilo+ihi)>>1;
-        if( x < a[mid] )
-        {
-            ihi = mid;
-        }
-        else 
-        {
-            ilo = mid;
-        }
-    }
-    return ilo;
-}
-
-void Cell:: locate_point( Point &p ) const
-{
-    //==========================================================================
-    // first pass: locate in which grid we are
-    //==========================================================================
-    
-    //--------------------------------------------------------------------------
-    // by simple bissection
-    //--------------------------------------------------------------------------
-    const V2D    v = p.vertex;
-    assert(v.x>=0);
-    assert(v.x<=Length.x);
-    assert(v.y>=-Length.y/2);
-    assert(v.y<=Length.y/2);
-    const unit_t i = p.pos.x = __locate_point(v.x, X, lower.x, upper.x);
-    const unit_t j = p.pos.y = __locate_point(v.y, Y, lower.y, upper.y);
-   
-    
-    //fprintf( stderr, " (%g,%g) <= (%g,%g) <= (%g,%g)\n", X[i],Y[j], v.x, v.y, X[i+1], Y[j+1]);
-    
-    //--------------------------------------------------------------------------
-    // compute coefficient of bilinear interpolations
-    //--------------------------------------------------------------------------
-    p.w.x = (v.x - X[i])/dX[i];
-    p.w.y = (v.y - Y[j])/dY[j];
-    
-    //==========================================================================
-    // second pass: find possible 4 intersections with grid
-    //==========================================================================
-    
-    
-}
 
 void Cell:: advect_point( Point &p, double dt ) const
 {
@@ -97,22 +38,6 @@ void Cell:: advect_point( Point &p, double dt ) const
 }
 
 
-
-//! locate all points in all spots
-void Cell:: locate_points( )
-{
-    B.ldz();
-    for( size_t i=segments.size();i>0;--i) 
-        segments[i].empty();
-    
-    for( Bubble *b = bubbles.first(); b; b=b->next )
-    {
-        for( Spot *s = b->spots.head; s; s=s->next )
-        {
-            locate_point( * (s->point) );
-        }
-    }
-}
 
 void Cell:: advect_points( double dt )
 {
