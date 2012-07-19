@@ -11,7 +11,8 @@ SET(SOURCES_SER
 types.hpp 	types.cpp
 point.hpp 	point.cpp
 spot.hpp  	spot.cpp
-bubble.cpp 	bubble.hpp bubble-io.cpp
+bubble.cpp 	bubble.hpp 
+bubble-io.cpp bubble-contour.cpp bubble-vectors.cpp bubble-shapes.cpp
 bubbles.hpp 	bubbles.cpp
 )
 
