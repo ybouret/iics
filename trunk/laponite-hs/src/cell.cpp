@@ -56,12 +56,21 @@ Y( mesh.Y() ),
 dX( mesh.dX() ),
 dY( mesh.dY() ),
 Lambda(1),
-bubbles( Length.y )
+bubbles( Length.y ),
+xseg(0),
+yseg(0),
+segments()
 {
     //! build the sub mesh
     mesh.regular_map_to(FullRegion, FullLayout);
     const V2D v( dX[lower.x], dY[lower.y]);
     Lambda = 0.5 * v.norm();
+    
+    //! prepare the segments
+    const Spot::List seg( bubbles.get_spot_cache() );
+    segments.make(width.x +width.y ,seg);
+    xseg = &segments[1] - lower.y;
+    yseg = xseg + width.y;
 }
 
 Cell:: ~Cell() throw()

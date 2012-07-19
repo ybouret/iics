@@ -34,9 +34,11 @@ struct Spot
         //! create a new Spot and attach p
         void append( Point *p );
         
+        List( const List &other );
+        
     private:
         Pool &cache_;
-        YOCTO_DISABLE_COPY_AND_ASSIGN(List);
+        YOCTO_DISABLE_ASSIGN(List);
     };
 };
 

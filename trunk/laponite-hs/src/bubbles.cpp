@@ -28,8 +28,17 @@ void Bubbles:: none() throw()
 
 Bubble * Bubbles:: create()
 {
-    
-    Bubble *pB = b_pool.size > 0 ? b_pool.query() : new  Bubble( Ly, pcache, scache );
+    const BubbleID id = BubbleID(b_list.size);
+    Bubble *pB = 0;
+    if( b_pool.size > 0 )
+    {
+        pB = b_pool.query();
+        (BubbleID &)(pB->id) = id;
+    }
+    else
+    {
+        pB = new  Bubble( id, Ly, pcache, scache );
+    }
     
     assert(pB->size == 0 );
     b_list.push_back(pB);
@@ -47,6 +56,12 @@ size_t Bubbles:: count() const throw()
 {
     return b_list.size;
 }
+
+Spot::Pool &Bubbles:: get_spot_cache() throw()
+{
+    return scache;
+}
+
 
 Bubble * Bubbles:: first() throw() { return b_list.head; }
 const Bubble * Bubbles:: first() const throw() { return b_list.head; }

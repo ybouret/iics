@@ -52,6 +52,9 @@ private:
 };
 
 
+//! for Bubble segmentation
+typedef Spot::List Segment;
+
 //! Hele-Shaw Cell
 class Cell : public Parameters, public WorkspaceBase
 {
@@ -72,7 +75,9 @@ public:
     const Array1D  &dY;
     double          Lambda; // for bubbles;
     
-    Bubbles bubbles;
+    Bubbles  bubbles;
+    Segment *xseg; // along x, lower.y->upper.y
+    Segment *yseg; // along y, lower.x->upper.x
     
     //! for rank 0: update_contour for each bubble
     void    master_update_topologies() throw();
@@ -103,6 +108,7 @@ public:
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);
+    vector<Segment> segments;
     //! locate all points in all spots
     void locate_points();
 };
