@@ -88,7 +88,7 @@ void Bubbles:: spots_and_values_within( const Real y_lo, const Real y_up )
 {
     for( Bubble *b = b_list.head; b; b=b->next )
     {
-        b->find_spots_within(y_lo,y_up);
+        b->mark_and_find_spots_within(y_lo,y_up);
         if(b->active)
         {
             b->compute_values();

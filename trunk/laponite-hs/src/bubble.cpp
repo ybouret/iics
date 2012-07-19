@@ -24,13 +24,14 @@ Bubble::~Bubble() throw()
 {
 }
 
-void Bubble:: find_spots_within(const Real y_lo, const Real y_up)
+void Bubble:: mark_and_find_spots_within(const Real y_lo, const Real y_up)
 {
     spots.empty();
     Point *p = root;
     size_t last_index = 0;
     for( size_t i=0;i<size;++i,p=p->next)
     {
+        p->bubble = this;
         const double y = p->vertex.y;
         if( y_lo <= y && y <= y_up )
         {
