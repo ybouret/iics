@@ -49,6 +49,7 @@ public:
     Bubble *next;
     Bubble *prev;
     
+    void save_dat( const string &filename ) const;
     void save_vtk( const string &filename ) const;
     void save_vtk_t( const string &filename ) const;
     void save_vtk_n( const string &filename ) const;

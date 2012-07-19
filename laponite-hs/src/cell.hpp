@@ -91,6 +91,8 @@ public:
     //! locate p->pos on the mesh
     void locate_point( Point &p ) const;
     
+    void collect_inside( vector<V2D> &pts ) const;
+    
     //! advect a previously located point with field U
     void advect_point( Point &p, double dt ) const;
     
