@@ -54,8 +54,9 @@ void Cell:: locate_point( Point &p ) const
     p.w.y = (v.y - Y[j])/dY[j];
     
     //==========================================================================
-    // second pass: find intersections with neighbors
+    // second pass: find possible 4 intersections with grid
     //==========================================================================
+    
     
 }
 
@@ -101,6 +102,9 @@ void Cell:: advect_point( Point &p, double dt ) const
 void Cell:: locate_points( )
 {
     B.ldz();
+    for( size_t i=segments.size();i>0;--i) 
+        segments[i].empty();
+    
     for( Bubble *b = bubbles.first(); b; b=b->next )
     {
         for( Spot *s = b->spots.head; s; s=s->next )

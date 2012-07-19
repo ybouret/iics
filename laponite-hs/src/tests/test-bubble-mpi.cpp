@@ -59,7 +59,7 @@ int main( int argc, char *argv[] )
         const double y_lo = y0 + MPI.CommWorldRank * dH;
         const double y_hi = y_lo + dH;
         
-        b.find_spots_within(y_lo,y_hi);
+        b.mark_and_find_spots_within(y_lo,y_hi);
         MPI.Printf( stderr, "Rank %d> [%g,%g](+%g): #spots= %u\n", MPI.CommWorldRank, y_lo,y_hi, dH, unsigned(b.spots.size) );
         save_spots("spot",b,MPI.CommWorldRank);
         if( b.active )

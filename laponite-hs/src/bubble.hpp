@@ -35,8 +35,8 @@ public:
     void map_peanut( const V2D &center, Real radius, Real alpha );
     
     
-    //! empty spots and find out points within y_lo <= y <= y_up
-    void find_spots_within( const Real y_lo, const Real y_up );
+    //! empty spots, mark and find out points within y_lo <= y <= y_up
+    void mark_and_find_spots_within( const Real y_lo, const Real y_up );
     
     
 #if defined(HAS_MPI)

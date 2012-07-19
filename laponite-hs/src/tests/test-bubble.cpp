@@ -62,7 +62,7 @@ int main( int argc, char * argv[] )
         
         b.map_circle( V2D(0,0), radius);
         save_bubble(b,0);
-        b.find_spots_within(-2, 2);
+        b.mark_and_find_spots_within(-2, 2);
         save_spots(b, 0);
         std::cerr << "Update 1/2" << std::endl;
         
@@ -79,7 +79,7 @@ int main( int argc, char * argv[] )
             }
         }
         save_bubble(b,1);
-        b.find_spots_within(-2, 2);
+        b.mark_and_find_spots_within(-2, 2);
         save_spots(b, 1);
         std::cerr << "Update 2/2" << std::endl;
         b.update_contour();
@@ -87,7 +87,7 @@ int main( int argc, char * argv[] )
         save_curvature(b, 1);
         std::cerr << "Area=" << b.area << std::endl;
         save_bubble(b,2);
-        b.find_spots_within(-2, 2);
+        b.mark_and_find_spots_within(-2, 2);
         save_spots(b, 2);
         return 0;
     }

@@ -6,6 +6,7 @@
 #include "yocto/core/clist.hpp"
 
 //! a point on a border of a bubble
+class Bubble;
 class Point 
 {
 public:
@@ -17,6 +18,7 @@ public:
     Real     kappa;   //!< curvature
     U2D      pos;     //!< lower coordinate of including mesh       
     V2D      w;       //!< bilinear interpolation weights
+    Bubble  *bubble;  //!< owner, set by bubble...
     
     static const size_t IO_COUNT = 5;
     
