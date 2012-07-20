@@ -49,6 +49,114 @@ int __OutCode( const V2D &q, const V2D &vmin, const V2D &vmax ) throw()
     return ans;
 }
 
+#define __NEW_INTER(SEGMENT,INDEX)  do  { \
+Intersection *I = inter.append(); \
+I->vertex = Q; \
+I->bubble = bubble; \
+SEGMENT[INDEX].append()->inter = I; \
+} while(false)
+
+//==============================================================================
+// Cohen-Sutherland algorithm
+//==============================================================================
+void Cell:: find_intersections( const V2D &P, V2D &Q, const V2D &vmin, const V2D &vmax, const U2D &pos, Bubble *bubble )
+{
+    const unit_t i = pos.x;
+    const unit_t j = pos.y;
+    
+    int code = __OutCode(Q, vmin, vmax);
+    if( INSIDE != code )
+    {
+        //----------------------------------------------------------------------
+        // there is an intersection
+        //----------------------------------------------------------------------
+    MOVE_Q:
+        if( code & TOP )
+        {
+            assert( Q.y > P.y );
+            Q.x = P.x + ( vmax.y - P.y)* (Q.x - P.x) / (Q.y - P.y ) ;
+            Q.y = vmax.y;
+            __NEW_INTER(horz_seg,j+1);
+            goto TEST_Q;
+        }
+        
+        if( code & BOTTOM )
+        {
+            assert( Q.y < P.y );
+            Q.x = P.x + ( vmin.y - P.y)* (Q.x - P.x) /(Q.y - P.y );
+            Q.y = vmin.y;
+            __NEW_INTER(horz_seg,j);
+            goto TEST_Q;
+        }
+        
+        if( code & RIGHT )
+        {
+            assert( Q.x > P.x );
+            Q.y = P.y + ( vmax.x - P.x )  * (Q.y - P.y ) / (Q.x - P.x );
+            Q.x = vmax.x;
+            __NEW_INTER(vert_seg,i+1);
+            goto TEST_Q;
+        }
+        
+        if( code & LEFT )
+        {
+            assert( Q.x < P.x );
+            Q.y = P.y + ( vmin.x - P.x )  * (Q.y - P.y ) / (Q.x - P.x );
+            Q.x = vmin.x;
+            __NEW_INTER(vert_seg,i);
+            //goto TEST_Q;
+        }
+        
+        
+    TEST_Q:
+        if( INSIDE != ( code = __OutCode(Q, vmin, vmax) ) )
+            goto MOVE_Q;
+        
+#if 0
+        //----------------------------------------------------------------------
+        //
+        // register the intersection
+        //
+        //----------------------------------------------------------------------
+        {
+            //------------------------------------------------------------------
+            // record the intersection
+            //------------------------------------------------------------------
+            Intersection *I = inter.append();
+            I->vertex = Q;
+            I->bubble = bubble;
+            
+            if( Q.x <= vmin.x )
+            {
+                // Q is on vert_seg[i]
+                vert_seg[i].append()->inter = I;
+            }
+            
+            if( Q.x >= vmax.x )
+            {
+                // Q is on vert_seg[i+1]
+                vert_seg[i+1].append()->inter = I;
+            }
+            
+            if( Q.y <= vmin.y )
+            {
+                // Q is on horz_seg[j]
+                horz_seg[j].append()->inter = I;
+            }
+            
+            if( Q.y >= vmax.y )
+            {
+                //Q  is on horz_seg[j+1]
+                horz_seg[j+1].append()->inter = I;
+            }
+        }
+#endif
+        
+    }
+    
+}
+
+
 void Cell:: locate_point( Point &p )
 {
     //==========================================================================
@@ -78,10 +186,7 @@ void Cell:: locate_point( Point &p )
     const V2D vmin( X[i],   Y[j] );
     const V2D vmax( X[i+1], Y[j+1]);
     
-    //==========================================================================
-    // second pass: use p_next to determine possible intersections
-    // Cohen-Sutherland algorithm
-    //==========================================================================
+    
     assert( INSIDE == __OutCode(P,vmin,vmax) );
 #if 0
     if( INSIDE != __OutCode(P, vmin, vmax) )
@@ -91,91 +196,9 @@ void Cell:: locate_point( Point &p )
     }
 #endif
     
-    V2D Q    = P + p.r_next;
-    int code = __OutCode(Q, vmin, vmax);
-    if( INSIDE != code )
-    {
-        //----------------------------------------------------------------------
-        // there is an intersection
-        //----------------------------------------------------------------------
-    MOVE_Q:
-        if( code & TOP )
-        {
-            assert( Q.y > P.y );
-            Q.x = P.x + ( vmax.y - P.y)* (Q.x - P.x) / (Q.y - P.y ) ;
-            Q.y = vmax.y;
-            goto TEST_Q;
-        }
-        
-        if( code & BOTTOM )
-        {
-            assert( Q.y < P.y );
-            Q.x = P.x + ( vmin.y - P.y)* (Q.x - P.x) /(Q.y - P.y );
-            Q.y = vmin.y;
-            goto TEST_Q;
-        }
-        
-        if( code & RIGHT )
-        {
-            assert( Q.x > P.x );
-            Q.y = P.y + ( vmax.x - P.x )  * (Q.y - P.y ) / (Q.x - P.x );
-            Q.x = vmax.x;
-            goto TEST_Q;
-        }
-        
-        if( code & LEFT )
-        {
-            assert( Q.x < P.x );
-            Q.y = P.y + ( vmin.x - P.x )  * (Q.y - P.y ) / (Q.x - P.x );
-            Q.x = vmin.x;
-            //goto TEST_Q;
-        }
-        
-        
-    TEST_Q:
-        if( INSIDE != ( code = __OutCode(Q, vmin, vmax) ) )
-            goto MOVE_Q;
-        
-        //----------------------------------------------------------------------
-        //
-        // register the intersection
-        //
-        //----------------------------------------------------------------------
-        {
-            //------------------------------------------------------------------
-            // compute the intersection
-            //------------------------------------------------------------------
-            Intersection *I = inter.append();
-            I->vertex = Q;
-            I->bubble = p.bubble;
-            
-            if( Q.x <= vmin.x )
-            {
-                // Q is on vert_seg[i]
-                vert_seg[i].append()->inter = I;
-            }
-            
-            if( Q.x >= vmax.x )
-            {
-                // Q is on vert_seg[i+1]
-                vert_seg[i+1].append()->inter = I;
-            }
-            
-            if( Q.y <= vmin.y )
-            {
-                // Q is on horz_seg[j]
-                horz_seg[j].append()->inter = I;
-            }
-            
-            if( Q.y >= vmax.y )
-            {
-                //Q  is on horz_seg[j+1]
-                horz_seg[j+1].append()->inter = I;
-            }
-        }
-        
-    }
     
+    V2D Q    = P + p.r_next;
+    find_intersections(P, Q, vmin, vmax, p.pos, p.bubble);
     
 }
 

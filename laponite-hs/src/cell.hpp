@@ -119,6 +119,8 @@ private:
     
     //! locate all points in all spots,
     void locate_points();
+    void find_intersections(const V2D &P, V2D &Q, const V2D &vmin, const V2D &vmax, const U2D &pos, Bubble *bubble);
+    
 };
 
 
