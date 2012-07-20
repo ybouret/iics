@@ -17,8 +17,8 @@ public:
     
     void   none() throw();
     
-    Bubble *create(); //!< return a new bubble, appended to list
-    void    create( size_t n ); //!< create n extra new bubbles
+    Bubble *append(); //!< return a new bubble, appended to list
+    void    append( size_t n ); //!< append n extra new bubbles
     
     void    update_topologies(); //!< for all bubbles
     

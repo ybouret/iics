@@ -35,7 +35,7 @@ void Bubble:: mark_and_find_spots_within(const Real y_lo, const Real y_up)
         const double y = p->vertex.y;
         if( y_lo <= y && y <= y_up )
         {
-            spots.append(p);           
+            spots.attach(p);           
             spots.tail->jump = i-last_index;
             last_index = i;
         }

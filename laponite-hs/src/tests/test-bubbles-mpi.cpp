@@ -39,7 +39,7 @@ int main( int argc, char *argv[] )
         {
             for( size_t i=5;i>0;--i)
             {
-                Bubble *b = bubbles.create();
+                Bubble *b = bubbles.append();
                 b->map_circle( V2D(0.5-Alea(),0.5-Alea()), 1 + 4*Alea() );
             }
         }

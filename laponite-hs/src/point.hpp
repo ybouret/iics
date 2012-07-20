@@ -36,42 +36,6 @@ public:
     
     typedef cache_of<Point>                   Pool;
     typedef cached_list<core::clist_of,Point> List;
-    
-#if 0
-    //! Cache for Points
-    typedef core::pool_of<Point> CorePool;
-    class Pool : public CorePool
-    {
-    public:
-        explicit Pool() throw();
-        explicit Pool(size_t cache_size);
-        virtual ~Pool() throw();
-        
-    private:
-        YOCTO_DISABLE_COPY_AND_ASSIGN(Pool);
-    };
-    
-    
-    typedef core::clist_of<Point> CoreList;
-    
-    //! a circular linked list
-    class List : public CoreList
-    {
-    public:
-        explicit List( Pool &cache ) throw(); //!< empty list with a new cache
-        virtual ~List() throw();              //!< put back into cache
-        
-        void empty() throw(); //!< empty the points back into cache
-        
-        Point *create();  //!< get a new point (from cache if possible)
-        void   remove( Point *p ) throw(); //!< unlink and cache the point
-        
-    private:
-        Pool &cache_;
-        YOCTO_DISABLE_COPY_AND_ASSIGN(List);
-    };
-#endif
-    
 };
 
 

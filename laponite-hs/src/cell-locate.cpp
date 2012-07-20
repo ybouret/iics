@@ -145,31 +145,31 @@ void Cell:: locate_point( Point &p )
             //------------------------------------------------------------------
             // compute the intersection
             //------------------------------------------------------------------
-            Point  *I = inter.create();
+            Point  *I = inter.append();
             I->vertex = Q;
             I->bubble = p.bubble;
             if( Q.x <= vmin.x )
             {
                 // Q is on vert_seg[i]
-                vert_seg[i].append(I);
+                vert_seg[i].attach(I);
             }
             
             if( Q.x >= vmax.x )
             {
                 // Q is on vert_seg[i+1]
-                vert_seg[i+1].append(I);
+                vert_seg[i+1].attach(I);
             }
             
             if( Q.y <= vmin.y )
             {
                 // Q is on horz_seg[j]
-                horz_seg[j].append(I);
+                horz_seg[j].attach(I);
             }
             
             if( Q.y >= vmax.y )
             {
                 //Q  is on horz_seg[j+1]
-                horz_seg[j+1].append(I);
+                horz_seg[j+1].attach(I);
             }
         }
         

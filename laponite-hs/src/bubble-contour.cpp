@@ -36,7 +36,7 @@ void Bubble:: update_contour()
             //------------------------------------------------------------------
             if( p->s_next > lambda )
             {
-                Point *I = create();
+                Point *I    = cache.provide();
                 I->vertex.x = p->vertex.x + 0.5 * pq.x;
                 I->vertex.y = p->vertex.y + 0.5 * pq.y;
                 pbc(I->vertex);
