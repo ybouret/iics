@@ -39,6 +39,12 @@ Point & Point:: operator=( const Point & other ) throw()
     return *this;
 }
 
+void Point:: reset() throw()
+{
+    memset( &vertex,0,sizeof(Point)-YOCTO_OFFSET_OF(Point, vertex));
+}
+
+#if 0
 ////////////////////////////////////////////////////////////////////////////////
 //
 //
@@ -98,3 +104,5 @@ void Point:: List:: remove( Point *p ) throw()
     assert(this->owns(p));
     cache_.store( unlink(p) );
 }
+#endif
+

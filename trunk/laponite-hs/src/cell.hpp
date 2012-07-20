@@ -76,8 +76,8 @@ public:
     double          Lambda; // for bubbles;
     
     Bubbles     bubbles;
-    Segment    *xseg;  // along x, lower.y->upper.y
-    Segment    *yseg;  // along y, lower.x->upper.x
+    Segment    *horz_seg;  // along x, lower.y->upper.y
+    Segment    *vert_seg;  // along y, lower.x->upper.x
     Point::List inter; // and intersection
     
     

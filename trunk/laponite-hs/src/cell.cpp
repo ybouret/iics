@@ -57,8 +57,8 @@ dX( mesh.dX() ),
 dY( mesh.dY() ),
 Lambda(1),
 bubbles( Length.y ),
-xseg(0),
-yseg(0),
+horz_seg(0),
+vert_seg(0),
 inter( bubbles.pcache ),
 segments()
 {
@@ -70,8 +70,8 @@ segments()
     //! prepare the segments: for each X/Y
     const Spot::List seg( bubbles.scache );
     segments.make(X.width+Y.width ,seg);
-    xseg = &segments[1] - Y.lower;
-    yseg = xseg + Y.width;
+    horz_seg = &segments[1] - Y.lower;
+    vert_seg = &segments[1+Y.width] - X.lower;
 }
 
 Cell:: ~Cell() throw()
