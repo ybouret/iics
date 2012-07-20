@@ -25,6 +25,15 @@ void Simulation:: get_meta_data( visit_handle &md ) const
         }
     }
     
+    {
+        visit_handle cmd = VISIT_INVALID_HANDLE;
+        if(VisIt_CommandMetaData_alloc(&cmd) == VISIT_OKAY)
+        {
+            VisIt_CommandMetaData_setName(cmd, "inter" );
+            VisIt_SimulationMetaData_addGenericCommand(md, cmd);
+        }
+    }
+    
     //! append the mesh
     {
         visit_handle mmd = _visit::mesh_meta_data(mesh, MeshName, par_size);
@@ -217,6 +226,20 @@ void Simulation:: perform(const string &cmd)
                 fp("%g %g\n",pts[i].x, pts[i].y);
             }
         }
+    }
+    
+    if( cmd == "inter" )
+    {
+        if( master )
+        {
+            bubbles.first()->save_dat("bubble.dat");
+            ios::ocstream fp("inter.dat",false);
+            for( const Intersection *I = inter.head; I; I=I->next )
+            {
+                fp("%.15g %.15g\n", I->vertex.x, I->vertex.y );
+            }
+        }
+        
     }
 }
 

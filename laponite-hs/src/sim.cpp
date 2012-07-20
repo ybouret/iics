@@ -32,6 +32,44 @@ int main( int argc, char *argv[] )
         
         Simulation sim(15,18,5.0,6.0,MPI);
         
+        {
+            ios::ocstream fp("grid.dat",false);
+            for( unit_t j=sim.lower.y; j<=sim.upper.y;++j)
+            {
+                if( (j&1) )
+                {
+                    for( unit_t i=sim.lower.x; i <= sim.upper.x; ++i )
+                    {
+                        fp("%g %g\n", sim.X[i], sim.Y[j] );
+                    }
+                }
+                else
+                {
+                    for( unit_t i=sim.upper.x; i >= sim.lower.x; --i )
+                    {
+                        fp("%g %g\n", sim.X[i], sim.Y[j] );
+                    }
+                }
+            }
+            
+            for( unit_t i=sim.lower.x; i <= sim.upper.x; ++i )
+            {
+                if( (i&1) )
+                {
+                    for( unit_t j=sim.lower.y; j<=sim.upper.y;++j)
+                    {
+                        fp("%g %g\n", sim.X[i], sim.Y[j] );
+                    }
+                }
+                else {
+                    for( unit_t j=sim.upper.y; j>=sim.lower.y;--j)
+                    {
+                        fp("%g %g\n", sim.X[i], sim.Y[j] );
+                    }
+                }
+            }
+        }
+        
         //----------------------------------------------------------------------
         // sim initialize P,U,bubbles
         //----------------------------------------------------------------------
