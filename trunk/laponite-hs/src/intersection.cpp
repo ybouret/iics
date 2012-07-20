@@ -2,6 +2,8 @@
 
 Intersection:: Intersection() throw() :
 vertex(),
+lo(0),
+up(0),
 next(0),
 prev(0)
 {
@@ -12,18 +14,12 @@ Intersection:: ~Intersection() throw()
 {
 }
 
-#if 0
-Intersection:: Intersection( const Intersection &other ) throw() :
-vertex(other.vertex),
-next(0),
-prev(0)
-{
-}
-#endif
+
 
 void Intersection:: reset() throw()
 {
     vertex.x = vertex.y = 0;
+    lo = up = 0;
 }
 
 
