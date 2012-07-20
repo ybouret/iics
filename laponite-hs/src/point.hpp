@@ -2,8 +2,9 @@
 #define POINT_INCLUDED 1
 
 #include "types.hpp"
-#include "yocto/core/pool.hpp"
+//#include "yocto/core/pool.hpp"
 #include "yocto/core/clist.hpp"
+#include "yocto/core/cached-list.hpp"
 
 //! a point on a border of a bubble
 class Bubble;
@@ -28,9 +29,15 @@ public:
     Point( const Point & ) throw(); //! copy
     Point & operator=( const Point & ) throw();
     
+    void reset() throw();
+    
     Point *next; //!< for linked list
     Point *prev; //!< for linked list
     
+    typedef cache_of<Point>                   Pool;
+    typedef cached_list<core::clist_of,Point> List;
+    
+#if 0
     //! Cache for Points
     typedef core::pool_of<Point> CorePool;
     class Pool : public CorePool
@@ -63,6 +70,7 @@ public:
         Pool &cache_;
         YOCTO_DISABLE_COPY_AND_ASSIGN(List);
     };
+#endif
     
 };
 

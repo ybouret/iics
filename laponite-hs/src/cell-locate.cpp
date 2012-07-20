@@ -150,26 +150,26 @@ void Cell:: locate_point( Point &p )
             I->bubble = p.bubble;
             if( Q.x <= vmin.x )
             {
-                // Q is on yseg[i]
-                yseg[i].append(I);
+                // Q is on vert_seg[i]
+                vert_seg[i].append(I);
             }
             
             if( Q.x >= vmax.x )
             {
-                // Q is on yseg[i+1]
-                yseg[i+1].append(I);
+                // Q is on vert_seg[i+1]
+                vert_seg[i+1].append(I);
             }
             
             if( Q.y <= vmin.y )
             {
-                // Q is on xseg[j]
-                xseg[j].append(I);
+                // Q is on horz_seg[j]
+                horz_seg[j].append(I);
             }
             
             if( Q.y >= vmax.y )
             {
-                //Q  is on xseg[j+1]
-                xseg[j+1].append(I);
+                //Q  is on horz_seg[j+1]
+                horz_seg[j+1].append(I);
             }
         }
         
