@@ -25,6 +25,16 @@ void Simulation:: get_meta_data( visit_handle &md ) const
         }
     }
     
+    //! append an UI command
+    {
+        visit_handle cmd = VISIT_INVALID_HANDLE;
+        if(VisIt_CommandMetaData_alloc(&cmd) == VISIT_OKAY)
+        {
+            VisIt_CommandMetaData_setName(cmd, "raz" );
+            VisIt_SimulationMetaData_addGenericCommand(md, cmd);
+        }
+    }
+    
     {
         visit_handle cmd = VISIT_INVALID_HANDLE;
         if(VisIt_CommandMetaData_alloc(&cmd) == VISIT_OKAY)
@@ -240,6 +250,25 @@ void Simulation:: perform(const string &cmd)
             }
         }
         
+    }
+    
+    if( cmd == "raz" )
+    {
+        //----------------------------------------------------------------------
+        // sim initialize P,U,bubbles
+        //----------------------------------------------------------------------
+        initialize();
+        
+        //----------------------------------------------------------------------
+        // Initialize bubbles
+        //----------------------------------------------------------------------
+        check_and_dispatch_bubbles();
+        
+        //----------------------------------------------------------------------
+        // Initialize ghosts
+        //----------------------------------------------------------------------
+        init_exchange();
+        wait_exchange();
     }
 }
 
