@@ -56,9 +56,11 @@ Y( mesh.Y() ),
 dX( mesh.dX() ),
 dY( mesh.dY() ),
 bubbles( Length ),
+ipool(),
+inter(ipool),
 horz_seg(0),
 vert_seg(0),
-inter( bubbles.pcache ),
+seg_pool(),
 segments()
 {
     //! build the sub mesh
@@ -67,7 +69,7 @@ segments()
     (Real &)(bubbles.lambda) = 0.5 * v.norm();
     
     //! prepare the segments: for each X/Y
-    const Spot::List seg( bubbles.scache );
+    const Segment::List seg( seg_pool );
     segments.make(X.width+Y.width ,seg);
     horz_seg = &segments[1] - Y.lower;
     vert_seg = &segments[1+Y.width] - X.lower;
