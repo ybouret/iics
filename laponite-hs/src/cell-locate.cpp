@@ -49,13 +49,12 @@ int __OutCode( const V2D &q, const V2D &vmin, const V2D &vmax ) throw()
     return ans;
 }
 
-#define __NEW_INTER(SEGMENT,INDEX,LO,UP)  do  { \
+#define __NEW_INTER(SEGMENT,INDEX,COORD,ARR)  do  { \
 Intersection *I = inter.append(); \
 I->vertex = Q;      \
-I->lo     = LO;     \
-I->up     = UP;     \
 I->bubble = bubble; \
 SEGMENT[INDEX].append()->inter = I; \
+I->up = 1 + (I->lo = __locate_point( I->vertex.COORD, ARR )); \
 } while(false)
 
 //==============================================================================
@@ -81,7 +80,7 @@ void Cell:: find_intersections( const V2D &P, V2D &Q, const V2D &vmin, const V2D
             assert( Q.y > P.y );
             Q.x = P.x + ( vmax.y - P.y)* (Q.x - P.x) / (Q.y - P.y ) ;
             Q.y = vmax.y;
-            __NEW_INTER(horz_seg,j1,i,i1);
+            __NEW_INTER(horz_seg,j1,x,X);
             goto TEST_Q;
         }
         
@@ -90,7 +89,7 @@ void Cell:: find_intersections( const V2D &P, V2D &Q, const V2D &vmin, const V2D
             assert( Q.y < P.y );
             Q.x = P.x + ( vmin.y - P.y)* (Q.x - P.x) /(Q.y - P.y );
             Q.y = vmin.y;
-            __NEW_INTER(horz_seg,j,i,i1);
+            __NEW_INTER(horz_seg,j,x,X);
             goto TEST_Q;
         }
         
@@ -99,7 +98,7 @@ void Cell:: find_intersections( const V2D &P, V2D &Q, const V2D &vmin, const V2D
             assert( Q.x > P.x );
             Q.y = P.y + ( vmax.x - P.x )  * (Q.y - P.y ) / (Q.x - P.x );
             Q.x = vmax.x;
-            __NEW_INTER(vert_seg,i1,j,j1);
+            __NEW_INTER(vert_seg,i1,y,Y);
             goto TEST_Q;
         }
         
@@ -108,8 +107,7 @@ void Cell:: find_intersections( const V2D &P, V2D &Q, const V2D &vmin, const V2D
             assert( Q.x < P.x );
             Q.y = P.y + ( vmin.x - P.x )  * (Q.y - P.y ) / (Q.x - P.x );
             Q.x = vmin.x;
-            __NEW_INTER(vert_seg,i,j,j1);
-            //goto TEST_Q;
+            __NEW_INTER(vert_seg,i,y,Y);
         }
         
         
@@ -172,9 +170,19 @@ void Cell:: locate_point( Point &p )
 
 #include "yocto/comparator.hpp"
 
+static inline int __compare_horz( const Segment *lhs, const Segment *rhs, void * )
+{
+    return __compare(lhs->inter->vertex.x,rhs->inter->vertex.x);
+}
+
+static inline int __compare_vert( const Segment *lhs, const Segment *rhs, void * )
+{
+    return __compare(lhs->inter->vertex.y,rhs->inter->vertex.y);
+}
+
 static inline int __compare_segment( const Segment *lhs, const Segment *rhs, void * )
 {
-    return __compare(lhs->inter->lo,rhs->inter->lo);
+    return lhs->inter->lo - rhs->inter->lo;
 }
 
 #include "yocto/core/merge-sort.hpp"
@@ -193,11 +201,14 @@ void Cell:: locate_points( )
     for( size_t i=segments.size();i>0;--i) 
         segments[i].empty();
     
+    //--------------------------------------------------------------------------
     //! empty intersections
+    //--------------------------------------------------------------------------
     inter.empty();
     
-    
+    //--------------------------------------------------------------------------
     //! find all the intersections
+    //--------------------------------------------------------------------------
     for( Bubble *b = bubbles.first(); b; b=b->next )
     {
         //fprintf( stderr, "#points = %lu, #spots=%lu\n", b->size, b->spots.size);
@@ -207,81 +218,104 @@ void Cell:: locate_points( )
         }
     }
     
-    //! sort the segment
-    for( size_t i=segments.size();i>0;--i) 
+    //--------------------------------------------------------------------------
+    //! lower indices are already computed
+    //--------------------------------------------------------------------------
+    for( size_t i=segments.size();i>0;--i)
     {
-        core::merging<Segment>::sort<core::list_of>( segments[i], __compare_segment, NULL);
+        core::merging<Segment>::sort<core::list_of>( segments[i], __compare_segment,0);
     }
     
-    //! scan horizontal segments
-    for( unit_t j=upper.y;j>=lower.y;--j)
+#if 0
+    //--------------------------------------------------------------------------
+    //! sort vertical segments
+    //--------------------------------------------------------------------------
+    for( unit_t i=X.upper;i>=X.lower;--i)
+    {
+        Segment::List &Si = vert_seg[i];
+        core::merging<Segment>::sort<core::list_of>(Si,__compare_vert,0);
+        for( Segment *s = Si.head;s;s=s->next )
+        {
+            Intersection *I = s->inter;
+            I->up = 1 + (I->lo = __locate_point(I->vertex.y, Y));
+        }
+    }
+    
+    //--------------------------------------------------------------------------
+    //! sort horizontal segments
+    //--------------------------------------------------------------------------
+    for( unit_t j=Y.upper;j>=Y.lower;--j)
     {
         Segment::List &Sj = horz_seg[j];
-        Array1D       &Bj = B[j];
-        const size_t   nj = Sj.size;
-        fprintf( stderr, "segment[%lu]@y=%8.2f: #%lu",j,Y[j],nj);
+        core::merging<Segment>::sort<core::list_of>(Sj,__compare_horz,0);
+        for( Segment *s = Sj.head;s;s=s->next )
+        {
+            Intersection *I = s->inter;
+            I->up = 1 + (I->lo = __locate_point(I->vertex.x, X));
+        }
+    }
+#endif
+    
+    //--------------------------------------------------------------------------
+    //! scan horizontal segment to determine bubble segmentation
+    //--------------------------------------------------------------------------
+    for( unit_t j=upper.y;j>=lower.y;--j)
+    {
+        //----------------------------------------------------------------------
+        // take the segment j
+        //----------------------------------------------------------------------
+        const Segment::List &Sj = horz_seg[j];
+        fprintf( stderr, "segment[%lu]@y=%8.2f: #%lu",j,Y[j],Sj.size);
         for( const Segment *seg = Sj.head; seg; seg=seg->next)
         {
             Intersection *I = seg->inter;
             assert(I);
-            fprintf( stderr, " (%.3f,%.3f)", I->vertex.x, I->vertex.y);
+            fprintf( stderr, " (%.3f,%.3f)/[%.3f:%3f]", I->vertex.x, I->vertex.y, X[I->lo], X[I->up]);
         }
         fprintf(stderr, "\n");
-        //continue;
         
-        bool           inside = false;
-        unit_t         i      = lower.x;
-        const Segment *s      = Sj.head;
-        while( s != 0 )
+        //----------------------------------------------------------------------
+        //  fill Bj
+        //----------------------------------------------------------------------
+        Array1D &Bj     = B[j];
+        unit_t   i      = Bj.lower;
+        Segment *s      = Sj.head;
+        bool     inside = false;
+        while(s)
         {
-            //------------------------------------------------------------------
-            // count how may times we get through an egde
-            //------------------------------------------------------------------
-            assert(s->inter);
-            if(s->next)
-            {
-                assert(s->next->inter);
-            }
             size_t count = 1;
-            while( s->next && s->inter->lo == s->next->inter->lo )
+            while( s->next && s->next->inter->lo == s->inter->lo )
             {
-                s=s->next;
                 ++count;
+                s=s->next;
             }
-            assert(s!=NULL);
+            assert(s);
+            
             //------------------------------------------------------------------
-            //-- fill until lo
+            // forward i->lo
             //------------------------------------------------------------------
-            fprintf( stderr, "fill: %ld->%ld/[%ld:%ld]\n", i, s->inter->lo,Bj.lower,Bj.upper);
             if( inside )
             {
-                assert(s->inter);
-                assert(s->inter->bubble);
                 const unit_t id = s->inter->bubble->id;
-            
                 while( i <= s->inter->lo )
-                {
                     Bj[i++] = id;
-                }
             }
-            //------------------------------------------------------------------
-            //-- new position
-            //------------------------------------------------------------------
-            i = s->inter->up;
             
             //------------------------------------------------------------------
-            //-- new status
+            // update status
             //------------------------------------------------------------------
-            if( (count&1) != 0 )
+            if( (count&1) )
                 inside = !inside;
-            s = s->next;
+            i = s->inter->up;
+            s=s->next;
         }
-        // TODO: check afterwards
-        
-        
-        
         
     }
+    // TODO: check afterwards
+    
+    
+    
+    
     
 }
 
