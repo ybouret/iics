@@ -103,6 +103,8 @@ public:
      */
     void locate_point( Point &p );
     
+    
+    //! collect points inside bubbles
     void collect_inside( vector<V2D> &pts ) const;
     
     //! advect a previously located point with field U
@@ -112,6 +114,9 @@ public:
     //! advect all located points
     void advect_points( double dt );
     
+    void save_inter( const string &filename ) const;
+    void save_inside( const string &filename ) const;
+    void save_grid( const string &filename ) const;
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);
