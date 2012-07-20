@@ -55,8 +55,7 @@ X( mesh.X() ),
 Y( mesh.Y() ),
 dX( mesh.dX() ),
 dY( mesh.dY() ),
-Lambda(1),
-bubbles( Length.y ),
+bubbles( Length ),
 horz_seg(0),
 vert_seg(0),
 inter( bubbles.pcache ),
@@ -65,7 +64,7 @@ segments()
     //! build the sub mesh
     mesh.regular_map_to(FullRegion, FullLayout);
     const V2D v( dX[lower.x], dY[lower.y]);
-    Lambda = 0.5 * v.norm();
+    (Real &)(bubbles.lambda) = 0.5 * v.norm();
     
     //! prepare the segments: for each X/Y
     const Spot::List seg( bubbles.scache );
