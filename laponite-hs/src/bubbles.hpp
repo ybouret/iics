@@ -8,7 +8,7 @@
 class Bubbles 
 {
 public:
-    explicit Bubbles(Real box_height) throw();
+    explicit Bubbles(const V2D &box_dim) throw();
     virtual ~Bubbles() throw();
     
     size_t         count() const throw();
@@ -30,8 +30,9 @@ public:
     void assemble_all( const mpi &MPI );  //!< collect changed points
 #endif
     
-    const Real            Ly; //!< for bubble PBC
-   
+    const V2D  Length;
+    const Real lambda; //!< critical length for bubbles, default is 1.0
+    
     
 private:
     core::list_of<Bubble> b_list;

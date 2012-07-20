@@ -14,13 +14,17 @@ typedef ptrdiff_t BubbleID;
 class Bubble :  public Point::List
 {
 public:
-    explicit Bubble( BubbleID who, Real L, Point::Pool &pcache, Spot::Pool &scache ) throw();
+    explicit Bubble(BubbleID     who, 
+                    const V2D   &Length, 
+                    Real        &lambda_ref,
+                    Point::Pool &pcache, 
+                    Spot::Pool  &scache ) throw();
     virtual ~Bubble() throw();
     
     const BubbleID id;
-    const PBC      pbc;
-    double         lambda; //!< critical length, default is 1
-    double         area;   //!< area, to be broadcasted
+    const PBC      pbc;    //!< from length
+    const Real    &lambda; //!< critical length
+    Real           area;   //!< area, to be broadcasted
     Spot::List     spots;  //!< keep trace of points
     bool           active; //!< spots.size > 0 
     

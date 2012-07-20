@@ -7,11 +7,15 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-Bubble:: Bubble( BubbleID who, Real L, Point::Pool &pcache, Spot::Pool &scache ) throw() : 
+Bubble:: Bubble(BubbleID     who, 
+                const V2D   &Length,
+                Real        &lambda_ref, 
+                Point::Pool &pcache, 
+                Spot::Pool  &scache ) throw() : 
 Point::List( pcache ),
 id(who),
-pbc(L),
-lambda(1),
+pbc(Length.y),
+lambda(lambda_ref),
 area(0),
 spots( scache ),
 active( true ),

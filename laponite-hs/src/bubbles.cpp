@@ -1,8 +1,9 @@
 #include "bubbles.hpp"
 
 
-Bubbles:: Bubbles( Real box_height ) throw() :
-Ly(box_height),
+Bubbles:: Bubbles( const V2D &box_dim ) throw() :
+Length(box_dim),
+lambda(1.0),
 b_list(),
 b_pool(),
 pcache(),
@@ -15,6 +16,7 @@ Bubbles:: ~Bubbles() throw()
     while( b_list.size > 0 ) delete b_list.pop_back();
     while( b_pool.size > 0 ) delete b_pool.query();
 }
+
 
 void Bubbles:: none() throw()
 {
@@ -37,8 +39,10 @@ Bubble * Bubbles:: append()
     }
     else
     {
-        pB = new  Bubble( id, Ly, pcache, scache );
+        pB = new  Bubble( id, Length, (Real&)lambda, pcache, scache );
     }
+    
+   
     
     assert(pB->size == 0 );
     b_list.push_back(pB);
