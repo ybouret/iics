@@ -49,9 +49,11 @@ int __OutCode( const V2D &q, const V2D &vmin, const V2D &vmax ) throw()
     return ans;
 }
 
-#define __NEW_INTER(SEGMENT,INDEX)  do  { \
+#define __NEW_INTER(SEGMENT,INDEX,LO,UP)  do  { \
 Intersection *I = inter.append(); \
-I->vertex = Q; \
+I->vertex = Q;      \
+I->lo     = LO;     \
+I->up     = UP;     \
 I->bubble = bubble; \
 SEGMENT[INDEX].append()->inter = I; \
 } while(false)
@@ -63,6 +65,8 @@ void Cell:: find_intersections( const V2D &P, V2D &Q, const V2D &vmin, const V2D
 {
     const unit_t i = pos.x;
     const unit_t j = pos.y;
+    const unit_t i1 = i+1;
+    const unit_t j1 = j+1;
     
     int code = __OutCode(Q, vmin, vmax);
     if( INSIDE != code )
@@ -76,7 +80,7 @@ void Cell:: find_intersections( const V2D &P, V2D &Q, const V2D &vmin, const V2D
             assert( Q.y > P.y );
             Q.x = P.x + ( vmax.y - P.y)* (Q.x - P.x) / (Q.y - P.y ) ;
             Q.y = vmax.y;
-            __NEW_INTER(horz_seg,j+1);
+            __NEW_INTER(horz_seg,j1,i,i1);
             goto TEST_Q;
         }
         
@@ -85,7 +89,7 @@ void Cell:: find_intersections( const V2D &P, V2D &Q, const V2D &vmin, const V2D
             assert( Q.y < P.y );
             Q.x = P.x + ( vmin.y - P.y)* (Q.x - P.x) /(Q.y - P.y );
             Q.y = vmin.y;
-            __NEW_INTER(horz_seg,j);
+            __NEW_INTER(horz_seg,j,i,i1);
             goto TEST_Q;
         }
         
@@ -94,7 +98,7 @@ void Cell:: find_intersections( const V2D &P, V2D &Q, const V2D &vmin, const V2D
             assert( Q.x > P.x );
             Q.y = P.y + ( vmax.x - P.x )  * (Q.y - P.y ) / (Q.x - P.x );
             Q.x = vmax.x;
-            __NEW_INTER(vert_seg,i+1);
+            __NEW_INTER(vert_seg,i1,j,j1);
             goto TEST_Q;
         }
         
@@ -103,7 +107,7 @@ void Cell:: find_intersections( const V2D &P, V2D &Q, const V2D &vmin, const V2D
             assert( Q.x < P.x );
             Q.y = P.y + ( vmin.x - P.x )  * (Q.y - P.y ) / (Q.x - P.x );
             Q.x = vmin.x;
-            __NEW_INTER(vert_seg,i);
+            __NEW_INTER(vert_seg,i,j,j1);
             //goto TEST_Q;
         }
         
@@ -112,45 +116,6 @@ void Cell:: find_intersections( const V2D &P, V2D &Q, const V2D &vmin, const V2D
         if( INSIDE != ( code = __OutCode(Q, vmin, vmax) ) )
             goto MOVE_Q;
         
-#if 0
-        //----------------------------------------------------------------------
-        //
-        // register the intersection
-        //
-        //----------------------------------------------------------------------
-        {
-            //------------------------------------------------------------------
-            // record the intersection
-            //------------------------------------------------------------------
-            Intersection *I = inter.append();
-            I->vertex = Q;
-            I->bubble = bubble;
-            
-            if( Q.x <= vmin.x )
-            {
-                // Q is on vert_seg[i]
-                vert_seg[i].append()->inter = I;
-            }
-            
-            if( Q.x >= vmax.x )
-            {
-                // Q is on vert_seg[i+1]
-                vert_seg[i+1].append()->inter = I;
-            }
-            
-            if( Q.y <= vmin.y )
-            {
-                // Q is on horz_seg[j]
-                horz_seg[j].append()->inter = I;
-            }
-            
-            if( Q.y >= vmax.y )
-            {
-                //Q  is on horz_seg[j+1]
-                horz_seg[j+1].append()->inter = I;
-            }
-        }
-#endif
         
     }
     

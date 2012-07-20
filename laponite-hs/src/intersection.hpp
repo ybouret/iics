@@ -13,6 +13,8 @@ public:
     //Intersection( const Intersection & ) throw();
     ~Intersection() throw();
     V2D           vertex;
+    ptrdiff_t     lo;
+    ptrdiff_t     up;
     Bubble       *bubble;
     Intersection *next;
     Intersection *prev;
