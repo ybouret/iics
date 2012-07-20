@@ -34,15 +34,18 @@ void Bubble:: map_peanut( const V2D &center, Real radius, Real alpha )
     const Real   theta_max = 2 * atan( lambda/(radius+radius) );
     const size_t nmin      = max_of<size_t>(3,size_t( ceil( numeric<Real>::two_pi/theta_max) ));
     const Real   dtheta    = numeric<Real>::two_pi / nmin;
-    const Real   theta0    = numeric<Real>::two_pi * Alea();
+    const Real   theta0    = 0; //numeric<Real>::two_pi * Alea();
+    
+    fprintf( stderr, "peanut @(%g,%g), b=%g, a=%g\n", center.x, center.y, b, a ); 
     
     for( size_t i=0; i < nmin; ++i )
     {
         const Real   theta = i * dtheta + theta0;
         const Real   t2    = theta+theta; 
         Point       *p     = append();
-        const  Real  c1    = max_of<Real>(0,b4 - a4 * Sin( t2 ) );
-        const  Real  C     = a2 * Cos( t2 ) + Sqrt(c1);
+        const Real   S     = Sin(t2);
+        const  Real  c1    = max_of<Real>(0,b4 - a4 * S*S );
+        const  Real  C     = max_of<Real>(0,a2 * Cos( t2 ) + Sqrt(c1));
         const  Real  rho   = Sqrt(C);
         p->vertex.x = center.x + rho * Cos( theta );
         p->vertex.y = center.y + rho * Sin( theta );

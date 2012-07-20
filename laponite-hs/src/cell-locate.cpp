@@ -161,12 +161,21 @@ void Cell:: locate_point( Point &p )
     }
 #endif
     
-    
+    //--------------------------------------------------------------------------
+    // find the intersections
+    //--------------------------------------------------------------------------
     V2D Q    = P + p.r_next;
     find_intersections(P, Q, vmin, vmax, p.pos, p.bubble);
     
 }
 
+
+static inline int __compare_segment( const Segment *lhs, const Segment *rhs, void * )
+{
+    return 0;
+}
+
+#include "yocto/core/merge-sort.hpp"
 
 //! locate all points in all spots
 void Cell:: locate_points( )
@@ -181,6 +190,8 @@ void Cell:: locate_points( )
     //! empty intersections
     inter.empty();
     
+    
+    //! find all the intersections
     for( Bubble *b = bubbles.first(); b; b=b->next )
     {
         fprintf( stderr, "#points = %lu, #spots=%lu\n", b->size, b->spots.size);
@@ -190,7 +201,11 @@ void Cell:: locate_points( )
         }
     }
     
-    
+    //! sort the segment
+    for( size_t i=segments.size();i>0;--i) 
+    {
+        core::merging<Segment>::sort<core::list_of>( segments[i], __compare_segment, NULL);
+    }
     
 }
 
