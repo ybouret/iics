@@ -14,6 +14,7 @@ spot.hpp  	spot.cpp
 bubble.cpp 	bubble.hpp 
 bubble-io.cpp bubble-contour.cpp bubble-vectors.cpp bubble-shapes.cpp
 bubbles.hpp 	bubbles.cpp
+intersection.hpp intersection.cpp
 )
 
 FIND_PACKAGE(MPI)

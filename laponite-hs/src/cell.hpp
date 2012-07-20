@@ -52,8 +52,9 @@ private:
 };
 
 
-//! for Bubble segmentation
-typedef Spot::List Segment;
+#include "./intersection.hpp"
+
+
 
 //! Hele-Shaw Cell
 class Cell : public Parameters, public WorkspaceBase
@@ -73,12 +74,13 @@ public:
     const Array1D  &Y;
     const Array1D  &dX;
     const Array1D  &dY;
-    double          Lambda; // for bubbles;
     
-    Bubbles     bubbles;
-    Segment    *horz_seg;  // along x, lower.y->upper.y
-    Segment    *vert_seg;  // along y, lower.x->upper.x
-    Point::List inter; // and intersection
+    Bubbles            bubbles;
+    Intersection::Pool ipool;     // cache for intersections
+    Intersection::List inter;     // and intersection
+    Segment::List     *horz_seg;  // along x, lower.y->upper.y
+    Segment::List     *vert_seg;  // along y, lower.x->upper.x
+    Segment::Pool      seg_pool;
     
     
     //! for rank 0: update_contour for each bubble
@@ -113,7 +115,7 @@ public:
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);
-    vector<Segment> segments;
+    vector<Segment::List> segments;
     
     //! locate all points in all spots,
     void locate_points();
