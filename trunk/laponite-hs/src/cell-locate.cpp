@@ -195,6 +195,7 @@ void Cell:: locate_points( )
     
     for( Bubble *b = bubbles.first(); b; b=b->next )
     {
+        fprintf( stderr, "#points = %lu, #spots=%lu\n", b->size, b->spots.size);
         for( Spot *s = b->spots.head; s; s=s->next )
         {
             locate_point( * (s->point) );
