@@ -30,7 +30,7 @@ void Bubbles:: none() throw()
 
 Bubble * Bubbles:: append()
 {
-    const BubbleID id = BubbleID(b_list.size);
+    const BubbleID id = BubbleID(b_list.size)+1;
     Bubble *pB = 0;
     if( b_pool.size > 0 )
     {

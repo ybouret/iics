@@ -42,13 +42,14 @@ int main( int argc, char *argv[] )
             save_bubble( *cell.bubbles.first() );
         }
         
-        
-        for( size_t iter=0; iter<100;++iter )
+        cell.save_grid("grid.dat");  
+        for( size_t iter=0; iter<1;++iter )
         {
-            
             
             //! rank 0 -> everybody
             cell.dispatch_bubbles(MPI);
+            cell.save_inter("inter.dat");
+            cell.save_inside("inside.dat");
             
             //! move bubble
             for( Bubble *b = cell.bubbles.first(); b; b=b->next )
@@ -72,6 +73,7 @@ int main( int argc, char *argv[] )
                 cell.master_update_topologies();
                 save_bubble( *cell.bubbles.first() );
             }
+            
         }
         MPI.Printf0(stderr, "\n");
         

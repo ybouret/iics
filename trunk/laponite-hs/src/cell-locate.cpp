@@ -63,8 +63,9 @@ SEGMENT[INDEX].append()->inter = I; \
 //==============================================================================
 void Cell:: find_intersections( const V2D &P, V2D &Q, const V2D &vmin, const V2D &vmax, const U2D &pos, Bubble *bubble )
 {
-    const unit_t i = pos.x;
-    const unit_t j = pos.y;
+    assert(bubble);
+    const unit_t i  = pos.x;
+    const unit_t j  = pos.y;
     const unit_t i1 = i+1;
     const unit_t j1 = j+1;
     
@@ -169,10 +170,11 @@ void Cell:: locate_point( Point &p )
     
 }
 
+#include "yocto/comparator.hpp"
 
 static inline int __compare_segment( const Segment *lhs, const Segment *rhs, void * )
 {
-    return 0;
+    return __compare(lhs->inter->lo,rhs->inter->lo);
 }
 
 #include "yocto/core/merge-sort.hpp"
@@ -180,10 +182,14 @@ static inline int __compare_segment( const Segment *lhs, const Segment *rhs, voi
 //! locate all points in all spots
 void Cell:: locate_points( )
 {
+    //--------------------------------------------------------------------------
     //! bubble locator: set to zero
+    //--------------------------------------------------------------------------
     B.ldz();
     
+    //--------------------------------------------------------------------------
     //! empty every segment
+    //--------------------------------------------------------------------------
     for( size_t i=segments.size();i>0;--i) 
         segments[i].empty();
     
@@ -194,7 +200,7 @@ void Cell:: locate_points( )
     //! find all the intersections
     for( Bubble *b = bubbles.first(); b; b=b->next )
     {
-        fprintf( stderr, "#points = %lu, #spots=%lu\n", b->size, b->spots.size);
+        //fprintf( stderr, "#points = %lu, #spots=%lu\n", b->size, b->spots.size);
         for( Spot *s = b->spots.head; s; s=s->next )
         {
             locate_point( * (s->point) );
@@ -211,16 +217,70 @@ void Cell:: locate_points( )
     for( unit_t j=upper.y;j>=lower.y;--j)
     {
         Segment::List &Sj = horz_seg[j];
-        Array1D       &Bj = Bj;
+        Array1D       &Bj = B[j];
         const size_t   nj = Sj.size;
         fprintf( stderr, "segment[%lu]@y=%8.2f: #%lu",j,Y[j],nj);
-        for( Segment *seg = Sj.head; seg; seg=seg->next)
+        for( const Segment *seg = Sj.head; seg; seg=seg->next)
         {
             Intersection *I = seg->inter;
+            assert(I);
             fprintf( stderr, " (%.3f,%.3f)", I->vertex.x, I->vertex.y);
         }
-            
         fprintf(stderr, "\n");
+        //continue;
+        
+        bool           inside = false;
+        unit_t         i      = lower.x;
+        const Segment *s      = Sj.head;
+        while( s != 0 )
+        {
+            //------------------------------------------------------------------
+            // count how may times we get through an egde
+            //------------------------------------------------------------------
+            assert(s->inter);
+            if(s->next)
+            {
+                assert(s->next->inter);
+            }
+            size_t count = 1;
+            while( s->next && s->inter->lo == s->next->inter->lo )
+            {
+                s=s->next;
+                ++count;
+            }
+            assert(s!=NULL);
+            //------------------------------------------------------------------
+            //-- fill until lo
+            //------------------------------------------------------------------
+            fprintf( stderr, "fill: %ld->%ld/[%ld:%ld]\n", i, s->inter->lo,Bj.lower,Bj.upper);
+            if( inside )
+            {
+                assert(s->inter);
+                assert(s->inter->bubble);
+                const unit_t id = s->inter->bubble->id;
+            
+                while( i <= s->inter->lo )
+                {
+                    Bj[i++] = id;
+                }
+            }
+            //------------------------------------------------------------------
+            //-- new position
+            //------------------------------------------------------------------
+            i = s->inter->up;
+            
+            //------------------------------------------------------------------
+            //-- new status
+            //------------------------------------------------------------------
+            if( (count&1) != 0 )
+                inside = !inside;
+            s = s->next;
+        }
+        // TODO: check afterwards
+        
+        
+        
+        
     }
     
 }
