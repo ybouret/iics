@@ -30,8 +30,7 @@ void Bubble:: dispatch(const mpi &MPI)
         {
             if( !master )
             {
-                p = create();
-                push_back(p);
+                p = append();
             }
             assert(p!=NULL);
             

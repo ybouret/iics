@@ -19,7 +19,7 @@ void Bubbles:: dispatch_all(const mpi &MPI)
     if( !master )
     {
         none();
-        create(num_bubbles);
+        append(num_bubbles);
     }
     
     //==========================================================================

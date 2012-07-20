@@ -34,7 +34,7 @@ void Simulation:: initialize()
     }
     if( master )
     {
-        Bubble *b = bubbles.create();
+        Bubble *b = bubbles.append();
         b->lambda = Lambda;
         b->map_peanut( V2D(Length.x/2,0), 0.2 * Length.y, 0.7 + 0.2 * Alea() );
         //b->map_peanut( V2D(Length.x/2,0), 0.2 * Length.y, 0.1 + 0.2 * Alea() );

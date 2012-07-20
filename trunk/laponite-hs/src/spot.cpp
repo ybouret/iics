@@ -1,57 +1,45 @@
 #include "spot.hpp"
 #include <cstring>
 
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-Spot:: Pool:: Pool() throw() : CorePool()
+void Spot:: reset() throw()
 {
+    point = 0;
+    jump  = 0;
 }
 
-Spot:: Pool:: ~Pool() throw()
-{
-    while( size ) delete query();
-}
-
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-Spot:: List:: List( Spot::Pool &cache ) throw() : CoreList(), cache_( cache )
+Spot:: List:: List( Spot::Pool &cache ) throw() : CoreList( cache )
 {
     
 }
 
 Spot:: List:: ~List() throw()
 {
-    empty();
 }
 
-void Spot:: List:: empty() throw()
-{
-    while( size ) cache_.store( pop_back() );
-}
 
-void Spot::List:: append( Point *p )
+
+void Spot::List:: attach( Point *p )
 {
     assert(p!=NULL);
-    Spot *spot = cache_.size > 0 ? cache_.query() : new Spot;
-    memset(spot,0,sizeof(Spot));
-    spot->point = p;
-    push_back(spot);
+    append()->point = p;
 }
 
 Spot:: List:: List( const List &other ) :
-CoreList(), cache_( other.cache_ )
+CoreList( other.cache )
 {
     for( const Spot *spot = other.head; spot; spot=spot->next )
     {
-        append( spot->point );
+        attach( spot->point );
     }
 }
 

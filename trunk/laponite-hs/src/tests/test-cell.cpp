@@ -30,7 +30,7 @@ int main( int argc, char *argv[] )
         
         if( MPI.IsMaster )
         {
-            Bubble *b = cell.bubbles.create();
+            Bubble *b = cell.bubbles.append();
             b->map_circle(V2D(cell.Length.x/2,0), 2);
         }
         

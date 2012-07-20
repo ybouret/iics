@@ -26,7 +26,7 @@ void Bubbles:: none() throw()
     }
 }
 
-Bubble * Bubbles:: create()
+Bubble * Bubbles:: append()
 {
     const BubbleID id = BubbleID(b_list.size);
     Bubble *pB = 0;
@@ -47,9 +47,9 @@ Bubble * Bubbles:: create()
 }
 
 
-void Bubbles:: create( size_t n )
+void Bubbles:: append( size_t n )
 {
-    while(n-->0) (void) create();
+    while(n-->0) (void) append();
 }
 
 size_t Bubbles:: count() const throw()
