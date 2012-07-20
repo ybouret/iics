@@ -19,7 +19,7 @@ Intersection:: ~Intersection() throw()
 void Intersection:: reset() throw()
 {
     vertex.x = vertex.y = 0;
-    lo = up = 0;
+    lo = up  = 0;
 }
 
 

@@ -15,15 +15,7 @@ void Simulation:: get_meta_data( visit_handle &md ) const
         }
     }
     
-    //! append an UI command
-    {
-        visit_handle cmd = VISIT_INVALID_HANDLE;
-        if(VisIt_CommandMetaData_alloc(&cmd) == VISIT_OKAY)
-        {
-            VisIt_CommandMetaData_setName(cmd, "ins" );
-            VisIt_SimulationMetaData_addGenericCommand(md, cmd);
-        }
-    }
+   
     
     //! append an UI command
     {
@@ -223,31 +215,14 @@ void Simulation:: perform(const string &cmd)
         }
     }
     
-    if( cmd == "ins" )
-    {
-        if( master )
-        {
-            vector<V2D> pts;
-            collect_inside(pts);
-            bubbles.first()->save_dat("bubble.dat");
-            ios::ocstream fp( "inside.dat", false );
-            for( size_t i=pts.size(); i>0; --i )
-            {
-                fp("%g %g\n",pts[i].x, pts[i].y);
-            }
-        }
-    }
-    
+        
     if( cmd == "inter" )
     {
         if( master )
         {
             bubbles.first()->save_dat("bubble.dat");
-            ios::ocstream fp("inter.dat",false);
-            for( const Intersection *I = inter.head; I; I=I->next )
-            {
-                fp("%.15g %.15g\n", I->vertex.x, I->vertex.y );
-            }
+            save_inter("inter.dat");
+            save_inside("inside.dat");
         }
         
     }
