@@ -207,5 +207,21 @@ void Cell:: locate_points( )
         core::merging<Segment>::sort<core::list_of>( segments[i], __compare_segment, NULL);
     }
     
+    //! scan horizontal segments
+    for( unit_t j=upper.y;j>=lower.y;--j)
+    {
+        Segment::List &Sj = horz_seg[j];
+        Array1D       &Bj = Bj;
+        const size_t   nj = Sj.size;
+        fprintf( stderr, "segment[%lu]@y=%8.2f: #%lu",j,Y[j],nj);
+        for( Segment *seg = Sj.head; seg; seg=seg->next)
+        {
+            Intersection *I = seg->inter;
+            fprintf( stderr, " (%.3f,%.3f)", I->vertex.x, I->vertex.y);
+        }
+            
+        fprintf(stderr, "\n");
+    }
+    
 }
 
