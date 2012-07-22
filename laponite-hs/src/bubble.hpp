@@ -28,9 +28,10 @@ public:
     const Real       &lambda;      //!< critical length
     Real              area;        //!< area, to be computed
     Real              pressure;    //!< pressure, to be broadcasted
-    Spot::List        spots;    //!< keep trace of points
-    GridMarker::List  markers;  //!< grid markers of inside
-    bool              active;   //!< spots.size > 0 
+    Spot::List        spots;       //!< keep trace of points
+    GridMarker::List  markers;     //!< grid markers of inside, self determined
+    GridMarker::List  borders;     //!< grid markers of neighbors, for ghosts
+    bool              active;      //!< spots.size > 0 
     
     
     void   update_contour();              //!< update #points

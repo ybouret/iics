@@ -142,10 +142,6 @@ private:
     //! propagate makers to neighbors and build B
     void propagate_markers( const mpi &MPI );
     
-    
-    void send_markers( const Bubble *bubble, int dest, const mpi &MPI ) const;
-    void recv_markers( Bubble       *bubble, int from, const mpi &MPI );
-    
 };
 
 

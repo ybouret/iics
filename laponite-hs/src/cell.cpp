@@ -21,8 +21,7 @@ gs()
     assert(Ly>0);
     Y_SWAMP_DECL_SELF_VAR("P",    Array);
     Y_SWAMP_DECL_SELF_VAR("U",    ArrayVec);
-    Y_SWAMP_DECL_SELF_VAR("B",    Array);
-    Y_SWAMP_DECL_SELF_VAR("Bvis", Array);
+    Y_SWAMP_DECL_SELF_AUX("B",    Array);
 
     if( MPI.IsParallel )
     {

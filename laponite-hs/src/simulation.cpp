@@ -30,12 +30,13 @@ void Simulation:: initialize()
         {
             P[j][i]   = Y[j] / Length.y;
             U[j][i].y = 0.04 + 0.08 * cos( numeric<double>::pi * Y[j] / Length.y );
+            U[j][i].y = 0.15;
         }
     }
     if( master )
     {
         Bubble *b = bubbles.append();
-        b->map_peanut( V2D(Length.x/2,0), 0.2 * Length.y, 0.9 + 0.09 * Alea() );
+        b->map_peanut( V2D(Length.x/2,0), 0.25 * Length.y, 0.9 + 0.09 * Alea() );
     }
 }
 
