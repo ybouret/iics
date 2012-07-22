@@ -21,7 +21,7 @@ gs()
     assert(Ly>0);
     Y_SWAMP_DECL_SELF_VAR("P",    Array);
     Y_SWAMP_DECL_SELF_VAR("U",    ArrayVec);
-    Y_SWAMP_DECL_SELF_VAR("B",    ArrayInt);
+    Y_SWAMP_DECL_SELF_VAR("B",    Array);
     Y_SWAMP_DECL_SELF_VAR("Bvis", Array);
 
     if( MPI.IsParallel )
@@ -51,8 +51,7 @@ Parameters( Nx, Ny, Lx, Ly, MPI),
 WorkspaceBase( SubLayout, gs, *this),
 P( (*this)["P"].as<Array>()    ),
 U( (*this)["U"].as<ArrayVec>() ),
-B( (*this)["B"].as<ArrayInt>() ),
-Bvis( (*this)["Bvis"].as<Array>()    ),
+B( (*this)["B"].as<Array>() ),
 X( mesh.X() ),
 Y( mesh.Y() ),
 dX( mesh.dX() ),
@@ -101,6 +100,15 @@ void Cell:: dispatch_bubbles( const mpi &MPI )
     //! locate points
     MPI.Printf0(stderr, "\t*** locate points\n");
     locate_points();
+    
+    //! locate markers
+    MPI.Printf0(stderr, "\t*** locate inside markers\n");
+    locate_markers();
+    
+    //! propagate and build B
+    MPI.Printf0(stderr, "\t*** propagate inside markers\n");
+    propagate_markers(MPI);
+    
 }
 
 void Cell:: assemble_bubbles( const mpi &MPI )

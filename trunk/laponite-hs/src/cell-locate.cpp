@@ -175,7 +175,7 @@ void Cell:: locate_point( Point &p )
     const unit_t j = p.pos.y = __locate_point(P.y, Y);
     
     
-    fprintf( stderr, " (%g,%g) <= (%g,%g) <= (%g,%g)\n", X[i],Y[j], P.x, P.y, X[i+1], Y[j+1]);
+    //fprintf( stderr, " (%g,%g) <= (%g,%g) <= (%g,%g)\n", X[i],Y[j], P.x, P.y, X[i+1], Y[j+1]);
     
     //--------------------------------------------------------------------------
     // compute coefficient of bilinear interpolations
@@ -226,12 +226,7 @@ static inline int __compare_segment( const Segment *lhs, const Segment *rhs, voi
 //! locate all points in all spots
 void Cell:: locate_points( )
 {
-    //--------------------------------------------------------------------------
-    //! bubble locator: set to zero
-    //--------------------------------------------------------------------------
-    B.ldz();
-    Bvis.ldz();
-    
+        
     //--------------------------------------------------------------------------
     //! empty every segment
     //--------------------------------------------------------------------------
@@ -252,12 +247,21 @@ void Cell:: locate_points( )
         //fprintf( stderr, "#points = %lu, #spots=%lu\n", b->size, b->spots.size);
         //-- clean markers
         b->markers.empty();
+        
+        //-- locate points
         for( Spot *s = b->spots.head; s; s=s->next )
         {
             locate_point( * (s->point) );
         }
     }
     
+            
+    
+    
+}
+
+void Cell:: locate_markers()
+{
     //--------------------------------------------------------------------------
     //! lower indices are already computed
     //--------------------------------------------------------------------------
@@ -289,9 +293,8 @@ void Cell:: locate_points( )
         //----------------------------------------------------------------------
         //  fill B[j] and Bvis[j]
         //----------------------------------------------------------------------
-        ArrayInt1D &Bj  = B[j];
-        Array1D    &Vj  = Bvis[j];
-        unit_t   i      = Bj.lower;
+        // ArrayInt1D &Bj  = B[j];
+        unit_t   i      = X.lower;
         Segment *s      = Sj.head;
         bool     inside = false;
         while(s)
@@ -310,10 +313,10 @@ void Cell:: locate_points( )
             if( inside )
             {
                 Bubble      *bubble    = s->inter->bubble;     assert(bubble!=NULL);
-                const unit_t bubble_id = s->inter->bubble->id;
+                //const unit_t bubble_id = s->inter->bubble->id;
                 while( i <= s->inter->lo )
                 {
-                    Vj[i] = Bj[i] = bubble_id;
+                    //Bj[i] = bubble_id;
                     const U2D marker_pos(i,j);
                     bubble->markers.append()->pos = marker_pos;
                     ++i;
@@ -332,9 +335,68 @@ void Cell:: locate_points( )
     }
     // TODO: check afterwards
     
+
+}
+
+
+static const int markers_io_tag = 2000;
+
+void Cell:: send_markers( const Bubble *bubble, int dest, const mpi &MPI ) const
+{
+    const size_t n = bubble->markers.size;
+    MPI.Printf(stderr,"rank %d> [INI] send #marker=%lu to %d\n", MPI.CommWorldRank, n, dest );
+    MPI.SendAs<size_t>(n, dest, markers_io_tag, MPI_COMM_WORLD);
+    const GridMarker *g = bubble->markers.head;
+    for(size_t i=n;i>0;--i)
+    {
+        MPI.Send(& g->pos, sizeof(U2D), MPI_BYTE, dest, markers_io_tag, MPI_COMM_WORLD);
+        g=g->next;
+    }
+    MPI.Printf(stderr,"rank %d> [END] send #marker=%lu to %d\n", MPI.CommWorldRank, n, dest );
+
+}
+
+void Cell:: recv_markers( Bubble *bubble, int from, const mpi &MPI )
+{
+    MPI_Status status;
     
+    MPI.Printf(stderr,"rank %d> [INI] recv  from %d\n", MPI.CommWorldRank, from );
+    const size_t n = MPI.RecvAs<size_t>(from, markers_io_tag, MPI_COMM_WORLD, status);
+
+    for(size_t i=n;i>0;--i)
+    {
+        GridMarker *g = bubble->markers.append();
+        MPI.Recv( & g->pos, sizeof(U2D), MPI_BYTE, from, markers_io_tag, MPI_COMM_WORLD, status);
+    }
     
+    MPI.Printf(stderr,"rank %d> [END] recv #marker=%lu from %d\n", MPI.CommWorldRank, n, from );
+
+}
+
+//! propagate makers to neighbors and build B
+void Cell:: propagate_markers( const mpi &MPI )
+{
+    B.ldz();
+    
+    //-- exchange markers
+    if( MPI.IsParallel )
+    {
+        for( Bubble *bubble = bubbles.first(); bubble; bubble = bubble->next )
+        {
+            const int i_next = MPI.CommWorldNext();
+            send_markers( bubble, i_next, MPI); MPI.Printf0( stderr, "SENT\n");
+            recv_markers( bubble, i_next, MPI);
+            
+            const int i_prev = MPI.CommWorldPrev();
+            if( i_prev != i_next )
+            {
+                send_markers( bubble, i_prev, MPI);
+                recv_markers( bubble, i_prev, MPI);
+            }
+        }
+    }
+    
+    //-- build B
     
     
 }
-

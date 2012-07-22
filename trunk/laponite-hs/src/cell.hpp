@@ -71,8 +71,7 @@ public:
     
     Array          &P;
     ArrayVec       &U;
-    ArrayInt       &B;    //!< bubble or not bubble
-    Array          &Bvis; //!< visual bubbles
+    Array          &B;    //!< bubble or not bubble, auxiliary
     const Array1D  &X;
     const Array1D  &Y;
     const Array1D  &dX;
@@ -91,23 +90,16 @@ public:
     
     //! dispatch bubbles
     /**
-     find their spots and their values (area,...),
-     and locate each spot on the mesh:
-     construct the B field 
-     to assign the pressure boundaries.
+     for each bubble:
+     - find spots on the mesh
+     - locate points (build intersections)
+     
      */
     void    dispatch_bubbles( const mpi &MPI );
     
     
     //! collect all the bubbles motions
     void    assemble_bubbles( const mpi &MPI );
-    
-    //! locate p->pos on the mesh
-    /**
-     find intersection.
-     WARNING: need to take care when points are on Length.X
-     */
-    void locate_point( Point &p );
     
     
     //! collect points inside bubbles
@@ -131,13 +123,29 @@ private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);
     vector<Segment::List> segments;
     
+    //! locate p->pos on the mesh
+    /**
+     find intersection.
+     WARNING: need to take care when points are on Length.X
+     */
+    void locate_point( Point &p );
+    
     //! locate all points in all spots,
     void locate_points();
     
-    //! TODO: need a special case
+    //! locate all markers
+    void locate_markers();
+    
+    //! TODO: need a special case for Length.X
     void find_intersections(const V2D &P, V2D &Q, const V2D &vmin, const V2D &vmax, const U2D &pos, Bubble *bubble);
-
-        
+    
+    //! propagate makers to neighbors and build B
+    void propagate_markers( const mpi &MPI );
+    
+    
+    void send_markers( const Bubble *bubble, int dest, const mpi &MPI ) const;
+    void recv_markers( Bubble       *bubble, int from, const mpi &MPI );
+    
 };
 
 

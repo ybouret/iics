@@ -58,6 +58,11 @@ int main( int argc, char *argv[] )
         
         return 0;
     }
+    catch( const exception &e )
+    {
+        std::cerr << e.what() << std::endl;
+        std::cerr << e.when() << std::endl;
+    }
     catch(...)
     {
         std::cerr << "Unhandled exception" << std::endl;

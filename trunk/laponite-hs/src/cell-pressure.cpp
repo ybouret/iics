@@ -37,10 +37,10 @@ void Cell:: compute_pressure()
         {
             for( unit_t j=yn;j>=y0;--j )
             {
-                const ArrayInt1D &B_j = B[j];
+                const Array1D &B_j = B[j];
                 for( unit_t i=xn-r; i>=x1; i -=2 )
                 {
-                    if(B_j[i] == 0)
+                    if(B_j[i] <= 0)
                     {
                         const Real residue = P[j+1][i] + P[j-1][i] + P[j][i+1] + P[j][i-1] - 4 * P[i][j];
                         P[i][j] += 0.25 * residue;
