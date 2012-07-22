@@ -23,7 +23,13 @@ void Bubbles:: none() throw()
     while( b_list.size > 0 )
     {
         Bubble *b = b_list.pop_back();
+        
+        //! cache all dynamic data
         b->empty();
+        b->spots.empty();
+        b->markers.empty();
+        
+        //! cache this empty bubble
         b_pool.store(b);
     }
 }
@@ -39,7 +45,7 @@ Bubble * Bubbles:: append()
     }
     else
     {
-        pB = new  Bubble( id, Length, (Real&)lambda, pcache, scache );
+        pB = new  Bubble( id, Length, (Real&)lambda, pcache, scache, gcache);
     }
     
    
@@ -73,15 +79,6 @@ void Bubbles:: update_topologies()
     }
 }
 
-#if 0
-void Bubbles:: update_properties()
-{
-    for( Bubble *b = b_list.head; b; b=b->next )
-    {
-        b->compute_values();
-    }
-}
-#endif
 
 void Bubbles:: spots_and_values_within( const Real y_lo, const Real y_up )
 {

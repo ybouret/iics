@@ -11,6 +11,8 @@ using namespace swamp;
 typedef array1D<Real>         Array1D;
 typedef array2D<Real>         Array;
 typedef array2D<V2D>          ArrayVec;
+typedef array2D<unit_t>       ArrayInt;
+typedef array1D<unit_t>       ArrayInt1D;
 typedef coord2D               Coord;
 typedef layout<Coord>         Layout;
 typedef region2D<Real>::type  Region;
@@ -52,7 +54,7 @@ private:
 };
 
 
-#include "./intersection.hpp"
+#include "./segment.hpp"
 
 
 
@@ -69,7 +71,8 @@ public:
     
     Array          &P;
     ArrayVec       &U;
-    Array          &B; //!< bubble or not bubble
+    ArrayInt       &B;    //!< bubble or not bubble
+    Array          &Bvis; //!< visual bubbles
     const Array1D  &X;
     const Array1D  &Y;
     const Array1D  &dX;
@@ -89,7 +92,9 @@ public:
     //! dispatch bubbles
     /**
      find their spots and their values (area,...),
-     and locate each spot on the mesh.
+     and locate each spot on the mesh:
+     construct the B field 
+     to assign the pressure boundaries.
      */
     void    dispatch_bubbles( const mpi &MPI );
     
@@ -111,13 +116,16 @@ public:
     //! advect a previously located point with field U
     void advect_point( Point &p, double dt ) const;
     
-    
     //! advect all located points
     void advect_points( double dt );
     
     void save_inter( const string &filename ) const;
     void save_inside( const string &filename ) const;
     void save_grid( const string &filename ) const;
+    
+    
+    //! compute pressure
+    void compute_pressure();
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);

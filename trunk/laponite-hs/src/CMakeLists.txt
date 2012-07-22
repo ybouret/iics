@@ -15,6 +15,8 @@ bubble.cpp 	bubble.hpp
 bubble-io.cpp bubble-contour.cpp bubble-vectors.cpp bubble-shapes.cpp
 bubbles.hpp 	bubbles.cpp
 intersection.hpp intersection.cpp
+segment.hpp	segment.cpp
+gmarker.hpp	gmarker.cpp
 )
 
 FIND_PACKAGE(MPI)
@@ -23,7 +25,7 @@ IF(MPI_FOUND)
 	ADD_DEFINITIONS( -DHAS_MPI )
 	INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
 	SET(SOURCES_PAR 
-cell.hpp cell.cpp cell-advect.cpp cell-locate.cpp
+cell.hpp cell.cpp cell-advect.cpp cell-locate.cpp cell-io.cpp cell-pressure.cpp
 bubble-mpi.cpp bubbles-mpi.cpp)
 ENDIF(MPI_FOUND)
 

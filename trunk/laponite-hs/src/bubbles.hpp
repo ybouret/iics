@@ -41,6 +41,7 @@ private:
 public:
     Point::Pool           pcache;
     Spot::Pool            scache;
+    GridMarker::Pool      gcache;
     
     YOCTO_DISABLE_COPY_AND_ASSIGN(Bubbles);
 };
