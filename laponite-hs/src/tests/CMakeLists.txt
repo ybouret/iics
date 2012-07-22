@@ -2,6 +2,10 @@ ADD_EXECUTABLE(test-bubble test-bubble.cpp)
 TARGET_LINK_LIBRARIES(test-bubble laphs)
 TARGET_LINK_YOCTO(test-bubble)
 
+ADD_EXECUTABLE(test-pbc test-pbc.cpp)
+TARGET_LINK_LIBRARIES(test-pbc laphs yocto)
+
+
 IF(MPI_FOUND)
 	ADD_EXECUTABLE(test-bubble-mpi test-bubble-mpi.cpp)
         TARGET_LINK_LIBRARIES(test-bubble-mpi laphs)

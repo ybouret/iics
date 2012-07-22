@@ -30,7 +30,7 @@ int main( int argc, char *argv[] )
         //----------------------------------------------------------------------
         VisIt:: SetupParallel( MPI, sim_name, sim_comment, sim_path, NULL);
         
-        Simulation sim(15,18,5.0,6.0,MPI);
+        Simulation sim(30,40,5.0,6.0,MPI);
         
         sim.save_grid("grid.dat");        
         //----------------------------------------------------------------------

@@ -99,7 +99,8 @@ public:
     
     //! locate p->pos on the mesh
     /**
-     find intersection
+     find intersection.
+     WARNING: need to take care when points are on Length.X
      */
     void locate_point( Point &p );
     
@@ -124,8 +125,11 @@ private:
     
     //! locate all points in all spots,
     void locate_points();
-    void find_intersections(const V2D &P, V2D &Q, const V2D &vmin, const V2D &vmax, const U2D &pos, Bubble *bubble);
     
+    //! TODO: need a special case
+    void find_intersections(const V2D &P, V2D &Q, const V2D &vmin, const V2D &vmax, const U2D &pos, Bubble *bubble);
+
+        
 };
 
 

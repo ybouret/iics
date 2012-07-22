@@ -1,5 +1,8 @@
 #include "cell.hpp"
 
+//==============================================================================
+// bissection to locate where a point is
+//==============================================================================
 static unit_t __locate_point(Real           x, 
                              const Array1D &a)
 {
@@ -24,42 +27,82 @@ static unit_t __locate_point(Real           x,
             ilo = mid;
         }
     }
+    assert(a[ilo]<=x);
+    assert(x<a[ihi]);
     return ilo;
 }
 
+//==============================================================================
+//
+// Cohen-Sutherland algorithm
+//
+//==============================================================================
 
-static const int INSIDE = 0;  // 0000
-static const int LEFT   = 1;  // 0001
-static const int RIGHT  = 2;  // 0010
-static const int BOTTOM = 4;  // 0100
-static const int TOP    = 8;  // 1000
+
+//==============================================================================
+// encode location
+//==============================================================================
+
+static const int INSIDE   = 0;  // 0000
+static const int LEFT     = 1;  // 0001
+static const int RIGHT    = 2;  // 0010
+static const int BOTTOM   = 4;  // 0100
+static const int TOP      = 8;  // 1000
+static const int TEST_ALL = LEFT | RIGHT | BOTTOM | TOP;
+
 
 static inline 
-int __OutCode( const V2D &q, const V2D &vmin, const V2D &vmax ) throw()
+void __OutMask( int &flag, int no ) throw()
+{
+    flag &= ~no;
+}
+
+
+static inline 
+int __OutCode(const V2D &q,
+              const V2D &vmin, 
+              const V2D &vmax
+              ) throw()
 {
     int ans = INSIDE;
-    if( q.x < vmin.x ) 
+    
+    if( (q.x<vmin.x) )
+    {
         ans |= LEFT;
-    if( q.x > vmax.x )
+    }
+    
+    if( (q.x >= vmax.x) )
+    {
         ans |= RIGHT;
-    if( q.y < vmin.y )
+    }
+    
+    if(  (q.y< vmin.y) )
+    {
         ans |= BOTTOM;
-    if( q.y > vmax.y )
+    }
+    
+    if( q.y >= vmax.y ) 
+    {
         ans |= TOP;
+    }
+    
     return ans;
 }
 
+//==============================================================================
+// successive clipping
+//==============================================================================
+
 #define __NEW_INTER(SEGMENT,INDEX,COORD,ARR)  do  { \
 Intersection *I = inter.append(); \
-I->vertex = Q;      \
+I->vertex.x = Ix;   \
+I->vertex.y = Iy;   \
 I->bubble = bubble; \
 SEGMENT[INDEX].append()->inter = I; \
 I->up = 1 + (I->lo = __locate_point( I->vertex.COORD, ARR )); \
 } while(false)
 
-//==============================================================================
-// Cohen-Sutherland algorithm
-//==============================================================================
+
 void Cell:: find_intersections( const V2D &P, V2D &Q, const V2D &vmin, const V2D &vmax, const U2D &pos, Bubble *bubble )
 {
     assert(bubble);
@@ -74,47 +117,40 @@ void Cell:: find_intersections( const V2D &P, V2D &Q, const V2D &vmin, const V2D
         //----------------------------------------------------------------------
         // there is an intersection
         //----------------------------------------------------------------------
-    MOVE_Q:
         if( code & TOP )
         {
             assert( Q.y > P.y );
-            Q.x = P.x + ( vmax.y - P.y)* (Q.x - P.x) / (Q.y - P.y ) ;
-            Q.y = vmax.y;
+            const Real Ix = P.x + ( vmax.y - P.y)* (Q.x - P.x) / (Q.y - P.y ) ;
+            const Real Iy = vmax.y;
             __NEW_INTER(horz_seg,j1,x,X);
-            goto TEST_Q;
         }
         
         if( code & BOTTOM )
         {
             assert( Q.y < P.y );
-            Q.x = P.x + ( vmin.y - P.y)* (Q.x - P.x) /(Q.y - P.y );
-            Q.y = vmin.y;
+            const Real Ix = P.x + ( vmin.y - P.y)* (Q.x - P.x) /(Q.y - P.y );
+            const Real Iy = vmin.y;
             __NEW_INTER(horz_seg,j,x,X);
-            goto TEST_Q;
         }
         
         if( code & RIGHT )
         {
             assert( Q.x > P.x );
-            Q.y = P.y + ( vmax.x - P.x )  * (Q.y - P.y ) / (Q.x - P.x );
-            Q.x = vmax.x;
+            const Real Iy = P.y + ( vmax.x - P.x )  * (Q.y - P.y ) / (Q.x - P.x );
+            const Real Ix = vmax.x;
             __NEW_INTER(vert_seg,i1,y,Y);
-            goto TEST_Q;
         }
         
         if( code & LEFT )
         {
             assert( Q.x < P.x );
-            Q.y = P.y + ( vmin.x - P.x )  * (Q.y - P.y ) / (Q.x - P.x );
-            Q.x = vmin.x;
+            const Real Iy = P.y + ( vmin.x - P.x )  * (Q.y - P.y ) / (Q.x - P.x );
+            const Real Ix = vmin.x;
             __NEW_INTER(vert_seg,i,y,Y);
         }
         
         
-    TEST_Q:
-        if( INSIDE != ( code = __OutCode(Q, vmin, vmax) ) )
-            goto MOVE_Q;
-        
+           
         
     }
     
@@ -139,7 +175,7 @@ void Cell:: locate_point( Point &p )
     const unit_t j = p.pos.y = __locate_point(P.y, Y);
     
     
-    //fprintf( stderr, " (%g,%g) <= (%g,%g) <= (%g,%g)\n", X[i],Y[j], P.x, P.y, X[i+1], Y[j+1]);
+    fprintf( stderr, " (%g,%g) <= (%g,%g) <= (%g,%g)\n", X[i],Y[j], P.x, P.y, X[i+1], Y[j+1]);
     
     //--------------------------------------------------------------------------
     // compute coefficient of bilinear interpolations
@@ -209,9 +245,10 @@ void Cell:: locate_points( )
     //--------------------------------------------------------------------------
     //! find all the intersections
     //--------------------------------------------------------------------------
+    fprintf(stderr,"....find all intersections\n");
     for( Bubble *b = bubbles.first(); b; b=b->next )
     {
-        //fprintf( stderr, "#points = %lu, #spots=%lu\n", b->size, b->spots.size);
+        fprintf( stderr, "#points = %lu, #spots=%lu\n", b->size, b->spots.size);
         for( Spot *s = b->spots.head; s; s=s->next )
         {
             locate_point( * (s->point) );
@@ -225,36 +262,6 @@ void Cell:: locate_points( )
     {
         core::merging<Segment>::sort<core::list_of>( segments[i], __compare_segment,0);
     }
-    
-#if 0
-    //--------------------------------------------------------------------------
-    //! sort vertical segments
-    //--------------------------------------------------------------------------
-    for( unit_t i=X.upper;i>=X.lower;--i)
-    {
-        Segment::List &Si = vert_seg[i];
-        core::merging<Segment>::sort<core::list_of>(Si,__compare_vert,0);
-        for( Segment *s = Si.head;s;s=s->next )
-        {
-            Intersection *I = s->inter;
-            I->up = 1 + (I->lo = __locate_point(I->vertex.y, Y));
-        }
-    }
-    
-    //--------------------------------------------------------------------------
-    //! sort horizontal segments
-    //--------------------------------------------------------------------------
-    for( unit_t j=Y.upper;j>=Y.lower;--j)
-    {
-        Segment::List &Sj = horz_seg[j];
-        core::merging<Segment>::sort<core::list_of>(Sj,__compare_horz,0);
-        for( Segment *s = Sj.head;s;s=s->next )
-        {
-            Intersection *I = s->inter;
-            I->up = 1 + (I->lo = __locate_point(I->vertex.x, X));
-        }
-    }
-#endif
     
     //--------------------------------------------------------------------------
     //! scan horizontal segment to determine bubble segmentation

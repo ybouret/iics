@@ -17,7 +17,7 @@ public:
     V2D      t;       //!< tangent vector
     V2D      n;       //!< normal vector
     Real     kappa;   //!< curvature
-    U2D      pos;     //!< lower coordinate of including mesh       
+    U2D      pos;     //!< lower coordinate of including mesh   X[pos.x] <= vertex.x < X[pos.y] and Y[pos.y] <= vertex.y < Y[pos.y] 
     V2D      w;       //!< bilinear interpolation weights
     Bubble  *bubble;  //!< owner, set by bubble...
     
