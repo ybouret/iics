@@ -27,7 +27,7 @@ public:
     
 #if defined(HAS_MPI)
     void dispatch_all( const mpi &MPI ); //!< broacast master->everybody
-    void assemble_all( const mpi &MPI );  //!< collect changed points
+    void assemble_all( const mpi &MPI ); //!< collect changed points
 #endif
     
     const V2D  Length;

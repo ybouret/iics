@@ -101,12 +101,12 @@ visit_handle Simulation:: get_variable( int domain, const string &name ) const
     if( name == "B" )
     {
         const int nComponents= 1;
-        const int nTuples    = Bvis.items;
+        const int nTuples    = B.items;
         //MPI.Printf0( stderr, "Sending B: %dx%d\n", nComponents, nTuples);
-        assert(Bvis.entry!=NULL);
+        assert(B.entry!=NULL);
         if(VisIt_VariableData_alloc(&h) == VISIT_OKAY)
         {
-            VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, Bvis.entry);
+            VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, B.entry);
         }
         return h;
     }
