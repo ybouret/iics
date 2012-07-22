@@ -150,7 +150,7 @@ void Cell:: find_intersections( const V2D &P, V2D &Q, const V2D &vmin, const V2D
         }
         
         
-           
+        
         
     }
     
@@ -226,7 +226,7 @@ static inline int __compare_segment( const Segment *lhs, const Segment *rhs, voi
 //! locate all points in all spots
 void Cell:: locate_points( )
 {
-        
+    
     //--------------------------------------------------------------------------
     //! empty every segment
     //--------------------------------------------------------------------------
@@ -245,8 +245,10 @@ void Cell:: locate_points( )
     for( Bubble *b = bubbles.first(); b; b=b->next )
     {
         //fprintf( stderr, "#points = %lu, #spots=%lu\n", b->size, b->spots.size);
-        //-- clean markers
+        
+        //-- clean markers and borders
         b->markers.empty();
+        b->borders.empty();
         
         //-- locate points
         for( Spot *s = b->spots.head; s; s=s->next )
@@ -255,7 +257,7 @@ void Cell:: locate_points( )
         }
     }
     
-            
+    
     
     
 }
@@ -273,7 +275,7 @@ void Cell:: locate_markers()
     //--------------------------------------------------------------------------
     //! scan horizontal segment to determine bubble segmentation
     //--------------------------------------------------------------------------
-    for( unit_t j=upper.y;j>=lower.y;--j)
+    for( unit_t j=Y.upper;j>=Y.lower;--j)
     {
         //----------------------------------------------------------------------
         // take the segment j
@@ -331,72 +333,120 @@ void Cell:: locate_markers()
             i = s->inter->up;
             s = s->next;
         }
-        
-    }
-    // TODO: check afterwards
-    
-
-}
-
-
-static const int markers_io_tag = 2000;
-
-void Cell:: send_markers( const Bubble *bubble, int dest, const mpi &MPI ) const
-{
-    const size_t n = bubble->markers.size;
-    MPI.Printf(stderr,"rank %d> [INI] send #marker=%lu to %d\n", MPI.CommWorldRank, n, dest );
-    MPI.SendAs<size_t>(n, dest, markers_io_tag, MPI_COMM_WORLD);
-    const GridMarker *g = bubble->markers.head;
-    for(size_t i=n;i>0;--i)
-    {
-        MPI.Send(& g->pos, sizeof(U2D), MPI_BYTE, dest, markers_io_tag, MPI_COMM_WORLD);
-        g=g->next;
-    }
-    MPI.Printf(stderr,"rank %d> [END] send #marker=%lu to %d\n", MPI.CommWorldRank, n, dest );
-
-}
-
-void Cell:: recv_markers( Bubble *bubble, int from, const mpi &MPI )
-{
-    MPI_Status status;
-    
-    MPI.Printf(stderr,"rank %d> [INI] recv  from %d\n", MPI.CommWorldRank, from );
-    const size_t n = MPI.RecvAs<size_t>(from, markers_io_tag, MPI_COMM_WORLD, status);
-
-    for(size_t i=n;i>0;--i)
-    {
-        GridMarker *g = bubble->markers.append();
-        MPI.Recv( & g->pos, sizeof(U2D), MPI_BYTE, from, markers_io_tag, MPI_COMM_WORLD, status);
-    }
-    
-    MPI.Printf(stderr,"rank %d> [END] recv #marker=%lu from %d\n", MPI.CommWorldRank, n, from );
-
-}
-
-//! propagate makers to neighbors and build B
-void Cell:: propagate_markers( const mpi &MPI )
-{
-    B.ldz();
-    
-    //-- exchange markers
-    if( MPI.IsParallel )
-    {
-        for( Bubble *bubble = bubbles.first(); bubble; bubble = bubble->next )
+        // TODO: check afterwards
+        if( inside )
         {
-            const int i_next = MPI.CommWorldNext();
-            send_markers( bubble, i_next, MPI); MPI.Printf0( stderr, "SENT\n");
-            recv_markers( bubble, i_next, MPI);
-            
-            const int i_prev = MPI.CommWorldPrev();
-            if( i_prev != i_next )
-            {
-                send_markers( bubble, i_prev, MPI);
-                recv_markers( bubble, i_prev, MPI);
-            }
+            //....
         }
     }
     
-    //-- build B
     
+}
+
+//==============================================================================
+//
+// marker communication
+//
+//==============================================================================
+
+static const int __marker_tag = 666;
+
+static inline void __send_marker( const GridMarker *g, int dest, const mpi &MPI )
+{
+    MPI.Send( & g->pos, sizeof(U2D), MPI_BYTE, dest, __marker_tag, MPI_COMM_WORLD);
+}
+
+static inline void __recv_marker(  GridMarker *g, int from, const mpi &MPI )
+{
+    MPI_Status status;
+    MPI.Recv( & g->pos, sizeof(U2D), MPI_BYTE, from, __marker_tag, MPI_COMM_WORLD, status);
+}
+
+
+static inline void __exch_marker(Bubble    *bubble, 
+                                 const int  i_send,
+                                 const int  i_recv, 
+                                 const mpi &MPI )
+{
+    MPI_Status  status;
     
+    //--------------------------------------------------------------------------
+    // send how many I will send
+    //--------------------------------------------------------------------------
+    const GridMarker::List &self   = bubble->markers;
+    const size_t           n_send  = self.size;
+    //MPI.Printf(stderr, "rank %d> send #=%lu to %d\n", MPI.CommWorldRank, n_send, i_send);
+    MPI.SendAs<size_t>(n_send, 
+                       i_send, 
+                       __marker_tag, 
+                       MPI_COMM_WORLD);
+    
+    //--------------------------------------------------------------------------
+    // recv how many I will receive
+    //--------------------------------------------------------------------------
+    const size_t n_recv = MPI.RecvAs<size_t>(i_recv, 
+                                             __marker_tag, 
+                                             MPI_COMM_WORLD, 
+                                             status);
+    //MPI.Printf( stderr, "rank %d> recv #=%lu from %d\n", MPI.CommWorldRank, n_recv, i_recv);
+    
+    //--------------------------------------------------------------------------
+    // send own markers
+    //--------------------------------------------------------------------------
+    for( const GridMarker *g = self.head; g; g=g->next )
+    {
+        __send_marker(g, i_send, MPI);
+    }
+    
+    //--------------------------------------------------------------------------
+    // collect neighbor's markers
+    //--------------------------------------------------------------------------
+    GridMarker::List &peer = bubble->borders;
+    for( size_t i=n_recv; i>0; --i )
+    {
+        __recv_marker( peer.append(), i_recv, MPI);
+    }
+}
+
+//==============================================================================
+//
+// rebuild all markers
+//
+//==============================================================================
+void Cell:: propagate_markers( const mpi &MPI )
+{
+    
+    //--------------------------------------------------------------------------
+    //-- exchange markers
+    //--------------------------------------------------------------------------
+    if( MPI.IsParallel )
+    {
+        MPI.Printf0(stderr, "\t\t<Start markers exchange>\n");
+        for( Bubble *bubble = bubbles.first(); bubble; bubble = bubble->next )
+        {
+            const int i_prev = MPI.CommWorldPrev();
+            const int i_next = MPI.CommWorldNext();            
+            __exch_marker(bubble,i_prev,i_next,MPI);
+            if(i_prev!=i_next)
+                __exch_marker(bubble, i_next, i_prev, MPI);
+            bubble->markers.merge_back( bubble->borders );
+        }
+        MPI.Printf0(stderr, "\t\t<End markers exchange>\n");
+    }
+    
+    //--------------------------------------------------------------------------
+    //-- build B field
+    //--------------------------------------------------------------------------
+    B.ldz();    
+    for( const Bubble *bubble = bubbles.first(); bubble; bubble = bubble->next )
+    {
+        assert(bubble->id>0);
+        for( const GridMarker *g = bubble->markers.head; g; g=g->next )
+        {
+            if(B.has(g->pos) )
+            {
+                B[g->pos] = bubble->id;
+            }
+        }
+    }
 }

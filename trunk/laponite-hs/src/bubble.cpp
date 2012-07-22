@@ -21,6 +21,7 @@ area(0),
 pressure(0),
 spots( scache ),
 markers( gcache ),
+borders( gcache ),
 active( true ),
 next(0),
 prev(0)
