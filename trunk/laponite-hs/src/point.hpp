@@ -26,8 +26,7 @@ public:
     explicit Point() throw(); //!< x=y=0, domain=-1, d2next=0
     virtual ~Point() throw(); //!< do nothing
     
-    Point( const Point & ) throw(); //! copy
-    Point & operator=( const Point & ) throw();
+    
     
     void reset() throw();
     
@@ -36,6 +35,8 @@ public:
     
     typedef cache_of<Point>                   Pool;
     typedef cached_list<core::clist_of,Point> List;
+   private:
+	YOCTO_DISABLE_COPY_AND_ASSIGN(Point);
 };
 
 
