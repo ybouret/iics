@@ -2,6 +2,7 @@
 #define BUBBLE_INCLUDED 1
 
 #include "spot.hpp"
+#include "gmarker.hpp"
 #include "yocto/ios/ocstream.hpp"
 
 #if defined(HAS_MPI)
@@ -14,19 +15,22 @@ typedef ptrdiff_t BubbleID;
 class Bubble :  public Point::List
 {
 public:
-    explicit Bubble(BubbleID     who, 
-                    const V2D   &Length, 
-                    Real        &lambda_ref,
-                    Point::Pool &pcache, 
-                    Spot::Pool  &scache ) throw();
+    explicit Bubble(BubbleID          who, 
+                    const V2D        &Length, 
+                    Real             &lambda_ref,
+                    Point::Pool      &pcache, 
+                    Spot::Pool       &scache,
+                    GridMarker::Pool &gcache) throw();
     virtual ~Bubble() throw();
     
-    const BubbleID id;
-    const PBC      pbc;    //!< from length
-    const Real    &lambda; //!< critical length
-    Real           area;   //!< area, to be broadcasted
-    Spot::List     spots;  //!< keep trace of points
-    bool           active; //!< spots.size > 0 
+    const BubbleID    id;
+    const PBC         pbc;         //!< from length
+    const Real       &lambda;      //!< critical length
+    Real              area;        //!< area, to be computed
+    Real              pressure;    //!< pressure, to be broadcasted
+    Spot::List        spots;    //!< keep trace of points
+    GridMarker::List  markers;  //!< grid markers of inside
+    bool              active;   //!< spots.size > 0 
     
     
     void   update_contour();              //!< update #points
@@ -45,6 +49,11 @@ public:
     
 #if defined(HAS_MPI)
     //! broadcast content from rank=0
+    /**
+     broadcast num_points, slaves construct bubbles
+     brodacast data: pressure
+     broadcast points
+     */
     void dispatch( const mpi &MPI );
     
     //! assemble changed points
@@ -58,7 +67,7 @@ public:
     void save_vtk( const string &filename ) const;
     void save_vtk_t( const string &filename ) const;
     void save_vtk_n( const string &filename ) const;
-
+    
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Bubble);
 };

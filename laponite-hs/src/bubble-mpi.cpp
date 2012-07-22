@@ -20,7 +20,7 @@ void Bubble:: dispatch(const mpi &MPI)
             empty();
         }
         MPI.BcastAs(num_points, 0, MPI_COMM_WORLD);
-        //MPI.Printf( stderr, "Rank %d> num_points=%u\n", MPI.CommWorldRank, unsigned(num_points) );
+        MPI.BcastAs(pressure,   0, MPI_COMM_WORLD);
         
         //======================================================================
         // broadcast the components

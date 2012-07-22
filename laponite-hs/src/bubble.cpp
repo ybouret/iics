@@ -7,17 +7,20 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-Bubble:: Bubble(BubbleID     who, 
-                const V2D   &Length,
-                Real        &lambda_ref, 
-                Point::Pool &pcache, 
-                Spot::Pool  &scache ) throw() : 
+Bubble:: Bubble(BubbleID          who, 
+                const V2D        &Length,
+                Real             &lambda_ref, 
+                Point::Pool      &pcache, 
+                Spot::Pool       &scache,
+                GridMarker::Pool &gcache) throw() : 
 Point::List( pcache ),
 id(who),
 pbc(Length.y),
 lambda(lambda_ref),
 area(0),
+pressure(0),
 spots( scache ),
+markers( gcache ),
 active( true ),
 next(0),
 prev(0)

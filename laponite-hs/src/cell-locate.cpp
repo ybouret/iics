@@ -230,6 +230,7 @@ void Cell:: locate_points( )
     //! bubble locator: set to zero
     //--------------------------------------------------------------------------
     B.ldz();
+    Bvis.ldz();
     
     //--------------------------------------------------------------------------
     //! empty every segment
@@ -245,10 +246,12 @@ void Cell:: locate_points( )
     //--------------------------------------------------------------------------
     //! find all the intersections
     //--------------------------------------------------------------------------
-    fprintf(stderr,"....find all intersections\n");
+    //fprintf(stderr,"....find all intersections\n");
     for( Bubble *b = bubbles.first(); b; b=b->next )
     {
-        fprintf( stderr, "#points = %lu, #spots=%lu\n", b->size, b->spots.size);
+        //fprintf( stderr, "#points = %lu, #spots=%lu\n", b->size, b->spots.size);
+        //-- clean markers
+        b->markers.empty();
         for( Spot *s = b->spots.head; s; s=s->next )
         {
             locate_point( * (s->point) );
@@ -272,6 +275,7 @@ void Cell:: locate_points( )
         // take the segment j
         //----------------------------------------------------------------------
         const Segment::List &Sj = horz_seg[j];
+#if 0
         fprintf( stderr, "segment[%lu]@y=%8.2f: #%lu",j,Y[j],Sj.size);
         for( const Segment *seg = Sj.head; seg; seg=seg->next)
         {
@@ -280,11 +284,13 @@ void Cell:: locate_points( )
             fprintf( stderr, " (%.3f,%.3f)/[%.3f:%3f]", I->vertex.x, I->vertex.y, X[I->lo], X[I->up]);
         }
         fprintf(stderr, "\n");
+#endif
         
         //----------------------------------------------------------------------
-        //  fill Bj
+        //  fill B[j] and Bvis[j]
         //----------------------------------------------------------------------
-        Array1D &Bj     = B[j];
+        ArrayInt1D &Bj  = B[j];
+        Array1D    &Vj  = Bvis[j];
         unit_t   i      = Bj.lower;
         Segment *s      = Sj.head;
         bool     inside = false;
@@ -303,9 +309,15 @@ void Cell:: locate_points( )
             //------------------------------------------------------------------
             if( inside )
             {
-                const unit_t id = s->inter->bubble->id;
+                Bubble      *bubble    = s->inter->bubble;     assert(bubble!=NULL);
+                const unit_t bubble_id = s->inter->bubble->id;
                 while( i <= s->inter->lo )
-                    Bj[i++] = id;
+                {
+                    Vj[i] = Bj[i] = bubble_id;
+                    const U2D marker_pos(i,j);
+                    bubble->markers.append()->pos = marker_pos;
+                    ++i;
+                }
             }
             
             //------------------------------------------------------------------
@@ -314,7 +326,7 @@ void Cell:: locate_points( )
             if( (count&1) )
                 inside = !inside;
             i = s->inter->up;
-            s=s->next;
+            s = s->next;
         }
         
     }

@@ -41,11 +41,13 @@ int main( int argc, char *argv[] )
         {
             radius = strconv::to_real<Real>( argv[1], "radius" );
         }
-        Point::Pool pcache;
-        Spot::Pool  scache;
+        Point::Pool      pcache;
+        Spot::Pool       scache;
+        GridMarker::Pool gcache;
+        
         const V2D   length(100,100);
         Real        lambda = 1;
-        Bubble b(0,length,lambda,pcache,scache);
+        Bubble b(0,length,lambda,pcache,scache,gcache);
         if( MPI.IsMaster )
         {
             b.map_circle( V2D(0,0), radius);

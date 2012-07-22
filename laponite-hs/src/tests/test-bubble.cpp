@@ -57,9 +57,11 @@ int main( int argc, char * argv[] )
         }
         Point::Pool pcache;
         Spot::Pool  scache;
+        GridMarker::Pool gcache;
+        
         const V2D   Length(100,100);
         Real        lambda = 1;
-        Bubble      b(0,Length,lambda,pcache,scache);
+        Bubble      b(0,Length,lambda,pcache,scache,gcache);
         
         b.map_circle( V2D(0,0), radius);
         save_bubble(b,0);
