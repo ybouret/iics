@@ -12,9 +12,10 @@ lambda(lambda_ref),
 pbc(pbc_ref),
 area(0),
 spots( spot_cache ),
-active(false),
 markers(mcache),
-borders(mcache)
+borders(mcache),
+active(false),
+next(0),prev(0)
 {
     
 }
