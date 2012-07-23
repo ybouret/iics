@@ -16,6 +16,7 @@ bubble-contour.cpp
 bubble-shapes.cpp
 bubble-vtk.cpp
 spot.hpp	spot.cpp
+marker.hpp marker.cpp
 )
 
 FIND_PACKAGE(MPI)

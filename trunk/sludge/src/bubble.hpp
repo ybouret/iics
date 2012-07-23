@@ -2,6 +2,8 @@
 #define BUBBLE_INCLUDED 1
 
 #include "spot.hpp"
+#include "marker.hpp"
+
 #if defined(HAS_MPI)
 #include "yocto/mpi/mpi.hpp"
 #endif
@@ -15,7 +17,8 @@ public:
     explicit Bubble(Real                &lambda_ref, 
                     const PBC           &pbc_ref,
                     Tracer::Cache       &tracer_cache,
-                    Spot::Cache         &spot_cache  
+                    Spot::Cache         &spot_cache,
+                    Marker::Cache       &marker_cache
                     ) throw();
     virtual ~Bubble() throw();
     
@@ -26,6 +29,8 @@ public:
     Real                pressure; //!< broadcasted
     Spot::List          spots;    
     bool                active;
+    Marker::List        markers; //!< computed by spots
+    Marker::List        borders; //!< from neighors
     
     void clear() throw(); //!< empty() and spots.empty()
     
@@ -57,16 +62,18 @@ public:
     void save_vtk_t( const string &filename ) const;
     void save_vtk_n( const string &filename ) const;
 
-    //! mark each tracer and put it in spots if possible
-    void mark_and_find_spots_within( Real y_lo, Real y_hi );
+    //! tag each tracer and put it in spots if possible
+    void collect_spots_within( Real y_lo, Real y_hi );
     
 #if defined(HAS_MPI)
-    //! master -> slaves
+    //! master topology -> slaves
     void dispatch_topology( const mpi &MPI );
 
     //! slave spots -> master
     void assemble_topology( const mpi &MPI );
-
+    
+    //! propagate markers to neighbors
+    void propagate_markers( const mpi &MPI );
 #endif
     
     

@@ -25,10 +25,11 @@ YOCTO_UNIT_TEST_IMPL(bubble)
     PBC    pbc(box.y);
     Tracer::Cache tcache;
     Spot::Cache   scache;
+    Marker::Cache mcache;
     
     Vertex center( box.x/2, 0.0 );
     
-    Bubble bubble(lambda,pbc,tcache,scache);
+    Bubble bubble(lambda,pbc,tcache,scache,mcache);
     
     if( MPI.IsMaster )
     {
@@ -41,15 +42,38 @@ YOCTO_UNIT_TEST_IMPL(bubble)
     MPI.Printf(stderr, "rank %d> %g -> %g\n",rank, y_lo, y_up);
     
     bubble.dispatch_topology(MPI);
-    bubble.mark_and_find_spots_within(y_lo, y_up);
+    bubble.collect_spots_within(y_lo, y_up);
     bubble.compute_geometry();
     MPI.Printf(stderr,"rank %d> #spots= %lu\n", rank, bubble.spots.size );
     
     bubble.save_dat( vformat("bubble%d.%d.dat",rank,size) );
     save_spots(bubble, vformat("spots%d.%d.dat",rank,size) );
     
-    bubble.assemble_topology(MPI);
     
+    for( Spot *spot = bubble.spots.head; spot; spot=spot->next )
+    {
+        spot->handle->vertex.x += (0.5-Alea());
+        spot->handle->vertex.y += (0.5-Alea());
+    }
+    save_spots(bubble, vformat("spots%d.%d.dat",rank,size) );
+
+    
+    bubble.assemble_topology(MPI);
+    if( MPI.IsMaster )
+    {
+        bubble.save_dat( "bubble.dat" );
+    }
+    
+    for( size_t i = 2 + size_t(Alea()*10); i>0; --i )
+    {
+        const Coord pos(rank,rank+i);
+        bubble.markers.append()->coord = pos;
+    }
+    
+    MPI.Barrier(MPI_COMM_WORLD);
+    bubble.propagate_markers(MPI);
+    MPI.Barrier(MPI_COMM_WORLD);
+    MPI.Printf( stderr, "rank %d> #markers=%lu\n", rank, bubble.markers.size );
 }
 YOCTO_UNIT_TEST_DONE()
 
