@@ -2,6 +2,8 @@
 #define TYPES_INCLUDED 1
 
 #include "yocto/swamp/array2d.hpp"
+#include "yocto/swamp/workspace.hpp"
+#include "yocto/swamp/rmesh.hpp"
 #include "yocto/math/types.hpp"
 
 using namespace yocto;
@@ -12,6 +14,13 @@ typedef double                Real;
 typedef vertex2D<Real>::type  Vertex;
 typedef coord2D               Coord;
 #define MPI_REAL_TYPE         MPI_DOUBLE
+typedef layout2D              Layout;
+typedef region2D<Real>::type  Region;
+typedef rmesh<Real,Layout>    Grid;
+typedef array1D<Real>         Array1D;
+typedef array2D<Real>         Array;
+typedef ghosts_setup<Coord>   GhostsSetup;
+typedef fields_setup<Layout>  FieldsSetup;
 
 void AleaInit() throw();
 Real Alea() throw();
