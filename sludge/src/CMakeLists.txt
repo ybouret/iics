@@ -9,6 +9,8 @@ LINK_DIRECTORIES(    ${YROOT}/lib     )
 
 SET(SOURCES_SER 
 types.hpp	types.cpp
+tracer.hpp	tracer.cpp
+bubble.hpp	bubble.cpp
 )
 
 FIND_PACKAGE(MPI)
