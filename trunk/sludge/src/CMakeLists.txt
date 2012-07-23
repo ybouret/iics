@@ -19,6 +19,8 @@ spot.hpp	spot.cpp
 marker.hpp	marker.cpp
 bubbles.hpp	bubbles.cpp
 		bubbles-check.cpp
+junction.hpp	junction.cpp
+segment.hpp	segment.cpp
 )
 
 FIND_PACKAGE(MPI)
