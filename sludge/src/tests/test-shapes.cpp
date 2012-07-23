@@ -31,10 +31,11 @@ YOCTO_UNIT_TEST_IMPL(shapes)
     PBC    pbc(box.y);
     Tracer::Cache tcache;
     Spot::Cache   scache;
+    Marker::Cache mcache;
     
     Vertex center( box.x/2, 0.0 );
     
-    Bubble bubble(lambda,pbc,tcache,scache);
+    Bubble bubble(lambda,pbc,tcache,scache,mcache);
     
     bubble.map_circle( center, 2.0);
     save_all( bubble, "circle" );

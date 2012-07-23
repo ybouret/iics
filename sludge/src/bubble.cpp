@@ -3,7 +3,8 @@
 Bubble:: Bubble(Real                &lambda_ref, 
                 const PBC           &pbc_ref,
                 Tracer::Cache       &tracer_cache,
-                Spot::Cache         &spot_cache 
+                Spot::Cache         &spot_cache,
+                Marker::Cache       &mcache
                 ) throw() :
 Tracer::List( tracer_cache ),
 id(0),
@@ -11,7 +12,9 @@ lambda(lambda_ref),
 pbc(pbc_ref),
 area(0),
 spots( spot_cache ),
-active(false)
+active(false),
+markers(mcache),
+borders(mcache)
 {
     
 }
@@ -25,9 +28,11 @@ void Bubble:: clear() throw()
 {
     empty();
     spots.empty();
+    markers.empty();
+    borders.empty();
 }
 
-void Bubble:: mark_and_find_spots_within(const Real y_lo, const Real y_up)
+void Bubble:: collect_spots_within(const Real y_lo, const Real y_up)
 {
     spots.empty();
     Tracer *p = root;

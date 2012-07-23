@@ -1,6 +1,10 @@
 #include "bubble.hpp"
 
-
+////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+////////////////////////////////////////////////////////////////////////////////
 void Bubble:: dispatch_topology( const mpi &MPI )
 {
     if( MPI.CommWorldSize >0 )
@@ -41,7 +45,11 @@ void Bubble:: dispatch_topology( const mpi &MPI )
     
 }
 
-
+////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+////////////////////////////////////////////////////////////////////////////////
 void Bubble:: assemble_topology( const mpi &MPI )
 {
     static const int tag = 1000;
@@ -116,5 +124,84 @@ void Bubble:: assemble_topology( const mpi &MPI )
             }
         }
     }
-
+    
 }
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+////////////////////////////////////////////////////////////////////////////////
+static const int __marker_tag = 666;
+
+static inline void __send_marker( const Marker *g, int dest, const mpi &MPI )
+{
+    MPI.Send( & g->coord, sizeof(Coord), MPI_BYTE, dest, __marker_tag, MPI_COMM_WORLD);
+}
+
+static inline void __recv_marker(  Marker *g, int from, const mpi &MPI )
+{
+    MPI_Status status;
+    MPI.Recv( & g->coord, sizeof(Coord), MPI_BYTE, from, __marker_tag, MPI_COMM_WORLD, status);
+}
+
+
+static inline void __exch_marker(Bubble    &bubble, 
+                                 const int  i_send,
+                                 const int  i_recv, 
+                                 const mpi &MPI )
+{
+    MPI_Status  status;
+    
+    //--------------------------------------------------------------------------
+    // send how many I will send
+    //--------------------------------------------------------------------------
+    const Marker::List  &self   = bubble.markers;
+    const size_t         n_send = self.size;
+    MPI.Printf(stderr, "rank %d> send #=%lu to %d\n", MPI.CommWorldRank, n_send, i_send);
+    MPI.SendAs<size_t>(n_send, 
+                       i_send, 
+                       __marker_tag, 
+                       MPI_COMM_WORLD);
+    
+    //--------------------------------------------------------------------------
+    // recv how many I will receive
+    //--------------------------------------------------------------------------
+    const size_t n_recv = MPI.RecvAs<size_t>(i_recv, 
+                                             __marker_tag, 
+                                             MPI_COMM_WORLD, 
+                                             status);
+    MPI.Printf( stderr, "rank %d> recv #=%lu from %d\n", MPI.CommWorldRank, n_recv, i_recv);
+    
+    //--------------------------------------------------------------------------
+    // send own markers
+    //--------------------------------------------------------------------------
+    for( const Marker *g = self.head; g; g=g->next )
+    {
+        __send_marker(g, i_send, MPI);
+    }
+    
+    //--------------------------------------------------------------------------
+    // collect neighbor's markers
+    //--------------------------------------------------------------------------
+    Marker::List &peer = bubble.borders;
+    for( size_t i=n_recv; i>0; --i )
+    {
+        __recv_marker( peer.append(), i_recv, MPI);
+    }
+}
+
+
+void Bubble:: propagate_markers(const yocto::mpi &MPI)
+{
+    if( MPI.IsParallel )
+    {
+        const int i_prev = MPI.CommWorldPrev();
+        const int i_next = MPI.CommWorldNext();            
+        __exch_marker(*this,i_prev,i_next,MPI);
+        if(i_prev!=i_next)
+            __exch_marker(*this, i_next, i_prev, MPI);
+        markers.merge_back(borders);
+    }
+}
+
