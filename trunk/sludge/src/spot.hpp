@@ -3,6 +3,7 @@
 
 #include "tracer.hpp"
 #include "yocto/core/list.hpp"
+#include "yocto/core/handle-list.hpp"
 
 class Spot 
 {
@@ -16,8 +17,8 @@ public:
     Spot   *prev;
     void reset() throw();
     
-    typedef cache_of<Spot>                  Cache;
-    typedef cached_list<core::list_of,Spot> List;
+    typedef cache_of<Spot>    Cache;
+    typedef handle_list<Spot> List;
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Spot);

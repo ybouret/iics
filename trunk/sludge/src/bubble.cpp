@@ -6,10 +6,12 @@ Bubble:: Bubble(Real                &lambda_ref,
                 Spot::Cache         &spot_cache 
                 ) throw() :
 Tracer::List( tracer_cache ),
+id(0),
 lambda(lambda_ref),
 pbc(pbc_ref),
 area(0),
-spots( spot_cache )
+spots( spot_cache ),
+active(false)
 {
     
 }
@@ -23,4 +25,23 @@ void Bubble:: clear() throw()
 {
     empty();
     spots.empty();
+}
+
+void Bubble:: mark_and_find_spots_within(const Real y_lo, const Real y_up)
+{
+    spots.empty();
+    Tracer *p = root;
+    size_t last_index = 0;
+    for( size_t i=0;i<size;++i,p=p->next)
+    {
+        p->bubble = this;
+        const double y = p->vertex.y;
+        if( y_lo <= y && y <= y_up )
+        {
+            spots.attach(p);           
+            spots.tail->jump = i-last_index;
+            last_index = i;
+        }
+    }
+    active = spots.size > 0;
 }

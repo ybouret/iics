@@ -14,7 +14,8 @@ s(0),
 t(),
 n(),
 next(0),
-prev(0)
+prev(0),
+bubble(0)
 {
     
 }

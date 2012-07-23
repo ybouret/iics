@@ -3,6 +3,8 @@
 
 #include "spot.hpp"
 
+typedef unit_t BubbleID;
+
 class Bubble  : public Tracer::List
 {
 public:
@@ -13,10 +15,12 @@ public:
                     ) throw();
     virtual ~Bubble() throw();
     
+    BubbleID            id;
     const Real         &lambda;
     const PBC          &pbc;
     Real                area;
     Spot::List          spots;    
+    bool                active;
     
     void clear() throw(); //!< empty() and spots.empty()
     
@@ -48,6 +52,9 @@ public:
     void save_vtk_t( const string &filename ) const;
     void save_vtk_n( const string &filename ) const;
 
+    //! mark each tracer and put it in spots if possible
+    void mark_and_find_spots_within( Real y_lo, Real y_hi );
+    
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Bubble);
 };

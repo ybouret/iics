@@ -5,6 +5,8 @@
 #include "yocto/core/cached-list.hpp"
 #include "yocto/core/clist.hpp"
 
+class Bubble;
+
 class Tracer 
 {
 public:
@@ -20,6 +22,7 @@ public:
     Real    curvature; //!< curvature,      computed
     Tracer *next;
     Tracer *prev;
+    Bubble *bubble;
     
     void set_normal() throw(); //!< from t
     void reset() throw();
