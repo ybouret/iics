@@ -44,12 +44,21 @@ void Bubbles:: empty() throw()
 
 Bubble *Bubbles:: create()
 {
+    Bubble *bubble = NULL;
     if( b_pool.size )
     {
-        return b_pool.query();
+        bubble = b_pool.query();
     }
     else 
     {
-        return new Bubble(lambda, pbc, tcache, scache, mcache);
+        bubble = new Bubble(lambda, pbc, tcache, scache, mcache);
     }
+    
+    b_list.push_back(bubble);
+    
+    bubble->id = b_list.size;
+    
+    return bubble;
 }
+
+

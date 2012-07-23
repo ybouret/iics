@@ -3,6 +3,10 @@
 
 #include "spot.hpp"
 #include "marker.hpp"
+#include "yocto/swamp/rmesh.hpp"
+
+typedef layout2D           Layout;
+typedef rmesh<Real,Layout> Grid;
 
 #if defined(HAS_MPI)
 #include "yocto/mpi/mpi.hpp"
