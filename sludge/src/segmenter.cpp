@@ -90,9 +90,9 @@ void Segmenter:: process_tracer(Tracer *p)
     assert(segments.size()>0);
     assert(p!=NULL);
     const Vertex P = p->vertex;
-    Bubble      *bubble = p->bubble;
+    Bubble      *bubble = p->bubble; assert(bubble);
     assert(P.y >= Y[Y.lower] );
-    assert(P.y <  Y[Y.lower] );
+    assert(P.y <  Y[Y.upper] );
     assert(P.x >= X[X.lower] );
     assert(P.x <= X[X.upper] );
     
@@ -145,7 +145,7 @@ void Segmenter:: process_tracer(Tracer *p)
         __NEW_INTER(horizontal,j,x,X);
     }
     
-    if( Q.y >= vmin.y )
+    if( Q.y >= vmax.y )
     {
         assert( Q.y > P.y );
         const Real Ix = P.x + ( vmax.y - P.y)* (Q.x - P.x) / (Q.y - P.y ) ;
