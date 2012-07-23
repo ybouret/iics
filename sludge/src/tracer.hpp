@@ -24,6 +24,8 @@ public:
     Tracer *prev;
     Bubble *bubble;
     
+    static const size_t IO_COUNT = 6;
+    
     void set_normal() throw(); //!< from t
     void reset() throw();
     

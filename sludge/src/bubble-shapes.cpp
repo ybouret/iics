@@ -5,7 +5,7 @@
 void Bubble:: map_circle(const Vertex &center, Real radius)
 {
     assert(lambda>0);
-    clear();
+    empty();
     const Real   theta_max = 2 * atan( lambda/(radius+radius) );
     const size_t nmin      = max_of<size_t>(3,size_t( ceil( numeric<Real>::two_pi/theta_max) ));
     const Real   dtheta = numeric<Real>::two_pi / nmin;
