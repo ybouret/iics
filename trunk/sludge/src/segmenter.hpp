@@ -6,9 +6,7 @@
 
 #include "yocto/sequence/vector.hpp"
 
-typedef layout2D           Layout;
-typedef rmesh<Real,Layout> Grid;
-typedef array1D<Real>      Array1D;
+
 
 class Segmenter 
 {

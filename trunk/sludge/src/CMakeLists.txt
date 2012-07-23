@@ -32,6 +32,7 @@ IF(MPI_FOUND)
 	SET(SOURCES_PAR 
 	bubble-mpi.cpp
 	bubbles-mpi.cpp
+	cell.hpp
 	)
 ENDIF(MPI_FOUND)
 
