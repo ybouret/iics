@@ -19,7 +19,9 @@ public:
     Real    s;         //!< |edge|,         broadcasted +1
     Vertex  t;         //!< tangent vector, computed by process
     Vertex  n;         //!< normal vector,  computed by process
-    Real    curvature; //!< curvature,      computed
+    Real    curvature; //!< curvature,      computed by process
+    Coord   gpos;      //!< position on grid, lower indices
+    Vertex  bw;        //!< bilinear interpolation weights
     Tracer *next;
     Tracer *prev;
     Bubble *bubble;
