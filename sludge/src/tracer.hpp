@@ -2,7 +2,7 @@
 #define TRACER_INCLUDED 1
 
 #include "types.hpp"
-#include "yocto/core/handle-list.hpp"
+#include "yocto/core/cached-list.hpp"
 #include "yocto/core/clist.hpp"
 
 class Tracer 
@@ -11,21 +11,24 @@ public:
     Tracer() throw();
     ~Tracer() throw();
     
-    Vertex  vertex;    //!< to be broadcasted
-    Vertex  edge;      //!< to next Tracer, broadcasted
-    Real    s;         //!< length>0 to the next Tracer, broadcasted
-    Vertex  t;         //!< tangent vector
-    Vertex  n;         //!< normal vector
-    Real    curvature; //!< curvature
+    Vertex  vertex;    //!< to be           broadcasted +2
+    Vertex  edge;      //!< to next Tracer, broadcasted +2
+    Real    s2;        //!< |edge|^2,       broadcasted +1 
+    Real    s;         //!< |edge|,         broadcasted +1
+    Vertex  t;         //!< tangent vector, computed by process
+    Vertex  n;         //!< normal vector,  computed by process
+    Real    curvature; //!< curvature,      computed
     Tracer *next;
     Tracer *prev;
     
     void set_normal() throw(); //!< from t
     void reset() throw();
     
-    typedef handle_of<Tracer>::node_type       Handle;       //!< managed by a bubble
-    typedef handle_of<Tracer>::cache_type      HandleCache;  //!< its cache
-    typedef handle_of<Tracer>::list_type       HandleList;   //!< its list
+    //! compute t and n once vertex, edges, s and s2 are available
+    void compute_frenet();
+    
+    //! compute curvature once compute_frenet was computed
+    void compute_curvature();
     
     typedef cache_of<Tracer>                   Cache;
     typedef cached_list<core::clist_of,Tracer> List;
