@@ -18,6 +18,7 @@ bubble.hpp	bubble.cpp
 spot.hpp	spot.cpp
 marker.hpp	marker.cpp
 bubbles.hpp	bubbles.cpp
+		bubbles-check.cpp
 )
 
 FIND_PACKAGE(MPI)

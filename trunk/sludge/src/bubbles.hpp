@@ -25,6 +25,23 @@ public:
     Bubble *create();
     void    empty() throw();
     
+    //! check all topologies, non crossing etc...
+    /**
+     TODO: ....
+     */
+    void check_topologies();
+    
+    //! find spots and compute geometries for active bubbles
+    void check_geometries_within( Real y_lo, Real y_hi );
+    
+#if defined(HAS_MPI)
+    //! master check and dispatch to slaves
+    void check_and_dispatch_all(const mpi &MPI );
+    
+    //! each slave -> modified bubbles
+    void assemble_all( const mpi &MPI );
+#endif
+    
 private:
     core::list_of<Bubble> b_list;
     core::pool_of<Bubble> b_pool;
