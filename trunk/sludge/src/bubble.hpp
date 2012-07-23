@@ -68,6 +68,9 @@ public:
     void save_vtk_n( const string &filename ) const;
 
     //! tag each tracer and put it in spots if possible
+    /**
+     y_lo <= y < y_hi
+     */
     void collect_spots_within( Real y_lo, Real y_hi );
     
 #if defined(HAS_MPI)

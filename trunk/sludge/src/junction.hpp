@@ -17,6 +17,8 @@ public:
     
     Vertex    vertex;
     Bubble   *bubble;
+    unit_t    lo;      //!< lower index on segment
+    unit_t    up;      //!< upper index on segment
     Junction *next;
     Junction *prev;
     

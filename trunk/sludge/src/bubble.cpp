@@ -42,7 +42,7 @@ void Bubble:: collect_spots_within(const Real y_lo, const Real y_up)
     {
         p->bubble = this;
         const double y = p->vertex.y;
-        if( y_lo <= y && y <= y_up )
+        if( y_lo <= y && y < y_up )
         {
             spots.attach(p);           
             spots.tail->jump = i-last_index;
