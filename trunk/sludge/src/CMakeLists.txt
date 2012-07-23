@@ -11,6 +11,11 @@ SET(SOURCES_SER
 types.hpp	types.cpp
 tracer.hpp	tracer.cpp
 bubble.hpp	bubble.cpp
+bubble-vectors.cpp 
+bubble-contour.cpp 
+bubble-shapes.cpp
+bubble-vtk.cpp
+spot.hpp	spot.cpp
 )
 
 FIND_PACKAGE(MPI)
