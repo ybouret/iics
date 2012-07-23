@@ -21,6 +21,7 @@ typedef array1D<Real>         Array1D;
 typedef array2D<Real>         Array;
 typedef ghosts_setup<Coord>   GhostsSetup;
 typedef fields_setup<Layout>  FieldsSetup;
+typedef workspace<Layout, Real, rmesh> WorkspaceBase;
 
 void AleaInit() throw();
 Real Alea() throw();
@@ -50,6 +51,8 @@ public:
 private:
     YOCTO_DISABLE_ASSIGN(PBC);
 };
+
+void SaveGrid( const Grid &, const string &filename );
 
 
 #endif
