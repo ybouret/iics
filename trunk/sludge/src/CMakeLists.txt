@@ -11,12 +11,13 @@ SET(SOURCES_SER
 types.hpp	types.cpp
 tracer.hpp	tracer.cpp
 bubble.hpp	bubble.cpp
-bubble-vectors.cpp 
-bubble-contour.cpp 
-bubble-shapes.cpp
-bubble-vtk.cpp
+		bubble-vectors.cpp 
+		bubble-contour.cpp 
+		bubble-shapes.cpp
+		bubble-vtk.cpp
 spot.hpp	spot.cpp
-marker.hpp marker.cpp
+marker.hpp	marker.cpp
+bubbles.hpp	bubbles.cpp
 )
 
 FIND_PACKAGE(MPI)
@@ -26,6 +27,7 @@ IF(MPI_FOUND)
 	INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
 	SET(SOURCES_PAR 
 	bubble-mpi.cpp
+	bubbles-mpi.cpp
 	)
 ENDIF(MPI_FOUND)
 

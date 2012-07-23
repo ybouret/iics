@@ -28,9 +28,11 @@ public:
     Real                area;
     Real                pressure; //!< broadcasted
     Spot::List          spots;    
-    bool                active;
     Marker::List        markers; //!< computed by spots
     Marker::List        borders; //!< from neighors
+    bool                active;
+    Bubble             *next;
+    Bubble             *prev;
     
     void clear() throw(); //!< empty() and spots.empty()
     
