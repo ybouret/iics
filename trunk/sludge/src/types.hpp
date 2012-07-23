@@ -11,6 +11,7 @@ using namespace math;
 typedef double                Real;
 typedef vertex2D<Real>::type  Vertex;
 typedef coord2D               Coord;
+#define MPI_REAL_TYPE         MPI_DOUBLE
 
 void AleaInit() throw();
 Real Alea() throw();

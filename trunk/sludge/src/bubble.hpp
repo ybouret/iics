@@ -2,8 +2,12 @@
 #define BUBBLE_INCLUDED 1
 
 #include "spot.hpp"
+#if defined(HAS_MPI)
+#include "yocto/mpi/mpi.hpp"
+#endif
 
 typedef unit_t BubbleID;
+
 
 class Bubble  : public Tracer::List
 {
@@ -19,6 +23,7 @@ public:
     const Real         &lambda;
     const PBC          &pbc;
     Real                area;
+    Real                pressure; //!< broadcasted
     Spot::List          spots;    
     bool                active;
     
@@ -54,6 +59,16 @@ public:
 
     //! mark each tracer and put it in spots if possible
     void mark_and_find_spots_within( Real y_lo, Real y_hi );
+    
+#if defined(HAS_MPI)
+    //! master -> slaves
+    void dispatch_topology( const mpi &MPI );
+
+    //! slave spots -> master
+    void assemble_topology( const mpi &MPI );
+
+#endif
+    
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Bubble);
