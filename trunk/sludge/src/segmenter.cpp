@@ -188,6 +188,7 @@ void Segmenter:: find_junctions(const Vertex &P,
 void Segmenter:: process_bubble(Bubble *bubble)
 {
     assert(bubble);
+    bubble->markers.empty();
     for( Spot *spot = bubble->spots.head; spot; spot=spot->next )
     {
         process_tracer( spot->handle );
@@ -196,10 +197,12 @@ void Segmenter:: process_bubble(Bubble *bubble)
 
 void Segmenter:: process_bubbles( Bubbles &bubbles )
 {
+    clear();
     for( Bubble *bubble = bubbles.first(); bubble; bubble=bubble->next)
     {
         process_bubble(bubble);
     }
+    sort_segments();
 }
 
 #include "yocto/core/merge-sort.hpp"

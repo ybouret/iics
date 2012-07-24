@@ -22,32 +22,41 @@ public:
     Junction::List  junctions;
     Segment::Cache  s_cache;
     
+    //! (re)allocate segments to match the grid
     void allocate_segments();
-
+    
+    //! direct access to segments
     Segment::List *horizontal; //!< Y.lower->Y.upper
     Segment::List *vertical;   //!< X.lower->X.upper
-    
     
     //! empty segments and junctions
     void clear() throw();
     
-    //! process a Tracer spotted on the grid
-    void process_tracer( Tracer *p );
-    
-    //!
+      
+    //! process one bubble
     void process_bubble( Bubble *bubble );
     
-    //! should clear_segments() before
+    
+    //! clear/process/sort
     void process_bubbles( Bubbles &bubbles );
     
     //! sort segments by junction->lo
     void sort_segments();
     
+    //! for debugging
     void save_junctions( const string &filename ) const;
+    
+    
     
 private:
     vector<Segment::List> segments;
     YOCTO_DISABLE_COPY_AND_ASSIGN(Segmenter);
+    //! process a Tracer spotted on the grid
+    void process_tracer( Tracer *p );
+    
+        
+    
+    //! factorized code to detect the junctions
     void find_junctions( const Vertex &P, const Vertex &Q, const Vertex &vmin, const Vertex &vmax, Tracer *p );
     
 };
