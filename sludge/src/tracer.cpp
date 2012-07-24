@@ -19,7 +19,8 @@ n(),
 curvature(0),
 gpos(),
 bw(),
-bubble(0)
+bubble(0),
+is_spot(false)
 {
     
 }

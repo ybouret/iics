@@ -11,11 +11,13 @@ id(0),
 lambda(lambda_ref),
 pbc(pbc_ref),
 area(0),
+pressure(0),
 spots( spot_cache ),
 markers(mcache),
 borders(mcache),
 active(false),
-next(0),prev(0)
+next(0),
+prev(0)
 {
     
 }

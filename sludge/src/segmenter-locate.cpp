@@ -38,7 +38,6 @@ void Segmenter:: process_tracer(Tracer *p)
     assert(segments.size()>0);
     assert(p!=NULL);
     const Vertex P = p->vertex;
-    Bubble      *bubble = p->bubble; assert(bubble);
     assert(P.y >= Y[Y.lower] );
     assert(P.y <  Y[Y.upper] );
     assert(P.x >= X[X.lower] );
@@ -97,8 +96,8 @@ void Segmenter:: find_junctions(const Vertex &P,
                                 Tracer       *p )
 {
     assert(p!=NULL);
-    const unit_t i = p->gpos.x;
-    const unit_t j = p->gpos.y;
+    const unit_t i  = p->gpos.x;
+    const unit_t j  = p->gpos.y;
     const unit_t i1 = i+1;
     const unit_t j1 = j+1;
     Bubble *bubble  = p->bubble; assert(bubble);
