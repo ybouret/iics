@@ -22,6 +22,8 @@ public:
     Junction *next;
     Junction *prev;
     
+    void copy( const Junction *J ) throw();
+    
     typedef cache_of<Junction>                  Cache;
     typedef cached_list<core::list_of,Junction> List;
     

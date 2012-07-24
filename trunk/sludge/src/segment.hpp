@@ -8,12 +8,7 @@
 class Segment 
 {
 public:
-    enum Kind
-    {
-        IsInternal,
-        IsUpperPBC,
-        IsLowerPBC
-    };
+   
     
     Segment() throw();
     ~Segment() throw();

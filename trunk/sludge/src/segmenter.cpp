@@ -63,9 +63,45 @@ void Segmenter:: process_bubbles( Bubbles &bubbles )
     {
         process_bubble(bubble);
     }
-    sort_segments();
-    assign_markers();
+    
 }
+
+void Segmenter:: horizontal_pbc()
+{
+    assert(Y.lower<Y.upper);
+    Segment::List &S_lo = horizontal[Y.lower];
+    Segment::List &S_up = horizontal[Y.upper];
+    
+    const Real y_lo = Y[Y.lower];
+    const Real y_up = Y[Y.upper];
+    
+    Segment::List mirror_lo( s_cache );
+    for( const Segment *s = S_lo.head; s; s=s->next )
+    {
+        const Junction *J = s->handle;
+        Junction       *K = junctions.append();
+        K->copy(J);
+        K->vertex.y = y_up;
+        mirror_lo.attach(K);
+    }
+    
+    Segment::List mirror_up( s_cache );
+    for( const Segment *s = S_up.head; s; s=s->next )
+    {
+        const Junction *J = s->handle;
+        Junction       *K = junctions.append();
+        K->copy(J);
+        K->vertex.y = y_lo;
+        mirror_up.attach(K);
+    }
+    
+    S_up.merge_back(mirror_lo);
+    S_lo.merge_back(mirror_up);
+    
+    
+    
+}
+
 
 #include "yocto/core/merge-sort.hpp"
 #include "yocto/comparator.hpp"
