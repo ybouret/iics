@@ -8,7 +8,7 @@ static inline void __process(Bubbles              &bubbles,
                              int level,
                              const Region         &reg,
                              vtk_writer           &vtk,
-                             const WorkspaceBase  &W,
+                             WorkspaceBase        &W,
                              Array                &B)
 {
     bubbles.check_topologies();
@@ -22,6 +22,7 @@ static inline void __process(Bubbles              &bubbles,
     Seg.assign_markers();
     
     bubbles.fill( B );
+    //W.__local_ghosts(1).transfer1(B);
     
     vector<string> var;
     var.push_back( "B" );
@@ -45,6 +46,8 @@ YOCTO_UNIT_TEST_IMPL(segpbc)
     
     GhostsSetup   gs;
     FieldsSetup   fs;
+    
+    gs.local.count.y = 1;
     
     Y_SWAMP_DECL_AUX(fs, "B", Array);
     
