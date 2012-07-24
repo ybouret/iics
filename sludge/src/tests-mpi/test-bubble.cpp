@@ -70,10 +70,13 @@ YOCTO_UNIT_TEST_IMPL(bubble)
         bubble.markers.append()->coord = pos;
     }
     
+#if 0
     MPI.Barrier(MPI_COMM_WORLD);
     bubble.propagate_markers(MPI);
     MPI.Barrier(MPI_COMM_WORLD);
     MPI.Printf( stderr, "rank %d> #markers=%lu\n", rank, bubble.markers.size );
+#endif
+    
 }
 YOCTO_UNIT_TEST_DONE()
 

@@ -82,3 +82,16 @@ void  Bubble:: save_vtk_n( const string &filename ) const
         fp("2 %u %u\n", 2*i, 2*i+1 );
     }
 }
+
+void Bubble:: save_inside( const string &filename, const Grid &grid ) const
+{
+    ios::ocstream fp( filename, false );
+    const Array1D &X = grid.X();
+    const Array1D &Y = grid.Y();
+    for( const Marker *m = markers.head; m; m=m->next )
+    {
+        fp("%g %g\n", X[m->coord.x], Y[m->coord.y]);
+    }
+    
+}
+

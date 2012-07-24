@@ -29,6 +29,7 @@ public:
     Segment::List *horizontal; //!< Y.lower->Y.upper
     Segment::List *vertical;   //!< X.lower->X.upper
     
+    
     //! empty segments and junctions
     void clear() throw();
     

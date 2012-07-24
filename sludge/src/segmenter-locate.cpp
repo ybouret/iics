@@ -78,16 +78,17 @@ void Segmenter:: process_tracer(Tracer *p)
 }
 
 
-#define __NEW_INTER(SEGMENT,INDEX,COORD,ARR)  do  { \
-Junction *I = junctions.append(); \
-I->vertex.x = Ix;   \
-I->vertex.y = Iy;   \
-I->bubble   = bubble; \
+#define __NEW_INTER(SEGMENT,INDEX,COORD,ARR) \
+do  {                                \
+Junction *I = junctions.append();    \
+I->vertex.x = Ix;                    \
+I->vertex.y = Iy;                    \
+I->bubble   = bubble;                \
 SEGMENT[INDEX].append()->handle = I; \
 I->up = 1 + (I->lo = __locate_point( I->vertex.COORD, ARR )); \
 } while(false)
 
-
+//I->bubble->pbc(I->vertex);           
 
 void Segmenter:: find_junctions(const Vertex &P, 
                                 const Vertex &Q, 

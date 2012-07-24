@@ -4,8 +4,6 @@
 #include "spot.hpp"
 #include "marker.hpp"
 
-#include "yocto/swamp/rmesh.hpp"
-
 
 #if defined(HAS_MPI)
 #include "yocto/mpi/mpi.hpp"
@@ -32,7 +30,7 @@ public:
     Real                pressure; //!< broadcasted
     Spot::List          spots;    
     Marker::List        markers; //!< computed by spots
-    Marker::List        borders; //!< from neighors
+    //Marker::List        borders; //!< from neighors
     bool                active;
     Bubble             *next;
     Bubble             *prev;
@@ -66,7 +64,9 @@ public:
     void save_vtk( const string &filename ) const;
     void save_vtk_t( const string &filename ) const;
     void save_vtk_n( const string &filename ) const;
-
+    void save_inside( const string &filename, const Grid &grid ) const;
+    
+    
     //! tag each tracer and put it in spots if possible
     /**
      y_lo <= y < y_hi
@@ -81,7 +81,7 @@ public:
     void assemble_topology( const mpi &MPI );
     
     //! propagate markers to neighbors
-    void propagate_markers( const mpi &MPI );
+    //void propagate_markers( const mpi &MPI );
 #endif
     
     

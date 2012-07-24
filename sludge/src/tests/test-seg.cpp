@@ -49,6 +49,7 @@ YOCTO_UNIT_TEST_IMPL(seg)
     Seg.save_junctions("junc0.dat");
     bubbles.fill( B );
     vtk.save("b0.vtk", "b0", W, var, W.__layout());
+    bubbles.first()->save_inside("inside0.dat", W.mesh);
     
     //-- bigger bubble
     bubbles.empty();
@@ -64,7 +65,8 @@ YOCTO_UNIT_TEST_IMPL(seg)
     Seg.save_junctions("junc1.dat");
     bubbles.fill( B );
     vtk.save("b1.vtk", "b1", W, var, W.__layout());
-    
+    bubbles.first()->save_inside("inside1.dat", W.mesh);
+
     //-- peanut
     bubbles.empty();
     
@@ -79,14 +81,15 @@ YOCTO_UNIT_TEST_IMPL(seg)
     Seg.save_junctions("junc2.dat");
     bubbles.fill( B );
     vtk.save("b2.vtk", "b2", W, var, W.__layout());
-    
+    bubbles.first()->save_inside("inside2.dat", W.mesh);
+
     //-- peanut with shift
     bubbles.empty();
     
     bubbles.create()->map_peanut(center+Vertex(0,1), 3.5, 0.95);
     bubbles.check_topologies();
     bubbles.first()->save_dat("bubble3.dat");
-    
+
     bubbles.check_geometries_within( reg.vmin.y, reg.vmax.y);
     
     
@@ -94,7 +97,8 @@ YOCTO_UNIT_TEST_IMPL(seg)
     Seg.save_junctions("junc3.dat");
     bubbles.fill( B );
     vtk.save("b3.vtk", "b3", W, var, W.__layout());
-    
+    bubbles.first()->save_inside("inside3.dat", W.mesh);
+
 }
 YOCTO_UNIT_TEST_DONE()
 
