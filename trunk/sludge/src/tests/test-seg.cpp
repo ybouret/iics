@@ -1,7 +1,7 @@
 #include "yocto/utest/run.hpp"
 #include "../segmenter.hpp"
 #include "yocto/code/utils.hpp"
-
+#include "yocto/swamp/vtk-writer.hpp"
 
 YOCTO_UNIT_TEST_IMPL(seg)
 {
@@ -20,7 +20,8 @@ YOCTO_UNIT_TEST_IMPL(seg)
     FieldsSetup   fs;
     
     Y_SWAMP_DECL_AUX(fs, "B", Array);
-    
+    vector<string> var;
+    var.push_back( "B" );
     
     { 
         const Layout  lay( Coord(0,0), Coord(20,30) );
@@ -29,6 +30,8 @@ YOCTO_UNIT_TEST_IMPL(seg)
         W.mesh.regular_map_to(reg, lay);
         SaveGrid(W.mesh,"grid0.dat");
         Segmenter Seg( W.mesh );
+        Array &B = W["B"].as<Array>();
+        vtk_writer vtk;
         
         {
     
@@ -47,6 +50,8 @@ YOCTO_UNIT_TEST_IMPL(seg)
         
         Seg.process_bubbles( bubbles );
         Seg.save_junctions("junc0.dat");
+        bubbles.fill( B );
+        vtk.save("b0.vtk", "b0", W, var, W.__layout());
         
         //-- bigger bubble
         bubbles.empty();
@@ -60,7 +65,9 @@ YOCTO_UNIT_TEST_IMPL(seg)
         
         Seg.process_bubbles( bubbles );
         Seg.save_junctions("junc1.dat");
-        
+        bubbles.fill( B );
+        vtk.save("b1.vtk", "b1", W, var, W.__layout());
+
         //-- peanut
         bubbles.empty();
         
@@ -73,7 +80,8 @@ YOCTO_UNIT_TEST_IMPL(seg)
         
         Seg.process_bubbles( bubbles );
         Seg.save_junctions("junc2.dat");
-
+        bubbles.fill( B );
+        vtk.save("b2.vtk", "b2", W, var, W.__layout());
     }
     
 }
