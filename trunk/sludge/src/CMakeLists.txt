@@ -22,6 +22,8 @@ bubbles.hpp	bubbles.cpp
 junction.hpp	junction.cpp
 segment.hpp	segment.cpp
 segmenter.hpp   segmenter.cpp
+		segmenter-locate.cpp
+		segmenter-assign.cpp
 )
 
 FIND_PACKAGE(MPI)
