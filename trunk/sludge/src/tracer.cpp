@@ -10,11 +10,15 @@ Tracer:: ~Tracer() throw()
 Tracer:: Tracer() throw() :
 vertex(),
 edge(),
+s2(0),
 s(0),
-t(),
-n(),
 next(0),
 prev(0),
+t(),
+n(),
+curvature(0),
+gpos(),
+bw(),
 bubble(0)
 {
     

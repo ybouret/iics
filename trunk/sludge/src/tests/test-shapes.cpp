@@ -38,6 +38,7 @@ YOCTO_UNIT_TEST_IMPL(shapes)
     Bubble bubble(lambda,pbc,tcache,scache,mcache);
     
     bubble.map_circle( center, 2.0);
+    std::cerr << "curvature: " << bubble.root->curvature << std::endl;
     save_all( bubble, "circle" );
     expand(bubble,center);
     bubble.upgrade_topology();

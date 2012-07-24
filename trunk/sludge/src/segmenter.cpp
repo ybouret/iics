@@ -23,7 +23,7 @@ void Segmenter:: clear() throw()
 {
     junctions.empty();
     for( size_t i=segments.size(); i>0; --i ) segments[i].empty();
-
+    
 }
 
 void Segmenter:: allocate_segments()
@@ -75,15 +75,6 @@ static unit_t __locate_point(Real           x,
     return ilo;
 }
 
-#define __NEW_INTER(SEGMENT,INDEX,COORD,ARR)  do  { \
-Junction *I = junctions.append(); \
-I->vertex.x = Ix;   \
-I->vertex.y = Iy;   \
-I->bubble   = bubble; \
-SEGMENT[INDEX].append()->handle = I; \
-I->up = 1 + (I->lo = __locate_point( I->vertex.COORD, ARR )); \
-} while(false)
-
 
 void Segmenter:: process_tracer(Tracer *p)
 {
@@ -103,20 +94,57 @@ void Segmenter:: process_tracer(Tracer *p)
     const unit_t j = p->gpos.y = __locate_point( P.y, Y );
     
     //--------------------------------------------------------------------------
+    // find grid boundaries
+    //--------------------------------------------------------------------------
+    const Vertex vmin( X[i],   Y[j]   );
+    const Vertex vmax( X[i+1], Y[j+1] );
+    
+    //--------------------------------------------------------------------------
     // compute bilinear interpolation coefficients
     //--------------------------------------------------------------------------
-    p->bw.x = (P.x-X[i])/dX[i];
-    p->bw.y = (P.y-Y[j])/dY[j];
+    p->bw.x = (P.x-vmin.x)/dX[i];
+    p->bw.y = (P.y-vmin.y)/dY[j];
     
     //--------------------------------------------------------------------------
     // find potential intersections
     //--------------------------------------------------------------------------
-    const Vertex Q = P + p->edge;
+    {
+        const Vertex Q = P + p->edge;
+        find_junctions(P, Q, vmin, vmax, p);
+    }
+
+    if( !p->prev->is_spot )
+    {
+        const Vertex Q = P - (p->prev->edge);
+        find_junctions(P, Q, vmin, vmax, p);
+    }
+    
+}
+
+
+#define __NEW_INTER(SEGMENT,INDEX,COORD,ARR)  do  { \
+Junction *I = junctions.append(); \
+I->vertex.x = Ix;   \
+I->vertex.y = Iy;   \
+I->bubble   = bubble; \
+SEGMENT[INDEX].append()->handle = I; \
+I->up = 1 + (I->lo = __locate_point( I->vertex.COORD, ARR )); \
+} while(false)
+
+
+
+void Segmenter:: find_junctions(const Vertex &P, 
+                                const Vertex &Q, 
+                                const Vertex &vmin, 
+                                const Vertex &vmax, 
+                                Tracer       *p )
+{
+    assert(p!=NULL);
+    const unit_t i = p->gpos.x;
+    const unit_t j = p->gpos.y;
     const unit_t i1 = i+1;
     const unit_t j1 = j+1;
-    const Vertex vmin( X[i],  Y[j]  );
-    const Vertex vmax( X[i1], Y[j1] );
-    
+    Bubble *bubble  = p->bubble; assert(bubble);
     //--------------------------------------------------------------------------
     // simplified Cohen-Sutherland
     //--------------------------------------------------------------------------
@@ -152,8 +180,10 @@ void Segmenter:: process_tracer(Tracer *p)
         const Real Iy = vmax.y;
         __NEW_INTER(horizontal,j1,x,X);
     }
- 
+    
 }
+
+
 
 void Segmenter:: process_bubble(Bubble *bubble)
 {

@@ -48,6 +48,8 @@ public:
 private:
     vector<Segment::List> segments;
     YOCTO_DISABLE_COPY_AND_ASSIGN(Segmenter);
+    void find_junctions( const Vertex &P, const Vertex &Q, const Vertex &vmin, const Vertex &vmax, Tracer *p );
+    
 };
 
 

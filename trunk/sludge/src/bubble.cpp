@@ -47,6 +47,11 @@ void Bubble:: collect_spots_within(const Real y_lo, const Real y_up)
             spots.attach(p);           
             spots.tail->jump = i-last_index;
             last_index = i;
+            p->is_spot = true;
+        }
+        else 
+        {
+            p->is_spot = false;
         }
     }
     active = spots.size > 0;
