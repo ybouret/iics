@@ -40,8 +40,8 @@ public:
      */
     void process_bubbles( Bubbles &bubbles );
     
-    //! complete Y.lower and Y.upper in case of local PBC
-    void horizontal_pbc();
+    //! complete y_lower and y_upper in case of local PBC
+    void horizontal_pbc(unit_t y_lower, unit_t y_upper);
     
     
     //! sort segments and assign borders by horizontal scanning
