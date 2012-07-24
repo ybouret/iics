@@ -27,7 +27,7 @@ public:
     
     //! check all topologies, non crossing etc...
     /**
-     TODO: ....
+     TODO: overlap, pinches etc...
      */
     void check_topologies();
     
@@ -41,6 +41,9 @@ public:
     //! each slave -> modified bubbles
     void assemble_all( const mpi &MPI );
 #endif
+    
+    //! fill with markers from segmentation
+    void fill( Array &B ) const;
     
 private:
     core::list_of<Bubble> b_list;

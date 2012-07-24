@@ -62,3 +62,19 @@ Bubble *Bubbles:: create()
 }
 
 
+void Bubbles:: fill( Array &B ) const
+{
+    B.ldz();
+    for( const Bubble *bubble = first(); bubble; bubble=bubble->next )
+    {
+        const Real id = bubble->id; assert(id>0);
+        for( const Marker *marker = bubble->markers.head; marker; marker=marker->next )
+        {
+            const Coord c = marker->coord;
+            if( B.has(c) )
+                B[c] = id;
+        }
+        
+    }
+}
+
