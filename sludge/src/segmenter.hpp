@@ -33,11 +33,10 @@ public:
     void clear() throw();
     
       
-    //! process one bubble
-    void process_bubble( Bubble *bubble );
+   
     
     
-    //! clear/process/sort
+    //! clear/process/sort/assign
     void process_bubbles( Bubbles &bubbles );
     
     //! sort segments by junction->lo
@@ -48,13 +47,18 @@ public:
     
     
     
+    
 private:
     vector<Segment::List> segments;
     YOCTO_DISABLE_COPY_AND_ASSIGN(Segmenter);
     //! process a Tracer spotted on the grid
     void process_tracer( Tracer *p );
     
-        
+    //! process one bubble
+    void process_bubble( Bubble *bubble );
+    
+    //! assign borders by horizontal scanning
+    void assign_markers();
     
     //! factorized code to detect the junctions
     void find_junctions( const Vertex &P, const Vertex &Q, const Vertex &vmin, const Vertex &vmax, Tracer *p );
