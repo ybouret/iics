@@ -14,7 +14,7 @@ area(0),
 pressure(0),
 spots( spot_cache ),
 markers(mcache),
-borders(mcache),
+//borders(mcache),
 active(false),
 next(0),
 prev(0)
@@ -32,7 +32,7 @@ void Bubble:: clear() throw()
     empty();
     spots.empty();
     markers.empty();
-    borders.empty();
+    //borders.empty();
 }
 
 void Bubble:: collect_spots_within(const Real y_lo, const Real y_up)

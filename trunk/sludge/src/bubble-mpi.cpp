@@ -127,6 +127,7 @@ void Bubble:: assemble_topology( const mpi &MPI )
     
 }
 
+#if 0
 ////////////////////////////////////////////////////////////////////////////////
 //
 //
@@ -191,7 +192,6 @@ static inline void __exch_marker(Bubble    &bubble,
     }
 }
 
-
 void Bubble:: propagate_markers(const yocto::mpi &MPI)
 {
     if( MPI.IsParallel )
@@ -205,4 +205,4 @@ void Bubble:: propagate_markers(const yocto::mpi &MPI)
         markers.merge_back(borders);
     }
 }
-
+#endif
