@@ -82,6 +82,21 @@ YOCTO_UNIT_TEST_IMPL(seg)
         Seg.save_junctions("junc2.dat");
         bubbles.fill( B );
         vtk.save("b2.vtk", "b2", W, var, W.__layout());
+        
+        //-- peanut with shift
+        bubbles.empty();
+        
+        bubbles.create()->map_peanut(center+Vertex(0,1), 3.5, 0.95);
+        bubbles.check_topologies();
+        bubbles.first()->save_dat("bubble3.dat");
+        
+        bubbles.check_geometries_within( reg.vmin.y, reg.vmax.y);
+        
+        
+        Seg.process_bubbles( bubbles );
+        Seg.save_junctions("junc3.dat");
+        bubbles.fill( B );
+        vtk.save("b3.vtk", "b3", W, var, W.__layout());
     }
     
 }
