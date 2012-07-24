@@ -3,6 +3,7 @@ ADD_EXECUTABLE(testing main.cpp
 test-types.cpp
 test-shapes.cpp
 test-seg.cpp
+test-segpbc.cpp
 )
 
 TARGET_LINK_LIBRARIES(testing sludge)
