@@ -17,7 +17,7 @@ static inline void __process(Bubbles              &bubbles,
     
     
     Seg.process_bubbles( bubbles );
-    Seg.horizontal_pbc();
+    Seg.horizontal_pbc(W.lower.y,W.upper.y);
     Seg.save_junctions( vformat("junc%d.dat",level) );
     Seg.assign_markers();
     

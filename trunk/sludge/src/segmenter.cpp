@@ -66,14 +66,16 @@ void Segmenter:: process_bubbles( Bubbles &bubbles )
     
 }
 
-void Segmenter:: horizontal_pbc()
+void Segmenter:: horizontal_pbc( unit_t y_lower, unit_t y_upper )
 {
-    assert(Y.lower<Y.upper);
-    Segment::List &S_lo = horizontal[Y.lower];
-    Segment::List &S_up = horizontal[Y.upper];
+    assert(y_lower<y_upper);
+    assert(y_lower>=Y.lower);
+    assert(y_upper<=Y.upper);
+    Segment::List &S_lo = horizontal[y_lower];
+    Segment::List &S_up = horizontal[y_upper];
     
-    const Real y_lo = Y[Y.lower];
-    const Real y_up = Y[Y.upper];
+    const Real y_lo = Y[y_lower];
+    const Real y_up = Y[y_upper];
     
     Segment::List mirror_lo( s_cache );
     for( const Segment *s = S_lo.head; s; s=s->next )
