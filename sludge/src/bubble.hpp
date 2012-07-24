@@ -85,6 +85,8 @@ public:
 #endif
     
     
+    void translate( const Vertex &v );
+    
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Bubble);
 };

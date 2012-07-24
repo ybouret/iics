@@ -33,19 +33,25 @@ public:
     //! empty segments and junctions
     void clear() throw();
     
-      
-   
     
-    
-    //! clear/process/sort/assign
+    //! clear/process
+    /**
+     then upgrade PBC if required
+     */
     void process_bubbles( Bubbles &bubbles );
     
-    //! sort segments by junction->lo
-    void sort_segments();
+    //! complete Y.lower and Y.upper in case of local PBC
+    void horizontal_pbc();
+    
+    
+    //! sort segments and assign borders by horizontal scanning
+    /**
+     valid only after a process_bubbles() !
+     */
+    void assign_markers();
     
     //! for debugging
     void save_junctions( const string &filename ) const;
-    
     
     
     
@@ -58,9 +64,12 @@ private:
     //! process one bubble
     void process_bubble( Bubble *bubble );
     
-    //! assign borders by horizontal scanning
-    void assign_markers();
+    //! sort segments by junction->lo
+    void sort_segments();
     
+    //! bissection algorithm
+    static unit_t locate_point( Real, const Array1D &) throw();
+
     //! factorized code to detect the junctions
     void find_junctions( const Vertex &P, const Vertex &Q, const Vertex &vmin, const Vertex &vmax, Tracer *p );
     

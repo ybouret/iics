@@ -3,9 +3,36 @@
 #include "yocto/code/utils.hpp"
 #include "yocto/swamp/vtk-writer.hpp"
 
+static inline void __process(Bubbles              &bubbles, 
+                             Segmenter            &Seg, 
+                             int level,
+                             const Region         &reg,
+                             vtk_writer           &vtk,
+                             const WorkspaceBase  &W,
+                             Array                &B)
+{
+    bubbles.check_topologies();
+    bubbles.first()->save_dat( vformat("bubble%d.dat",level) );
+    bubbles.check_geometries_within( reg.vmin.y, reg.vmax.y);
+    
+    
+    Seg.process_bubbles( bubbles );
+    Seg.horizontal_pbc();
+    Seg.save_junctions( vformat("junc%d.dat",level) );
+    Seg.assign_markers();
+    
+    bubbles.fill( B );
+    
+    vector<string> var;
+    var.push_back( "B" );
+    vtk.save( vformat("b%d.vtk",level), vformat("b%d",level), W, var, W.__layout());
+    bubbles.first()->save_inside( vformat("inside%d.dat",level), W.mesh);
+}
+
+
 YOCTO_UNIT_TEST_IMPL(segpbc)
 {
-
+    AleaInit();
     //==========================================================================
     //
     // prepare the grid
@@ -20,8 +47,6 @@ YOCTO_UNIT_TEST_IMPL(segpbc)
     FieldsSetup   fs;
     
     Y_SWAMP_DECL_AUX(fs, "B", Array);
-    vector<string> var;
-    var.push_back( "B" );
     
     const Layout  lay( Coord(0,0), Coord(20,30) );
     const Region  reg( Vertex(0,pbc.lo), Vertex(box.x,pbc.up) );
@@ -41,18 +66,12 @@ YOCTO_UNIT_TEST_IMPL(segpbc)
     bubbles.empty();
     
     bubbles.create()->map_peanut(center+Vertex(0,-4), 3.5, 0.95);
-    bubbles.check_topologies();
-    bubbles.first()->save_dat("bubble0.dat");
     
-    
-    bubbles.check_geometries_within( reg.vmin.y, reg.vmax.y);
-    
-    
-    Seg.process_bubbles( bubbles );
-    Seg.save_junctions("junc0.dat");
-    bubbles.fill( B );
-    vtk.save("b0.vtk", "b0", W, var, W.__layout());
-
+    for( int i=0; i < 250; ++i )
+    {
+        __process(bubbles, Seg, i, reg, vtk, W, B);
+        bubbles.first()->translate( Vertex(0,-0.1+0.02*Alea()) );
+    }
     
     
 }

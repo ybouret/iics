@@ -3,8 +3,8 @@
 //==============================================================================
 // bissection to locate where a point is
 //==============================================================================
-static unit_t __locate_point(Real           x, 
-                             const Array1D &a)
+unit_t Segmenter::locate_point(Real           x, 
+                               const Array1D &a) throw()
 {
     unit_t ilo = a.lower;
     if( x <= a[ilo] )
@@ -46,8 +46,8 @@ void Segmenter:: process_tracer(Tracer *p)
     //--------------------------------------------------------------------------
     // find position on grid
     //--------------------------------------------------------------------------
-    const unit_t i = p->gpos.x = __locate_point( P.x, X );
-    const unit_t j = p->gpos.y = __locate_point( P.y, Y );
+    const unit_t i = p->gpos.x = locate_point( P.x, X );
+    const unit_t j = p->gpos.y = locate_point( P.y, Y );
     
     //--------------------------------------------------------------------------
     // find grid boundaries
@@ -85,7 +85,7 @@ I->vertex.x = Ix;                    \
 I->vertex.y = Iy;                    \
 I->bubble   = bubble;                \
 SEGMENT[INDEX].append()->handle = I; \
-I->up = 1 + (I->lo = __locate_point( I->vertex.COORD, ARR )); \
+I->up = 1 + (I->lo = locate_point( I->vertex.COORD, ARR )); \
 } while(false)
 
 //I->bubble->pbc(I->vertex);           

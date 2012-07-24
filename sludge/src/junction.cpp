@@ -23,3 +23,13 @@ void Junction:: reset() throw()
 {
     YOCTO_HARD_RESET(Junction,vertex,this);
 }
+
+
+void Junction:: copy( const Junction *J ) throw()
+{
+    assert(J!=NULL);
+    vertex = J->vertex;
+    bubble = J->bubble;
+    lo     = J->lo;
+    up     = J->up;
+}

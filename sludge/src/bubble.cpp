@@ -58,3 +58,12 @@ void Bubble:: collect_spots_within(const Real y_lo, const Real y_up)
     }
     active = spots.size > 0;
 }
+
+void Bubble:: translate( const Vertex &v )
+{
+    Tracer *p = root;
+    for( size_t i=size;i>0;--i,p=p->next)
+    {
+        p->vertex += v;
+    }
+}
