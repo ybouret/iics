@@ -12,19 +12,23 @@ class Tracer
 public:
     Tracer() throw();
     ~Tracer() throw();
+   
     
     Vertex  vertex;    //!< to be           broadcasted +2
     Vertex  edge;      //!< to next Tracer, broadcasted +2
     Real    s2;        //!< |edge|^2,       broadcasted +1 
     Real    s;         //!< |edge|,         broadcasted +1
+    
+    Tracer *next;
+    Tracer *prev;
+    
     Vertex  t;         //!< tangent vector, computed by process
     Vertex  n;         //!< normal vector,  computed by process
     Real    curvature; //!< curvature,      computed by process
     Coord   gpos;      //!< position on grid, lower indices
     Vertex  bw;        //!< bilinear interpolation weights
-    Tracer *next;
-    Tracer *prev;
-    Bubble *bubble;
+    Bubble *bubble;    //!< whose that ?
+    bool    is_spot;   //!< spotted on the grid ?
     
     static const size_t IO_COUNT = 6;
     

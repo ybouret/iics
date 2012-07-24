@@ -1,5 +1,6 @@
 #include "yocto/utest/run.hpp"
 #include "../segmenter.hpp"
+#include "yocto/code/utils.hpp"
 
 
 YOCTO_UNIT_TEST_IMPL(seg)
@@ -30,8 +31,8 @@ YOCTO_UNIT_TEST_IMPL(seg)
         Segmenter Seg( W.mesh );
         
         {
-            const Vertex dr( Seg.dX[0], Seg.dY[0] );
-            bubbles.lambda = dr.norm()/2;
+    
+            bubbles.lambda = min_of( Seg.dX[0], Seg.dY[0])/2;
         }
         
         Seg.allocate_segments();
