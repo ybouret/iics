@@ -10,6 +10,8 @@ Junction:: ~Junction() throw()
 Junction:: Junction() throw() :
 vertex(),
 bubble(0),
+lo(0),
+up(0),
 next(0),
 prev(0)
 {

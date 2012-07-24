@@ -27,7 +27,9 @@ pbc( box.y ),
 tcache(),
 scache(),
 mcache(),
-lambda(1)
+lambda(1),
+b_list(),
+b_pool()
 {
 }
 
@@ -44,7 +46,7 @@ void Bubbles:: empty() throw()
 
 Bubble *Bubbles:: create()
 {
-    Bubble *bubble = NULL;
+    Bubble *bubble = 0;
     if( b_pool.size )
     {
         bubble = b_pool.query();
