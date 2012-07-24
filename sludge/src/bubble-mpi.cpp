@@ -196,6 +196,7 @@ void Bubble:: propagate_markers(const yocto::mpi &MPI)
 {
     if( MPI.IsParallel )
     {
+        borders.empty();
         const int i_prev = MPI.CommWorldPrev();
         const int i_next = MPI.CommWorldNext();            
         __exch_marker(*this,i_prev,i_next,MPI);

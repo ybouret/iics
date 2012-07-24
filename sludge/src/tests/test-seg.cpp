@@ -45,8 +45,7 @@ YOCTO_UNIT_TEST_IMPL(seg)
         bubbles.check_geometries_within( reg.vmin.y, reg.vmax.y);
 
         
-        Seg.clear();
-        Seg.process_bubble( bubbles.first() );
+        Seg.process_bubbles( bubbles );
         Seg.save_junctions("junc0.dat");
         
         //-- bigger bubble
@@ -59,9 +58,21 @@ YOCTO_UNIT_TEST_IMPL(seg)
         bubbles.check_geometries_within( reg.vmin.y, reg.vmax.y);
         
         
-        Seg.clear();
-        Seg.process_bubble( bubbles.first() );
+        Seg.process_bubbles( bubbles );
         Seg.save_junctions("junc1.dat");
+        
+        //-- peanut
+        bubbles.empty();
+        
+        bubbles.create()->map_peanut(center, 3.5, 0.95);
+        bubbles.check_topologies();
+        bubbles.first()->save_dat("bubble2.dat");
+        
+        bubbles.check_geometries_within( reg.vmin.y, reg.vmax.y);
+        
+        
+        Seg.process_bubbles( bubbles );
+        Seg.save_junctions("junc2.dat");
 
     }
     
