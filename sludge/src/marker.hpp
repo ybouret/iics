@@ -5,6 +5,8 @@
 #include "yocto/core/cached-list.hpp"
 #include "yocto/core/list.hpp"
 
+
+//! coordinate if a point inside a bubble
 class Marker 
 {
 public:

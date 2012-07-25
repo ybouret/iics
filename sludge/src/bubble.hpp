@@ -30,7 +30,6 @@ public:
     Real                pressure; //!< broadcasted
     Spot::List          spots;    
     Marker::List        markers; //!< computed by spots
-    //Marker::List        borders; //!< from neighors
     bool                active;
     Bubble             *next;
     Bubble             *prev;
@@ -79,9 +78,6 @@ public:
 
     //! slave spots -> master
     void assemble_topology( const mpi &MPI );
-    
-    //! propagate markers to neighbors
-    //void propagate_markers( const mpi &MPI );
 #endif
     
     

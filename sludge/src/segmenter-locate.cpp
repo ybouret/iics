@@ -46,8 +46,8 @@ void Segmenter:: process_tracer(Tracer *p)
     //--------------------------------------------------------------------------
     // find position on grid
     //--------------------------------------------------------------------------
-    const unit_t i = p->gpos.x = locate_point( P.x, X );
-    const unit_t j = p->gpos.y = locate_point( P.y, Y );
+    const unit_t i = p->gLower.x = locate_point( P.x, X );
+    const unit_t j = p->gLower.y = locate_point( P.y, Y );
     
     //--------------------------------------------------------------------------
     // find grid boundaries
@@ -88,7 +88,6 @@ SEGMENT[INDEX].append()->handle = I; \
 I->up = 1 + (I->lo = locate_point( I->vertex.COORD, ARR )); \
 } while(false)
 
-//I->bubble->pbc(I->vertex);           
 
 void Segmenter:: find_junctions(const Vertex &P, 
                                 const Vertex &Q, 
@@ -97,8 +96,8 @@ void Segmenter:: find_junctions(const Vertex &P,
                                 Tracer       *p )
 {
     assert(p!=NULL);
-    const unit_t i  = p->gpos.x;
-    const unit_t j  = p->gpos.y;
+    const unit_t i  = p->gLower.x;
+    const unit_t j  = p->gLower.y;
     const unit_t i1 = i+1;
     const unit_t j1 = j+1;
     Bubble *bubble  = p->bubble; assert(bubble);

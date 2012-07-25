@@ -5,6 +5,7 @@
 #include "yocto/core/list.hpp"
 #include "yocto/core/handle-list.hpp"
 
+//! handle to a tracer
 class Spot 
 {
 public:
