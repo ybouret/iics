@@ -26,6 +26,8 @@ public:
     
     Bubbles            bubbles;
     Segmenter          segmenter;
+    Segment::List     *pbc_segments; //!< if parallel PBC
+    const int          pbc_peer;     //!< with whom to complete segments
     
     //==========================================================================
     // Bubbles Operations

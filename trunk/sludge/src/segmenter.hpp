@@ -34,9 +34,10 @@ public:
     void clear() throw();
     
     
-    //! clear/process
+    //! clear/process/sort
     /**
-     then upgrade PBC if required
+     - you need to process the PBC afterward
+     - then you can assign_markers()
      */
     void process_bubbles( Bubbles &bubbles );
     
@@ -44,7 +45,7 @@ public:
     void horizontal_pbc(unit_t y_lower, unit_t y_upper);
     
     
-    //! sort segments and assign borders by horizontal scanning
+    //!  assign borders by horizontal scanning or SORTED segments
     /**
      valid only after a process_bubbles() !
      */
@@ -53,8 +54,9 @@ public:
     //! for debugging
     void save_junctions( const string &filename ) const;
     
-    
-    
+    //! check segments of PBC are the same
+    void merge_pbc( Segment::List &a, Real ya, Segment::List &b, Real yb );
+        
 private:
     vector<Segment::List> segments;
     YOCTO_DISABLE_COPY_AND_ASSIGN(Segmenter);
@@ -64,7 +66,7 @@ private:
     //! process one bubble
     void process_bubble( Bubble *bubble );
     
-    //! sort segments by junction->lo
+    //! sort segments by junction->vertex.[x|y]
     void sort_segments();
     
     //! bissection algorithm

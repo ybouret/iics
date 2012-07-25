@@ -24,6 +24,7 @@ segment.hpp	segment.cpp
 segmenter.hpp   segmenter.cpp
 		segmenter-locate.cpp
 		segmenter-assign.cpp
+		segmenter-merge.cpp
 )
 
 FIND_PACKAGE(MPI)

@@ -29,19 +29,22 @@ scache(),
 mcache(),
 lambda(1),
 b_list(),
-b_pool()
+b_pool(),
+bp_vec()
 {
 }
 
 
 void Bubbles:: empty() throw()
 {
+    bp_vec.free();
     while( b_list.size )
     {
         Bubble *bubble = b_list.pop_back();
         bubble->clear();
         b_pool.store(bubble);
     }
+    
 }
 
 Bubble *Bubbles:: create()
@@ -55,14 +58,33 @@ Bubble *Bubbles:: create()
     {
         bubble = new Bubble(lambda, pbc, tcache, scache, mcache);
     }
+    assert( 0 == bubble->size );
     
     b_list.push_back(bubble);
     
     bubble->id = b_list.size;
-    
+    try 
+    {
+        bp_vec.push_back(bubble);
+        assert( bp_vec.size() == b_list.size );
+    }
+    catch(...)
+    {
+        b_pool.store( b_list.pop_back() );
+        throw;
+    }
     return bubble;
 }
 
+Bubble * Bubbles:: operator[]( BubbleID id ) throw()
+{
+    assert(id>0);
+    assert(id<=bp_vec.size());
+    Bubble *b = bp_vec[id];
+    assert(b!=NULL);
+    assert(b_list.owns(b));
+    return b;
+}
 
 void Bubbles:: fill( Array &B ) const
 {

@@ -14,7 +14,7 @@ YOCTO_UNIT_TEST_IMPL(cell)
     Cell cell(20,30,box,MPI);
     if( cell.sim_master )
     {
-        cell.bubbles.create()->map_peanut(center, 3.5, 0.95);
+        cell.bubbles.create()->map_peanut(center+Vertex(0,-4), 3.5, 0.95);
     }
     
     cell.dispatch_all();
@@ -23,5 +23,6 @@ YOCTO_UNIT_TEST_IMPL(cell)
     
     cell.bubbles.first()->save_spots( vformat("spots%d.%d.dat",cell.sim_size,cell.sim_rank ) );
     cell.segmenter.save_junctions( vformat("junc%d.%d.dat",cell.sim_size,cell.sim_rank) );
+    cell.bubbles.first()->save_inside( vformat("inside%d.%d.dat",cell.sim_size,cell.sim_rank), cell.mesh);
 }
 YOCTO_UNIT_TEST_DONE()
