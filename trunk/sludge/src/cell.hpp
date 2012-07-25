@@ -26,8 +26,9 @@ public:
     
     Bubbles            bubbles;
     Segmenter          segmenter;
-    Segment::List     *pbc_segments; //!< if parallel PBC
-    const int          pbc_peer;     //!< with whom to complete segments
+    Segment::List     *border_segments; //!< if parallel PBC
+    const int          border_peer;     //!< with whom to complete segments
+    const Real         border_y;        //!< to reconstruct the segments
     
     //==========================================================================
     // Bubbles Operations
@@ -55,7 +56,9 @@ public:
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);
     mpi::Requests   requests;    
-
+    vector<JPack>   self_jpack;
+    vector<JPack>   peer_jpack;
+    void            check_borders();
 };
 
 #endif
