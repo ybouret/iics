@@ -43,7 +43,7 @@ void Cell:: check_borders()
             //------------------------------------------------------------------
             // and check/merge...
             //------------------------------------------------------------------
-            MPI.WaitFor(0.5*sim_rank);
+            MPI.__WaitFor(0.5*sim_rank);
             fprintf( stderr, "\ncheck_borders on rank %d\n", sim_rank );
             segmenter.merge_pbc(*border_segments, border_y, peer_border, border_y);
             peer_border.empty();

@@ -27,7 +27,7 @@ void Bubble:: dispatch_topology( const mpi &MPI )
         //--------------------------------------------------------------------------
         // broadcast #tracers
         //--------------------------------------------------------------------------
-        MPI.BcastAs<size_t>(num_tracer, 0, MPI_COMM_WORLD);
+        MPI.__Bcast<size_t>(num_tracer, 0, MPI_COMM_WORLD);
         MPI.Bcast( &pressure, 1, MPI_REAL_TYPE, 0, MPI_COMM_WORLD);
         MPI.Printf(stderr, "rank %d> #num_tracer=%lu\n", MPI.CommWorldRank, num_tracer);
         if(!master)
@@ -67,7 +67,7 @@ void Bubble:: assemble_topology( const mpi &MPI )
                 // receive the num_changed
                 //--------------------------------------------------------------
                 
-                const size_t num_changed = MPI.RecvAs<size_t>(r, tag, MPI_COMM_WORLD, status);
+                const size_t num_changed = MPI.__Recv<size_t>(r, tag, MPI_COMM_WORLD, status);
                 fprintf( stderr, "rank %d changed=%u\n", r, unsigned(num_changed) );
                 
                 //--------------------------------------------------------------
@@ -79,7 +79,7 @@ void Bubble:: assemble_topology( const mpi &MPI )
                     //----------------------------------------------------------
                     // receive the #jump to perform
                     //----------------------------------------------------------
-                    size_t jump = MPI.RecvAs<size_t>(r, tag, MPI_COMM_WORLD, status);
+                    size_t jump = MPI.__Recv<size_t>(r, tag, MPI_COMM_WORLD, status);
                     
                     //----------------------------------------------------------
                     // move forward
@@ -104,7 +104,7 @@ void Bubble:: assemble_topology( const mpi &MPI )
             // send the num_changed
             //------------------------------------------------------------------
             const size_t num_changed = spots.size;
-            MPI.SendAs<size_t>(num_changed, 0, tag, MPI_COMM_WORLD);
+            MPI.__Send<size_t>(num_changed, 0, tag, MPI_COMM_WORLD);
             
             //------------------------------------------------------------------
             // far all changed
@@ -115,7 +115,7 @@ void Bubble:: assemble_topology( const mpi &MPI )
                 //--------------------------------------------------------------
                 // send the #jump to perform
                 //--------------------------------------------------------------
-                MPI.SendAs<size_t>(spot->jump, 0, tag, MPI_COMM_WORLD);
+                MPI.__Send<size_t>(spot->jump, 0, tag, MPI_COMM_WORLD);
                 
                 //--------------------------------------------------------------
                 // send the new coordinates
