@@ -19,7 +19,7 @@ void Bubbles:: check_and_dispatch_all(const mpi &MPI)
         empty();
     }
     
-    MPI.BcastAs<size_t>(num_bubbles, 0, MPI_COMM_WORLD);
+    MPI.__Bcast<size_t>(num_bubbles, 0, MPI_COMM_WORLD);
     
     //==========================================================================
     // dispatch each bubble
@@ -44,7 +44,7 @@ void Bubbles:: assemble_all( const mpi &MPI )
     size_t num_bubbles = 0;
     if(MPI.IsMaster)
         num_bubbles = count();
-    MPI.BcastAs<size_t>(num_bubbles,0,MPI_COMM_WORLD);
+    MPI.__Bcast<size_t>(num_bubbles,0,MPI_COMM_WORLD);
     assert( count() == num_bubbles );
 #endif
     
