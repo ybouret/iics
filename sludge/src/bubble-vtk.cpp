@@ -12,6 +12,18 @@ void Bubble:: save_dat( const string &filename ) const
     fp("%.15g %.15g\n",p->vertex.x,p->vertex.y);
 }
 
+
+void Bubble::save_spots( const string &filename ) const
+{
+    ios::ocstream fp( filename, false );
+    for( const Spot *spot = spots.head; spot; spot=spot->next )
+    {
+        const Vertex &v = spot->handle->vertex;
+        fp("%.15g %.15g\n",v.x,v.y);
+    }
+}
+
+
 void Bubble:: save_vtk( const string &filename ) const 
 {
     const unsigned n = size;

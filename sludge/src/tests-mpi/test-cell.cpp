@@ -12,7 +12,16 @@ YOCTO_UNIT_TEST_IMPL(cell)
     Vertex center(box.x/2,0);
     
     Cell cell(20,30,box,MPI);
+    if( cell.sim_master )
+    {
+        cell.bubbles.create()->map_peanut(center, 3.5, 0.95);
+    }
     
-
+    cell.dispatch_all();
+    
+    SaveGrid( cell.mesh, vformat("grid%d.%d.dat", cell.sim_size,cell.sim_rank));
+    
+    cell.bubbles.first()->save_spots( vformat("spots%d.%d.dat",cell.sim_size,cell.sim_rank ) );
+    cell.segmenter.save_junctions( vformat("junc%d.%d.dat",cell.sim_size,cell.sim_rank) );
 }
 YOCTO_UNIT_TEST_DONE()

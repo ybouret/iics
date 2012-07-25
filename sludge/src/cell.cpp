@@ -34,7 +34,7 @@ requests( num_requests() )
     //! prepare ghosts
     prepare_ghosts();
     
-    MPI.Printf( stderr, "Cell rank %d> \n", sim_rank);
+    MPI.Printf( stderr, "Cell rank %d> region:(%7.2f->%7.2f) / layout:(%7.2f->%7.2f) / outline: (%7.2f->%7.2f)\n", sim_rank,sub_region.vmin.y, sub_region.vmax.y, Y[lower.y], Y[upper.y], Y[Y.lower], Y[Y.upper] );
     
 }
 
@@ -58,7 +58,11 @@ void Cell:: dispatch_all( )
     MPI.Printf0( stderr, "\t---> compute bubbles properties\n");
     bubbles.check_geometries_within(sub_region.vmin.y, sub_region.vmax.y);
     
+    MPI.Printf0( stderr, "\t---> segmentation: process\n");
+    segmenter.process_bubbles( bubbles );
     
+    MPI.Printf0( stderr, "\t---> segmentation: assign\n");
+    segmenter.assign_markers();
 }
 
 void Cell:: assemble_all()

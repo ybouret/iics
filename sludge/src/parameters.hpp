@@ -21,6 +21,7 @@ public:
     const mpi   &MPI;
     const int    sim_rank;
     const int    sim_size;
+    const bool   sim_master;
     const bool   sim_parallel;   
     const Coord  sim_lower;        //!< 0,0
     const Coord  sim_upper;        //!< Nx, Ny
