@@ -6,6 +6,24 @@
 
 #include "yocto/sequence/vector.hpp"
 
+class Segmenter;
+
+class JPack
+{
+public:
+    JPack() throw();
+    JPack( const JPack &other ) throw();
+    ~JPack() throw();
+    JPack&operator=(const JPack&) throw();
+
+    Real     vc; //!< vertex coordinate
+    unit_t   lo; //!< lower grid index
+    BubbleID id; //!< bubble id
+    
+    static void HEncode( vector<JPack> &jpack, const Segment::List &src );
+    static void Prepare( vector<JPack> &jpack, size_t n );
+    static void HDecode( Segment::List &tgt, const vector<JPack> &jpack, Segmenter &segmenter, const Real y, Bubbles &bubbles);
+};
 
 
 class Segmenter 

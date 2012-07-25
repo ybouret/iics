@@ -25,6 +25,7 @@ segmenter.hpp   segmenter.cpp
 		segmenter-locate.cpp
 		segmenter-assign.cpp
 		segmenter-merge.cpp
+		segmenter-jpack.cpp
 )
 
 FIND_PACKAGE(MPI)
@@ -35,8 +36,10 @@ IF(MPI_FOUND)
 	SET(SOURCES_PAR 
 	bubble-mpi.cpp
 	bubbles-mpi.cpp
-	parameters.hpp parameters.cpp
-	cell.hpp cell.cpp
+	parameters.hpp	parameters.cpp
+	cell.hpp	cell.cpp
+			cell-dispatch.cpp
+			cell-assemble.cpp
 	)
 ENDIF(MPI_FOUND)
 
