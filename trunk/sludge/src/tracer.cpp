@@ -17,7 +17,7 @@ prev(0),
 t(),
 n(),
 curvature(0),
-gpos(),
+gLower(),
 bw(),
 bubble(0),
 is_spot(false)
