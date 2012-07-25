@@ -7,6 +7,7 @@ void Segmenter:: assign_markers()
     for( unit_t j=Y.lower;j<=Y.upper;++j)
     {
         Segment::List &Sj = horizontal[j];
+        if(false)
         {
             fprintf( stderr, "seg@y= %8.3f: %3lu:", Y[j], Sj.size);
             for( const Segment *s = Sj.head; s; s=s->next )
