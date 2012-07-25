@@ -2,7 +2,6 @@
 
 void Segmenter:: assign_markers()
 {
-    sort_segments();
     
     for( unit_t j=Y.lower;j<=Y.upper;++j)
     {

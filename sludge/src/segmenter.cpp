@@ -63,6 +63,7 @@ void Segmenter:: process_bubbles( Bubbles &bubbles )
     {
         process_bubble(bubble);
     }
+    sort_segments();
     
 }
 
@@ -73,10 +74,13 @@ void Segmenter:: horizontal_pbc( unit_t y_lower, unit_t y_upper )
     assert(y_upper<=Y.upper);
     Segment::List &S_lo = horizontal[y_lower];
     Segment::List &S_up = horizontal[y_upper];
-    
+        
     const Real y_lo = Y[y_lower];
     const Real y_up = Y[y_upper];
     
+    merge_pbc(S_lo, y_lo, S_up, y_up);
+    
+#if 0
     Segment::List mirror_lo( s_cache );
     for( const Segment *s = S_lo.head; s; s=s->next )
     {
@@ -99,7 +103,7 @@ void Segmenter:: horizontal_pbc( unit_t y_lower, unit_t y_upper )
     
     S_up.merge_back(mirror_lo);
     S_lo.merge_back(mirror_up);
-    
+#endif
     
     
 }

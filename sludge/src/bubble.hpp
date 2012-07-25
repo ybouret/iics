@@ -9,7 +9,7 @@
 #include "yocto/mpi/mpi.hpp"
 #endif
 
-typedef unit_t BubbleID;
+typedef unsigned BubbleID;
 
 
 class Bubble  : public Tracer::List

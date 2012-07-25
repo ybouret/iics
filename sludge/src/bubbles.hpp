@@ -45,9 +45,14 @@ public:
     //! fill with markers from segmentation
     void fill( Array &B ) const;
     
+    Bubble * operator[]( BubbleID id ) throw();
+    
+    
 private:
-    core::list_of<Bubble> b_list;
-    core::pool_of<Bubble> b_pool;
+    core::list_of<Bubble> b_list; //!< Bubble list
+    core::pool_of<Bubble> b_pool; //!< Bubble pool
+    vector<Bubble*>       bp_vec; //!< Bubble pointer vector
+    
     YOCTO_DISABLE_COPY_AND_ASSIGN(Bubbles);
 };
 
