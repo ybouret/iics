@@ -3,6 +3,7 @@ IF(MPI_FOUND)
 ADD_EXECUTABLE(testing-mpi main.cpp
 test-bubble.cpp
 test-bubbles.cpp
+test-cell.cpp
 )
 
 TARGET_LINK_LIBRARIES(testing-mpi sludge)
