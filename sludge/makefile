@@ -8,6 +8,7 @@ clean:
 	@echo "-- removing .dat" && rm -f *.dat
 	@echo "-- removing .curve" && rm -f *.curve
 	@echo "-- removing .vtk" && rm -f *.vtk
+	@echo "-- removing .ppm" && rm -f *.ppm
 
 
 veryclean:
