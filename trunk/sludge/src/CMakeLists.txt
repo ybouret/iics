@@ -42,6 +42,7 @@ IF(MPI_FOUND)
 			cell-dispatch.cpp
 			cell-assemble.cpp
 			cell-pressure.cpp
+			cell-velocities.cpp
 			cell-fields.cpp
 	)
 	SOURCE_GROUP( mpi FILES ${SOURCES_PAR} )

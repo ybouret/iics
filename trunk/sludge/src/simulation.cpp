@@ -38,4 +38,5 @@ void Simulation:: initialize()
         b->map_peanut( Vertex(sim_box.x/2,0), 0.25 * Lx, 0.9 + 0.09 * Alea() );
         b->pressure = 1;
     }
+    compute_fields();
 }
