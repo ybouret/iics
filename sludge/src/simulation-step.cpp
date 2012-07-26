@@ -14,10 +14,12 @@ void Simulation:: step()
     
     //process topologies on master
     dispatch_all();
+    compute_pressure();
     
-    
+#if 0
     init_exchange();
     wait_exchange();
+#endif
     
 }
 

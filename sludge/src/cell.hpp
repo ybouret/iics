@@ -28,6 +28,9 @@ public:
     Segmenter          segmenter;
     const Real         delta_X;
     const Real         delta_Y;
+    const Real         inv_dX2;
+    const Real         inv_dY2;
+    const Real         stencil_w;       //!< inverse of P[i][j] factor in Laplacian
     Segment::List     *border_segments; //!< if parallel PBC
     const int          border_peer;     //!< with whom to complete segments
     const unit_t       border_j;        //!< indice
@@ -55,6 +58,10 @@ public:
     
     //! MPI wait ghosts exchange
     void wait_exchange();
+    
+    
+    //! once the bubble are dispatched, with their internal pressure
+    void compute_pressure();
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);

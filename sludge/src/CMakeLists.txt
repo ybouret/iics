@@ -41,6 +41,7 @@ IF(MPI_FOUND)
 	cell.hpp	cell.cpp
 			cell-dispatch.cpp
 			cell-assemble.cpp
+			cell-pressure.cpp
 	)
 	SOURCE_GROUP( mpi FILES ${SOURCES_PAR} )
 ENDIF(MPI_FOUND)
