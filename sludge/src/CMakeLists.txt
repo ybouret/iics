@@ -27,6 +27,7 @@ segmenter.hpp   segmenter.cpp
 		segmenter-merge.cpp
 		segmenter-jpack.cpp
 )
+SOURCE_GROUP( core FILES ${SOURCES_SER} )
 
 FIND_PACKAGE(MPI)
 
@@ -41,13 +42,22 @@ IF(MPI_FOUND)
 			cell-dispatch.cpp
 			cell-assemble.cpp
 	)
+	SOURCE_GROUP( mpi FILES ${SOURCES_PAR} )
 ENDIF(MPI_FOUND)
 
 INCLUDE( ${YROOT}/share/yocto/visit.cmake )
 
 IF( VISIT_FOUND )
 	SET(SOURCES_VIS
+	simulation.hpp	simulation.cpp
+			simulation-meta.cpp
+			simulation-data.cpp
+			simulation-mesh.cpp
+			simulation-curv.cpp
+			simulation-cmds.cpp
+			simulation-step.cpp
 	)
+	SOURCE_GROUP( visit FILES ${SOURCES_VIS} )
 ENDIF( VISIT_FOUND )
 
 ADD_LIBRARY( sludge STATIC
@@ -56,7 +66,15 @@ ADD_LIBRARY( sludge STATIC
  ${SOURCES_VIS}
  )
 
+IF( VISIT_FOUND )
+	ADD_EXECUTABLE(laponite laponite.cpp)
+	TARGET_LINK_LIBRARIES(laponite sludge)
+	TARGET_LINK_YOCTO(laponite swamp)
+	TARGET_LINK_VISIT(laponite)
+ENDIF( VISIT_FOUND )
+
 ADD_SUBDIRECTORY(tests)
 ADD_SUBDIRECTORY(tests-mpi)
+
 
 
