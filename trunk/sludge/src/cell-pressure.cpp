@@ -16,18 +16,6 @@ void Cell:: compute_pressure()
     // initialize pressure field
     //
     //--------------------------------------------------------------------------
-    
-#if 0
-    //! debug only
-    for( unit_t j=lower.y;j<=upper.y;++j)
-    {
-        for( unit_t i=lower.x;i<=upper.x;++i)
-        {
-            P[j][i] = (0.5-Alea());
-        }
-    }
-#endif
-    
     for( const Bubble *bubble = bubbles.first(); bubble; bubble=bubble->next)
     {
         const Real pressure = bubble->pressure;
@@ -37,6 +25,11 @@ void Cell:: compute_pressure()
         }
     }
     
+    //--------------------------------------------------------------------------
+    //
+    // Red Black Gauss Seidel
+    //
+    //--------------------------------------------------------------------------
     for( size_t iter=1; iter<=100;++iter)
     {
         //----------------------------------------------------------------------
@@ -57,18 +50,27 @@ void Cell:: compute_pressure()
         {
             for(unit_t j=upper.y;j>=lower.y;--j)
             {
-                Array1D       &P_j = P[j];
-                const Array1D &B_j = B[j];
+                Array1D       &P_j     = P[j];
+                const Array1D &B_j     = B[j];
+                VertexArray1D &gradP_j = gradP[j];
+                
                 for( unit_t i=xmax-r;i>=xmin; i -= 2 )
                 {
                     if( B_j[i] <= 0 )
                     {
                         //-- in the laponite
-                        Real &P_ji         = P_j[i];
+                        Vertex &gradP_ji   = gradP_j[i];
+                        Real   &P_ji       = P_j[i];
                         const Real P0      = P_ji;
                         const Real twoP0   = P0+P0;
-                        const Real LPx     = (P_j[i-1]  - twoP0 + P_j[i+1] ) * inv_dX2;
-                        const Real LPy     = (P[j-1][i] - twoP0 + P[j+1][i]) * inv_dY2;
+                        const Real P_j_im  = P_j[i-1];
+                        const Real P_j_ip  = P_j[i+1];
+                        const Real P_jm_i  = P[j-1][i];
+                        const Real P_jp_i  = P[j+1][i];
+                        gradP_ji.x         = (P_j_ip - P_j_im) * inv_two_dX;
+                        gradP_ji.y         = (P_jp_i - P_jm_i) * inv_two_dY;
+                        const Real LPx     = (P_j_im - twoP0 + P_j_ip ) * inv_dX2;
+                        const Real LPy     = (P_jm_i - twoP0 + P_jp_i ) * inv_dY2;
                         const Real residue = LPx+LPy;
                         P_ji -= residue * stencil_w;
                     }
@@ -77,7 +79,9 @@ void Cell:: compute_pressure()
         }
     }
     
-    
+    // TODO: should be exchanged with U...
+    _mpi::synchronize1(gradP, MPI, *this, requests);
+
     
     
 }
