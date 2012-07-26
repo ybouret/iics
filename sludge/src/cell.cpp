@@ -27,7 +27,9 @@ border_segments(0),
 border_peer(-1),
 border_j(0),
 border_y(0),
-requests( num_requests() )
+requests( num_requests() ),
+self_jpack(),
+peer_jpack()
 {
     
     //--------------------------------------------------------------------------
