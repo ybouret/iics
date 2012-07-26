@@ -16,9 +16,10 @@ public:
                   const mpi    &mpi_ref);
     virtual ~Cell() throw();
     
-    Array          &P;
-    VertexArray    &U;
-    Array          &B;    //!< bubble or not bubble, auxiliary
+    Array          &P;     //!< auxiliary, since it is synchronized alone
+    Array          &B;     //!< bubble or not bubble, auxiliary
+    VertexArray    &U;     //!< Ux,Uy
+    VertexArray    &gradP; //!< pressure gradient
     const Array1D  &X;
     const Array1D  &Y;
     const Array1D  &dX;
@@ -30,6 +31,8 @@ public:
     const Real         delta_Y;
     const Real         inv_dX2;
     const Real         inv_dY2;
+    const Real         inv_two_dX;
+    const Real         inv_two_dY;
     const Real         stencil_w;       //!< inverse of P[i][j] factor in Laplacian
     Segment::List     *border_segments; //!< if parallel PBC
     const int          border_peer;     //!< with whom to complete segments
@@ -61,7 +64,28 @@ public:
     
     
     //! once the bubble are dispatched, with their internal pressure
+    /**
+     update P and gradP.
+     - P is synchronized over all the domains
+     - gradP is locally computed
+     */
     void compute_pressure();
+    
+    //! compute velocities from gradP
+    /**
+     - compute the local velocities
+     */
+    void compute_velocities();
+    
+    //! one function
+    /**
+     - dispatch_all()
+     - compute_pressure
+     - compute_velocities
+     - synchronize U, gradP,...
+     */
+    void compute_fields();
+    
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);

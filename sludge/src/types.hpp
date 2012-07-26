@@ -20,6 +20,7 @@ typedef rmesh<Real,Layout>             Grid;
 typedef array1D<Real>                  Array1D;
 typedef array2D<Real>                  Array;
 typedef array2D<Vertex>                VertexArray;
+typedef array1D<Vertex>                VertexArray1D;
 typedef ghosts_setup<Coord>            GhostsSetup;
 typedef fields_setup<Layout>           FieldsSetup;
 typedef workspace<Layout, Real, rmesh> WorkspaceBase;

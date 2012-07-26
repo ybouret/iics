@@ -29,9 +29,10 @@ gs()
     assert(Ny>1);
     assert(sim_box.x>0);
     assert(sim_box.y>0);
-    Y_SWAMP_DECL_SELF_VAR("P",    Array);
-    Y_SWAMP_DECL_SELF_VAR("U",    VertexArray);
-    Y_SWAMP_DECL_SELF_AUX("B",    Array);
+    Y_SWAMP_DECL_SELF_AUX("P",     Array);
+    Y_SWAMP_DECL_SELF_AUX("B",     Array);
+    Y_SWAMP_DECL_SELF_VAR("U",     VertexArray);
+    Y_SWAMP_DECL_SELF_VAR("gradP", VertexArray);
     
     if( sim_parallel )
     {
