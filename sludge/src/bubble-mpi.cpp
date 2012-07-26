@@ -28,8 +28,8 @@ void Bubble:: dispatch_topology( const mpi &MPI )
         // broadcast #tracers
         //--------------------------------------------------------------------------
         MPI.__Bcast<size_t>(num_tracer, 0, MPI_COMM_WORLD);
-        MPI.Bcast( &pressure, 1, MPI_REAL_TYPE, 0, MPI_COMM_WORLD);
-        MPI.Printf(stderr, "rank %d> #num_tracer=%lu\n", MPI.CommWorldRank, num_tracer);
+        MPI.__Bcast<Real>(  pressure,   0, MPI_COMM_WORLD);
+        //MPI.Printf(stderr, "rank %d> #num_tracer=%lu\n", MPI.CommWorldRank, num_tracer);
         if(!master)
             append(num_tracer);
         
