@@ -7,7 +7,7 @@ YOCTO_UNIT_TEST_IMPL(cell)
 {
     
     const mpi &MPI = mpi::init( &argc, &argv);
-        
+    
     Vertex box(10,10);
     Vertex center(box.x/2,0);
     
@@ -16,10 +16,11 @@ YOCTO_UNIT_TEST_IMPL(cell)
     {
         cell.bubbles.create()->map_peanut(center+Vertex(0,-4), 3.5, 0.95);
     }
+    SaveGrid( cell.mesh, vformat("grid%d.%d.dat", cell.sim_size,cell.sim_rank));
+    
     
     cell.dispatch_all();
     
-    SaveGrid( cell.mesh, vformat("grid%d.%d.dat", cell.sim_size,cell.sim_rank));
     
     cell.bubbles.first()->save_spots( vformat("spots%d.%d.dat",cell.sim_size,cell.sim_rank ) );
     cell.segmenter.save_junctions( vformat("junc%d.%d.dat",cell.sim_size,cell.sim_rank) );
