@@ -49,7 +49,7 @@ void Segmenter:: merge_pbc( Segment::List &a, Real ya, Segment::List &b , Real y
         Junction  *Ja = sa->handle;
         Junction  *Jb = sb->handle;
         const Real dx = Ja->vertex.x - Jb->vertex.x;
-        fprintf( stderr, "dx=%g\n", dx);
+        //fprintf( stderr, "dx=%g\n", dx);
         if( Fabs(dx)<=xtol )
         {
             //------------------------------------------------------------------

@@ -35,11 +35,15 @@ void Simulation:: perform(const string &cmd)
         // Initialize bubbles
         //----------------------------------------------------------------------
         dispatch_all();
+        compute_pressure();
         
+#if 0
         //----------------------------------------------------------------------
         // Initialize ghosts
         //----------------------------------------------------------------------
         init_exchange();
         wait_exchange();
+#endif
+        
     }
 }

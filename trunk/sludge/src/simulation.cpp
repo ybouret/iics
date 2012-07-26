@@ -27,6 +27,7 @@ void Simulation:: initialize()
         for( unit_t i=lower.x;i<=upper.x;++i)
         {
             P[j][i]   = Y[j] / Ly;
+            P[j][i]   = 0.1 * (0.5 - Alea());
             U[j][i].y = 0.04 + 0.08 * cos( numeric<double>::pi * Y[j] / Ly );
             U[j][i].y = 0.15;
         }
@@ -35,5 +36,6 @@ void Simulation:: initialize()
     {
         Bubble *b = bubbles.create();
         b->map_peanut( Vertex(sim_box.x/2,0), 0.25 * Lx, 0.9 + 0.09 * Alea() );
+        b->pressure = 1;
     }
 }

@@ -45,10 +45,13 @@ int main( int argc, char *argv[] )
         
         //! dispatch bubbles/geometry
         sim.dispatch_all();
+        sim.compute_pressure();
         
+#if 0
         //! prepare fields
         sim.init_exchange();
         sim.wait_exchange();
+#endif
         
         //----------------------------------------------------------------------
         // Run the simulation
