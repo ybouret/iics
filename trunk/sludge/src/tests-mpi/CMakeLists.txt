@@ -4,6 +4,7 @@ ADD_EXECUTABLE(testing-mpi main.cpp
 test-bubble.cpp
 test-bubbles.cpp
 test-cell.cpp
+test-move.cpp
 )
 
 TARGET_LINK_LIBRARIES(testing-mpi sludge)

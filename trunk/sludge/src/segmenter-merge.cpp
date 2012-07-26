@@ -6,7 +6,7 @@ static inline void __display_segments( const Segment::List &a, Real ya, const Se
     const Segment *sb = b.head;
     
     fprintf(stderr,"A@%8.4f:",ya);
-    while(sa) 
+    while(sa)
     {
         Junction *J = sa->handle;
         fprintf(stderr," (%8.4f,%8.4f)", J->vertex.x, J->vertex.y );
@@ -15,7 +15,7 @@ static inline void __display_segments( const Segment::List &a, Real ya, const Se
     fprintf(stderr,"\n");
     
     fprintf(stderr,"B@%8.4f:",yb);
-    while(sb) 
+    while(sb)
     {
         Junction *J = sb->handle;
         fprintf(stderr," (%8.4f,%8.4f)", J->vertex.x, J->vertex.y );
@@ -32,9 +32,11 @@ void Segmenter:: merge_pbc( Segment::List &a, Real ya, Segment::List &b , Real y
     Segment::List new_a(s_cache);
     Segment::List new_b(s_cache);
     
-    fprintf(stderr,"Old Segments\n");
-    __display_segments(a, ya, b, yb);
-    
+    if(false)
+    {
+        fprintf(stderr,"Old Segments\n");
+        __display_segments(a, ya, b, yb);
+    }
     //--------------------------------------------------------------------------
     //
     // common part
@@ -56,7 +58,7 @@ void Segmenter:: merge_pbc( Segment::List &a, Real ya, Segment::List &b , Real y
             new_a.push_back(sa);
             new_b.push_back(sb);
         }
-        else 
+        else
         {
             //------------------------------------------------------------------
             // they are different
@@ -72,7 +74,7 @@ void Segmenter:: merge_pbc( Segment::List &a, Real ya, Segment::List &b , Real y
                 Jb->vertex.y = yb;
                 new_b.attach(Jb);
             }
-            else 
+            else
             {
                 //move sb, restore sa, and move a copy of sb into sa
                 new_b.push_back(sb);
@@ -114,9 +116,12 @@ void Segmenter:: merge_pbc( Segment::List &a, Real ya, Segment::List &b , Real y
         Ja->vertex.y = ya;
         new_a.attach(Ja);
     }
-
-    fprintf(stderr,"New Segments\n");
-    __display_segments(new_a, ya, new_b, yb);
+    
+    if(false)
+    {
+        fprintf(stderr,"New Segments\n");
+        __display_segments(new_a, ya, new_b, yb);
+    }
     
     new_a.swap_with(a);
     new_b.swap_with(b);
