@@ -13,9 +13,10 @@ MPI(mpi_ref),
 sim_rank(     MPI.CommWorldRank ),
 sim_size(     MPI.CommWorldSize ),
 sim_master(   MPI.IsMaster      ),
+sim_last( sim_rank == MPI.CommWorldLast ),
 sim_parallel( MPI.IsParallel    ),
 sim_lower(0,0),
-sim_upper(Nx,Ny),
+sim_upper(Nx,Ny-1),
 sim_box(box),
 sim_layout( sim_lower, sim_upper),
 sim_lower_corner(0,-box.y/2),
@@ -25,6 +26,7 @@ sub_layout(sim_layout.split(sim_rank, sim_size) ),
 sub_region(sim_region.split(sim_rank, sim_size) ),
 gs()
 {
+    assert(Ny>1);
     assert(sim_box.x>0);
     assert(sim_box.y>0);
     Y_SWAMP_DECL_SELF_VAR("P",    Array);

@@ -26,8 +26,11 @@ public:
     
     Bubbles            bubbles;
     Segmenter          segmenter;
+    const Real         delta_X;
+    const Real         delta_Y;
     Segment::List     *border_segments; //!< if parallel PBC
     const int          border_peer;     //!< with whom to complete segments
+    const unit_t       border_j;        //!< indice
     const Real         border_y;        //!< to reconstruct the segments
     
     //==========================================================================

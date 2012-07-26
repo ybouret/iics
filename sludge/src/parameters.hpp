@@ -9,6 +9,10 @@ class Parameters : public FieldsSetup
 {
 public:
     //! declare all fields
+    /**
+     X: 0->Nx
+     Y: 0->Ny-1 since first ghost = Ny by PBC !!
+     */
     explicit Parameters(unit_t      Nx, 
                         unit_t      Ny,
                         const Vertex &box,
@@ -22,6 +26,7 @@ public:
     const int    sim_rank;
     const int    sim_size;
     const bool   sim_master;
+    const bool   sim_last;
     const bool   sim_parallel;   
     const Coord  sim_lower;        //!< 0,0
     const Coord  sim_upper;        //!< Nx, Ny

@@ -51,7 +51,7 @@ void Cell:: check_borders()
     }
     else 
     {
-        segmenter.horizontal_pbc(lower.y, upper.y);
+        segmenter.horizontal_pbc(lower.y, upper.y+1);
     }
 
 }
