@@ -12,14 +12,9 @@ void Simulation:: step()
     assemble_all();
     
     
-    //process topologies on master
-    dispatch_all();
-    compute_pressure();
-    
-#if 0
-    init_exchange();
-    wait_exchange();
-#endif
-    
+    // - process topologies on master
+    // - update B, compute P, gradP, U
+    // - and all exchanged
+    compute_fields();
 }
 
