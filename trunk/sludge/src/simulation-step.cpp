@@ -5,7 +5,7 @@ void Simulation:: step()
     VisIt::Simulation::step();
     
     // move concerned points
-    //bubbles.first()->translate(Vertex(0,0.1*Alea()));
+    bubbles.first()->translate(Vertex(0,0.2*delta_Y));
     advect(0.1);
     
     // send back information to master
@@ -14,7 +14,7 @@ void Simulation:: step()
     
     // - process topologies on master
     // - update B, compute P, gradP, U
-    // - and all exchanged
+    // - and all exchanges
     compute_fields();
     
     

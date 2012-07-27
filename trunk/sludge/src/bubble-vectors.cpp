@@ -1,7 +1,8 @@
 #include "bubble.hpp"
 
-void Bubble:: raw_initialize() 
+void Bubble:: raw_initialize()
 {
+    
     //--------------------------------------------------------------------------
     // first pass: pbc, edge, s
     //--------------------------------------------------------------------------
@@ -16,7 +17,7 @@ void Bubble:: raw_initialize()
         p->s2   = p->edge.norm2();
         p->s    = Sqrt( p->s2 );
     }
-    
+    content = 0;
     compute_geometry();
     
 }
@@ -37,8 +38,8 @@ void Bubble:: compute_geometry()
         area += v0.x * v1.y - v0.y * v1.x;
         v0 = v1;
     }
-    area = Fabs(area)/2;
-    
+    area     = Fabs(area)/2;
+    pressure = content / area;
     //--------------------------------------------------------------------------
     // second pass: curvature
     //--------------------------------------------------------------------------

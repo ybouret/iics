@@ -20,8 +20,8 @@ visit_handle Simulation:: get_mesh( int domain, const string &name ) const
             
             VisIt_RectilinearMesh_setCoordsXY(h, hx, hy);
             
-            int minRealIndex[3] = { 1,         2 ,        0 };
-            int maxRealIndex[3] = { X.width-2, Y.width-3, 0 };
+            int minRealIndex[3] = { 0,         2 ,        0 };
+            int maxRealIndex[3] = { X.width-1, Y.width-3, 0 };
             
             if(  par_rank < par_size - 1)
                 maxRealIndex[1]++;
