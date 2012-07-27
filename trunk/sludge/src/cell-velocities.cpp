@@ -11,6 +11,8 @@ void Cell:: compute_velocities()
         const VertexArray1D &gradP_j = gradP[j];
         VertexArray1D       &U_j     = U[j];
         
+        U_j[lower.x].ldz();
+        
         for(unit_t i=xmax;i>=xmin;--i)
         {
             if(B_j[i]<=0)
