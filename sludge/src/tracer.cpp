@@ -17,9 +17,6 @@ prev(0),
 t(),
 n(),
 curvature(0),
-gLower(),
-gUpper(),
-bw(),
 bubble(0),
 is_spot(false)
 {

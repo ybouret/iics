@@ -88,6 +88,8 @@ public:
     
     void advect( Real dt);
     
+    Real   Lambda( Real g ) const;
+    Vertex velocity_from( const Vertex &g ) const;
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);

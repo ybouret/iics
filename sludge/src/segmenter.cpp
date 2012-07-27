@@ -52,7 +52,7 @@ void Segmenter:: process_bubble(Bubble *bubble)
     bubble->markers.empty();
     for( Spot *spot = bubble->spots.head; spot; spot=spot->next )
     {
-        process_tracer( spot->handle );
+        process_spot( spot );
     }
 }
 

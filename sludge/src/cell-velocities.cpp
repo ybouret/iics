@@ -21,14 +21,14 @@ void Cell:: compute_velocities()
                 //--------------------------------------------------------------
                 // in the laponite
                 //--------------------------------------------------------------
-                U_j[i] = -gradP_j[i];
+                U_j[i] = velocity_from(gradP_j[i]);
             }
             else
             {
                 //--------------------------------------------------------------
                 // in a bubble
                 //--------------------------------------------------------------
-                U_j[i].ldz();
+                U_j[i].ldz(); // idem if gradP_j[i] == 0.
             }
         }
     }
@@ -37,52 +37,35 @@ void Cell:: compute_velocities()
     {
         for( Spot *spot = bubble->spots.head;spot;spot=spot->next)
         {
-            Tracer      *p  = spot->handle;
-            const unit_t i0 = p->gLower.x;
-            const unit_t j0 = p->gLower.y;
-            const unit_t i1 = p->gUpper.x;
-            const unit_t j1 = p->gUpper.y;
-            Vertex      u(0,0);
-            const Real  x   = p->bw.x;
-            const Real  y   = p->bw.y;
+            //Tracer      *p  = spot->handle;
+            const unit_t i0 = spot->gLower.x;
+            const unit_t j0 = spot->gLower.y;
+            const unit_t i1 = spot->gUpper.x;
+            const unit_t j1 = spot->gUpper.y;
+            
+            //------------------------------------------------------------------
+            // interpolate the gradient
+            //------------------------------------------------------------------
+            Vertex       g(0,0);
+            const Real  x   = spot->bw.x;
+            const Real  y   = spot->bw.y;
+            //fprintf(stderr, "wx=%.4f,wy=%.4f\n", x,y);
             const Real  umx = 1-x;
             const Real  umy = 1-y;
-            Real        weight = 0;
+            const Real  w00 = umx*umy;
+            const Real  w10 = x*umy;
+            const Real  w11 = x*y;
+            const Real  w01 = umx * y;
             
             
-            if(B[j0][i0]<=0)
-            {
-                const Real  w00 = umx*umy;
-                weight += w00;
-                u += w00 * U[j0][i0];
-            }
+            g += w00 * gradP[j0][i0];
+            g += w10 * gradP[j0][i1];
+            g += w11 * gradP[j1][i1];
+            g += w01 * gradP[j1][i0];
+
             
-            if(B[j0][i1]<=0)
-            {
-                const Real  w10 = x*umy;
-                weight += w10;
-                u += w10 * U[j0][i1];
-            }
-            
-            if(B[j1][i1]<=0)
-            {
-                const Real  w11 = x*y;
-                weight += w11;
-                u += w11 * U[j1][i1];
-            }
-            
-            if(B[j1][i0]<=0)
-            {
-                const Real  w01 = umx * y;
-                weight += w01;
-                u += w01 * U[j1][i0];
-            }
-            
-            if( weight <= 0)
-                throw exception("Invalid tracer for velocity!");
-            
-            
-            spot->U = (1/weight) * u;
+                        
+            spot->U = velocity_from(g);
         }
     }
     

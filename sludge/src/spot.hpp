@@ -15,6 +15,9 @@ public:
     Tracer *handle; //!< pointing
     size_t  jump;   //!< encoding Tracer in Tracer::List
     Vertex  U;      //!< velocity of the tracer
+    Coord   gLower;    //!< position on grid, lower indices
+    Coord   gUpper;    //!< position on grid, upper indices
+    Vertex  bw;        //!< bilinear interpolation weights
     Spot   *next;
     Spot   *prev;
     void reset() throw();
