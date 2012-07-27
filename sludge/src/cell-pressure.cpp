@@ -9,7 +9,8 @@ void Cell:: compute_pressure()
     // we start from the bubble, with the B field initialized
     //
     //==========================================================================
-    
+    MPI.Printf0( stderr, "\t---> computing pressure\n");
+
     
     //--------------------------------------------------------------------------
     //
@@ -22,6 +23,7 @@ void Cell:: compute_pressure()
         for( const Marker *m = bubble->markers.head;m;m=m->next)
         {
             P[m->coord] = pressure;
+            gradP[m->coord].ldz();
         }
     }
     

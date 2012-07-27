@@ -86,6 +86,8 @@ public:
      */
     void compute_fields();
     
+    void advect( Real dt);
+    
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);
