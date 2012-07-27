@@ -33,10 +33,12 @@ unit_t Segmenter::locate_point(Real           x,
 }
 
 
-void Segmenter:: process_tracer(Tracer *p)
+void Segmenter:: process_spot(Spot *spot)
 {
     assert(segments.size()>0);
-    assert(p!=NULL);
+    assert(spot!=NULL);
+    assert(spot->handle!=NULL);
+    Tracer *p = spot->handle;
     const Vertex P = p->vertex;
     assert(P.y >= Y[Y.lower] );
     assert(P.y <  Y[Y.upper] );
@@ -46,10 +48,10 @@ void Segmenter:: process_tracer(Tracer *p)
     //--------------------------------------------------------------------------
     // find position on grid
     //--------------------------------------------------------------------------
-    const unit_t i  = p->gLower.x = locate_point( P.x, X );
-    const unit_t j  = p->gLower.y = locate_point( P.y, Y );
-    const unit_t i1 = p->gUpper.x = p->gLower.x + 1;
-    const unit_t j1 = p->gUpper.y = p->gLower.y + 1;
+    const unit_t i  = spot->gLower.x = locate_point( P.x, X );
+    const unit_t j  = spot->gLower.y = locate_point( P.y, Y );
+    const unit_t i1 = spot->gUpper.x = spot->gLower.x + 1;
+    const unit_t j1 = spot->gUpper.y = spot->gLower.y + 1;
     
     //--------------------------------------------------------------------------
     // find grid boundaries
@@ -60,21 +62,21 @@ void Segmenter:: process_tracer(Tracer *p)
     //--------------------------------------------------------------------------
     // compute bilinear interpolation coefficients
     //--------------------------------------------------------------------------
-    p->bw.x = (P.x-vmin.x)/dX[i];
-    p->bw.y = (P.y-vmin.y)/dY[j];
+    spot->bw.x = (P.x-vmin.x)/dX[i];
+    spot->bw.y = (P.y-vmin.y)/dY[j];
     
     //--------------------------------------------------------------------------
     // find potential intersections
     //--------------------------------------------------------------------------
     {
         const Vertex Q = P + p->edge;
-        find_junctions(P, Q, vmin, vmax, p);
+        find_junctions(P, Q, vmin, vmax, spot);
     }
     
     if( !p->prev->is_spot )
     {
         const Vertex Q = P - (p->prev->edge);
-        find_junctions(P, Q, vmin, vmax, p);
+        find_junctions(P, Q, vmin, vmax, spot);
     }
     
 }
@@ -95,13 +97,13 @@ void Segmenter:: find_junctions(const Vertex &P,
                                 const Vertex &Q, 
                                 const Vertex &vmin, 
                                 const Vertex &vmax, 
-                                Tracer       *p )
+                                Spot         *spot )
 {
-    assert(p!=NULL);
-    const unit_t i  = p->gLower.x;
-    const unit_t j  = p->gLower.y;
-    const unit_t i1 = p->gUpper.x;
-    const unit_t j1 = p->gUpper.y;
+    Tracer *p = spot->handle;
+    const unit_t i  = spot->gLower.x;
+    const unit_t j  = spot->gLower.y;
+    const unit_t i1 = spot->gUpper.x;
+    const unit_t j1 = spot->gUpper.y;
     Bubble *bubble  = p->bubble; assert(bubble);
     //--------------------------------------------------------------------------
     // simplified Cohen-Sutherland

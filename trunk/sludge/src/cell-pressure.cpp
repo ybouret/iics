@@ -29,7 +29,7 @@ void Cell:: compute_pressure()
     
     for( unit_t j=upper.y;j>=lower.y;--j)
     {
-        P[j][upper.x] = 2;
+        P[j][upper.x] = 0.5;
     }
     //--------------------------------------------------------------------------
     //

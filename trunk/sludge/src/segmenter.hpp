@@ -79,7 +79,7 @@ private:
     vector<Segment::List> segments;
     YOCTO_DISABLE_COPY_AND_ASSIGN(Segmenter);
     //! process a Tracer spotted on the grid
-    void process_tracer( Tracer *p );
+    void process_spot( Spot *spot );
     
     //! process one bubble
     void process_bubble( Bubble *bubble );
@@ -91,7 +91,7 @@ private:
     static unit_t locate_point( Real, const Array1D &) throw();
 
     //! factorized code to detect the junctions
-    void find_junctions( const Vertex &P, const Vertex &Q, const Vertex &vmin, const Vertex &vmax, Tracer *p );
+    void find_junctions( const Vertex &P, const Vertex &Q, const Vertex &vmin, const Vertex &vmax, Spot *p );
     
 };
 

@@ -5,8 +5,8 @@ void Simulation:: step()
     VisIt::Simulation::step();
     
     // move concerned points
-    //advect_points(1);
-    bubbles.first()->translate(Vertex(0,0.1*Alea()));
+    //bubbles.first()->translate(Vertex(0,0.1*Alea()));
+    advect(0.1);
     
     // send back information to master
     assemble_all();
@@ -16,5 +16,7 @@ void Simulation:: step()
     // - update B, compute P, gradP, U
     // - and all exchanged
     compute_fields();
+    
+    
 }
 
