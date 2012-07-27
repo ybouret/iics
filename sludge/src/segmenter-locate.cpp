@@ -46,14 +46,16 @@ void Segmenter:: process_tracer(Tracer *p)
     //--------------------------------------------------------------------------
     // find position on grid
     //--------------------------------------------------------------------------
-    const unit_t i = p->gLower.x = locate_point( P.x, X );
-    const unit_t j = p->gLower.y = locate_point( P.y, Y );
+    const unit_t i  = p->gLower.x = locate_point( P.x, X );
+    const unit_t j  = p->gLower.y = locate_point( P.y, Y );
+    const unit_t i1 = p->gUpper.x = p->gLower.x + 1;
+    const unit_t j1 = p->gUpper.y = p->gLower.y + 1;
     
     //--------------------------------------------------------------------------
     // find grid boundaries
     //--------------------------------------------------------------------------
-    const Vertex vmin( X[i],   Y[j]   );
-    const Vertex vmax( X[i+1], Y[j+1] );
+    const Vertex vmin( X[i],   Y[j]  );
+    const Vertex vmax( X[i1],  Y[j1] );
     
     //--------------------------------------------------------------------------
     // compute bilinear interpolation coefficients
@@ -98,8 +100,8 @@ void Segmenter:: find_junctions(const Vertex &P,
     assert(p!=NULL);
     const unit_t i  = p->gLower.x;
     const unit_t j  = p->gLower.y;
-    const unit_t i1 = i+1;
-    const unit_t j1 = j+1;
+    const unit_t i1 = p->gUpper.x;
+    const unit_t j1 = p->gUpper.y;
     Bubble *bubble  = p->bubble; assert(bubble);
     //--------------------------------------------------------------------------
     // simplified Cohen-Sutherland
