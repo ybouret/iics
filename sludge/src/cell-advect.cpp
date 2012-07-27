@@ -9,6 +9,8 @@ void Cell:: advect(Real dt)
         {
             Tracer *p  = spot->handle;
             p->vertex += dt * spot->U;
+            if( p->vertex.x >= X[upper.x])
+                p->vertex.x  = X[upper.x];
         }
     }
 }

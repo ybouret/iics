@@ -1,0 +1,26 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 12.01.0 ] */
+
+/* [wxMaxima: input   start ] */
+f : expand(matrix([1-x,x]).matrix([P00,P01],[P10,P11]).matrix([1-y],[y]));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+subst([x=0,y=0],f); 
+subst([x=0,y=1],f);
+subst([x=1,y=0],f);
+subst([x=1,y=1],f);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+diff(f,x); 
+(matrix([-1,1]).matrix([P00,P01],[P10,P11]));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+diff(f,y);
+matrix([P00,P01],[P10,P11]).matrix([-1],[1]);
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$

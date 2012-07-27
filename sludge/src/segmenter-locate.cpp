@@ -62,8 +62,8 @@ void Segmenter:: process_spot(Spot *spot)
     //--------------------------------------------------------------------------
     // compute bilinear interpolation coefficients
     //--------------------------------------------------------------------------
-    spot->bw.x = (P.x-vmin.x)/dX[i];
-    spot->bw.y = (P.y-vmin.y)/dY[j];
+    spot->bary.x = (P.x-vmin.x)/dX[i];
+    spot->bary.y = (P.y-vmin.y)/dY[j];
     
     //--------------------------------------------------------------------------
     // find potential intersections

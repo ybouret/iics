@@ -19,9 +19,10 @@ void Segmenter:: assign_markers()
         //----------------------------------------------------------------------
         // initialize lookup
         //----------------------------------------------------------------------
-        unit_t   i      = X.lower;
-        bool     inside = false;    //! TODO: check if bubble has touching points ?
-        Segment *s      = Sj.head;
+        unit_t    i      = X.lower;
+        bool      inside = false;    //! TODO: check if bubble has touching points ?
+        Segment  *s      = Sj.head;
+        Junction *J      = 0;
         while( s!=0 )
         {
             //------------------------------------------------------------------
@@ -58,6 +59,17 @@ void Segmenter:: assign_markers()
             
             i=s->handle->up;
             s=s->next;
+        }
+        
+        // can we fill until the edge ?
+        if( inside && J )
+        {
+            while( i <= X.upper )
+            {
+                const Coord c(i,j);
+                J->bubble->markers.append()->coord = c;
+                ++i;
+            }
         }
     }
 }
