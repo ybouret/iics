@@ -102,12 +102,12 @@ peer_jpack()
 
 void Cell:: init_exchange()
 {
-    _mpi::init_exchange(MPI, *this, requests);
+    _mpi::init_exchange_all(MPI, *this, requests);
 }
 
 void Cell:: wait_exchange()
 {
-    _mpi::wait_exchange(MPI, *this, requests);
+    _mpi::wait_exchange_all(MPI, *this, requests);
 }
 
 

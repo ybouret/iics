@@ -25,19 +25,31 @@ void Cell:: compute_pressure()
         }
     }
     
+    for( unit_t j=upper.y;j>=lower.y;--j)
+    {
+        P[j][upper.x] = 2;
+    }
     //--------------------------------------------------------------------------
     //
     // Red Black Gauss Seidel
     //
     //--------------------------------------------------------------------------
-    for( size_t iter=1; iter<=100;++iter)
+    static const unit_t shift_tab[2][2] =
+    {
+        {0,1},
+        {1,0}
+    };
+    
+    const Real ftol = 1e-5;
+    
+    for( size_t iter=1;;++iter)
     {
         //----------------------------------------------------------------------
         //
         // synchronize pressure fields
         //
         //----------------------------------------------------------------------
-        _mpi::synchronize1(P, MPI, *this, requests);
+        _mpi::synchronize_one(P, MPI, *this, requests);
         
         //----------------------------------------------------------------------
         //
@@ -46,15 +58,23 @@ void Cell:: compute_pressure()
         //----------------------------------------------------------------------
         const unit_t xmax = upper.x - 1;
         const unit_t xmin = lower.x + 1;
-        for(int r=0; r <=1; ++r )
+        
+        int cvg = 1;
+        for(int red=0; red <=1; ++red )
         {
+            
             for(unit_t j=upper.y;j>=lower.y;--j)
             {
                 Array1D       &P_j     = P[j];
                 const Array1D &B_j     = B[j];
                 VertexArray1D &gradP_j = gradP[j];
-                
-                for( unit_t i=xmax-r;i>=xmin; i -= 2 )
+                const int      r       = (j&1) ? 1 : 0;
+                const unit_t   shift   = shift_tab[red][r];
+                gradP_j[lower.x].ldz();
+                // if(0==shift)
+                gradP_j[upper.x].y = 0;
+                gradP_j[upper.x].x = inv_two_dX * ( 3*P_j[upper.x] + P_j[upper.x-2] - 4*P_j[upper.x-1]);
+                for( unit_t i=xmax-shift;i>=xmin; i -= 2 )
                 {
                     if( B_j[i] <= 0 )
                     {
@@ -72,16 +92,29 @@ void Cell:: compute_pressure()
                         const Real LPx     = (P_j_im - twoP0 + P_j_ip ) * inv_dX2;
                         const Real LPy     = (P_jm_i - twoP0 + P_jp_i ) * inv_dY2;
                         const Real residue = LPx+LPy;
-                        P_ji -= residue * stencil_w;
+                        const Real delta_P = residue * stencil_w;
+                        P_ji -= delta_P;
+                        if( Fabs(delta_P) > ftol * Fabs(P_ji) )
+                            cvg = 0;
                     }
                 }
+                P_j[lower.x] = (4 * P_j[lower.x+1] - P_j[lower.x+2])/3;
             }
+        }
+        
+        //----------------------------------------------------------------------
+        // use Allreduce to find out if every one has converged
+        //----------------------------------------------------------------------
+        int converged = 0;
+        MPI.Allreduce(&cvg, &converged, 1, MPI_INT, MPI_SUM,MPI_COMM_WORLD);
+        //MPI.Printf0(stderr, "@%6lu : #converged=%d\n", iter, converged);
+        if( sim_size == converged)
+        {
+            MPI.Printf0( stderr, "\t---> converged\n");
+            break;
         }
     }
     
-    // TODO: should be exchanged with U...
-    _mpi::synchronize1(gradP, MPI, *this, requests);
-
     
     
 }
