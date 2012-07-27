@@ -72,7 +72,16 @@ void Cell:: compute_pressure()
                 VertexArray1D &gradP_j = gradP[j];
                 const int      r       = (j&1) ? 1 : 0;
                 const unit_t   shift   = shift_tab[red][r];
+                
+                //--------------------------------------------------------------
+                //-- left gradient
+                //--------------------------------------------------------------
                 gradP_j[lower.x].ldz();
+                
+                //--------------------------------------------------------------
+                // right gradient
+                //--------------------------------------------------------------
+
                 // if(0==shift)
                 gradP_j[upper.x].y = 0;
                 gradP_j[upper.x].x = inv_two_dX * ( 3*P_j[upper.x] + P_j[upper.x-2] - 4*P_j[upper.x-1]);

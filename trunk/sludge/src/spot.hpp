@@ -12,12 +12,13 @@ public:
     Spot() throw();
     ~Spot() throw();
     
-    Tracer *handle; //!< pointing
-    size_t  jump;   //!< encoding Tracer in Tracer::List
-    Vertex  U;      //!< velocity of the tracer
+    Tracer *handle;    //!< pointing
+    size_t  jump;      //!< encoding Tracer in Tracer::List
+    Vertex  U;         //!< velocity of the tracer
     Coord   gLower;    //!< position on grid, lower indices
     Coord   gUpper;    //!< position on grid, upper indices
-    Vertex  bw;        //!< bilinear interpolation weights
+    Vertex  bary;      //!< barycentric coordinates in the grid
+    bool    has_U;     //!< grid is OK
     Spot   *next;
     Spot   *prev;
     void reset() throw();

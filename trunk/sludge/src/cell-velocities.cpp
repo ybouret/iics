@@ -3,9 +3,14 @@
 void Cell:: compute_velocities()
 {
     MPI.Printf0(stderr, "\t---> compute velocities\n");
-    const unit_t xmax = upper.x - 1;
+    const unit_t xmax = upper.x;
     const unit_t xmin = lower.x + 1;
     
+    //==========================================================================
+    //
+    // On the grid
+    //
+    //==========================================================================
     for( unit_t j=upper.y;j>=lower.y;--j)
     {
         const Array1D       &B_j     = B[j];
@@ -33,11 +38,15 @@ void Cell:: compute_velocities()
         }
     }
     
+    //==========================================================================
+    //
+    // On the bubbles
+    //
+    //==========================================================================
     for( Bubble *bubble=bubbles.first(); bubble; bubble=bubble->next)
     {
         for( Spot *spot = bubble->spots.head;spot;spot=spot->next)
         {
-            //Tracer      *p  = spot->handle;
             const unit_t i0 = spot->gLower.x;
             const unit_t j0 = spot->gLower.y;
             const unit_t i1 = spot->gUpper.x;
@@ -46,26 +55,51 @@ void Cell:: compute_velocities()
             //------------------------------------------------------------------
             // interpolate the gradient
             //------------------------------------------------------------------
-            Vertex       g(0,0);
-            const Real  x   = spot->bw.x;
-            const Real  y   = spot->bw.y;
-            //fprintf(stderr, "wx=%.4f,wy=%.4f\n", x,y);
+            Vertex      u(0,0);
+            const Real  x   = spot->bary.x;
+            const Real  y   = spot->bary.y;
             const Real  umx = 1-x;
             const Real  umy = 1-y;
-            const Real  w00 = umx*umy;
-            const Real  w10 = x*umy;
-            const Real  w11 = x*y;
-            const Real  w01 = umx * y;
+            Real  weight    = 0;
             
+            if( B[j0][i0] <= 0 )
+            {
+                const Real  w00 = umx*umy;
+                u += w00 * U[j0][i0];
+                weight += w00;
+            }
             
-            g += w00 * gradP[j0][i0];
-            g += w10 * gradP[j0][i1];
-            g += w11 * gradP[j1][i1];
-            g += w01 * gradP[j1][i0];
-
+            if( B[j0][i1] <= 0)
+            {
+                const Real  w10 = x*umy;
+                u += w10 * U[j0][i1];
+                weight += w10;
+            }
             
-                        
-            spot->U = velocity_from(g);
+            if( B[j1][i1] <= 0)
+            {
+                const Real  w11 = x*y;
+                u += w11 * U[j1][i1];
+                weight += w11;
+            }
+            
+            if( B[j1][i0] <= 0 )
+            {
+                const Real  w01 = umx * y;
+                u += w01 * U[j1][i0];
+                weight += w01;
+            }
+            
+            if( weight > 0 )
+            {
+                spot->U     = (1/weight) * u;
+                spot->has_U = true;
+            }
+            else
+            {
+                spot->has_U = false;
+                spot->U.ldz();
+            }
         }
     }
     
