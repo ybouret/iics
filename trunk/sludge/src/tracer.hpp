@@ -26,6 +26,7 @@ public:
     Vertex  n;         //!< normal vector,  computed by process
     Real    curvature; //!< curvature,      computed by process
     Coord   gLower;    //!< position on grid, lower indices
+    Coord   gUpper;    //!< position on grid, upper indices
     Vertex  bw;        //!< bilinear interpolation weights
     Bubble *bubble;    //!< whose that ?
     bool    is_spot;   //!< spotted on the grid ?
