@@ -14,6 +14,7 @@ public:
     
     Tracer *handle; //!< pointing
     size_t  jump;   //!< encoding Tracer in Tracer::List
+    Vertex  U;      //!< velocity of the tracer
     Spot   *next;
     Spot   *prev;
     void reset() throw();

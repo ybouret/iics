@@ -44,6 +44,7 @@ IF(MPI_FOUND)
 			cell-pressure.cpp
 			cell-velocities.cpp
 			cell-fields.cpp
+			cell-advect.cpp
 	)
 	SOURCE_GROUP( mpi FILES ${SOURCES_PAR} )
 ENDIF(MPI_FOUND)
