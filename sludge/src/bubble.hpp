@@ -27,8 +27,9 @@ public:
     const Real         &lambda;
     const PBC          &pbc;
     Real                area;
-    Real                pressure; //!< broadcasted
-    Spot::List          spots;    
+    Real                content;  //!< pressure * area = content, broadcasted
+    Real                pressure; //!< updated
+    Spot::List          spots;
     Marker::List        markers; //!< computed by spots
     bool                active;
     Bubble             *next;
@@ -51,8 +52,16 @@ public:
 
     
     //! compute area, frenet and curvatures for valid vertices, egdes, s2, s
+    /**
+     upgrade the pressure as well
+     */
     void compute_geometry();
     
+    
+       
+    //! compute rho accordingly
+    void set_pressure( Real pres);
+        
     //! map to a circle and raw initialize
     void map_circle(const Vertex &center, Real radius);
     

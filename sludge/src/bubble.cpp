@@ -11,10 +11,10 @@ id(0),
 lambda(lambda_ref),
 pbc(pbc_ref),
 area(0),
+content(0),
 pressure(0),
 spots( spot_cache ),
 markers(mcache),
-//borders(mcache),
 active(false),
 next(0),
 prev(0)
@@ -32,7 +32,6 @@ void Bubble:: clear() throw()
     empty();
     spots.empty();
     markers.empty();
-    //borders.empty();
 }
 
 void Bubble:: collect_spots_within(const Real y_lo, const Real y_up)
@@ -67,3 +66,11 @@ void Bubble:: translate( const Vertex &v )
         p->vertex += v;
     }
 }
+
+void Bubble:: set_pressure( Real pres )
+{
+    pressure = pres;
+    content  = pressure * area;
+}
+
+
