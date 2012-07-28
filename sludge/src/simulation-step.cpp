@@ -5,7 +5,7 @@ void Simulation:: step()
     VisIt::Simulation::step();
     
     // move concerned points
-    bubbles.first()->translate(Vertex(0,0.2*delta_Y));
+    //bubbles.first()->translate(Vertex(0,0.2*delta_Y));
     advect(0.1);
     
     // send back information to master
