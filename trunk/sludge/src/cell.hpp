@@ -38,6 +38,7 @@ public:
     const int          border_peer;     //!< with whom to complete segments
     const unit_t       border_j;        //!< indice
     const Real         border_y;        //!< to reconstruct the segments
+    bool               in_walls;        //!< pressure boundary
     
     //==========================================================================
     // Bubbles Operations

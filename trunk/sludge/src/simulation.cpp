@@ -36,8 +36,8 @@ void Simulation:: initialize()
     {
         Bubble *b = bubbles.create();
         //b->map_peanut( Vertex(sim_box.x/2,0), 0.15 * Lx, 0.9 + 0.09 * Alea() );
-        b->map_circle(Vertex(sim_box.x/2,0), 0.15 * Lx);
-        b->set_pressure(1);
+        b->map_circle(Vertex(sim_box.x/3,0), 0.15 * Lx);
+        b->set_pressure(2);
     }
     compute_fields();
 }

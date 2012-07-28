@@ -83,8 +83,15 @@ void Cell:: compute_pressure()
                 //--------------------------------------------------------------
 
                 // if(0==shift)
-                gradP_j[upper.x].y = 0;
-                gradP_j[upper.x].x = inv_two_dX * ( 3*P_j[upper.x] + P_j[upper.x-2] - 4*P_j[upper.x-1]);
+                if( in_walls )
+                {
+                    gradP_j[upper.x].ldz();
+                }
+                else
+                {
+                    gradP_j[upper.x].y = 0;
+                    gradP_j[upper.x].x = inv_two_dX * ( 3*P_j[upper.x] + P_j[upper.x-2] - 4*P_j[upper.x-1]);
+                }
                 for( unit_t i=xmax-shift;i>=xmin; i -= 2 )
                 {
                     if( B_j[i] <= 0 )
@@ -110,6 +117,14 @@ void Cell:: compute_pressure()
                     }
                 }
                 P_j[lower.x] = (4 * P_j[lower.x+1] - P_j[lower.x+2])/3;
+                if(in_walls)
+                {
+                    P_j[upper.x] = (4 * P_j[upper.x-1] - P_j[upper.x-2])/3;
+                }
+                else
+                {
+                    gradP_j[upper.x].y =  (P[j+1][upper.x] - P[j-1][upper.x]) * inv_two_dX;
+                }
             }
         }
         

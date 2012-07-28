@@ -33,6 +33,7 @@ border_segments(0),
 border_peer(-1),
 border_j(0),
 border_y(0),
+in_walls(false),
 requests( num_requests() ),
 self_jpack(),
 peer_jpack()
