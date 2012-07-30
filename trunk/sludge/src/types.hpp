@@ -5,12 +5,14 @@
 #include "yocto/swamp/workspace.hpp"
 #include "yocto/swamp/rmesh.hpp"
 #include "yocto/math/types.hpp"
+#include "yocto/math/complex.hpp"
 
 using namespace yocto;
 using namespace swamp;
 using namespace math;
 
 typedef double                         Real;
+typedef complex<Real>                  Complex;
 typedef vertex2D<Real>::type           Vertex;
 typedef coord2D                        Coord;
 #define MPI_REAL_TYPE                  MPI_DOUBLE
