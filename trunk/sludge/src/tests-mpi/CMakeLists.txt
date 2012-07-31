@@ -8,7 +8,7 @@ test-move.cpp
 )
 
 TARGET_LINK_LIBRARIES(testing-mpi sludge)
-TARGET_LINK_YOCTO(testing-mpi mpi swamp)
+TARGET_LINK_YOCTO(testing-mpi mpi swamp mk)
 TARGET_LINK_LIBRARIES(testing-mpi ${MPI_LIBRARIES} )
 
 ENDIF(MPI_FOUND)

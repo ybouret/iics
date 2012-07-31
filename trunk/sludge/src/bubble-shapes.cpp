@@ -34,7 +34,7 @@ void Bubble:: map_peanut( const Vertex &center, Real radius, Real alpha )
     const Real a4 = a2*a2;
     const Real b4 = b2*b2;
     const Real   theta_max = 2 * atan( lambda/(radius+radius) );
-    const size_t nmin      = max_of<size_t>(3,size_t( ceil( numeric<Real>::two_pi/theta_max) ));
+    const size_t nmin      = 2*max_of<size_t>(3,size_t( ceil( numeric<Real>::two_pi/theta_max) ));
     const Real   dtheta    = numeric<Real>::two_pi / nmin;
     
     fprintf( stderr, "peanut @(%g,%g), b=%g, a=%g\n", center.x, center.y, b, a ); 

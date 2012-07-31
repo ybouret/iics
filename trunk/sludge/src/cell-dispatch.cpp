@@ -59,13 +59,13 @@ void Cell:: check_borders()
 void Cell:: dispatch_all( )
 {
     MPI.Printf0( stderr, "\t---> check_and_dispatch bubbles\n");
-    bubbles.check_and_dispatch_all(MPI);
+    bubbles.check_and_dispatch_all(MPI,rescaler);
     
     MPI.Printf0( stderr, "\t---> compute bubbles properties\n");
     bubbles.check_geometries_within(Y[Y.lower], Y[Y.upper]);
     
     MPI.Printf0( stderr, "\t---> segmentation: process\n");
-    segmenter.process_bubbles( bubbles );
+    segmenter.process( bubbles );
     
     MPI.Printf0( stderr, "\t---> segmentation: check_borders\n");
     check_borders();

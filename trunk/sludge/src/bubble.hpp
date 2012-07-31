@@ -11,7 +11,7 @@
 
 typedef unsigned BubbleID;
 
-
+//class Rescaler;
 class Bubble  : public Tracer::List
 {
 public:
@@ -26,9 +26,9 @@ public:
     BubbleID            id;
     const Real         &lambda;
     const PBC          &pbc;
-    Real                area;
+    Real                pressure; //!< broadcaster
+    Real                area;     //!< broadcasted
     Real                content;  //!< pressure * area = content, broadcasted
-    Real                pressure; //!< updated
     Spot::List          spots;
     Marker::List        markers; //!< computed by spots
     bool                active;
@@ -44,12 +44,14 @@ public:
      */
     void raw_initialize();
     
+#if 0
     //! upgrade topology
     /**
      auto refinement
      */
     void upgrade_topology();
-
+#endif
+    
     //! compute are from valid PBC vertices and egges
     void compute_area();
     
@@ -61,7 +63,7 @@ public:
     
     
        
-    //! compute rho accordingly
+    //! compute content accordingly, area must be valid
     void set_pressure( Real pres);
         
     //! map to a circle and raw initialize

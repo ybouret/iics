@@ -28,7 +28,11 @@ void Bubble:: dispatch_topology( const mpi &MPI )
         // broadcast #tracers
         //--------------------------------------------------------------------------
         MPI.__Bcast<size_t>(num_tracer, 0, MPI_COMM_WORLD);
-        MPI.__Bcast<Real>(  content,    0, MPI_COMM_WORLD);
+        
+        //--------------------------------------------------------------------------
+        // broadcast physics
+        //--------------------------------------------------------------------------
+        MPI.Bcast(&pressure, 3, MPI_REAL_TYPE, 0, MPI_COMM_WORLD);
 
         if(!master)
             append(num_tracer);

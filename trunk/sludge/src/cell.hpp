@@ -4,7 +4,7 @@
 
 #include "parameters.hpp"
 #include "segmenter.hpp"
-
+#include "rescaler.hpp"
 
 //! Hele-Shaw Cell
 class Cell : public Parameters, public WorkspaceBase
@@ -27,6 +27,7 @@ public:
     
     Bubbles            bubbles;
     Segmenter          segmenter;
+    auto_ptr<Rescaler> rescaler;
     const Real         delta_X;
     const Real         delta_Y;
     const Real         inv_dX2;

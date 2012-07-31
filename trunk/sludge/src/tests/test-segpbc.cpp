@@ -1,5 +1,6 @@
 #include "yocto/utest/run.hpp"
 #include "../segmenter.hpp"
+#include "../rescaler.hpp"
 #include "yocto/code/utils.hpp"
 #include "yocto/swamp/vtk-writer.hpp"
 
@@ -9,14 +10,16 @@ static inline void __process(Bubbles              &bubbles,
                              const Region         &reg,
                              vtk_writer           &vtk,
                              WorkspaceBase        &W,
-                             Array                &B)
+                             Array                &B,
+                             Rescaler             &rescaler)
 {
-    bubbles.check_topologies();
+    //bubbles.check_topologies();
+    rescaler.process(bubbles);
     bubbles.first()->save_dat( vformat("bubble%d.dat",level) );
     bubbles.check_geometries_within( reg.vmin.y, reg.vmax.y);
     
     
-    Seg.process_bubbles( bubbles );
+    Seg.process( bubbles );
     Seg.horizontal_pbc(W.lower.y,W.upper.y);
     Seg.save_junctions( vformat("junc%d.dat",level) );
     Seg.assign_markers();
@@ -70,9 +73,10 @@ YOCTO_UNIT_TEST_IMPL(segpbc)
     
     bubbles.create()->map_peanut(center+Vertex(0,-4), 3.5, 0.95);
     
+    Rescaler rescaler;
     for( int i=0; i < 250; ++i )
     {
-        __process(bubbles, Seg, i, reg, vtk, W, B);
+        __process(bubbles, Seg, i, reg, vtk, W, B, rescaler);
         bubbles.first()->translate( Vertex(0,-0.1+0.02*Alea()) );
     }
     

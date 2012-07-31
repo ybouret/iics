@@ -1,5 +1,6 @@
 #include "bubbles.hpp"
 
+#if 0
 void Bubbles:: check_topologies()
 {
     for( Bubble *bubble = first(); bubble; bubble=bubble->next )
@@ -7,7 +8,7 @@ void Bubbles:: check_topologies()
         bubble->upgrade_topology();
     }
 }
-
+#endif
 
 
 void Bubbles:: check_geometries_within( Real y_lo, Real y_hi )

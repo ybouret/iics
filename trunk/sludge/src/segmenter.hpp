@@ -57,7 +57,7 @@ public:
      - you need to process the PBC afterward
      - then you can assign_markers()
      */
-    void process_bubbles( Bubbles &bubbles );
+    void process( Bubbles &bubbles );
     
     //! complete y_lower and y_upper in case of local PBC
     void horizontal_pbc(unit_t y_lower, unit_t y_upper);
