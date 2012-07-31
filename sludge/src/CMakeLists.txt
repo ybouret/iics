@@ -26,6 +26,8 @@ segmenter.hpp   segmenter.cpp
 		segmenter-assign.cpp
 		segmenter-merge.cpp
 		segmenter-jpack.cpp
+rescaler.hpp	rescaler.cpp
+		rescaler-refine.cpp
 )
 SOURCE_GROUP( core FILES ${SOURCES_SER} )
 
