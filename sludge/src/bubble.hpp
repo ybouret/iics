@@ -50,6 +50,7 @@ public:
      */
     void upgrade_topology();
 
+  
     
     //! compute area, frenet and curvatures for valid vertices, egdes, s2, s
     /**
