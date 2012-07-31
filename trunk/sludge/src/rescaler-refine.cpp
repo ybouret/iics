@@ -1,14 +1,13 @@
 #include "rescaler.hpp"
 
 
-void Rescaler:: refine( Bubble &bubble )
+bool Rescaler:: need_to_refine( const Bubble &bubble )
 {
     // assume we have a predefined metrics
     const size_t n = bubble.size;
     assert( s.size() == n );
     
-    
-    //-- create a list of hopefully valid abscissa
+    // follow the abscissa
     a_list.empty();
     Real    s_curr   = 0;
     Tracer *p        = bubble.root;
@@ -19,15 +18,26 @@ void Rescaler:: refine( Bubble &bubble )
         const Real ds = p->s;
         if( ds > bubble.lambda )
         {
+            // insert supplementary
             doRefine = true;
             a_list.append()->s = s_curr + ds/2;
         }
         s_curr += ds;
     }
+    return doRefine;
+}
+
+
+void Rescaler:: refine( Bubble &bubble )
+{
+    // assume we have a predefined metrics
+    const size_t n = bubble.size;
+    assert( s.size() == n );
     
-    if( doRefine )
+    while( need_to_refine(bubble) )
     {
-        
+        rebuild(bubble);
     }
+    
     
 }

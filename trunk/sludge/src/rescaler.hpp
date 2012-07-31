@@ -32,15 +32,22 @@ private:
     vector<Real> ay;     //!< Y coordinates
     Real         period; //!< total s
     vector<Real> theta;  //!< corresponding periodic abscissa
+    cache_of<abscissa>                  a_pool;
+    cached_list<core::list_of,abscissa> a_list;
+
+    //! check edges length and make a list of new abscissaes
+    bool need_to_refine( const Bubble &bubble );
 
     //! refine a precomputed metrics, if necessary
     void refine( Bubble &bubble );
     
-    cache_of<abscissa>                  a_pool;
-    cached_list<core::list_of,abscissa> a_list;
-    
+        
+    //! apply pbc, compute edges, area and content to match pressure
     void build_metrics( Bubble &bubble );
+    
+    //! rebuild from a current metrics and a list of new abscissaes
     void rebuild( Bubble &bubble );
+    
     
 };
 

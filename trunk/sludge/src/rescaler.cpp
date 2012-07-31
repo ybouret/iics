@@ -19,6 +19,14 @@ a_list(a_pool)
 void Rescaler:: process(Bubbles &bubbles)
 {
     
+    //--------------------------------------------------------------------------
+    // phase 1: rescale every bubbles to match their critical parameters
+    //--------------------------------------------------------------------------
+    for( Bubble *bubble = bubbles.first(); bubble; bubble=bubble->next )
+    {
+        refine(*bubble);
+    }
+    
 }
 
 void Rescaler:: build_metrics( Bubble &bubble )
