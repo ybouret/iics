@@ -50,7 +50,8 @@ public:
      */
     void upgrade_topology();
 
-  
+    //! compute are from valid PBC vertices and egges
+    void compute_area();
     
     //! compute area, frenet and curvatures for valid vertices, egdes, s2, s
     /**
