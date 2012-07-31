@@ -45,9 +45,18 @@ void scale_trigo( Bubble &bubble )
         bubble.pbc(edge);
         period += edge.norm();
     }
-
+    {
+        ios::ocstream fp("trigo0.dat",false);
+        for( size_t i=1; i <= n; ++i )
+        {
+            fp("%g %g %g\n", s[i], ax[i], ay[i]);
+        }
+    }
+    
     const Real   tfac = numeric<Real>::two_pi / period;
     vector<Real> theta(s);
+    
+    
     for( size_t i=n;i>0;--i) theta[i] *= tfac;
     linsys<Real>        solver;
     trigonometric<Real> trig( theta, solver );
@@ -59,13 +68,19 @@ void scale_trigo( Bubble &bubble )
     std::cerr << "Placing " << m << " points from " << n << std::endl;
     const double ds = period/m;
     bubble.empty();
-
-    for( size_t i=0; i < m; ++i )
-    {
-        const Real t_i = (i*ds) * tfac;
-        bubble.append()->vertex = trig( t_i, ax, ay);
-    }
     
+    {
+        ios::ocstream fp("trigo1.dat",false);
+        
+        for( size_t i=0; i < m; ++i )
+        {
+            const Real t_i = (i*ds) * tfac;
+            Tracer *p = bubble.append();
+            p->vertex = trig( t_i, ax, ay);
+            fp("%g %g %g %g %g\n", (i*ds), p->vertex.x, p->vertex.y, trig(t_i,ax), trig(t_i,ay));
+        }
+        
+    }
 }
 
 YOCTO_UNIT_TEST_IMPL(fourier)
@@ -95,6 +110,8 @@ YOCTO_UNIT_TEST_IMPL(fourier)
     bubble.save_dat("peanut0.dat");
     scale_trigo(bubble);
     bubble.save_dat("peanut1.dat");
+    return 0;
+    
     expand(bubble,center);
     bubble.save_dat("peanut2.dat");
     scale_trigo(bubble);
