@@ -1,6 +1,6 @@
 #include "rescaler.hpp"
 
-#include "yocto/ios/ocstream.hpp"
+//#include "yocto/ios/ocstream.hpp"
 
 bool Rescaler:: need_to_refine( const Bubble &bubble )
 {
@@ -34,6 +34,7 @@ bool Rescaler:: need_to_refine( const Bubble &bubble )
         s_curr += ds;
     }
     
+#if 0
     if( doRefine )
     {
         std::cerr << "s_old=" << s << "/" << period << std::endl;
@@ -44,6 +45,7 @@ bool Rescaler:: need_to_refine( const Bubble &bubble )
         }
         std::cerr << "]" << std::endl;
     }
+#endif
     
     return doRefine;
 }
@@ -51,7 +53,7 @@ bool Rescaler:: need_to_refine( const Bubble &bubble )
 
 void Rescaler:: refine( Bubble &bubble )
 {
-    static int fid = 0;
+    //static int fid = 0;
 
     //--------------------------------------------------------------------------
     // assume we have a predefined metrics
@@ -62,6 +64,8 @@ void Rescaler:: refine( Bubble &bubble )
     while( need_to_refine(bubble) )
     {
         rebuild(bubble);
+        
+#if 0
         ios::ocstream fp( vformat("refine%d.dat",fid++), false);
         const Tracer *p = bubble.root;
         for(size_t i=bubble.size;i>0;--i,p=p->next )
@@ -69,7 +73,8 @@ void Rescaler:: refine( Bubble &bubble )
             fp("%g %g\n", p->vertex.x, p->vertex.y);
         }
         fp("%g %g\n", p->vertex.x, p->vertex.y);
-
+#endif
+        
     }
     
     
