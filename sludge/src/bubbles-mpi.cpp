@@ -1,7 +1,7 @@
 #include "bubbles.hpp"
+#include "rescaler.hpp"
 
-
-void Bubbles:: check_and_dispatch_all(const mpi &MPI)
+void Bubbles:: check_and_dispatch_all(const mpi &MPI, auto_ptr<Rescaler> &rescaler)
 {
     const bool master = MPI.IsMaster;
     
@@ -11,11 +11,13 @@ void Bubbles:: check_and_dispatch_all(const mpi &MPI)
     size_t num_bubbles = 0;
     if( master )
     {
-        check_topologies();
+        assert( rescaler.is_valid() );
+        rescaler->process(*this);
         num_bubbles = count();
     }
     else 
     {
+        assert( ! rescaler.is_valid() );
         empty();
     }
     

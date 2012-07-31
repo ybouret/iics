@@ -24,7 +24,7 @@ void Rescaler:: process(Bubbles &bubbles)
     //--------------------------------------------------------------------------
     for( Bubble *bubble = bubbles.first(); bubble; bubble=bubble->next )
     {
-        refine(*bubble);
+        upgrade(*bubble);
     }
     
 }
@@ -32,6 +32,7 @@ void Rescaler:: process(Bubbles &bubbles)
 void Rescaler:: build_metrics( Bubble &bubble )
 {
     const size_t n = bubble.size;
+    std::cerr << "building metrics for " << n << " points" << std::endl;
     s.make(n,0);
     ax.make(n,0);
     ay.make(n,0);
@@ -51,8 +52,9 @@ void Rescaler:: build_metrics( Bubble &bubble )
         p->s    = Sqrt(p->s2);
         period += p->s;
     }
-    //! corresponding are
+    //! corresponding area
     bubble.compute_area();
+    std::cerr << "\tarea=" << bubble.area << std::endl;
     
     //! keep the pressure
     bubble.content = bubble.pressure * bubble.area;
@@ -61,7 +63,7 @@ void Rescaler:: build_metrics( Bubble &bubble )
 
 void Rescaler::abscissa::reset() throw()
 {
-    s = 0;
+    s    = 0;
     next = prev = 0;
 }
 
@@ -69,9 +71,9 @@ void Rescaler::abscissa::reset() throw()
 void Rescaler:: rebuild( Bubble &bubble )
 {
     const size_t n = bubble.size;
-    assert( s.size()  == n );
-    assert( ax.size() == n );
-    assert( ay.size() == n );
+    assert( s.size()     == n );
+    assert( ax.size()    == n );
+    assert( ay.size()    == n );
     assert( theta.size() == n );
     assert(period>0);
     assert(bubble.area>0);
@@ -85,6 +87,8 @@ void Rescaler:: rebuild( Bubble &bubble )
     for( size_t i=n;i>0;--i)
         theta[i] = tfac * s[i];
     trigonometric<Real> trig( theta, solver);
+    trig.compute(ax, solver);
+    trig.compute(ay, solver);
     
     //--------------------------------------------------------------------------
     // rebuild the bubble
@@ -104,4 +108,10 @@ void Rescaler:: rebuild( Bubble &bubble )
     //--------------------------------------------------------------------------
     build_metrics(bubble);
     
+}
+
+void Rescaler:: upgrade( Bubble &bubble )
+{
+    build_metrics(bubble);
+    refine(bubble);
 }

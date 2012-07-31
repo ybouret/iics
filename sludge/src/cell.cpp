@@ -22,6 +22,7 @@ dX( mesh.dX() ),
 dY( mesh.dY() ),
 bubbles( sim_box ),
 segmenter( mesh ),
+rescaler(0),
 delta_X( sim_box.x / Nx),
 delta_Y( sim_box.y / Ny),
 inv_dX2( 1/(delta_X*delta_X) ),
@@ -60,6 +61,12 @@ peer_jpack()
     //! prepare the segments once the mesh if ok
     //--------------------------------------------------------------------------
     segmenter.allocate_segments();
+    
+    //--------------------------------------------------------------------------
+    //! prepare the rescaler for master
+    //--------------------------------------------------------------------------
+    if( sim_master )
+        rescaler.reset( new Rescaler() );
     
     //--------------------------------------------------------------------------
     // detect parallel pbc

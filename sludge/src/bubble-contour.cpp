@@ -1,5 +1,27 @@
 #include "bubble.hpp"
 
+void Bubble:: raw_initialize()
+{
+    
+    Tracer *p = root;
+    for( size_t i=size;i>0;--i,p=p->next )
+    {
+        pbc(p->vertex);
+        const Tracer *q = p->next; assert(q!=NULL);
+        Vertex        pq(p->vertex,q->vertex);
+        pbc(pq);
+        p->edge = pq;
+        p->s2   = p->edge.norm2();
+        p->s    = Sqrt( p->s2 );
+    }
+    compute_area();
+    content = pressure * area;
+    compute_geometry();
+    
+}
+
+
+#if 0
 void Bubble:: upgrade_topology()
 {
     assert(size>=3);
@@ -69,3 +91,4 @@ void Bubble:: upgrade_topology()
     
 
 }
+#endif

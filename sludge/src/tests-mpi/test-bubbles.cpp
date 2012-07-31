@@ -1,5 +1,6 @@
 #include "yocto/utest/run.hpp"
 #include "../bubbles.hpp"
+#include "../rescaler.hpp"
 #include "yocto/ios/ocstream.hpp"
 
 YOCTO_UNIT_TEST_IMPL(bubbles)
@@ -20,7 +21,11 @@ YOCTO_UNIT_TEST_IMPL(bubbles)
         bubbles.create()->map_circle( center, 3   );
     }
 
-    bubbles.check_and_dispatch_all(MPI);
+    auto_ptr<Rescaler> rescaler;
+    if( MPI.IsMaster )
+        rescaler.reset( new Rescaler() );
+    
+    bubbles.check_and_dispatch_all(MPI,rescaler);
     
     const Real y_lo = pbc.lo + (rank*pbc.L)/size;
     const Real y_up = pbc.lo + ((rank+1)*pbc.L)/size;

@@ -3,9 +3,9 @@
 
 
 #include "bubble.hpp"
+#include "yocto/auto-ptr.hpp"
 
-
-
+class Rescaler;
 class Bubbles 
 {
 public:
@@ -25,18 +25,13 @@ public:
     Bubble *create();
     void    empty() throw();
     
-    //! check all topologies, non crossing etc...
-    /**
-     TODO: overlap, pinches etc...
-     */
-    void check_topologies();
-    
+       
     //! find spots and compute geometries for active bubbles
     void check_geometries_within( Real y_lo, Real y_hi );
     
 #if defined(HAS_MPI)
     //! master check and dispatch to slaves
-    void check_and_dispatch_all(const mpi &MPI );
+    void check_and_dispatch_all(const mpi &MPI , auto_ptr<Rescaler> &rescaler);
     
     //! each slave -> modified bubbles
     void assemble_all( const mpi &MPI );

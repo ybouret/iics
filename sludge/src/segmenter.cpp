@@ -56,7 +56,7 @@ void Segmenter:: process_bubble(Bubble *bubble)
     }
 }
 
-void Segmenter:: process_bubbles( Bubbles &bubbles )
+void Segmenter:: process( Bubbles &bubbles )
 {
     clear();
     for( Bubble *bubble = bubbles.first(); bubble; bubble=bubble->next)

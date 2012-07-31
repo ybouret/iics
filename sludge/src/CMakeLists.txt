@@ -76,7 +76,7 @@ ADD_LIBRARY( sludge STATIC
 IF( VISIT_FOUND )
 	ADD_EXECUTABLE(laponite laponite.cpp)
 	TARGET_LINK_LIBRARIES(laponite sludge)
-	TARGET_LINK_YOCTO(laponite swamp)
+	TARGET_LINK_YOCTO(laponite swamp mk)
 	TARGET_LINK_VISIT(laponite)
 ENDIF( VISIT_FOUND )
 
