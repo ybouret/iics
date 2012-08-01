@@ -2,7 +2,6 @@
 #define RESCALER_INCLUDED 1
 
 #include "bubbles.hpp"
-#include "yocto/math/dat/trigonometric.hpp"
 
 class Rescaler
 {
@@ -33,12 +32,10 @@ private:
     };
 
     
-    linsys<Real> solver;
     vector<Real> s;      //!< approximated linear abscissa
     vector<Real> ax;     //!< X coordinates
     vector<Real> ay;     //!< Y coordinates
     Real         period; //!< total s
-    vector<Real> theta;  //!< corresponding periodic abscissa
     cache_of<abscissa>                  a_pool;
     cached_list<core::list_of,abscissa> a_list;
 
