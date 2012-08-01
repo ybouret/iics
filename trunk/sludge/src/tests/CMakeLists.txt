@@ -5,6 +5,7 @@ test-shapes.cpp
 test-seg.cpp
 test-segpbc.cpp
 test-fourier.cpp
+test-poly.cpp
 )
 
 TARGET_LINK_LIBRARIES(testing sludge)
