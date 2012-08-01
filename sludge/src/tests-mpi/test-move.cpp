@@ -18,7 +18,7 @@ YOCTO_UNIT_TEST_IMPL(move)
     Cell cell(20,30,box,MPI);
     if( cell.sim_master )
     {
-        cell.bubbles.create()->map_peanut(center, 3.5, 0.95);
+        cell.bubbles.create()->map_peanut(center, 3.5, 0.9 + Alea() * 0.05 );
     }
     //SaveGrid( cell.mesh, vformat("grid%d.%d.dat", cell.sim_size,cell.sim_rank));
     

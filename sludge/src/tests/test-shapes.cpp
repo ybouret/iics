@@ -36,7 +36,7 @@ YOCTO_UNIT_TEST_IMPL(shapes)
     Vertex center( box.x/2, 0.0 );
     
     Bubble bubble(lambda,pbc,tcache,scache,mcache);
-#if 0
+#if 1
     bubble.map_circle( center, 2.0 + Alea() );
     std::cerr << "curvature: " << bubble.root->curvature << std::endl;
     save_all( bubble, "circle" );

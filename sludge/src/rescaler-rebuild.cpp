@@ -56,7 +56,7 @@ Vertex __interpv( Real sx, const Real sa[], const Real xa[], const Real ya[], si
 
 void Rescaler:: rebuild( Bubble &bubble )
 {
-    static int fid = 0;
+    //static int fid = 0;
     
     const size_t n  = bubble.size;
     const size_t n1 = n+1;
@@ -67,7 +67,7 @@ void Rescaler:: rebuild( Bubble &bubble )
     assert(bubble.area>0);
     assert(a_list.size >= 3);
     
-    
+#if 0
     {
         ios::ocstream fp( vformat("org%d.dat",fid), false);
         for( size_t i=1; i <= n1; ++i )
@@ -76,6 +76,7 @@ void Rescaler:: rebuild( Bubble &bubble )
         }
         fp("%g %g %g\n", period, ax[1], ay[1]);
     }
+#endif
     
     Real sa[4] = { 0 };
     Real xa[4] = { 0 };
@@ -84,7 +85,7 @@ void Rescaler:: rebuild( Bubble &bubble )
     //--------------------------------------------------------------------------
     // rebuild the bubble
     //--------------------------------------------------------------------------
-    std::cerr << "rebuilding " << a_list.size << " points" << std::endl;
+    //std::cerr << "rebuilding " << a_list.size << " points" << std::endl;
     bubble.empty();
     for( const abscissa *a = a_list.head; a; a=a->next )
     {
@@ -126,6 +127,7 @@ void Rescaler:: rebuild( Bubble &bubble )
     }
     assert(bubble.size==a_list.size);
     
+#if 0
     {
         ios::ocstream fp( vformat("ref%d.dat",fid), false);
         const abscissa *a = a_list.head;
@@ -140,6 +142,7 @@ void Rescaler:: rebuild( Bubble &bubble )
         
         ++fid;
     }
+#endif
     
     //--------------------------------------------------------------------------
     // rebuild its metrics

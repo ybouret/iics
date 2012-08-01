@@ -11,7 +11,6 @@
 
 typedef unsigned BubbleID;
 
-//class Rescaler;
 class Bubble  : public Tracer::List
 {
 public:
@@ -35,6 +34,8 @@ public:
     Bubble             *next;
     Bubble             *prev;
     
+    static const size_t IO_COUNT = 3; //!< pressure,area,content
+    
     void clear() throw(); //!< empty() and spots.empty()
     
     //! compute initial tracer geometry
@@ -44,13 +45,6 @@ public:
      */
     void raw_initialize();
     
-#if 0
-    //! upgrade topology
-    /**
-     auto refinement
-     */
-    void upgrade_topology();
-#endif
     
     //! compute are from valid PBC vertices and egges
     void compute_area();
