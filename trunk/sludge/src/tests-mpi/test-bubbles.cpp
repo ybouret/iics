@@ -42,7 +42,7 @@ YOCTO_UNIT_TEST_IMPL(bubbles)
         }
         
     }
-    bubbles.assemble_all(MPI);
+    bubbles.assemble_all(MPI,rescaler);
     
     
 }

@@ -3,5 +3,5 @@
 
 void Cell:: assemble_all()
 {
-    bubbles.assemble_all(MPI);
+    bubbles.assemble_all(MPI,rescaler);
 }

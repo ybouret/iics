@@ -9,6 +9,7 @@ void Simulation:: perform(const string &cmd)
             bubbles.first()->save_vtk("bubble.vtk");
             bubbles.first()->save_vtk_t("bubble_t.vtk");
             bubbles.first()->save_vtk_n("bubble_n.vtk");
+            bubbles.first()->save_dat("bubble.dat");
         }
     }
     

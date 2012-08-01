@@ -35,10 +35,10 @@ int main( int argc, char *argv[] )
         //----------------------------------------------------------------------
         // settup the simulation
         //----------------------------------------------------------------------
-        Vertex box(10,10);
+        Vertex box(10,20);
         //Vertex center(box.x/2,0);
         
-        Simulation sim(20,30,box,MPI);
+        Simulation sim(40,70,box,MPI);
         //sim.in_walls = true;
         
         //! initialized fields and bubbles

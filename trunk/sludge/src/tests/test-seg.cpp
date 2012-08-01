@@ -13,7 +13,7 @@ static inline void __process(Bubbles              &bubbles,
                              Array                &B,
                              Rescaler             &rescaler)
 {
-    rescaler.process(bubbles);
+    rescaler.upgrade_all(bubbles);
     bubbles.first()->save_dat( vformat("bubble%d.dat",level) );
     bubbles.check_geometries_within( reg.vmin.y, reg.vmax.y);
     
