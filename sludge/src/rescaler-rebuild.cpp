@@ -123,7 +123,10 @@ void Rescaler:: rebuild( Bubble &bubble )
             const size_t j3 = j2+1;
             sa[3] = s[j3]; xa[3] = ax[j3]; ya[3] = ay[j3];
         }
-        bubble.append()->vertex = __interpv(s_i, sa, xa, ya, 4);
+        //const Vertex v = __interpv(s_i, sa, xa, ya, 4);
+        const Real    fac = (s_i - sa[1])/(sa[2]-sa[1]);
+        const Vertex  v( xa[1] + fac * ( xa[2] - xa[1]), ya[1] + fac * ( ya[2] - ya[1]) );
+        bubble.append()->vertex = v;
     }
     assert(bubble.size==a_list.size);
     
@@ -147,6 +150,6 @@ void Rescaler:: rebuild( Bubble &bubble )
     //--------------------------------------------------------------------------
     // rebuild its metrics
     //--------------------------------------------------------------------------
-    build_metrics(bubble);
+    build_metrics(bubble,RescaleWithConstantPressure);
     
 }

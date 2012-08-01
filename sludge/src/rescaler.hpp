@@ -3,6 +3,12 @@
 
 #include "bubbles.hpp"
 
+enum RescaleMode
+{
+    RescaleWithConstantPressure,
+    RescaleWithAdjustedPressure
+};
+
 class Rescaler
 {
 public:
@@ -11,15 +17,20 @@ public:
     
     
 
-    //! upgrade on bubble
+    //! upgrade a bubble to match resolution, constant pressure
     void upgrade( Bubble &bubble );
    
     
-    //! process all the bubbles !
-    void process( Bubbles &bubbles );
+    //! update metrics, area and pressure
+    void update( Bubble &bubble );
     
     
+    //! upgrade all the bubble before dispatch
+    void upgrade_all( Bubbles &bubbles );
     
+    //! update all the bubbles, after assemble
+    void update_all( Bubbles &bubbles );
+      
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Rescaler);
     
@@ -40,7 +51,8 @@ private:
     cached_list<core::list_of,abscissa> a_list;
 
     //! apply pbc, compute edges, area and content to match pressure
-    void build_metrics( Bubble &bubble );
+    void build_metrics( Bubble &bubble, RescaleMode rescale_mode);
+
     
     //! check edges length and make a list of new abscissaes
     bool need_to_refine( const Bubble &bubble );

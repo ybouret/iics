@@ -12,7 +12,7 @@ void Bubbles:: check_and_dispatch_all(const mpi &MPI, auto_ptr<Rescaler> &rescal
     if( master )
     {
         assert( rescaler.is_valid() );
-        rescaler->process(*this);
+        rescaler->upgrade_all(*this);
         num_bubbles = count();
     }
     else 
@@ -39,12 +39,12 @@ void Bubbles:: check_and_dispatch_all(const mpi &MPI, auto_ptr<Rescaler> &rescal
 }
 
 
-void Bubbles:: assemble_all( const mpi &MPI )
+void Bubbles:: assemble_all( const mpi &MPI, auto_ptr<Rescaler> &rescaler)
 {
-    
+    const bool master = MPI.IsMaster;
 #if !defined (NDEBUG)
     size_t num_bubbles = 0;
-    if(MPI.IsMaster)
+    if(master)
         num_bubbles = count();
     MPI.__Bcast<size_t>(num_bubbles,0,MPI_COMM_WORLD);
     assert( count() == num_bubbles );
@@ -53,6 +53,12 @@ void Bubbles:: assemble_all( const mpi &MPI )
     for( Bubble *bubble = first(); bubble; bubble = bubble->next )
     {
         bubble->assemble_topology(MPI);
+    }
+    
+    if(master)
+    {
+        assert( rescaler.is_valid() );
+        rescaler->update_all(*this);
     }
     
 }

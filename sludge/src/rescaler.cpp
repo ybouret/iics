@@ -14,7 +14,7 @@ a_list(a_pool)
 {
 }
 
-void Rescaler:: process(Bubbles &bubbles)
+void Rescaler:: upgrade_all(Bubbles &bubbles)
 {
     
     //--------------------------------------------------------------------------
@@ -27,7 +27,22 @@ void Rescaler:: process(Bubbles &bubbles)
     
 }
 
-void Rescaler:: build_metrics( Bubble &bubble )
+void Rescaler:: update_all(Bubbles &bubbles)
+{
+    
+    for( Bubble *bubble = bubbles.first(); bubble; bubble=bubble->next )
+    {
+        update(*bubble);
+    }
+    
+}
+
+void Rescaler:: update( Bubble &bubble )
+{
+    build_metrics(bubble, RescaleWithAdjustedPressure);
+}
+
+void Rescaler:: build_metrics( Bubble &bubble, RescaleMode rescale_mode )
 {
     const size_t n = bubble.size;
     const size_t n1 = n+1;
@@ -59,13 +74,19 @@ void Rescaler:: build_metrics( Bubble &bubble )
     s[n1]  = period;
     ax[n1] = ax[1];
     ay[n1] = ay[1];
-    //! corresponding area
-    bubble.area = Fabs(area)/2;
-    std::cerr << "\tarea=" << bubble.area << std::endl;
+    bubble.area  = Fabs(area)/2;
+    std::cerr << "new area=" << bubble.area << std::endl;
     
-    //! keep the pressure
-    bubble.content = bubble.pressure * bubble.area;
-    
+    switch (rescale_mode) {
+        case RescaleWithConstantPressure:
+            bubble.content = bubble.pressure * bubble.area;
+            break;
+            
+        case RescaleWithAdjustedPressure:
+            bubble.pressure = bubble.content / bubble.area;
+            break;
+    }
+       
 }
 
 void Rescaler::abscissa::reset() throw()
@@ -77,6 +98,6 @@ void Rescaler::abscissa::reset() throw()
 
 void Rescaler:: upgrade( Bubble &bubble )
 {
-    build_metrics(bubble);
+    build_metrics(bubble,RescaleWithConstantPressure);
     refine(bubble);
 }

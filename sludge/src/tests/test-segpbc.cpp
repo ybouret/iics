@@ -14,7 +14,7 @@ static inline void __process(Bubbles              &bubbles,
                              Rescaler             &rescaler)
 {
     //bubbles.check_topologies();
-    rescaler.process(bubbles);
+    rescaler.upgrade_all(bubbles);
     //bubbles.first()->save_dat( vformat("bubble%d.dat",level) );
     bubbles.check_geometries_within( reg.vmin.y, reg.vmax.y);
     
