@@ -1,5 +1,6 @@
 #include "yocto/utest/run.hpp"
 #include "../bubble.hpp"
+#include "../rescaler.hpp"
 #include "yocto/ios/ocstream.hpp"
 
 static void save_spots( const Bubble &bubble, const string &filename )
@@ -30,10 +31,12 @@ YOCTO_UNIT_TEST_IMPL(bubble)
     Vertex center( box.x/2, 0.0 );
     
     Bubble bubble(lambda,pbc,tcache,scache,mcache);
-    
     if( MPI.IsMaster )
     {
         bubble.map_circle( center, box.x/3);
+        bubble.set_pressure(1);
+        Rescaler rescaler;
+        rescaler.upgrade(bubble);
     }
     
     
@@ -44,7 +47,7 @@ YOCTO_UNIT_TEST_IMPL(bubble)
     bubble.dispatch_topology(MPI);
     bubble.collect_spots_within(y_lo, y_up);
     bubble.compute_geometry();
-    MPI.Printf(stderr,"rank %d> #spots= %lu\n", rank, bubble.spots.size );
+    MPI.Printf(stderr,"rank %d> #spots= %lu, pressure=%g, area=%g\n", rank, bubble.spots.size, bubble.pressure, bubble.area );
     
     bubble.save_dat( vformat("bubble%d.%d.dat",rank,size) );
     save_spots(bubble, vformat("spots%d.%d.dat",rank,size) );

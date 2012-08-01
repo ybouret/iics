@@ -7,7 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 void Bubble:: dispatch_topology( const mpi &MPI )
 {
-    if( MPI.CommWorldSize >0 )
+    if( MPI.IsParallel )
     {
         const bool master     = MPI.IsMaster;
         size_t     num_tracer = 0;
@@ -32,7 +32,7 @@ void Bubble:: dispatch_topology( const mpi &MPI )
         //--------------------------------------------------------------------------
         // broadcast physics
         //--------------------------------------------------------------------------
-        MPI.Bcast(&pressure, 3, MPI_REAL_TYPE, 0, MPI_COMM_WORLD);
+        MPI.Bcast(&pressure, IO_COUNT, MPI_REAL_TYPE, 0, MPI_COMM_WORLD);
 
         if(!master)
             append(num_tracer);
@@ -57,10 +57,9 @@ void Bubble:: dispatch_topology( const mpi &MPI )
 void Bubble:: assemble_topology( const mpi &MPI )
 {
     static const int tag = 1000;
-    if( MPI.CommWorldSize >0 )
+    if( MPI.IsParallel )
     {
         const bool master   = MPI.IsMaster;
-        //MPI.Barrier(MPI_COMM_WORLD);
         if( master )
         {
             MPI_Status status;

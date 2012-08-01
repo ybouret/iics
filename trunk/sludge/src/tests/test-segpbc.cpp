@@ -15,13 +15,13 @@ static inline void __process(Bubbles              &bubbles,
 {
     //bubbles.check_topologies();
     rescaler.process(bubbles);
-    bubbles.first()->save_dat( vformat("bubble%d.dat",level) );
+    //bubbles.first()->save_dat( vformat("bubble%d.dat",level) );
     bubbles.check_geometries_within( reg.vmin.y, reg.vmax.y);
     
     
     Seg.process( bubbles );
     Seg.horizontal_pbc(W.lower.y,W.upper.y);
-    Seg.save_junctions( vformat("junc%d.dat",level) );
+    //Seg.save_junctions( vformat("junc%d.dat",level) );
     Seg.assign_markers();
     
     bubbles.fill( B );
@@ -29,8 +29,8 @@ static inline void __process(Bubbles              &bubbles,
     
     vector<string> var;
     var.push_back( "B" );
-    vtk.save( vformat("b%d.vtk",level), vformat("b%d",level), W, var, W.__layout());
-    bubbles.first()->save_inside( vformat("inside%d.dat",level), W.mesh);
+    vtk.save( vformat("b%04d.vtk",level), vformat("b%04d",level), W, var, W.__layout());
+    //bubbles.first()->save_inside( vformat("inside%d.dat",level), W.mesh);
 }
 
 
