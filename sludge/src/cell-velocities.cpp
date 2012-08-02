@@ -51,10 +51,29 @@ void Cell:: compute_velocities()
             const unit_t j0 = spot->gLower.y;
             const unit_t i1 = spot->gUpper.x;
             const unit_t j1 = spot->gUpper.y;
+            const Real  x   = spot->bary.x;
+            const Real  y   = spot->bary.y;
+            const Real  umx = 1-x;
+            const Real  umy = 1-y;
             
-            //------------------------------------------------------------------
-            // interpolate the gradient
-            //------------------------------------------------------------------
+            Vertex      v;
+            
+            const Real  w00 = umx*umy;
+            v += w00 * gradP[j0][i0];
+            
+            const Real  w10 = x*umy;
+            v += w10 * gradP[j0][i1];
+            
+            const Real  w11 = x*y;
+            v += w11 * gradP[j1][i1];
+            
+            const Real  w01 = umx * y;
+            v += w01 * gradP[j1][i0];
+            
+            spot->has_U = true;
+            spot->U     = velocity_from(v);
+            
+#if 0
             Vertex      u(0,0);
             const Real  x   = spot->bary.x;
             const Real  y   = spot->bary.y;
@@ -100,6 +119,7 @@ void Cell:: compute_velocities()
                 spot->has_U = false;
                 spot->U.ldz();
             }
+#endif
         }
     }
     
