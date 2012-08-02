@@ -81,7 +81,6 @@ void Cell:: compute_pressure()
                 //--------------------------------------------------------------
                 // right gradient
                 //--------------------------------------------------------------
-
                 // if(0==shift)
                 if( in_walls )
                 {
@@ -92,21 +91,22 @@ void Cell:: compute_pressure()
                     gradP_j[upper.x].y = 0;
                     gradP_j[upper.x].x = inv_two_dX * ( 3*P_j[upper.x] + P_j[upper.x-2] - 4*P_j[upper.x-1]);
                 }
+                
                 for( unit_t i=xmax-shift;i>=xmin; i -= 2 )
                 {
+                    Vertex &gradP_ji   = gradP_j[i];
+                    const Real P_j_im  = P_j[i-1];
+                    const Real P_j_ip  = P_j[i+1];
+                    const Real P_jm_i  = P[j-1][i];
+                    const Real P_jp_i  = P[j+1][i];
+                    gradP_ji.x         = (P_j_ip - P_j_im) * inv_two_dX;
+                    gradP_ji.y         = (P_jp_i - P_jm_i) * inv_two_dY;
                     if( B_j[i] <= 0 )
                     {
                         //-- in the laponite
-                        Vertex &gradP_ji   = gradP_j[i];
                         Real   &P_ji       = P_j[i];
                         const Real P0      = P_ji;
                         const Real twoP0   = P0+P0;
-                        const Real P_j_im  = P_j[i-1];
-                        const Real P_j_ip  = P_j[i+1];
-                        const Real P_jm_i  = P[j-1][i];
-                        const Real P_jp_i  = P[j+1][i];
-                        gradP_ji.x         = (P_j_ip - P_j_im) * inv_two_dX;
-                        gradP_ji.y         = (P_jp_i - P_jm_i) * inv_two_dY;
                         const Real LPx     = (P_j_im - twoP0 + P_j_ip ) * inv_dX2;
                         const Real LPy     = (P_jm_i - twoP0 + P_jp_i ) * inv_dY2;
                         const Real residue = LPx+LPy;
