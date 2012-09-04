@@ -40,7 +40,7 @@ public:
     const unit_t       border_j;        //!< indice
     const Real         border_y;        //!< to reconstruct the segments
     bool               in_walls;        //!< pressure boundary
-    
+    bool               bubbles_velocities;
     //==========================================================================
     // Bubbles Operations
     //==========================================================================

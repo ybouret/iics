@@ -39,5 +39,7 @@ void Simulation:: initialize()
         b->map_circle(Vertex(sim_box.x/3,0), 0.15 * Lx);
         b->set_pressure(2);
     }
+    cycle = 0;
+    bubbles_velocities = true;
     compute_fields();
 }
