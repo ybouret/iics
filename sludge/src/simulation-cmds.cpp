@@ -21,6 +21,7 @@ void Simulation:: perform(const string &cmd)
             bubbles.first()->save_dat("bubble.dat");
             bubbles.first()->save_inside("inside.dat", mesh);
             segmenter.save_junctions("junc.dat");
+            SaveGrid(mesh, "grid.dat");
         }
         
     }

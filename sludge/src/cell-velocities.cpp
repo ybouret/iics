@@ -11,38 +11,58 @@ void Cell:: compute_velocities()
     // On the grid
     //
     //==========================================================================
-    for( unit_t j=upper.y;j>=lower.y;--j)
+    if( bubbles_velocities )
     {
-        const Array1D       &B_j     = B[j];
-        const VertexArray1D &gradP_j = gradP[j];
-        VertexArray1D       &U_j     = U[j];
-        
-        U_j[lower.x].ldz();
-        
-        for(unit_t i=xmax;i>=xmin;--i)
+        MPI.Printf0(stderr, "\t\t [[ computed ]]\n");
+        for( unit_t j=upper.y;j>=lower.y;--j)
         {
-            if(B_j[i]<=0)
+            const Array1D       &B_j     = B[j];
+            const VertexArray1D &gradP_j = gradP[j];
+            VertexArray1D       &U_j     = U[j];
+            
+            U_j[lower.x].ldz();
+            
+            for(unit_t i=xmax;i>=xmin;--i)
             {
-                //--------------------------------------------------------------
-                // in the laponite
-                //--------------------------------------------------------------
-                U_j[i] = velocity_from(gradP_j[i]);
-            }
-            else
-            {
-                //--------------------------------------------------------------
-                // in a bubble
-                //--------------------------------------------------------------
-                U_j[i].ldz(); // idem if gradP_j[i] == 0.
+                if(B_j[i]<=0)
+                {
+                    //--------------------------------------------------------------
+                    // in the laponite
+                    //--------------------------------------------------------------
+                    U_j[i] = velocity_from(gradP_j[i]);
+                }
+                else
+                {
+                    //--------------------------------------------------------------
+                    // in a bubble
+                    //--------------------------------------------------------------
+                    U_j[i].ldz(); // idem if gradP_j[i] == 0.
+                }
             }
         }
+        
+#if 0
+        for( unit_t j=upper.y;j>=lower.y;--j)
+        {
+            for( unit_t i=upper.x;i>=lower.x;--i)
+            {
+                U[j][i].x = Real(i)/width.x;
+                U[j][i].y = Real(j)/width.y;
+            }
+        }
+#endif
+        
     }
-    
+    else
+    {
+         MPI.Printf0(stderr, "\t\t [[ NOT computed ]]\n");
+    }
     //==========================================================================
     //
     // On the bubbles
     //
     //==========================================================================
+    
     for( Bubble *bubble=bubbles.first(); bubble; bubble=bubble->next)
     {
         for( Spot *spot = bubble->spots.head;spot;spot=spot->next)
@@ -51,34 +71,31 @@ void Cell:: compute_velocities()
             const unit_t j0 = spot->gLower.y;
             const unit_t i1 = spot->gUpper.x;
             const unit_t j1 = spot->gUpper.y;
-            const Real  x   = spot->bary.x;
-            const Real  y   = spot->bary.y;
-            const Real  umx = 1-x;
-            const Real  umy = 1-y;
+            const Real   x   = spot->bary.x;
+            const Real   y   = spot->bary.y;
+            const Real   umx = 1-x;
+            const Real   umy = 1-y;
             
             Vertex      v;
             
             const Real  w00 = umx*umy;
-            v += w00 * gradP[j0][i0];
+            v += w00 * U[j0][i0];
             
             const Real  w10 = x*umy;
-            v += w10 * gradP[j0][i1];
+            v += w10 * U[j0][i1];
             
             const Real  w11 = x*y;
-            v += w11 * gradP[j1][i1];
+            v += w11 * U[j1][i1];
             
             const Real  w01 = umx * y;
-            v += w01 * gradP[j1][i0];
+            v += w01 * U[j1][i0];
             
             spot->has_U = true;
-            spot->U     = velocity_from(v);
+            //spot->U     = velocity_from(v);
+            spot->U = v;
             
 #if 0
             Vertex      u(0,0);
-            const Real  x   = spot->bary.x;
-            const Real  y   = spot->bary.y;
-            const Real  umx = 1-x;
-            const Real  umy = 1-y;
             Real  weight    = 0;
             
             if( B[j0][i0] <= 0 )

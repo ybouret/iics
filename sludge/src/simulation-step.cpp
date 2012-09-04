@@ -2,6 +2,8 @@
 
 void Simulation:: step()
 {
+    
+
     VisIt::Simulation::step();
     
     // move concerned points
@@ -15,6 +17,7 @@ void Simulation:: step()
     // - process topologies on master
     // - update B, compute P, gradP, U
     // - and all exchanges
+    //bubbles_velocities = false;
     compute_fields();
     
     
