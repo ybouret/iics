@@ -1,0 +1,35 @@
+#ifndef BUBBLES_INCLUDED
+#define BUBBLES_INCLUDED 1
+
+#include "bubble.hpp"
+
+class Bubbles
+{
+public:
+    explicit Bubbles( const PBC &bubbles_pbc ) throw();
+    virtual ~Bubbles() throw();
+    
+    Bubble       *first() throw();
+    const Bubble *first() const throw();
+    size_t        count() const throw();
+    
+    Bubble *append();         //!< one new bubble
+    void    clear() throw();  //!< empty all
+    void    create(size_t n); //!< clear and append n times
+
+    
+    const PBC  &pbc;
+    Real        lambda; //!< default is 1
+    
+private:
+    YOCTO_DISABLE_COPY_AND_ASSIGN(Bubbles);
+    core::list_of<Bubble> bubbles;
+    core::pool_of<Bubble> pool;
+    Tracer::Cache         tcache;
+    Spot::Cache           scache;
+    
+
+};
+
+#endif
+
