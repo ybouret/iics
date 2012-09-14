@@ -25,7 +25,8 @@ public:
     
     
 #if defined(HAS_MPI)
-    void dispatch( const mpi & MPI );
+    void dispatch( const mpi & MPI ); //!< dispatch all the bubbles
+    void assemble( const mpi & MPI ); //!< assemble all the bubbles
 #endif
     
 private:

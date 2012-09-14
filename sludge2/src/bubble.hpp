@@ -31,18 +31,31 @@ public:
     //! full hash
     size_t get_hash( hashing::function &h) const;
     
+    //! build_spots
+    /**
+     assume no initial spots
+     */
+    void locate_spots( const Real ymin, const Real ymax );
+    
+    
     
 #if defined(HAS_MPI)
     //! dispatch tracers
     /**
      - empty spots
-     - master broadcast tracers
+     - empty slave tracers
+     - broadcast master tracers
      */
     void dispatch( const mpi &MPI );
+    
+    //! assemble tracers vertex from spots
+    void assemble( const mpi &MPI );
 #endif
     
     void map_circle( const Vertex &center, Real radius );
     
+    void save_dat(   const string &filename ) const;
+    void save_spots( const string &filename ) const;
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Bubble);
