@@ -14,6 +14,7 @@ public:
     Spot   *next;
     Spot   *prev;
     Tracer *handle;
+    size_t  jump;
     
     typedef cache_of<Spot> Cache;
     

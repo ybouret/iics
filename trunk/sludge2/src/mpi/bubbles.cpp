@@ -33,3 +33,28 @@ void Bubbles:: dispatch(const mpi &MPI )
     
     
 }
+
+
+void Bubbles:: assemble( const mpi & MPI )
+{
+#if !defined(NDEBUG)
+    size_t num_bubbles = 0;
+    if( MPI.IsMaster )
+    {
+        num_bubbles = bubbles.size;
+    }
+    MPI.__Bcast(num_bubbles, 0, MPI_COMM_WORLD);
+    assert( num_bubbles == bubbles.size );
+#endif
+    
+    //--------------------------------------------------------------------------
+    // assemble each bubble
+    //--------------------------------------------------------------------------
+    for( Bubble *bubble = bubbles.head; bubble; bubble=bubble->next )
+    {
+        bubble->assemble(MPI);
+    }
+    
+    
+    
+}
