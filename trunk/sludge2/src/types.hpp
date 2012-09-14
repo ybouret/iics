@@ -24,7 +24,10 @@ typedef ghosts_setup                   GhostsSetup;
 typedef fields_setup<Layout>           FieldsSetup;
 typedef workspace<Layout,rmesh,Real>   WorkspaceBase;
 
+
+#if defined(HAS_MPI)
 #define MPI_REAL_TYPE                  MPI_DOUBLE
+#endif
 
 
 void AleaInit() throw();
