@@ -10,6 +10,7 @@ LINK_DIRECTORIES(    ${YROOT}/lib     )
 SET(SOURCES_SER 
 types.hpp types.cpp
 tracer.hpp tracer.cpp
+spot.hpp   spot.cpp
 )
 
 SOURCE_GROUP( core FILES ${SOURCES_SER} )

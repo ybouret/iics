@@ -2,4 +2,6 @@
 
 Tracer:: ~Tracer() throw() {}
 
-Tracer:: Tracer() throw() : vertex(), edge() {}
+Tracer:: Tracer() throw() :
+next(0),prev(0),
+vertex(), edge() {}
