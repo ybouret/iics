@@ -1,0 +1,35 @@
+#include "../bubbles.hpp"
+
+void Bubbles:: dispatch(const mpi &MPI )
+{
+    
+    //--------------------------------------------------------------------------
+    // broadcast num bubbles
+    //--------------------------------------------------------------------------
+    size_t num_bubbles = 0;
+    if( MPI.IsMaster )
+    {
+        num_bubbles = bubbles.size;
+    }
+    MPI.__Bcast(num_bubbles, 0, MPI_COMM_WORLD);
+    
+    //--------------------------------------------------------------------------
+    // prepare bubbles on slaves
+    //--------------------------------------------------------------------------
+    if( !MPI.IsMaster )
+    {
+        create(num_bubbles);
+    }
+    
+    assert( bubbles.size == num_bubbles );
+    
+    //--------------------------------------------------------------------------
+    // dispatch each bubble
+    //--------------------------------------------------------------------------
+    for( Bubble *bubble = bubbles.head; bubble; bubble=bubble->next )
+    {
+        bubble->dispatch(MPI);
+    }
+    
+    
+}

@@ -16,10 +16,17 @@ public:
     Bubble *append();         //!< one new bubble
     void    clear() throw();  //!< empty all
     void    create(size_t n); //!< clear and append n times
-
+    
+    size_t get_hash( hashing::function &H ) const;
+    
     
     const PBC  &pbc;
     Real        lambda; //!< default is 1
+    
+    
+#if defined(HAS_MPI)
+    void dispatch( const mpi & MPI );
+#endif
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Bubbles);
