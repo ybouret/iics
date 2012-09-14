@@ -26,6 +26,7 @@ typedef workspace<Layout,rmesh,Real>   WorkspaceBase;
 
 
 #if defined(HAS_MPI)
+#include "yocto/mpi/mpi.hpp"
 #define MPI_REAL_TYPE                  MPI_DOUBLE
 #endif
 

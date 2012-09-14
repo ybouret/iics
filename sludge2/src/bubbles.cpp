@@ -55,7 +55,7 @@ void Bubbles:: clear() throw()
     while( bubbles.size )
     {
         Bubble *b = bubbles.pop_back();
-        b->empty();
+        b->clear();
         pool.store( b );
     }
 }
@@ -68,3 +68,15 @@ void Bubbles:: create( size_t n )
         (void) append();
     }
 }
+
+size_t Bubbles:: get_hash( hashing::function &H ) const
+{
+    H.set();
+    H.run( &bubbles.size, sizeof(bubbles.size) );
+    for( const Bubble *b = bubbles.head; b; b=b->next )
+    {
+        b->hash(H);
+    }
+    return H.key<size_t>();
+}
+

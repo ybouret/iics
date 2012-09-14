@@ -20,3 +20,23 @@ spots(scache)
     
 }
 
+void Bubble:: clear() throw()
+{
+    empty();
+    spots.empty();
+}
+
+void  Bubble:: hash( hashing::function &h ) const
+{
+    const Tracer *tracer = root;
+    h.run( &size, sizeof(size) );
+    for( size_t i=size;i>0;--i,tracer=tracer->next)
+        tracer->hash(h);
+}
+
+size_t Bubble:: get_hash( hashing::function &h) const
+{
+    h.set();
+    hash(h);
+    return h.key<size_t>();
+}
