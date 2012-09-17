@@ -17,6 +17,7 @@ YOCTO_UNIT_TEST_IMPL(bubble)
         const Vertex center( 10*(0.5 - Alea()), 10*(0.5-Alea()));
         const Real   radius = 0.1 + 10 * Alea();
         bubble->map_circle(center, radius);
+        bubble->compute_contour();
         bubble->save_dat( "b0.dat" );
     }
     
@@ -57,7 +58,7 @@ YOCTO_UNIT_TEST_IMPL(bubbles)
     const int   rank = MPI.CommWorldRank;
     const int   size = MPI.CommWorldSize;
     
-    const PBC pbc(1);
+    const PBC pbc(10);
     Bubbles   bubbles( pbc );
     hashing::sha1 H;
     
@@ -69,6 +70,7 @@ YOCTO_UNIT_TEST_IMPL(bubbles)
             const Vertex center( 10*(0.5 - Alea()), 10*(0.5-Alea()));
             const Real   radius = 0.1 + 10 * Alea();
             bubble->map_circle(center, radius);
+            bubble->compute_contour();
         }
     }
     
@@ -77,8 +79,8 @@ YOCTO_UNIT_TEST_IMPL(bubbles)
     MPI.Printf( stderr, "%d.%d: %08x\n",size,rank, uint32_t(bubbles.get_hash(H)));
     MPI.__WaitFor(0.1);
 
-    const Real ylo = -5;
-    const Real yhi =  5;
+    const Real ylo  = -5;
+    const Real yhi  =  5;
     const Real ylen = yhi - ylo;
     const Real ymin = ylo + (rank * ylen)      / size;
     const Real ymax = ylo + ( (rank+1) *ylen ) / size;

@@ -56,9 +56,13 @@ public:
 #endif
     
     void map_circle( const Vertex &center, Real radius );
+    void map_peanut( const Vertex &center, Real radius, Real alpha );
     
     void save_dat(   const string &filename ) const;
     void save_spots( const string &filename ) const;
+    void save_vtk( const string &filename )   const;
+    void save_vtk_t( const string &filename ) const;
+    void save_vtk_n( const string &filename ) const;
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Bubble);

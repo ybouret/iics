@@ -1,4 +1,5 @@
 #include "bubble.hpp"
+#include "yocto/code/utils.hpp"
 
 //! simultaneous tridiagonal system
 static inline
@@ -160,9 +161,25 @@ Vertex vertex_dsplint1(const Real t, const array<Real> &ta, const array<Vertex> 
     const Real Cp=(1-3*a*a)*f;
     const Real Dp=(3*b*b-1)*f;
     
-    return v[khi] - v[klo] + Cp * v2[klo] + Dp * v2[khi];
+    return (v[khi] - v[klo]) + Cp * v2[klo] + Dp * v2[khi];
 }
 
+static inline
+Vertex vertex_dsplint2(const Real t, const array<Real> &ta, const array<Vertex> &v, const array<Vertex> &v2 )
+{
+    static size_t klo = 0;
+    static size_t khi = 0;
+    const size_t n = ta.size();
+    assert(n==v.size());
+    assert(n==v2.size());
+    __bracket(klo,khi, t, ta);
+    
+    const Real h=ta[khi]-ta[klo];
+    const Real a=(ta[khi]-t)/h;
+    const Real b=(t-ta[klo])/h;
+    
+    return a * v2[klo] + b * v2[khi];
+}
 
 void Bubble:: compute_contour()
 {
@@ -177,7 +194,9 @@ void Bubble:: compute_contour()
     vector<Real>   h(N,0);    // |v[i+1] - v[i]|
     
     //--------------------------------------------------------------------------
-    //-- cumulate both s and contour v
+    //
+    // cumulate both s and contour v
+    //
     //--------------------------------------------------------------------------
     Tracer *tracer = root; // starting point
     Real    period = 0;    // current curvilinear absc.
@@ -198,16 +217,19 @@ void Bubble:: compute_contour()
     t[M] = period;
     v[M] = v[1];
     
-    
+#if 0
     {
         ios::ocstream fp("bv.dat",false);
         for( size_t i=1; i <= M; ++i )
             fp("%g %g %g\n", v[i].x, v[i].y, t[i]);
         
     }
+#endif
     
     //--------------------------------------------------------------------------
-    //-- compute spline coefficients
+    //
+    // compute spline coefficients
+    //
     //--------------------------------------------------------------------------
     vector<Real>   a(N,0);
     vector<Real>   b(N,0);
@@ -235,6 +257,7 @@ void Bubble:: compute_contour()
     vertex_cyclic(a, b, c, r, v2, N);
     v2[M] = v2[1];
     
+#if 0
     {
         ios::ocstream fp("bs.dat",false);
         for( size_t i=0; i <100; ++i )
@@ -245,7 +268,75 @@ void Bubble:: compute_contour()
         }
         fp("%g %g\n", v[1].x, v[1].y);
     }
+#endif
     
+    //--------------------------------------------------------------------------
+    //
+    // lazy insertion
+    //
+    //--------------------------------------------------------------------------
+    size_t Ns = max_of<size_t>( size, max_of<size_t>(Ceil( period/lam ),3));
+    
+TRY_GENERATE:
+    {
+        //----------------------------
+        //-- create temporary tracers
+        //----------------------------
+        const Real dt = period / Ns;
+        Tracers    tmp( cache );
+        for( size_t i=0; i < Ns; ++i )
+        {
+            tmp.append()->vertex = vertex_splint( i * dt, t, v, v2);
+        }
+        
+        //-------------
+        //-- check'em
+        //-------------
+        Tracer *p = tmp.root;
+        for(size_t i=tmp.size;i>0;--i,p=p->next)
+        {
+            p->edge = p->next->vertex - p->vertex;
+            p->s    = Sqrt( p->s2 = p->edge.norm2());
+            if( p->s > lam)
+            {
+                ++Ns;
+                goto TRY_GENERATE;
+            }
+        }
+        std::cerr << "generated with Ns=" << Ns << " / " << size << std::endl;
+        {
+            ios::ocstream fp("bg.dat", false);
+            Tracer *p = tmp.root;
+            for(size_t i=tmp.size;i>0;--i,p=p->next)
+            {
+                fp("%g %g\n", p->vertex.x, p->vertex.y);
+            }
+            fp("%g %g\n", p->vertex.x, p->vertex.y);
+        }
+        
+        this->swap_with( tmp );
+    }
+   
+    //--------------------------------------------------------------------------
+    //
+    // pbc and differential properties
+    //
+    //--------------------------------------------------------------------------
+    tracer = root;
+    for(size_t i=0; i<size; ++i,tracer=tracer->next)
+    {
+        pbc(tracer->vertex);
+        assert( tracer->edge.norm() <= lam );
+        const Real   ti           = (i*period)/size;
+        const Vertex tangent      = vertex_dsplint1(ti, t, v, v2);
+        const Real   tg_norm2     = tangent.norm2();
+        const Real   tg_norm      = Sqrt( tg_norm2 );
+        tracer->t                 = (1/tg_norm) * tangent;
+        tracer->n.x               = -tracer->t.y;
+        tracer->n.y               =  tracer->t.x;
+        const Vertex acc          =  vertex_dsplint2(ti, t, v, v2);
+        tracer->curvature         = (acc * tracer->n) / tg_norm2;
+    }
     
     
 }
