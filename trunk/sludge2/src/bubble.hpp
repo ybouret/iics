@@ -38,6 +38,9 @@ public:
     void locate_spots( const Real ymin, const Real ymax );
     
     
+    //! apply PBC on tracers
+    void compute_contour();
+    
     
 #if defined(HAS_MPI)
     //! dispatch tracers

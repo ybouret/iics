@@ -13,11 +13,11 @@ void Bubble:: dispatch(const mpi &MPI)
     size_t num_tracers = 0;
     if( MPI.IsMaster )
     {
-        num_tracers = size;
+        num_tracers = size; // from master
     }
     else
     {
-        empty();
+        empty();            // for slaves
     }
     MPI.__Bcast(num_tracers, 0, MPI_COMM_WORLD );
     
