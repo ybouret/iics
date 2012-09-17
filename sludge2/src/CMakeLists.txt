@@ -11,7 +11,7 @@ SET(SOURCES_SER
 types.hpp   types.cpp
 tracer.hpp  tracer.cpp
 spot.hpp    spot.cpp
-bubble.hpp  bubble.cpp bubble-shapes.cpp
+bubble.hpp  bubble.cpp bubble-shapes.cpp bubble-topology.cpp
 bubbles.hpp bubbles.cpp
 )
 
