@@ -5,7 +5,13 @@ Tracer:: ~Tracer() throw() {}
 Tracer:: Tracer() throw() :
 next(0),prev(0),
 vertex(),
-edge()
+edge(),
+s2(0),
+s(0),
+t(),
+n(),
+curvature(0),
+bubble(0)
 {}
 
 
