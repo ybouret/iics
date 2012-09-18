@@ -1,20 +1,20 @@
 #ifndef JUNCTION_INCLUDED
 #define JUNCTION_INCLUDED 1
 
-#include "types.hpp"
-#include "yocto/sequence/cached-list.hpp"
+#include "bubble.hpp"
 #include "yocto/core/list.hpp"
 
 //! bubble/mesh junctions
 class Junction
 {
 public:
-    Junction( const Vertex &at ) throw();
+    Junction() throw();
     ~Junction() throw();
     
     Junction       *next;
     Junction       *prev;
-    const Vertex    pos;
+    Vertex          pos;
+    const Bubble   *bubble;
     
     typedef cache_of<Junction> Cache;
     

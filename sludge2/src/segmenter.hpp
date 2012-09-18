@@ -2,6 +2,7 @@
 #define SEGMENTER_INCLUDED 1
 
 #include "segment.hpp"
+#include "bubbles.hpp"
 
 class Segmenter
 {
@@ -24,6 +25,8 @@ public:
     const Array1D  &Y;
     
     void locate_vertex( const Vertex &v, coord2D &klo, coord2D &khi ) const;
+    void process( const Bubbles &bubbles );
+    
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Segmenter);
@@ -32,6 +35,7 @@ private:
     const size_t    segcount;
     Segments        segments;
     Junction::Cache jcache;
+    void process1( const Bubble *bubble );
     
 };
 

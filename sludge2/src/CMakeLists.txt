@@ -19,6 +19,7 @@ junction.hpp   junction.cpp
 segment.hpp    segment.cpp
 segmenter.hpp  segmenter.cpp 
                segmenter-locate.cpp
+               segmenter-process.cpp
 )
 
 SOURCE_GROUP( core FILES ${SOURCES_SER} )
