@@ -11,11 +11,14 @@ SET(SOURCES_SER
 types.hpp      types.cpp
 tracer.hpp     tracer.cpp
 spot.hpp       spot.cpp
-bubble.hpp     bubble.cpp bubble-shapes.cpp bubble-topology.cpp
+bubble.hpp     bubble.cpp 
+               bubble-shapes.cpp 
+               bubble-topology.cpp
 bubbles.hpp    bubbles.cpp
 junction.hpp   junction.cpp
 segment.hpp    segment.cpp
-segmenter.hpp  segmenter.cpp
+segmenter.hpp  segmenter.cpp 
+               segmenter-locate.cpp
 )
 
 SOURCE_GROUP( core FILES ${SOURCES_SER} )

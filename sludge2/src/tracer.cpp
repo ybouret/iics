@@ -4,7 +4,9 @@ Tracer:: ~Tracer() throw() {}
 
 Tracer:: Tracer() throw() :
 next(0),prev(0),
-vertex(), edge() {}
+vertex(),
+edge()
+{}
 
 
 void Tracer:: hash( hashing::function &h ) const
