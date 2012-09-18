@@ -6,6 +6,8 @@
 #include "yocto/core/clist.hpp"
 #include "yocto/hashing/sha1.hpp"
 
+class Bubble;
+
 class Tracer
 {
 public:
@@ -22,6 +24,8 @@ public:
     Vertex  t;         //!< local tangent vector     : +2
     Vertex  n;         //!< local normal vector      : +2
     Real    curvature; //!< local curvature          : +1
+    Bubble *bubble;    //!< whose that ?
+    
     static const size_t IO_COUNT = 11;
     
     typedef cache_of<Tracer>                     Cache;

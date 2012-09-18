@@ -58,3 +58,6 @@ Segment & Segmenter:: Vert( unit_t j) throw()
     return *vseg[j];
 }
 
+
+
+

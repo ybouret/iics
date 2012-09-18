@@ -9,7 +9,7 @@
 class Junction
 {
 public:
-    Junction( const Vertex &at) throw();
+    Junction( const Vertex &at ) throw();
     ~Junction() throw();
     
     Junction       *next;

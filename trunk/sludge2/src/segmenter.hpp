@@ -3,7 +3,6 @@
 
 #include "segment.hpp"
 
-
 class Segmenter
 {
 public:
@@ -15,21 +14,25 @@ public:
     //! create segments from a valid grid
     void create();
     
+    //! get horizontal segment @X[i]
     Segment & Horz( unit_t i) throw();
+    
+    //! get vertical segment @Y[j]
     Segment & Vert( unit_t j) throw();
     
     const Array1D  &X;
     const Array1D  &Y;
-
+    
+    void locate_vertex( const Vertex &v, coord2D &klo, coord2D &khi ) const;
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Segmenter);
-      Segment::Ptr   *hseg;
+    Segment::Ptr   *hseg;
     Segment::Ptr   *vseg;
     const size_t    segcount;
     Segments        segments;
     Junction::Cache jcache;
-   
+    
 };
 
 #endif
