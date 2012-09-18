@@ -325,6 +325,7 @@ TRY_GENERATE:
     tracer = root;
     for(size_t i=0; i<size; ++i,tracer=tracer->next)
     {
+        tracer->bubble = this;
         pbc(tracer->vertex);
         assert( tracer->edge.norm() <= lam );
         const Real   ti           = (i*period)/size;

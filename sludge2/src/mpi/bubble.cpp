@@ -26,7 +26,8 @@ void Bubble:: dispatch(const mpi &MPI)
     //--------------------------------------------------------------------------
     if( !MPI.IsMaster )
     {
-        append( num_tracers );
+        for(size_t i=num_tracers;i>0;--i)
+            append()->bubble = this;
     }
     
     //--------------------------------------------------------------------------
@@ -35,6 +36,7 @@ void Bubble:: dispatch(const mpi &MPI)
     Tracer *tracer = root;
     for( size_t i=num_tracers;i>0;--i,tracer=tracer->next)
     {
+        assert(tracer->bubble==this);
         MPI.Bcast( &tracer->vertex, Tracer::IO_COUNT, MPI_REAL_TYPE, 0, MPI_COMM_WORLD);
     }
     
