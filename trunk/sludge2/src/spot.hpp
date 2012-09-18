@@ -14,9 +14,9 @@ public:
     Spot   *next;
     Spot   *prev;
     Tracer *handle;
-    size_t  jump;     //!< encoding for MPI
-    coord2D klo;      //!< lower indices for handle->vertex on grid
-    coord2D kup;      //!< upper indices for handle->vertex on grid
+    size_t  jump;             //!< encoding for MPI
+    mutable coord2D klo;      //!< lower indices for handle->vertex on grid
+    mutable coord2D kup;      //!< upper indices for handle->vertex on grid
     
     typedef cache_of<Spot> Cache;
     
