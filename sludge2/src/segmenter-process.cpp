@@ -88,14 +88,14 @@ OutCode ComputeOutCode(const Real x, const Real y, const Real xmin, const Real x
     return code;
 }
 
-static inline void FinalizeJunction( Junction *J, const Tracer *source, const Tracer *target )
+static inline void FinalizeJunction( Junction *J, const Tracer *source, const Tracer *target ) throw()
 {
     J->bubble    = source->bubble;
     J->curvature = 0.5*(source->curvature + target->curvature);
 }
 
 static inline
-OutCode ComputeOutCode( const Vertex &r, const Vertex &lo, const Vertex &up)
+OutCode ComputeOutCode( const Vertex &r, const Vertex &lo, const Vertex &up) throw()
 {
     return ComputeOutCode(r.x, r.y, lo.x, up.x, lo.y, up.y);
 }
@@ -156,7 +156,5 @@ void Segmenter:: compute_junctions(const Spot   *spot,
         FinalizeJunction(J,spot->handle,to);
     }
     
-    
-    
-    
+        
 }
