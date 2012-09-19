@@ -21,6 +21,7 @@ segment.hpp    segment.cpp
 segmenter.hpp  segmenter.cpp 
                segmenter-locate.cpp
                segmenter-process.cpp
+parameters.hpp parameters.cpp
 )
 
 SOURCE_GROUP( core FILES ${SOURCES_SER} )
