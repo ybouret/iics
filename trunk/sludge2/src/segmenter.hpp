@@ -38,8 +38,12 @@ private:
     Segments        segments;
     void process_bubble( const Bubble *bubble );
     void process_spot( const Spot *spot);
-    void compute_junctions( const Spot *spot, const Vertex &self, const Vertex &other );
-    
+    void compute_junctions(const Spot   *spot,
+                           const Vertex &vertex,
+                           const Vertex &target,
+                           const Tracer *to
+                           );
+
 };
 
 #endif

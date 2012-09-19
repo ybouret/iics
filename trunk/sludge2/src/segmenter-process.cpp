@@ -47,12 +47,12 @@ void Segmenter:: process_spot( const Spot *spot )
     //--------------------------------------------------------------------------
     // find junctions
     //--------------------------------------------------------------------------
-    compute_junctions(spot, vertex, target);
+    compute_junctions(spot, vertex, target, tracer->next);
     const Tracer *prec = tracer->prev;
     if( ! prec->is_spot )
     {
         target = vertex - prec->edge;
-        compute_junctions(spot, vertex, target);
+        compute_junctions(spot, vertex, target, prec);
     }
 }
 
@@ -88,17 +88,24 @@ OutCode ComputeOutCode(const Real x, const Real y, const Real xmin, const Real x
     return code;
 }
 
+static inline void FinalizeJunction( Junction *J, const Tracer *source, const Tracer *target )
+{
+    J->bubble    = source->bubble;
+    J->curvature = 0.5*(source->curvature + target->curvature);
+}
+
 static inline
 OutCode ComputeOutCode( const Vertex &r, const Vertex &lo, const Vertex &up)
 {
     return ComputeOutCode(r.x, r.y, lo.x, up.x, lo.y, up.y);
 }
 
+
 void Segmenter:: compute_junctions(const Spot   *spot,
                                    const Vertex &self,
-                                   const Vertex &other )
+                                   const Vertex &other,
+                                   const Tracer *to)
 {
-    const Bubble *bubble = spot->handle->bubble;
     const Coord   klo = spot->klo;
     const Coord   kup = spot->kup;
     
@@ -115,7 +122,7 @@ void Segmenter:: compute_junctions(const Spot   *spot,
         Junction *J   = seg.append();
         J->pos.x      = seg.value;
         J->pos.y      = self.y + ( J->pos.x - self.x)*(other.y - self.y)/(other.x - self.x) ;
-        J->bubble     = bubble;
+        FinalizeJunction(J,spot->handle,to);
     }
     
     if( other_code & RIGHT)
@@ -125,9 +132,9 @@ void Segmenter:: compute_junctions(const Spot   *spot,
         Junction *J   = seg.append();
         J->pos.x      = seg.value;
         J->pos.y      = self.y + ( J->pos.x - self.x)*(other.y - self.y)/(other.x - self.x);
-        J->bubble     = bubble;
+        FinalizeJunction(J,spot->handle,to);
     }
-
+    
     if( other_code & BOTTOM )
     {
         assert( other.y < self.y );
@@ -135,9 +142,9 @@ void Segmenter:: compute_junctions(const Spot   *spot,
         Junction *J   = seg.append();
         J->pos.y      = seg.value;
         J->pos.x      = self.x + (J->pos.y - self.y)*(other.x-self.x)/(other.y-self.y);
-        J->bubble     = bubble;
+        FinalizeJunction(J,spot->handle,to);
     }
-
+    
     
     if( other_code & TOP )
     {
@@ -146,10 +153,10 @@ void Segmenter:: compute_junctions(const Spot   *spot,
         Junction *J   = seg.append();
         J->pos.y      = seg.value;
         J->pos.x      = self.x + (J->pos.y - self.y)*(other.x-self.x)/(other.y-self.y);
-        J->bubble     = bubble;
+        FinalizeJunction(J,spot->handle,to);
     }
     
-      
+    
     
     
 }

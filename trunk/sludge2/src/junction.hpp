@@ -15,6 +15,7 @@ public:
     Junction       *prev;
     Vertex          pos;
     const Bubble   *bubble;
+    Real            curvature;
     
     typedef cache_of<Junction> Cache;
     
