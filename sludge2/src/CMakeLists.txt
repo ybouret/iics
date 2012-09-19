@@ -12,6 +12,7 @@ types.hpp      types.cpp
 tracer.hpp     tracer.cpp
 spot.hpp       spot.cpp
 bubble.hpp     bubble.cpp 
+               bubble-io.cpp
                bubble-shapes.cpp 
                bubble-topology.cpp
 bubbles.hpp    bubbles.cpp

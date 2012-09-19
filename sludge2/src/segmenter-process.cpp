@@ -50,7 +50,94 @@ void Segmenter:: process_spot( const Spot *spot )
     compute_junctions(spot, vertex, target);
 }
 
-void Segmenter:: compute_junctions( const Spot *spot, const Vertex &self, const Vertex &other )
+typedef int OutCode;
+
+const OutCode INSIDE = 0; // 0000
+const OutCode LEFT   = 1; // 0001
+const OutCode RIGHT  = 2; // 0010
+const OutCode BOTTOM = 4; // 0100
+const OutCode TOP    = 8; // 1000
+
+
+// Compute the bit code for a point (x, y) using the clip rectangle
+// bounded diagonally by (xmin, ymin), and (xmax, ymax)
+
+// ASSUME THAT xmax, xmin, ymax and ymin are global constants.
+static inline
+OutCode ComputeOutCode(const Real x, const Real y, const Real xmin, const Real xmax, const Real ymin, const Real ymax) throw()
 {
+    OutCode code;
+    
+    code = INSIDE;           // initialised as being inside of clip window
+    
+    if (x < xmin)            // to the left of clip window
+        code |= LEFT;
+    else if (x >= xmax)      // to the right of clip window
+        code |= RIGHT;
+    if (y < ymin)            // below the clip window
+        code |= BOTTOM;
+    else if (y >= ymax)      // above the clip window
+        code |= TOP;
+    
+    return code;
+}
+
+static inline
+OutCode ComputeOutCode( const Vertex &r, const Vertex &lo, const Vertex &up)
+{
+    return ComputeOutCode(r.x, r.y, lo.x, up.x, lo.y, up.y);
+}
+
+void Segmenter:: compute_junctions(const Spot   *spot,
+                                   const Vertex &self,
+                                   const Vertex &other )
+{
+    const Coord  klo = spot->klo;
+    const Coord  kup = spot->kup;
+    
+    const Vertex lo( X[klo.x], Y[klo.y]);
+    const Vertex up( X[kup.x], Y[kup.y]);
+    assert( INSIDE == ComputeOutCode(self,lo,up));
+    
+    const OutCode other_code = ComputeOutCode(other, lo, up);
+    switch( other_code )
+    {
+        case INSIDE:
+            break;
+            
+        case LEFT:
+            break;
+            
+        case RIGHT:
+            break;
+            
+        case TOP:
+            break;
+            
+        case BOTTOM:
+            break;
+            
+        case TOP | LEFT :
+            
+            break;
+            
+        case TOP | RIGHT :
+            
+            break;
+            
+        case BOTTOM | LEFT :
+            
+            break;
+            
+        case BOTTOM | RIGHT:
+            
+            break;
+            
+        default:
+            throw exception("Invalid Bubble Contour!");
+            break;
+    }
+    
+    
     
 }

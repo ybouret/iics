@@ -130,9 +130,8 @@ Vertex vertex_splint( const Real t, const array<Real> &ta, const array<Vertex> &
 {
     static size_t klo = 0;
     static size_t khi = 0;
-    const size_t n = ta.size();
-    assert(n==v.size());
-    assert(n==v2.size());
+    assert(ta.size()==v.size());
+    assert(ta.size()==v2.size());
     __bracket(klo,khi, t, ta);
     
     const Real h=ta[khi]-ta[klo];
@@ -149,9 +148,8 @@ Vertex vertex_dsplint1(const Real t, const array<Real> &ta, const array<Vertex> 
 {
     static size_t klo = 0;
     static size_t khi = 0;
-    const size_t n = ta.size();
-    assert(n==v.size());
-    assert(n==v2.size());
+    assert(ta.size()==v.size());
+    assert(ta.size()==v2.size());
     __bracket(klo,khi, t, ta);
     
     const Real h=ta[khi]-ta[klo];
@@ -169,9 +167,8 @@ Vertex vertex_dsplint2(const Real t, const array<Real> &ta, const array<Vertex> 
 {
     static size_t klo = 0;
     static size_t khi = 0;
-    const size_t n = ta.size();
-    assert(n==v.size());
-    assert(n==v2.size());
+    assert(ta.size()==v.size());
+    assert(ta.size()==v2.size());
     __bracket(klo,khi, t, ta);
     
     const Real h=ta[khi]-ta[klo];
