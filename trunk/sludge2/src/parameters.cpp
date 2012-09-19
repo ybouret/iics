@@ -29,11 +29,13 @@ full_layout( __compute_lo(N.y), __compute_up(N.x,N.y) ),
 full_length( L.x, L.y ),
 delta( full_length.x/(full_layout.width.x-1), full_length.y/(full_layout.width.y) ),
 inv_delta( 1.0 / delta.x, 1.0/delta.y ),
+inv_delsq( inv_delta.x * inv_delta.x, inv_delta.y * inv_delta.y),
 pbc(full_length.y),
 sim_layout( full_layout.split(rank, size) ),
 sim_ghosts()
 {
     assert(size>0);
+#if 0
     std::cerr << "full_layout: " << full_layout << std::endl;
     std::cerr << "full_length: " << full_length << std::endl;
     std::cerr << "delta      : " << delta << std::endl;
@@ -42,6 +44,7 @@ sim_ghosts()
     std::cerr << "upper y+1  : " << delta.y * (full_layout.upper.y+1) << std::endl;
     std::cerr << "PBC: " << pbc.lo << " -> " << pbc.up << std::endl;
     std::cerr << "sim_layout : " << sim_layout << std::endl;
+#endif
     if( size > 1 )
     {
         //-- parallel

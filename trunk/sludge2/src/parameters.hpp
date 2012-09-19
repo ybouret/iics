@@ -16,6 +16,7 @@ public:
     const Vertex full_length; //!< Lx,Ly
     const Vertex delta;       //!< dX = Lx/full_layout.width;
     const Vertex inv_delta;   //!< 1/delta
+    const Vertex inv_delsq;   //!< 1/delta^2
     const PBC    pbc;         //!< from LY
     const Layout sim_layout;  //!< from rank and size
     ghosts_setup sim_ghosts;  //!< from rank and size
