@@ -5,6 +5,7 @@ test-types.cpp
 test-tracers.cpp
 test-spots.cpp
 test-bubble.cpp
+test-seg.cpp
 )
 
 TARGET_LINK_LIBRARIES(testing sludge)

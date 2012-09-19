@@ -7,11 +7,11 @@ void Segmenter:: process( const Bubbles &bubbles )
     for( size_t i=segcount;i>0;--i) segments[i]->empty();
     for( const Bubble *bubble = bubbles.first(); bubble; bubble=bubble->next)
     {
-        process1(bubble);
+        process_bubble(bubble);
     }
 }
 
-void Segmenter:: process1( const Bubble *bubble )
+void Segmenter:: process_bubble( const Bubble *bubble )
 {
     assert(bubble);
     
@@ -20,21 +20,37 @@ void Segmenter:: process1( const Bubble *bubble )
     //--------------------------------------------------------------------------
     for( const Spot *spot=bubble->spots.head;spot;spot=spot->next)
     {
-        const Tracer *tracer = spot->handle;
-        const Vertex  vertex = tracer->vertex;
-        assert( vertex.x >= X[X.lower]);
-        assert( vertex.x <  X[X.upper]);
-        assert( vertex.y >= Y[Y.lower]);
-        assert( vertex.y <  Y[Y.upper]);
-        
-        //----------------------------------------------------------------------
-        // locate the tracer
-        //----------------------------------------------------------------------
-        locate_vertex(vertex, spot->klo, spot->kup);
-        
-        
-        
-        
+        process_spot(spot);
     }
+    
+}
+
+void Segmenter:: process_spot( const Spot *spot )
+{
+    const Tracer *tracer = spot->handle;
+    const Vertex  vertex = tracer->vertex;
+    assert( vertex.x >= X[X.lower]);
+    assert( vertex.x <  X[X.upper]);
+    assert( vertex.y >= Y[Y.lower]);
+    assert( vertex.y <  Y[Y.upper]);
+    
+    //--------------------------------------------------------------------------
+    // locate the tracer
+    //--------------------------------------------------------------------------
+    locate_vertex(vertex, spot->klo, spot->kup);
+    
+    //--------------------------------------------------------------------------
+    // compute the absolute next coordinate
+    //--------------------------------------------------------------------------
+    const Vertex target = vertex + tracer->edge;
+    
+    //--------------------------------------------------------------------------
+    // find junctions
+    //--------------------------------------------------------------------------
+    compute_junctions(spot, vertex, target);
+}
+
+void Segmenter:: compute_junctions( const Spot *spot, const Vertex &self, const Vertex &other )
+{
     
 }

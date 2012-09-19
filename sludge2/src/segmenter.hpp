@@ -35,7 +35,9 @@ private:
     const size_t    segcount;
     Segments        segments;
     Junction::Cache jcache;
-    void process1( const Bubble *bubble );
+    void process_bubble( const Bubble *bubble );
+    void process_spot( const Spot *spot);
+    void compute_junctions( const Spot *spot, const Vertex &self, const Vertex &other );
     
 };
 
