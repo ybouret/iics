@@ -42,12 +42,18 @@ void Segmenter:: process_spot( const Spot *spot )
     //--------------------------------------------------------------------------
     // compute the absolute next coordinate
     //--------------------------------------------------------------------------
-    const Vertex target = vertex + tracer->edge;
+    Vertex target = vertex + tracer->edge;
     
     //--------------------------------------------------------------------------
     // find junctions
     //--------------------------------------------------------------------------
     compute_junctions(spot, vertex, target);
+    const Tracer *prec = tracer->prev;
+    if( ! prec->is_spot )
+    {
+        target = vertex - prec->edge;
+        compute_junctions(spot, vertex, target);
+    }
 }
 
 typedef int OutCode;
