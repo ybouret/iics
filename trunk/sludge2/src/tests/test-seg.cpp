@@ -29,15 +29,18 @@ YOCTO_UNIT_TEST_IMPL(seg)
     }
     std::cerr << "seg.Y[lower]=" << seg.Y[seg.Y.lower] << " / " << pbc.lo << std::endl;
     std::cerr << "seg.Y[upper]=" << seg.Y[seg.Y.upper] << " / " << pbc.up << std::endl;
-
-    const Vertex center( LX/2, 0 );
-    const Real   radius=  min_of<Real>(LX,LY)/4;
+    seg.create();
+    
+    const Vertex center( LX/2 + dX * (0.5 - Alea()), dY * (0.5-Alea()) );
+    const Real   radius=  min_of<Real>(LX,LY)/4 + max_of<Real>(dX,dY) * Alea();
     Bubbles      bubbles(pbc);
     bubbles.lambda = min_of<Real>(dX,dY)/2;
     Bubble      *bubble = bubbles.append();
-    bubble->map_peanut(center, radius, 0.85);
-    bubble->compute_contour();
     
+    bubble->clear();
+    bubble->map_peanut(center, radius, 0.85 + 0.1 * Alea());
+    bubble->compute_contour();
+    seg.process(bubbles);
     SaveGrid(G, "grid.dat" );
     bubble->save_dat( "b.dat");
     
