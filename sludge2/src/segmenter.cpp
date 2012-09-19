@@ -10,9 +10,9 @@ X( g.X() ),
 Y( g.Y() ),
 hseg(0),
 vseg(0),
+jcache(),
 segcount( X.items + Y.items ),
-segments( segcount, as_capacity ),
-jcache()
+segments( segcount, as_capacity )
 {
 }
 
@@ -42,22 +42,34 @@ void Segmenter:: create()
     
 }
 
-Segment & Segmenter:: Horz( unit_t i) throw()
+Segment & Segmenter:: Horz( unit_t j) throw()
 {
     assert(hseg);
-    assert(i>=X.lower);
-    assert(i<=X.upper);
-    return *hseg[i];
-}
-
-Segment & Segmenter:: Vert( unit_t j) throw()
-{
-    assert(vseg);
     assert(j>=Y.lower);
     assert(j<=Y.upper);
-    return *vseg[j];
+    return *hseg[j];
 }
 
+Segment & Segmenter:: Vert( unit_t i) throw()
+{
+    assert(vseg);
+    assert(i>=X.lower);
+    assert(i<=X.upper);
+    return *vseg[i];
+}
 
+void Segmenter:: save( const string &filename ) const
+{
+    assert(hseg);assert(vseg);
+    ios::ocstream fp(filename,false);
+    for( size_t i=1; i<=segments.size();++i)
+    {
+        const Segment &seg = *segments[i];
+        for( const Junction *J = seg.head; J; J=J->next)
+        {
+            fp("%g %g\n", J->pos.x, J->pos.y);
+        }
+    }
+}
 
 

@@ -2,8 +2,16 @@
 #include "../segmenter.hpp"
 #include "yocto/code/utils.hpp"
 
+
+#define SHOW_SIZE(TYPE) std::cerr << "sizeof(" #TYPE ")=" << sizeof(TYPE) << std::endl
+
 YOCTO_UNIT_TEST_IMPL(seg)
 {
+    
+    SHOW_SIZE(Tracer);
+    SHOW_SIZE(Spot);
+    SHOW_SIZE(Junction);
+    
     const unit_t NX  = 10;
     unit_t       NY  = 20;
     while( NY & 1 ) ++NY;
@@ -32,17 +40,22 @@ YOCTO_UNIT_TEST_IMPL(seg)
     seg.create();
     
     const Vertex center( LX/2 + dX * (0.5 - Alea()), dY * (0.5-Alea()) );
-    const Real   radius=  min_of<Real>(LX,LY)/4 + max_of<Real>(dX,dY) * Alea();
+    const Real   radius=  min_of<Real>(LX,LY)/5 + max_of<Real>(dX,dY) * Alea();
     Bubbles      bubbles(pbc);
     bubbles.lambda = min_of<Real>(dX,dY)/2;
     Bubble      *bubble = bubbles.append();
     
-    bubble->clear();
-    bubble->map_peanut(center, radius, 0.85 + 0.1 * Alea());
-    bubble->compute_contour();
-    seg.process(bubbles);
+    for( size_t iter=0; iter<100;++iter)
+    {
+        bubble->clear();
+        bubble->map_peanut(center, radius, 0.85 + 0.1 * Alea());
+        bubble->compute_contour();
+        bubble->locate_spots(pbc.lo, pbc.up);
+        seg.process(bubbles);
+    }
     SaveGrid(G, "grid.dat" );
     bubble->save_dat( "b.dat");
+    seg.save( "j.dat" );
     
     
 }
