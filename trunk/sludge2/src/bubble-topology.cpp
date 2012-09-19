@@ -300,7 +300,7 @@ TRY_GENERATE:
                 goto TRY_GENERATE;
             }
         }
-        std::cerr << "generated with Ns=" << Ns << " / " << size << std::endl;
+        //std::cerr << "generated with Ns=" << Ns << " / " << size << std::endl;
         {
             ios::ocstream fp("bg.dat", false);
             Tracer *p = tmp.root;

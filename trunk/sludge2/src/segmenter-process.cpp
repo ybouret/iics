@@ -92,52 +92,58 @@ void Segmenter:: compute_junctions(const Spot   *spot,
                                    const Vertex &self,
                                    const Vertex &other )
 {
-    const Coord  klo = spot->klo;
-    const Coord  kup = spot->kup;
+    const Bubble *bubble = spot->handle->bubble;
+    const Coord   klo = spot->klo;
+    const Coord   kup = spot->kup;
     
     const Vertex lo( X[klo.x], Y[klo.y]);
     const Vertex up( X[kup.x], Y[kup.y]);
     assert( INSIDE == ComputeOutCode(self,lo,up));
     
     const OutCode other_code = ComputeOutCode(other, lo, up);
-    switch( other_code )
+    
+    if( other_code & LEFT)
     {
-        case INSIDE:
-            break;
-            
-        case LEFT:
-            break;
-            
-        case RIGHT:
-            break;
-            
-        case TOP:
-            break;
-            
-        case BOTTOM:
-            break;
-            
-        case TOP | LEFT :
-            
-            break;
-            
-        case TOP | RIGHT :
-            
-            break;
-            
-        case BOTTOM | LEFT :
-            
-            break;
-            
-        case BOTTOM | RIGHT:
-            
-            break;
-            
-        default:
-            throw exception("Invalid Bubble Contour!");
-            break;
+        assert( other.x < self.x);
+        Segment  &seg = Vert(klo.x);
+        Junction *J   = seg.append();
+        J->pos.x      = seg.value;
+        J->pos.y      = self.y + ( J->pos.x - self.x)*(other.y - self.y)/(other.x - self.x) ;
+        J->bubble     = bubble;
     }
     
+    if( other_code & RIGHT)
+    {
+        assert( other.x > self.x);
+        Segment  &seg = Vert(kup.x);
+        Junction *J   = seg.append();
+        J->pos.x      = seg.value;
+        J->pos.y      = self.y + ( J->pos.x - self.x)*(other.y - self.y)/(other.x - self.x);
+        J->bubble     = bubble;
+    }
+
+    if( other_code & BOTTOM )
+    {
+        assert( other.y < self.y );
+        Segment  &seg = Horz(klo.y);
+        Junction *J   = seg.append();
+        J->pos.y      = seg.value;
+        J->pos.x      = self.x + (J->pos.y - self.y)*(other.x-self.x)/(other.y-self.y);
+        J->bubble     = bubble;
+    }
+
+    
+    if( other_code & TOP )
+    {
+        assert( other.y > self.y );
+        Segment  &seg = Horz(kup.y);
+        Junction *J   = seg.append();
+        J->pos.y      = seg.value;
+        J->pos.x      = self.x + (J->pos.y - self.y)*(other.x-self.x)/(other.y-self.y);
+        J->bubble     = bubble;
+    }
+    
+      
     
     
 }
