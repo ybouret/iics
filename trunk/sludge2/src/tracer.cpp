@@ -11,7 +11,8 @@ s(0),
 t(),
 n(),
 curvature(0),
-bubble(0)
+bubble(0),
+is_spot(false)
 {}
 
 

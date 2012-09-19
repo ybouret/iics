@@ -55,7 +55,10 @@ void Bubble:: locate_spots( const Real ymin, const Real ymax )
             from = i;
             spots.attach(tracer);
             spots.tail->jump  = jump;
+            tracer->is_spot   = true;
         }
+        else
+            tracer->is_spot = false;
     }
 }
 
