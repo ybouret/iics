@@ -24,7 +24,7 @@ public:
     const Real ymin;
     const Real ymax;
     
-    //! broadcast and find spots
+    //! broadcast, find spots
     void dispatch( const mpi &MPI );
     
    

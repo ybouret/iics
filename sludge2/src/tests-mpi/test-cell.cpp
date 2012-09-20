@@ -19,9 +19,9 @@ YOCTO_UNIT_TEST_IMPL(cell)
     //--------------------------------------------------------------------------
     if( MPI.IsMaster)
     {
-        Bubble *b = bubbles.append();
-        Vertex center(L.x/2,0);
-        Real   radius = min_of(L.x,L.y)/5;
+        Bubble *b      = bubbles.append();
+        Vertex  center(L.x/2,0);
+        Real    radius = min_of(L.x,L.y)/5;
         b->map_circle(center, radius);
         b->compute_contour();
     }
@@ -31,6 +31,23 @@ YOCTO_UNIT_TEST_IMPL(cell)
     //--------------------------------------------------------------------------
     cell.dispatch(MPI);
     
+    SaveGrid( cell.mesh, vformat("g%d.%d.dat", MPI.CommWorldSize,MPI.CommWorldRank));
+    cell.bubbles.first()->save_dat( vformat("b%d.%d.dat", MPI.CommWorldSize,MPI.CommWorldRank));
+    cell.segmenter.save( vformat("j%d.%d.dat", MPI.CommWorldSize,MPI.CommWorldRank));
+    
+    if( MPI.IsMaster)
+    {
+        Bubble *b      = bubbles.first();
+        Vertex  center(L.x/2,L.y/2);
+        Real    radius = min_of(L.x,L.y)/5;
+        b->map_circle(center, radius);
+        b->compute_contour();
+    }
+    
+    cell.dispatch(MPI);
+    cell.bubbles.first()->save_dat( vformat("s%d.%d.dat", MPI.CommWorldSize,MPI.CommWorldRank));
+    cell.segmenter.save( vformat("k%d.%d.dat", MPI.CommWorldSize,MPI.CommWorldRank));
+
         
 }
 YOCTO_UNIT_TEST_DONE()
