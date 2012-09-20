@@ -8,6 +8,8 @@ pos(),
 klo(0),
 khi(0),
 bubble(0),
-curvature(0)
+alpha(0),
+curvature(0),
+n()
 {}
 

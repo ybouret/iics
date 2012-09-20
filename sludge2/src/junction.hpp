@@ -17,7 +17,9 @@ public:
     unit_t          klo;
     unit_t          khi;
     const Bubble   *bubble;
+    Real            alpha; //!< weight of the distant tracer for curvature,etc...
     Real            curvature;
+    Vertex          n;     //!< normal
     
     typedef cache_of<Junction> Cache;
     
