@@ -1,4 +1,4 @@
-#include "bubble.hpp"
+#include "../bubble.hpp"
 #include "yocto/code/utils.hpp"
 
 //! simultaneous tridiagonal system

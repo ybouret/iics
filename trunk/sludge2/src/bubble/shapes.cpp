@@ -1,4 +1,4 @@
-#include "bubble.hpp"
+#include "../bubble.hpp"
 #include "yocto/code/utils.hpp"
 
 void Bubble:: map_circle( const Vertex &center, Real radius )
@@ -24,8 +24,8 @@ void Bubble:: map_peanut( const Vertex &center, Real radius, Real alpha )
     assert(lam>0);
     empty();
     alpha = clamp<Real>(0,Fabs(alpha),1);
-    const Real b = Fabs(radius);
-    const Real a = alpha * b;
+    const Real b  = Fabs(radius);
+    const Real a  = alpha * b;
     const Real a2 = a*a;
     const Real b2 = b*b;
     const Real a4 = a2*a2;

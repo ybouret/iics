@@ -1,4 +1,4 @@
-#include "bubble.hpp"
+#include "../bubble.hpp"
 
 void Bubble:: save_dat( const string &filename ) const
 {
