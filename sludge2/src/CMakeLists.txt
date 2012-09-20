@@ -46,15 +46,21 @@ INCLUDE_DIRECTORIES( ${MPI_INCLUDE_PATH} )
 SET(SOURCES_MPI
 	mpi/bubble.cpp
 	mpi/bubbles.cpp
+	mpi/cell.hpp
+	mpi/cell.cpp
 )
+
 SOURCE_GROUP( mpi FILES ${SOURCES_MPI} )
+
+SET(SOURCES_PAR ${SOURCES_MPI})
+
 ENDIF(MPI_FOUND)
 
 #INCLUDE( ${YROOT}/share/yocto/visit.cmake )
 
 ADD_LIBRARY( sludge STATIC
  ${SOURCES}
- ${SOURCES_MPI}
+ ${SOURCES_PAR}
  ${SOURCES_VIS}
  )
 
