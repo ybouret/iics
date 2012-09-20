@@ -99,7 +99,7 @@ void Segmenter:: process_spot( const Spot *spot, const Real half )
     const Tracer *prec = tracer->prev;
     if( ! prec->is_spot || Fabs(prec->vertex.y - vertex.y) >= half )
     {
-        std::cerr << "testing with prec" << std::endl;
+        //std::cerr << "testing with prec" << std::endl;
         target = vertex - prec->edge;
         compute_junctions(spot, vertex, target, prec);
     }
