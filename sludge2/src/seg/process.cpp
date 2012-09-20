@@ -1,4 +1,4 @@
-#include "segmenter.hpp"
+#include "../segmenter.hpp"
 
 void Segmenter:: process( const Bubbles &bubbles )
 {

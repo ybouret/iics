@@ -1,4 +1,4 @@
-#include "segmenter.hpp"
+#include "../segmenter.hpp"
 
 static inline
 void locate_value( const Real z, const Array1D &Z, unit_t &klo, unit_t &kup ) throw()
