@@ -12,9 +12,6 @@ types.hpp      types.cpp
 tracer.hpp     tracer.cpp
 spot.hpp       spot.cpp
 bubble.hpp     bubble.cpp 
-               bubble-io.cpp
-               bubble-shapes.cpp 
-               bubble-topology.cpp
 bubbles.hpp    bubbles.cpp
 junction.hpp   junction.cpp
 segment.hpp    segment.cpp
@@ -26,6 +23,15 @@ parameters.hpp parameters.cpp
 
 SOURCE_GROUP( core FILES ${SOURCES_SER} )
 
+SET(SOURCES_BUBBLE
+bubble/io.cpp
+bubble/shapes.cpp
+bubble/topology.cpp
+)
+SOURCE_GROUP( bubble FILES ${SOURCES_BUBBLE} )
+
+
+SET(SOURCES ${SOURCES_SER} ${SOURCES_BUBBLE} )
 
 FIND_PACKAGE(MPI)
 
@@ -43,7 +49,7 @@ ENDIF(MPI_FOUND)
 #INCLUDE( ${YROOT}/share/yocto/visit.cmake )
 
 ADD_LIBRARY( sludge STATIC
- ${SOURCES_SER}
+ ${SOURCES}
  ${SOURCES_MPI}
  ${SOURCES_VIS}
  )
