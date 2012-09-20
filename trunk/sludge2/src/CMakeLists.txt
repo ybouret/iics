@@ -16,8 +16,6 @@ bubbles.hpp    bubbles.cpp
 junction.hpp   junction.cpp
 segment.hpp    segment.cpp
 segmenter.hpp  segmenter.cpp 
-               segmenter-locate.cpp
-               segmenter-process.cpp
 parameters.hpp parameters.cpp
 )
 
@@ -30,8 +28,14 @@ bubble/topology.cpp
 )
 SOURCE_GROUP( bubble FILES ${SOURCES_BUBBLE} )
 
+SET(SOURCES_SEG
+seg/locate.cpp
+seg/process.cpp
+)
+SOURCE_GROUP( seg FILES ${SOURCES_SEG} )
 
-SET(SOURCES ${SOURCES_SER} ${SOURCES_BUBBLE} )
+
+SET(SOURCES ${SOURCES_SER} ${SOURCES_BUBBLE} ${SOURCES_SEG} )
 
 FIND_PACKAGE(MPI)
 
