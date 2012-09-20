@@ -29,7 +29,7 @@ void Segmenter:: process( const Bubbles &bubbles )
     //--------------------------------------------------------------------------
     for( const Bubble *bubble = bubbles.first(); bubble; bubble=bubble->next)
     {
-        process_bubble(bubble);
+        process_bubble(bubble, bubbles.pbc.up);
     }
     
     //--------------------------------------------------------------------------
@@ -59,7 +59,7 @@ void Segmenter:: process( const Bubbles &bubbles )
     
 }
 
-void Segmenter:: process_bubble( const Bubble *bubble )
+void Segmenter:: process_bubble( const Bubble *bubble , const Real half)
 {
     assert(bubble);
     
@@ -68,12 +68,12 @@ void Segmenter:: process_bubble( const Bubble *bubble )
     //--------------------------------------------------------------------------
     for( const Spot *spot=bubble->spots.head;spot;spot=spot->next)
     {
-        process_spot(spot);
+        process_spot(spot,half);
     }
     
 }
 
-void Segmenter:: process_spot( const Spot *spot )
+void Segmenter:: process_spot( const Spot *spot, const Real half )
 {
     const Tracer *tracer = spot->handle;
     const Vertex  vertex = tracer->vertex;
@@ -97,8 +97,9 @@ void Segmenter:: process_spot( const Spot *spot )
     //--------------------------------------------------------------------------
     compute_junctions(spot, vertex, target, tracer->next);
     const Tracer *prec = tracer->prev;
-    if( ! prec->is_spot )
+    if( ! prec->is_spot || Fabs(prec->vertex.y - vertex.y) >= half )
     {
+        std::cerr << "testing with prec" << std::endl;
         target = vertex - prec->edge;
         compute_junctions(spot, vertex, target, prec);
     }

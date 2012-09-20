@@ -11,7 +11,11 @@ Real Alea() throw()
     return alea<Real>();
 }
 
-PBC:: PBC( Real length ) throw() : L(length), invL(1/L), lo(-L/2), up(L/2)
+PBC:: PBC( Real length ) throw() :
+L(length),
+invL(1/L),
+lo(-L/2),
+up(L/2)
 {
 }
 
