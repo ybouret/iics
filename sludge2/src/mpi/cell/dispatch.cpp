@@ -14,8 +14,9 @@ void Cell:: dispatch( const mpi &MPI )
     MPI.Printf0(stderr, "\tsegmentation...\n");
     segmenter.process(bubbles);
     
-    MPI.Printf0(stderr, "\tbubble field...\n");
+    MPI.Printf0(stderr, "\tbuild bubble field...\n");
     segmenter.build(B);
     
+    MPI.Printf0(stderr, "\tsync bubble field...\n");
+    sync1(MPI,B);
 }
-

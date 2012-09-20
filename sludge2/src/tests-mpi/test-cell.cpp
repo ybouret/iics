@@ -5,8 +5,8 @@
 YOCTO_UNIT_TEST_IMPL(cell)
 {
     const mpi &MPI = mpi::init(&argc,&argv);
-    const Coord  N(10,20);
-    const Vertex L(2.0,3.0);
+    const Coord  N(30,40);
+    const Vertex L(3.0,4.0);
     
     FieldsSetup F(2);
     Y_SPADE_FIELD(F, "B", Array);
@@ -21,7 +21,7 @@ YOCTO_UNIT_TEST_IMPL(cell)
     {
         Bubble *b      = bubbles.append();
         Vertex  center(L.x/2,0);
-        Real    radius = min_of(L.x,L.y)/5;
+        Real    radius = min_of(L.x,L.y)/4;
         b->map_circle(center, radius);
         b->compute_contour();
     }
