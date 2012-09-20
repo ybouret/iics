@@ -18,6 +18,10 @@ public:
     //! get horizontal segment @Y[j]
     Segment & Horz( unit_t j) throw();
     
+    //! get horizontal segment @Y[j]
+    const Segment & Horz( unit_t j) const throw();
+    
+    
     //! get vertical  segment @X[i]
     Segment & Vert( unit_t i) throw();
     
@@ -26,8 +30,11 @@ public:
     
     void locate_vertex( const Vertex &v, coord2D &klo, coord2D &khi ) const;
     void process( const Bubbles &bubbles );
+    void build( Array &B ) const;
     
     void save( const string &filename ) const;
+    
+    static void locate_value( const Real z, const Array1D &Z, unit_t &klo, unit_t &kup ) throw();
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Segmenter);
@@ -43,7 +50,7 @@ private:
                            const Vertex &target,
                            const Tracer *to
                            );
-
+    
 };
 
 #endif

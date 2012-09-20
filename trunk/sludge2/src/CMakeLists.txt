@@ -31,6 +31,7 @@ SOURCE_GROUP( bubble FILES ${SOURCES_BUBBLE} )
 SET(SOURCES_SEG
 seg/locate.cpp
 seg/process.cpp
+seg/build.cpp
 )
 SOURCE_GROUP( seg FILES ${SOURCES_SEG} )
 
@@ -49,10 +50,14 @@ SET(SOURCES_MPI
 	mpi/cell.hpp
 	mpi/cell.cpp
 )
-
 SOURCE_GROUP( mpi FILES ${SOURCES_MPI} )
 
-SET(SOURCES_PAR ${SOURCES_MPI})
+SET(SOURCES_CELL
+	mpi/cell/dispatch.cpp)
+SOURCE_GROUP( mpi/cell FILES ${SOURCES_CELL} )
+
+
+SET(SOURCES_PAR ${SOURCES_MPI} ${SOURCES_CELL})
 
 ENDIF(MPI_FOUND)
 

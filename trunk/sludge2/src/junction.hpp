@@ -14,6 +14,8 @@ public:
     Junction       *next;
     Junction       *prev;
     Vertex          pos;
+    unit_t          klo;
+    unit_t          khi;
     const Bubble   *bubble;
     Real            curvature;
     

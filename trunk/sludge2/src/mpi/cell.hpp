@@ -18,6 +18,7 @@ public:
     virtual ~Cell() throw();
     const Array1D &X;
     const Array1D &Y;
+    Array         &B;
     
     Segmenter  segmenter;
     Bubbles    bubbles;
@@ -27,7 +28,7 @@ public:
     //! broadcast, find spots
     void dispatch( const mpi &MPI );
     
-   
+    void save_B( const string &filename ) const;
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);

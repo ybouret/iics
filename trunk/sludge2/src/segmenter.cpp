@@ -50,6 +50,15 @@ Segment & Segmenter:: Horz( unit_t j) throw()
     return *hseg[j];
 }
 
+const Segment & Segmenter::  Horz( unit_t j) const throw()
+{
+    assert(hseg);
+    assert(j>=Y.lower);
+    assert(j<=Y.upper);
+    return *hseg[j];
+}
+
+
 Segment & Segmenter:: Vert( unit_t i) throw()
 {
     assert(vseg);
