@@ -16,9 +16,18 @@ public:
                   const FieldsSetup &F);
     
     virtual ~Cell() throw();
+    const Array1D &X;
+    const Array1D &Y;
     
-    Segmenter segmenter;
-    Bubbles   bubbles;
+    Segmenter  segmenter;
+    Bubbles    bubbles;
+    const Real ymin;
+    const Real ymax;
+    
+    //! broadcast and find spots
+    void dispatch( const mpi &MPI );
+    
+   
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);

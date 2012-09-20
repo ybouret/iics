@@ -301,6 +301,7 @@ TRY_GENERATE:
             }
         }
         //std::cerr << "generated with Ns=" << Ns << " / " << size << std::endl;
+#if 0
         {
             ios::ocstream fp("bg.dat", false);
             Tracer *p = tmp.root;
@@ -310,6 +311,7 @@ TRY_GENERATE:
             }
             fp("%g %g\n", p->vertex.x, p->vertex.y);
         }
+#endif
         
         this->swap_with( tmp );
     }
