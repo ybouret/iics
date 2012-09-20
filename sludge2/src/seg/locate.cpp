@@ -1,7 +1,6 @@
 #include "../segmenter.hpp"
 
-static inline
-void locate_value( const Real z, const Array1D &Z, unit_t &klo, unit_t &kup ) throw()
+void Segmenter:: locate_value( const Real z, const Array1D &Z, unit_t &klo, unit_t &kup ) throw()
 {
     assert(z>=Z[Z.lower]);
     assert(z<Z[Z.upper]);

@@ -1,14 +1,62 @@
 #include "../segmenter.hpp"
+#include "yocto/core/merge-sort.hpp"
+
+static inline
+int __compare_horz( const Junction *lhs, const Junction *rhs, void * ) throw()
+{
+    return __compare<Real>(lhs->pos.x,rhs->pos.x);
+}
+
+static inline
+int __compare_vert( const Junction *lhs, const Junction *rhs, void * ) throw()
+{
+    return __compare<Real>(lhs->pos.y,rhs->pos.y);
+}
 
 void Segmenter:: process( const Bubbles &bubbles )
 {
     assert(hseg!=NULL);
     assert(vseg!=NULL);
-    for( size_t i=segcount;i>0;--i) segments[i]->empty();
+    
+    //--------------------------------------------------------------------------
+    // reset
+    //--------------------------------------------------------------------------
+    for( size_t i=segcount;i>0;--i)
+        segments[i]->empty();
+    
+    //--------------------------------------------------------------------------
+    // find all junctions
+    //--------------------------------------------------------------------------
     for( const Bubble *bubble = bubbles.first(); bubble; bubble=bubble->next)
     {
         process_bubble(bubble);
     }
+    
+    //--------------------------------------------------------------------------
+    // sort junctions
+    //--------------------------------------------------------------------------
+    for( unit_t j=Y.lower;j<=Y.upper;++j)
+    {
+        core::merging<Junction>::sort( Horz(j), __compare_horz,0);
+    }
+    
+    for(unit_t i=X.lower;i<=X.upper;++i)
+    {
+        core::merging<Junction>::sort( Vert(i), __compare_vert,0);
+    }
+
+    //--------------------------------------------------------------------------
+    // locate Horizontal junctions
+    //--------------------------------------------------------------------------
+    for( unit_t j=Y.lower;j<=Y.upper;++j)
+    {
+        for( Junction *J = Horz(j).head; J; J=J->next)
+        {
+            locate_value( J->pos.x, X, J->klo, J->khi);
+        }
+        
+    }
+    
 }
 
 void Segmenter:: process_bubble( const Bubble *bubble )

@@ -32,9 +32,11 @@ YOCTO_UNIT_TEST_IMPL(cell)
     cell.dispatch(MPI);
     
     SaveGrid( cell.mesh, vformat("g%d.%d.dat", MPI.CommWorldSize,MPI.CommWorldRank));
-    cell.bubbles.first()->save_dat( vformat("b%d.%d.dat", MPI.CommWorldSize,MPI.CommWorldRank));
-    cell.segmenter.save( vformat("j%d.%d.dat", MPI.CommWorldSize,MPI.CommWorldRank));
     
+    cell.bubbles.first()->save_dat( vformat("b%d.%d.dat", MPI.CommWorldSize,MPI.CommWorldRank));
+    cell.segmenter.save( vformat("j%d.%d.dat", MPI.CommWorldSize,MPI.CommWorldRank));    
+    cell.save_B( vformat("i%d.%d.dat", MPI.CommWorldSize,MPI.CommWorldRank));
+
     if( MPI.IsMaster)
     {
         Bubble *b      = bubbles.first();
@@ -45,8 +47,9 @@ YOCTO_UNIT_TEST_IMPL(cell)
     }
     
     cell.dispatch(MPI);
-    cell.bubbles.first()->save_dat( vformat("s%d.%d.dat", MPI.CommWorldSize,MPI.CommWorldRank));
-    cell.segmenter.save( vformat("k%d.%d.dat", MPI.CommWorldSize,MPI.CommWorldRank));
+    cell.bubbles.first()->save_dat( vformat("n-b%d.%d.dat", MPI.CommWorldSize,MPI.CommWorldRank));
+    cell.segmenter.save( vformat("n-j%d.%d.dat", MPI.CommWorldSize,MPI.CommWorldRank));
+    cell.save_B( vformat("n-i%d.%d.dat", MPI.CommWorldSize,MPI.CommWorldRank));
 
         
 }
