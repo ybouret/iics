@@ -34,7 +34,8 @@ public:
     
     void save( const string &filename ) const;
     
-    static void locate_value( const Real z, const Array1D &Z, unit_t &klo, unit_t &kup ) throw();
+    static
+    void locate_value( const Real z, const Array1D &Z, unit_t &klo, unit_t &kup ) throw();
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Segmenter);
@@ -43,8 +44,8 @@ private:
     Junction::Cache jcache;
     const size_t    segcount;
     Segments        segments;
-    void process_bubble( const Bubble *bubble );
-    void process_spot( const Spot *spot);
+    void process_bubble( const Bubble *bubble, const Real half );
+    void process_spot( const Spot *spot, const Real half);
     void compute_junctions(const Spot   *spot,
                            const Vertex &vertex,
                            const Vertex &target,

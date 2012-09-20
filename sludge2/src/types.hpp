@@ -46,8 +46,8 @@ class PBC
 public:
     const Real L;
     const Real invL;
-    const Real lo;
-    const Real up;
+    const Real lo; //!< -L/2
+    const Real up; //!< L/2
     PBC( Real length ) throw();
     ~PBC() throw();
     PBC( const PBC &other ) throw();
