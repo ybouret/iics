@@ -44,7 +44,8 @@ public:
     //! save junctions coordinates, gnuplot style
     void save( const string &filename ) const;
     
-    void save_vtk_n( const string &filename ) const;
+    //! save junctions coordinates+normal
+    void save_vtk_n( const string &filename, Real scale) const;
     
     
     static

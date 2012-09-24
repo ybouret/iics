@@ -13,9 +13,9 @@ public:
     
     Junction       *next;
     Junction       *prev;
-    Vertex          pos;
-    unit_t          klo;
-    unit_t          khi;
+    Vertex          vertex; //!< localization
+    unit_t          klo;    //!< lower indices
+    unit_t          khi;    //!< upper indices
     const Bubble   *bubble;
     Real            alpha; //!< weight of the distant tracer for curvature,etc...
     Real            curvature;
