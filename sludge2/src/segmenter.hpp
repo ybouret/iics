@@ -32,7 +32,11 @@ public:
     void process( const Bubbles &bubbles );
     void build( Array &B ) const;
     
+    //! save junctions coordinates, gnuplot style
     void save( const string &filename ) const;
+    
+    void save_vtk_n( const string &filename ) const;
+    
     
     static
     void locate_value( const Real z, const Array1D &Z, unit_t &klo, unit_t &kup ) throw();

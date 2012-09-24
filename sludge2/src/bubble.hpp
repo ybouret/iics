@@ -18,10 +18,19 @@ public:
     
     Bubble         *next;
     Bubble         *prev;
-    const BubbleID  id;    //!< identifier
-    const PBC      &pbc;   //!< periodic boundary conditions
-    Real           &lam;   //!< spatial resolution
-    Spots           spots; //!< associated spots on domain
+    const BubbleID  id;       //!< identifier
+    const PBC      &pbc;      //!< periodic boundary conditions
+    Real           &lam;      //!< spatial resolution
+    Spots           spots;    //!< associated spots on domain
+    
+    Real            pressure; //!< internal pressure
+    Real            area;     //!< from tracers
+    Real            content;  //!< pressure*area=content
+    
+    static const size_t IO_COUNT = 3; //!< pressure, area, content to dispatch
+    
+    void            set_pressure( Real p ) throw();
+    void            update_area() throw();
     
     void clear() throw(); //!< no tracers, no spots
     
