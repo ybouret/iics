@@ -40,6 +40,11 @@ void Bubble:: dispatch(const mpi &MPI)
         MPI.Bcast( &tracer->vertex, Tracer::IO_COUNT, MPI_REAL_TYPE, 0, MPI_COMM_WORLD);
     }
     
+    //--------------------------------------------------------------------------
+    // brodacast pressure sqq..
+    //--------------------------------------------------------------------------
+    MPI.Bcast(&pressure, Bubble::IO_COUNT, MPI_REAL_TYPE, 0, MPI_COMM_WORLD);
+    
 }
 
 void Bubble:: assemble( const mpi &MPI )
