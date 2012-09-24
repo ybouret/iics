@@ -17,6 +17,7 @@ junction.hpp   junction.cpp
 segment.hpp    segment.cpp
 segmenter.hpp  segmenter.cpp 
 parameters.hpp parameters.cpp
+marker.hpp     marker.cpp
 )
 
 SOURCE_GROUP( core FILES ${SOURCES_SER} )
@@ -53,7 +54,9 @@ SET(SOURCES_MPI
 SOURCE_GROUP( mpi FILES ${SOURCES_MPI} )
 
 SET(SOURCES_CELL
-	mpi/cell/dispatch.cpp)
+	mpi/cell/dispatch.cpp
+	mpi/cell/pressure.cpp
+)
 SOURCE_GROUP( mpi/cell FILES ${SOURCES_CELL} )
 
 

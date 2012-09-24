@@ -11,8 +11,10 @@ Y( g.Y() ),
 hseg(0),
 vseg(0),
 jcache(),
+mcache(),
 segcount( X.items + Y.items ),
-segments( segcount, as_capacity )
+segments( segcount, as_capacity ),
+markers(mcache)
 {
 }
 
