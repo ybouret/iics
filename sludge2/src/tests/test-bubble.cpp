@@ -16,6 +16,7 @@ YOCTO_UNIT_TEST_IMPL(bubble)
         {
             std::cerr << "#tracers=" << bubble->size << std::endl;
             bubble->save_dat( "b0.dat" );
+            bubble->save_vtk( "b0.vtk");
             bubble->compute_contour();
             bubble->save_dat( "b1.dat" );
             bubble->save_vtk(   "b1.vtk");

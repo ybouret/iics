@@ -156,10 +156,10 @@ Vertex vertex_dsplint1(const Real t, const array<Real> &ta, const array<Vertex> 
     const Real a=(ta[khi]-t)/h;
     const Real b=(t-ta[klo])/h;
     const Real f=h/6.0;
-    const Real Cp=(1-3*a*a)*f;
-    const Real Dp=(3*b*b-1)*f;
+    const Real Cp=(1.0-3*a*a)*f;
+    const Real Dp=(3*b*b-1.0)*f;
     
-    return (v[khi] - v[klo]) + Cp * v2[klo] + Dp * v2[khi];
+    return (v[khi] - v[klo])/h + Cp * v2[klo] + Dp * v2[khi];
 }
 
 static inline

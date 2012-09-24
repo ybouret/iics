@@ -39,6 +39,8 @@ YOCTO_UNIT_TEST_IMPL(cell)
     cell.save_B( vformat("i%d.%d.dat", MPI.CommWorldSize,MPI.CommWorldRank));
     cell.segmenter.save_vtk_n( vformat("j%d.%d.vtk", MPI.CommWorldSize,MPI.CommWorldRank), 1);
     cell.bubbles.first()->save_vtk( vformat("b%d.%d.vtk", MPI.CommWorldSize,MPI.CommWorldRank));
+    cell.bubbles.first()->save_vtk_n( vformat("b%d.%d-n.vtk", MPI.CommWorldSize,MPI.CommWorldRank));
+    cell.bubbles.first()->save_vtk_t( vformat("b%d.%d-t.vtk", MPI.CommWorldSize,MPI.CommWorldRank));
 
     if( MPI.IsMaster)
     {

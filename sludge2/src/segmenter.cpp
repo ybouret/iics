@@ -103,7 +103,6 @@ void Segmenter:: save_vtk_n( const string &filename, Real scale) const
             fp("%.15g %.15g 0\n",p->vertex.x,p->vertex.y);
             const Real fac = scale; // * p->curvature;
             fp("%.15g %.15g 0\n",p->vertex.x + fac * p->n.x,p->vertex.y+ fac * p->n.y);
-            //fp("%.15g %.15g 0\n",p->vertex.x + scale * p->n.x,p->vertex.y + scale * p->n.y);
         }
     }
     fp("\n");
