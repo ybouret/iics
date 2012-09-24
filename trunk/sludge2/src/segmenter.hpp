@@ -38,6 +38,9 @@ public:
      */
     void build( Array &B );
     
+    //! fill the pressure array with the bubbles pressure
+    void pressurize( Array &P ) const;
+    
     //! save junctions coordinates, gnuplot style
     void save( const string &filename ) const;
     
@@ -63,7 +66,6 @@ private:
                            const Tracer *to
                            );
     Markers         markers;
-    friend class Cell;
 };
 
 #endif
