@@ -152,6 +152,7 @@ static inline void FinalizeJunction( Junction *J, const Tracer *source, const Tr
     const Real j_angle = s_weight * s_angle + t_weight * t_angle;
     J->n.x = Cos(j_angle);
     J->n.y = Sin(j_angle);
+    J->n   = source->n;
 }
 
 static inline
