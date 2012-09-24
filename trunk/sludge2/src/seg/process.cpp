@@ -4,13 +4,13 @@
 static inline
 int __compare_horz( const Junction *lhs, const Junction *rhs, void * ) throw()
 {
-    return __compare<Real>(lhs->pos.x,rhs->pos.x);
+    return __compare<Real>(lhs->vertex.x,rhs->vertex.x);
 }
 
 static inline
 int __compare_vert( const Junction *lhs, const Junction *rhs, void * ) throw()
 {
-    return __compare<Real>(lhs->pos.y,rhs->pos.y);
+    return __compare<Real>(lhs->vertex.y,rhs->vertex.y);
 }
 
 void Segmenter:: process( const Bubbles &bubbles )
@@ -47,13 +47,13 @@ void Segmenter:: process( const Bubbles &bubbles )
     }
     
     //--------------------------------------------------------------------------
-    // locate Horizontal junctions
+    // locate Horizontal junctions (for building B field)
     //--------------------------------------------------------------------------
     for( unit_t j=Y.lower;j<=Y.upper;++j)
     {
         for( Junction *J = Horz(j).head; J; J=J->next)
         {
-            locate_value( J->pos.x, X, J->klo, J->khi);
+            locate_value( J->vertex.x, X, J->klo, J->khi);
         }
         
     }
@@ -140,6 +140,7 @@ OutCode ComputeOutCode(const Real x, const Real y, const Real xmin, const Real x
 
 static inline void FinalizeJunction( Junction *J, const Tracer *source, const Tracer *target ) throw()
 {
+    //std::cerr << "alpha=" << J->alpha << std::endl;
     const Real  s_weight = (1-J->alpha);
     const Real  t_weight = J->alpha;
     J->bubble            = source->bubble;
@@ -179,9 +180,9 @@ void Segmenter:: compute_junctions(const Spot   *spot,
         assert( other.x < self.x);
         Segment  &seg = Vert(klo.x);
         Junction *J   = seg.append();
-        J->pos.x      = seg.value;
-        J->alpha      = ( J->pos.x - self.x)/(other.x - self.x);
-        J->pos.y      = self.y + (J->alpha)*(other.y - self.y);
+        J->vertex.x   = seg.value;
+        J->alpha      = ( J->vertex.x - self.x)/(other.x - self.x);
+        J->vertex.y   = self.y + (J->alpha)*(other.y - self.y);
         FinalizeJunction(J,spot->handle,to);
     }
     
@@ -190,9 +191,9 @@ void Segmenter:: compute_junctions(const Spot   *spot,
         assert( other.x > self.x);
         Segment  &seg = Vert(kup.x);
         Junction *J   = seg.append();
-        J->pos.x      = seg.value;
-        J->alpha      = ( J->pos.x - self.x)/(other.x - self.x);
-        J->pos.y      = self.y + (J->alpha)*(other.y - self.y);
+        J->vertex.x   = seg.value;
+        J->alpha      = ( J->vertex.x - self.x)/(other.x - self.x);
+        J->vertex.y   = self.y + (J->alpha)*(other.y - self.y);
         FinalizeJunction(J,spot->handle,to);
     }
     
@@ -201,9 +202,9 @@ void Segmenter:: compute_junctions(const Spot   *spot,
         assert( other.y < self.y );
         Segment  &seg = Horz(klo.y);
         Junction *J   = seg.append();
-        J->pos.y      = seg.value;
-        J->alpha      = (J->pos.y - self.y)/(other.y-self.y);
-        J->pos.x      = self.x + (J->alpha)*(other.x-self.x);
+        J->vertex.y   = seg.value;
+        J->alpha      = (J->vertex.y - self.y)/(other.y-self.y);
+        J->vertex.x   = self.x + (J->alpha)*(other.x-self.x);
         FinalizeJunction(J,spot->handle,to);
     }
     
@@ -213,9 +214,9 @@ void Segmenter:: compute_junctions(const Spot   *spot,
         assert( other.y > self.y );
         Segment  &seg = Horz(kup.y);
         Junction *J   = seg.append();
-        J->pos.y      = seg.value;
-        J->alpha      = (J->pos.y - self.y)/(other.y-self.y);
-        J->pos.x      = self.x + (J->alpha)*(other.x-self.x);
+        J->vertex.y   = seg.value;
+        J->alpha      = (J->vertex.y - self.y)/(other.y-self.y);
+        J->vertex.x   = self.x + (J->alpha)*(other.x-self.x);
         FinalizeJunction(J,spot->handle,to);
     }
     
