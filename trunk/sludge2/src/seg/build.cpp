@@ -1,17 +1,17 @@
 #include "../segmenter.hpp"
 
-void Segmenter:: build( Array &B ) const
+void Segmenter:: build( Array &B )
 {
     B.ldz();
-    
+    assert( 0 == markers.size);
        
     //--------------------------------------------------------------------------
     // scan/line
     //--------------------------------------------------------------------------
     for(unit_t j=Y.lower;j<=Y.upper;++j)
     {
-        const Segment &seg   = Horz(j);
-        const Junction *J    = seg.head;
+        const Segment &seg     = Horz(j);
+        const Junction *J      = seg.head;
         unit_t          curr   = X.lower;
         bool            inside = false;
         Array1D        &B_j    = B[j];
@@ -33,7 +33,13 @@ void Segmenter:: build( Array &B ) const
                 {
                     while(curr<=J->klo)
                     {
-                        B_j[curr++] = J->bubble->id;
+                        const Bubble *bubble = J->bubble; assert(bubble);
+                        B_j[curr]   = bubble->id;
+                        Marker *m   = markers.append();
+                        m->inside.x = curr;
+                        m->inside.y = j;
+                        m->bubble   = bubble;
+                        ++curr;
                     }
                 }
                 inside = !inside;

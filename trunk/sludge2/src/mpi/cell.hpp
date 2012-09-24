@@ -18,17 +18,22 @@ public:
     virtual ~Cell() throw();
     const Array1D &X;
     const Array1D &Y;
-    Array         &B;
+    Array         &B; // bubble markers
+    Array         &P; // pressure
     
     Segmenter  segmenter;
     Bubbles    bubbles;
     const Real ymin;
     const Real ymax;
     
-    //! broadcast, find spots
+    //! broadcast, find spots and bubbles, sync B field
     void dispatch( const mpi &MPI );
     
+    //! save gnuplot B field
     void save_B( const string &filename ) const;
+    
+    //! init pressure from bubbles
+    void init_pressure( const mpi &MPI );
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);

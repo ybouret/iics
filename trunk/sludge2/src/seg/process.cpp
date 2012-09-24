@@ -23,6 +23,7 @@ void Segmenter:: process( const Bubbles &bubbles )
     //--------------------------------------------------------------------------
     for( size_t i=segcount;i>0;--i)
         segments[i]->empty();
+    markers.empty();
     
     //--------------------------------------------------------------------------
     // find all junctions

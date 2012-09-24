@@ -2,6 +2,7 @@
 #define SEGMENTER_INCLUDED 1
 
 #include "segment.hpp"
+#include "marker.hpp"
 #include "bubbles.hpp"
 
 class Segmenter
@@ -30,7 +31,12 @@ public:
     
     void locate_vertex( const Vertex &v, coord2D &klo, coord2D &khi ) const;
     void process( const Bubbles &bubbles );
-    void build( Array &B ) const;
+    
+    //! fill the bubble array and compute the markers
+    /**
+     then need a MPI sync
+     */
+    void build( Array &B );
     
     //! save junctions coordinates, gnuplot style
     void save( const string &filename ) const;
@@ -46,6 +52,7 @@ private:
     Segment::Ptr   *hseg;
     Segment::Ptr   *vseg;
     Junction::Cache jcache;
+    Marker::Cache   mcache;
     const size_t    segcount;
     Segments        segments;
     void process_bubble( const Bubble *bubble, const Real half );
@@ -55,7 +62,8 @@ private:
                            const Vertex &target,
                            const Tracer *to
                            );
-    
+    Markers         markers;
+    friend class Cell;
 };
 
 #endif

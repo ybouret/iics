@@ -10,8 +10,9 @@ YOCTO_UNIT_TEST_IMPL(cell)
     
     FieldsSetup F(2);
     Y_SPADE_FIELD(F, "B", Array);
-    
-    Cell cell(MPI,N,L,F);
+    Y_SPADE_FIELD(F, "P", Array);
+
+    Cell     cell(MPI,N,L,F);
     Bubbles &bubbles = cell.bubbles;
     
     //--------------------------------------------------------------------------
