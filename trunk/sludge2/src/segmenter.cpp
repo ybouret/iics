@@ -101,7 +101,7 @@ void Segmenter:: save_vtk_n( const string &filename, Real scale) const
         for( const Junction *p=segments[i]->head;p;p=p->next)
         {
             fp("%.15g %.15g 0\n",p->vertex.x,p->vertex.y);
-            const Real fac = scale; // * p->curvature;
+            const Real fac = scale * p->curvature;
             fp("%.15g %.15g 0\n",p->vertex.x + fac * p->n.x,p->vertex.y+ fac * p->n.y);
         }
     }
