@@ -4,6 +4,7 @@
 #include "yocto/auto-ptr.hpp"
 #include "yocto/spade/mpi/collect0.hpp"
 #include "yocto/spade/vtk/writer.hpp"
+#include "yocto/spade/variables.hpp"
 
 YOCTO_UNIT_TEST_IMPL(cell)
 {
@@ -18,7 +19,8 @@ YOCTO_UNIT_TEST_IMPL(cell)
     Cell     cell(MPI,N,L,F);
     Bubbles &bubbles = cell.bubbles;
     auto_ptr<Workspace> pW;
-    Array              *pA = 0;
+    Array              *pB = 0;
+    Array              *pP = 0;
     vtk_writer          vtk;
     variables           var;
     
@@ -28,13 +30,16 @@ YOCTO_UNIT_TEST_IMPL(cell)
     if( MPI.IsMaster)
     {
         //pA.reset( new standalone<Array>( cell.full_layout));
-        var.push_back("A");
-        FieldsSetup FA(1);
-        Y_SPADE_LOCAL(FA, "A", Array);
+        var.append("B");
+        var.append("P");
+        FieldsSetup FA(2);
+        Y_SPADE_LOCAL(FA, "B", Array);
+        Y_SPADE_LOCAL(FA, "P", Array);
         const GhostsSetup no_ghosts;
         pW.reset( new Workspace(cell.full_layout,FA,no_ghosts) );
         cell.setup_grid( pW->mesh );
-        pA = & ((*pW)["A"].as<Array>());
+        pB = & ((*pW)["B"].as<Array>());
+        pP = & ((*pW)["P"].as<Array>());
         Bubble *b      = bubbles.append();
         Vertex  center(L.x/2,0);
         Real    radius = min_of(L.x,L.y)/4;
@@ -47,17 +52,14 @@ YOCTO_UNIT_TEST_IMPL(cell)
     //-- broadcast bubbles with data & find spots
     //--------------------------------------------------------------------------
     cell.dispatch(MPI);
-    mpi_collect0::get(MPI, pA, cell.B, cell.full_layout);
-    if( MPI.IsMaster)
-    {
-        vtk.save("b-org.vtk", "B", *pW, var, cell.full_layout);
-    }
     cell.init_pressure(MPI);
-    mpi_collect0::get(MPI, pA, cell.P, cell.full_layout);
+    mpi_collect0::get(MPI, pB, cell.B, cell.full_layout);
+    mpi_collect0::get(MPI, pP, cell.P, cell.full_layout);
     if( MPI.IsMaster)
     {
-        vtk.save("p-org.vtk", "P", *pW, var, cell.full_layout);
+        vtk.save("org.vtk", "org", *pW, var, cell.full_layout);
     }
+    
     
     SaveGrid( cell.mesh, vformat("g%d.%d.dat", MPI.CommWorldSize,MPI.CommWorldRank));
     
@@ -80,17 +82,13 @@ YOCTO_UNIT_TEST_IMPL(cell)
     }
     
     cell.dispatch(MPI);
-    mpi_collect0::get(MPI, pA, cell.B, cell.full_layout);
-    if( MPI.IsMaster)
-    {
-        vtk.save("b-mov.vtk", "B", *pW, var, cell.full_layout);
-    }
     cell.P.ldz();
     cell.init_pressure(MPI);
-    mpi_collect0::get(MPI, pA, cell.P, cell.full_layout);
+    mpi_collect0::get(MPI, pB, cell.B, cell.full_layout);
+    mpi_collect0::get(MPI, pP, cell.P, cell.full_layout);
     if( MPI.IsMaster)
     {
-        vtk.save("p-mov.vtk", "P", *pW, var, cell.full_layout);
+        vtk.save("mov.vtk", "mov", *pW, var, cell.full_layout);
     }
     cell.bubbles.first()->save_dat( vformat("n-b%d.%d.dat", MPI.CommWorldSize,MPI.CommWorldRank));
     cell.segmenter.save( vformat("n-j%d.%d.dat", MPI.CommWorldSize,MPI.CommWorldRank));

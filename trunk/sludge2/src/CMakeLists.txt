@@ -65,7 +65,14 @@ SET(SOURCES_PAR ${SOURCES_MPI} ${SOURCES_CELL})
 
 ENDIF(MPI_FOUND)
 
-#INCLUDE( ${YROOT}/share/yocto/visit.cmake )
+INCLUDE( ${YROOT}/share/yocto/visit.cmake )
+
+IF(VISIT_FOUND)
+	SET(SOURCES_VIS
+		visit/simulation.hpp
+		visit/simulation.cpp )
+	SOURCE_GROUP( visit FILES ${SOURCES_VIS} )
+ENDIF(VISIT_FOUND)
 
 ADD_LIBRARY( sludge STATIC
  ${SOURCES}
