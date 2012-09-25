@@ -8,10 +8,9 @@ Cell:: ~Cell() throw()
 
 Cell:: Cell(const mpi         &MPI,
             const Coord       &N,
-            const Vertex      &L,
-            const FieldsSetup &F ) :
+            const Vertex      &L) :
 Parameters(N,L,MPI.CommWorldRank,MPI.CommWorldSize),
-Workspace( sim_layout, F, sim_ghosts ),
+Workspace( sim_layout, sim_fields, sim_ghosts ),
 X( mesh.X() ),
 Y( mesh.Y() ),
 B( (*this)["B"].as<Array>() ),

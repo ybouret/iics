@@ -7,11 +7,14 @@
 
 class Simulation :
 public VisIt::Simulation,
+public Cell,
 public VisItIO
 {
 public:
     explicit Simulation( const mpi &MPI );
     virtual ~Simulation() throw();
+    
+    
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Simulation);

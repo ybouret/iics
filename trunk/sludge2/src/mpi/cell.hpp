@@ -12,8 +12,7 @@ class Cell : public Parameters, public Workspace
 public:
     explicit Cell(const mpi         &MPI,
                   const Coord       &N,
-                  const Vertex      &L,
-                  const FieldsSetup &F);
+                  const Vertex      &L);
     
     virtual ~Cell() throw();
     const Array1D &X;

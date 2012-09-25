@@ -11,12 +11,8 @@ YOCTO_UNIT_TEST_IMPL(cell)
     const mpi &MPI = mpi::init(&argc,&argv);
     const Coord  N(30,40);
     const Vertex L(3.0,4.0);
-    
-    FieldsSetup F(2);
-    Y_SPADE_FIELD(F, "B", Array);
-    Y_SPADE_FIELD(F, "P", Array);
-
-    Cell     cell(MPI,N,L,F);
+   
+    Cell     cell(MPI,N,L);
     Bubbles &bubbles = cell.bubbles;
     auto_ptr<Workspace> pW;
     Array              *pB = 0;
