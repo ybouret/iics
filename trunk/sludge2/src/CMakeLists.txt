@@ -7,6 +7,9 @@ INCLUDE(${YROOT}/share/yocto/rules.cmake)
 INCLUDE_DIRECTORIES( ${YROOT}/include )
 LINK_DIRECTORIES(    ${YROOT}/lib     )
 
+SET(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/../sdk)
+
+
 SET(SOURCES_SER 
 types.hpp      types.cpp
 tracer.hpp     tracer.cpp
@@ -84,3 +87,7 @@ ADD_SUBDIRECTORY(tests)
 IF(MPI_FOUND)
 	ADD_SUBDIRECTORY(tests-mpi)
 ENDIF(MPI_FOUND)
+
+IF(VISIT_FOUND)
+	ADD_SUBDIRECTORY(laponite)
+ENDIF(VISIT_FOUND)
