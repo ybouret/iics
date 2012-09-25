@@ -61,3 +61,13 @@ void Cell:: save_B( const string &filename ) const
     }
 }
 
+
+void Cell:: legalize(const yocto::mpi &MPI)
+{
+    if( MPI.IsMaster )
+    {
+        bubbles.update_topology();
+    }
+    dispatch(MPI);
+    compute_pressure(MPI);
+}

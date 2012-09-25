@@ -13,12 +13,12 @@ void Simulation:: initialize()
         bubble->map_circle(center,radius);
         bubble->set_pressure(1.0);
         
+        //----------------------------------------------------------------------
         //-- arrange bubbles
+        //----------------------------------------------------------------------
         bubbles.update_topology();
     }
     
-    
-    dispatch(MPI);
-    init_pressure(MPI);
+    legalize(MPI);
     
 }

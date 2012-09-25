@@ -2,7 +2,7 @@
 
 void Cell:: dispatch( const mpi &MPI )
 {
-    MPI.Printf0(stderr, "\tdispatch bubbles...\n");
+    MPI.Printf0(stderr, "\tdispatch %u bubbles...\n", unsigned(bubbles.count()));
     bubbles.dispatch(MPI);
     
     MPI.Printf0(stderr, "\tlocate spots...\n");

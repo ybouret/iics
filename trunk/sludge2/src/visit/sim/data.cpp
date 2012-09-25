@@ -32,4 +32,5 @@ visit_handle Simulation:: get_variable( int domain, const string &name ) const
         return h;
     }
 
+    return h;
 }

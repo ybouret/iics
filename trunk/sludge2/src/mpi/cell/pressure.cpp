@@ -1,6 +1,6 @@
 #include "../cell.hpp"
 
-void Cell:: init_pressure(const mpi &MPI )
+void Cell:: compute_pressure(const mpi &MPI )
 {
     //! pressure from bubbles
     segmenter.pressurize(P);
@@ -13,5 +13,7 @@ void Cell:: init_pressure(const mpi &MPI )
     
     //! sync pressure
     sync1(MPI,P);
+    
+    
     
 }

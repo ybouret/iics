@@ -48,7 +48,7 @@ YOCTO_UNIT_TEST_IMPL(cell)
     //-- broadcast bubbles with data & find spots
     //--------------------------------------------------------------------------
     cell.dispatch(MPI);
-    cell.init_pressure(MPI);
+    cell.compute_pressure(MPI);
     mpi_collect0::get(MPI, pB, cell.B, cell.full_layout);
     mpi_collect0::get(MPI, pP, cell.P, cell.full_layout);
     if( MPI.IsMaster)
@@ -79,7 +79,7 @@ YOCTO_UNIT_TEST_IMPL(cell)
     
     cell.dispatch(MPI);
     cell.P.ldz();
-    cell.init_pressure(MPI);
+    cell.compute_pressure(MPI);
     mpi_collect0::get(MPI, pB, cell.B, cell.full_layout);
     mpi_collect0::get(MPI, pP, cell.P, cell.full_layout);
     if( MPI.IsMaster)
