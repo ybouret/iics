@@ -71,10 +71,21 @@ ENDIF(MPI_FOUND)
 INCLUDE( ${YROOT}/share/yocto/visit.cmake )
 
 IF(VISIT_FOUND)
-	SET(SOURCES_VIS
+	SET(SOURCES_VIS_CORE
 		visit/simulation.hpp
 		visit/simulation.cpp )
-	SOURCE_GROUP( visit FILES ${SOURCES_VIS} )
+	SOURCE_GROUP( visit FILES ${SOURCES_VIS_CORE} )
+	
+	SET(SOURCES_VIS_SIM
+		visit/sim/meta.cpp
+		visit/sim/mesh.cpp
+		visit/sim/step.cpp
+		visit/sim/init.cpp
+		visit/sim/data.cpp
+		)
+	SOURCE_GROUP( visit/sim FILES ${SOURCES_VIS_SIM} )
+	
+	SET(SOURCES_VIS ${SOURCES_VIS_CORE} ${SOURCES_VIS_SIM})
 ENDIF(VISIT_FOUND)
 
 ADD_LIBRARY( sludge STATIC

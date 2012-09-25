@@ -80,3 +80,14 @@ size_t Bubbles:: get_hash( hashing::function &H ) const
     return H.key<size_t>();
 }
 
+void Bubbles:: update_topology()
+{
+    // first pass:: individual topology
+    for( Bubble *b = bubbles.head; b; b=b->next )
+    {
+        b->compute_contour();
+    }
+    
+}
+
+
