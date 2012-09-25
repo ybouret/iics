@@ -23,6 +23,7 @@ public:
     const PBC  &pbc;
     Real        lambda; //!< default is 1
     
+    void        update_topology();
     
 #if defined(HAS_MPI)
     void dispatch( const mpi & MPI ); //!< dispatch all the bubbles
