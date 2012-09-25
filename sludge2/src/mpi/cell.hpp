@@ -31,8 +31,16 @@ public:
     //! save gnuplot B field
     void save_B( const string &filename ) const;
     
-    //! init pressure from bubbles
-    void init_pressure( const mpi &MPI );
+    //! compute pressure from bubbles
+    void compute_pressure( const mpi &MPI );
+    
+    //! logical serie of event
+    /**
+     - master update topology
+     - dispatch
+     - compute pressure
+     */
+    void legalize( const mpi &MPI );
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);

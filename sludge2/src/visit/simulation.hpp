@@ -27,6 +27,8 @@ public:
     //! get data for mesh
     visit_handle get_variable( int domain, const string &name ) const;
 
+    //! step
+    virtual void step();
     
     static const char MeshName[];
 private:
