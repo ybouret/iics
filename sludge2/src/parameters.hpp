@@ -20,7 +20,7 @@ public:
     const PBC    pbc;         //!< from LY
     const Layout sim_layout;  //!< from rank and size
     ghosts_setup sim_ghosts;  //!< from rank and size
-    
+    FieldsSetup  sim_fields;  //!< to be registered
     void setup_grid( Grid &grid ) const;
     
     

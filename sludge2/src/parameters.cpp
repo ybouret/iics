@@ -32,7 +32,8 @@ inv_delta( 1.0 / delta.x, 1.0/delta.y ),
 inv_delsq( inv_delta.x * inv_delta.x, inv_delta.y * inv_delta.y),
 pbc(full_length.y),
 sim_layout( full_layout.split(rank, size) ),
-sim_ghosts()
+sim_ghosts(),
+sim_fields(4)
 {
     assert(size>0);
 #if 0
@@ -45,6 +46,10 @@ sim_ghosts()
     std::cerr << "PBC: " << pbc.lo << " -> " << pbc.up << std::endl;
     std::cerr << "sim_layout : " << sim_layout << std::endl;
 #endif
+    
+    //--------------------------------------------------------------------------
+    // ghosts layout
+    //--------------------------------------------------------------------------
     if( size > 1 )
     {
         //-- parallel
@@ -57,6 +62,15 @@ sim_ghosts()
         //-- not parallel
         sim_ghosts.set_local(on_y, 2);
     }
+    
+    //--------------------------------------------------------------------------
+    // fields
+    //--------------------------------------------------------------------------
+    FieldsSetup &F = sim_fields;
+    Y_SPADE_FIELD(F, "P", Array);
+    Y_SPADE_LOCAL(F, "B", Array);
+    Y_SPADE_FIELD(F, "gradP", VertexArray);
+    
 }
 
 
