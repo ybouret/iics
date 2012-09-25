@@ -17,6 +17,7 @@ public:
     const Vertex delta;       //!< dX = Lx/full_layout.width;
     const Vertex inv_delta;   //!< 1/delta
     const Vertex inv_delsq;   //!< 1/delta^2
+    const Real   rb_factor;  //!< 1.0/(-2*inv_delsq.x - 2*inv_delsq.y): Red/Black factor
     const PBC    pbc;         //!< from LY
     const Layout sim_layout;  //!< from rank and size
     ghosts_setup sim_ghosts;  //!< from rank and size

@@ -30,6 +30,7 @@ full_length( L.x, L.y ),
 delta( full_length.x/(full_layout.width.x-1), full_length.y/(full_layout.width.y) ),
 inv_delta( 1.0 / delta.x, 1.0/delta.y ),
 inv_delsq( inv_delta.x * inv_delta.x, inv_delta.y * inv_delta.y),
+rb_factor( 1.0/ (-2*inv_delsq.x -2*inv_delsq.y)),
 pbc(full_length.y),
 sim_layout( full_layout.split(rank, size) ),
 sim_ghosts(),
@@ -70,7 +71,8 @@ sim_fields(4)
     Y_SPADE_FIELD(F, "P", Array);
     Y_SPADE_LOCAL(F, "B", Array);
     Y_SPADE_FIELD(F, "gradP", VertexArray);
-    
+    Y_SPADE_FIELD(F, "U",     VertexArray);
+
 }
 
 

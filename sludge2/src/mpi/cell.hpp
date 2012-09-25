@@ -17,13 +17,14 @@ public:
     virtual ~Cell() throw();
     const Array1D &X;
     const Array1D &Y;
-    Array         &B; // bubble markers
-    Array         &P; // pressure
-    
-    Segmenter  segmenter;
-    Bubbles    bubbles;
-    const Real ymin;
-    const Real ymax;
+    Array         &B;     //!< bubble markers
+    Array         &P;     //!< pressure
+    VertexArray   &gradP; //!< pressure gradient
+    VertexArray   &U;     //!< velocity field
+    Segmenter      segmenter;
+    Bubbles        bubbles;
+    const Real     ymin;
+    const Real     ymax;
     
     //! broadcast, find spots and bubbles, sync B field
     void dispatch( const mpi &MPI );
