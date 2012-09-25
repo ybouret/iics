@@ -31,6 +31,33 @@ visit_handle Simulation:: get_variable( int domain, const string &name ) const
         }
         return h;
     }
+    
+    if( name == "U" )
+    {
+        const int nComponents= 2;
+        const int nTuples    = U.items;
+        //MPI.Printf0( stderr, "Sending U: %dx%d\n", nComponents, nTuples);
+        assert(U.entry!=NULL);
+        if(VisIt_VariableData_alloc(&h) == VISIT_OKAY)
+        {
+            VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, (Real*)(U.entry));
+        }
+        return h;
+    }
+    
+    if( name == "gradP" )
+    {
+        const int nComponents= 2;
+        const int nTuples    = gradP.items;
+        //MPI.Printf0( stderr, "Sending U: %dx%d\n", nComponents, nTuples);
+        assert(gradP.entry!=NULL);
+        if(VisIt_VariableData_alloc(&h) == VISIT_OKAY)
+        {
+            VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, (Real*)(gradP.entry));
+        }
+        return h;
+    }
+
 
     return h;
 }

@@ -31,4 +31,16 @@ void Simulation:: get_meta_data(visit_handle &md) const
         VisIt_SimulationMetaData_addVariable(md, vmd);
     }
     
+    //! append U on mesh
+    {
+        visit_handle vmd = variable_meta_data<Vertex>("U", MeshName);
+        VisIt_SimulationMetaData_addVariable(md, vmd);
+    }
+    
+    //! append gradP on mesh
+    {
+        visit_handle vmd = variable_meta_data<Vertex>("gradP", MeshName);
+        VisIt_SimulationMetaData_addVariable(md, vmd);
+    }
+    
 }
