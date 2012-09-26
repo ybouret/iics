@@ -38,6 +38,7 @@ void Cell:: compute_pressure(const mpi &MPI )
         int cvg = 1;
         for(size_t c=0;c<2;++c)
         {
+            compute_gradP();
             //------------------------------------------------------------------
             // core
             //------------------------------------------------------------------
@@ -71,11 +72,12 @@ void Cell:: compute_pressure(const mpi &MPI )
                 Array1D       &P_j = P[j];
                 P_j[lower.x] = (4.0*P_j[lower.x+1] - P_j[lower.x+2])/3.0;
             }
+            sync1(MPI,P);
         }
         
-        sync1(MPI,P);
+        
         int converged = 0;
-        MPI.Allreduce(&cvg, &converged, 1, MPI_INT, MPI_SUM,MPI_COMM_WORLD);
+        MPI.Allreduce(&cvg, &converged, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
         if( MPI.CommWorldSize == converged)
         {
             MPI.Printf0(stderr, "\tcomputed pressure...\n");

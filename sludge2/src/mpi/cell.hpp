@@ -32,6 +32,9 @@ public:
     //! save gnuplot B field
     void save_B( const string &filename ) const;
     
+    //! compute P gradient from bubbles + boundary conditions
+    void compute_gradP();
+    
     //! compute pressure from bubbles
     void compute_pressure( const mpi &MPI );
     
