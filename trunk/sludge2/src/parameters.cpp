@@ -31,6 +31,7 @@ delta( full_length.x/(full_layout.width.x-1), full_length.y/(full_layout.width.y
 inv_delta( 1.0 / delta.x, 1.0/delta.y ),
 inv_delsq( inv_delta.x * inv_delta.x, inv_delta.y * inv_delta.y),
 rb_factor( 1.0/ (-2*inv_delsq.x -2*inv_delsq.y)),
+inv_twodel( 0.5/delta.x, 0.5/delta.y),
 pbc(full_length.y),
 sim_layout( full_layout.split(rank, size) ),
 sim_ghosts(),
