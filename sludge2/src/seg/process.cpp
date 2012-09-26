@@ -47,7 +47,7 @@ void Segmenter:: process( const Bubbles &bubbles )
     }
     
     //--------------------------------------------------------------------------
-    // locate Horizontal junctions (for building B field)
+    // locate Horizontal junctions (for building B field + gradient eval)
     //--------------------------------------------------------------------------
     for( unit_t j=Y.lower;j<=Y.upper;++j)
     {
@@ -55,8 +55,19 @@ void Segmenter:: process( const Bubbles &bubbles )
         {
             locate_value( J->vertex.x, X, J->klo, J->khi);
         }
-        
     }
+    
+    //--------------------------------------------------------------------------
+    // locate Vertical junctions gradient eval
+    //--------------------------------------------------------------------------
+    for( unit_t i=X.lower;i<=X.upper;++i)
+    {
+        for( Junction *J = Vert(i).head; J; J=J->next)
+        {
+            locate_value( J->vertex.y, Y, J->klo, J->khi);
+        }
+    }
+
     
 }
 
