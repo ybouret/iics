@@ -20,7 +20,8 @@ U(     (*this)["U"    ].as<VertexArray>() ),
 segmenter( mesh ),
 bubbles( pbc ),
 ymin(0),
-ymax(0)
+ymax(0),
+vtk()
 {
     
     //--------------------------------------------------------------------------

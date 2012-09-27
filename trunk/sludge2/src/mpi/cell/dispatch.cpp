@@ -1,4 +1,5 @@
 #include "../cell.hpp"
+#include "yocto/spade/variables.hpp"
 
 void Cell:: dispatch( const mpi &MPI )
 {
@@ -19,4 +20,14 @@ void Cell:: dispatch( const mpi &MPI )
     
     MPI.Printf0(stderr, "\tsync bubble field...\n");
     sync1(MPI,B);
+    
+    variables bvar;
+    bvar.append( "B" );
+    vtk.save( vformat("b-out-%d.%d.vtk", MPI.CommWorldSize,MPI.CommWorldSize),
+             "B full layout", *this,
+             bvar,
+             outline);
+    
+    segmenter.save_vtk_n( vformat("j%d%d.vtk",MPI.CommWorldSize,MPI.CommWorldSize), bubbles.lambda);
+    
 }

@@ -3,6 +3,7 @@
 
 #include "../parameters.hpp"
 #include "yocto/spade/mpi/workspace.hpp"
+#include "yocto/spade/vtk/writer.hpp"
 
 typedef mpi_workspace<Layout,rmesh,Real> Workspace;
 
@@ -25,6 +26,7 @@ public:
     Bubbles        bubbles;
     const Real     ymin;
     const Real     ymax;
+    vtk_writer     vtk;
     
     //! broadcast, find spots and bubbles, sync B field
     void dispatch( const mpi &MPI );

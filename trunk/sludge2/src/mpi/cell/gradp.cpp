@@ -13,7 +13,7 @@ const Junction *find_first_at( const unit_t klo, const Junctions &junctions)
         J=J->next;
     }
     if( !J )
-        throw exception("can't find junction !");
+        throw exception("can't find junction for k=%d !", int(klo));
     
     //-- done
     return J;
@@ -50,7 +50,7 @@ void Cell:: compute_gradP()
     // initialize: ok for walls and inside bubbles
     //--------------------------------------------------------------------------
     gradP.ldz();
-    return;
+    
     
     //--------------------------------------------------------------------------
     // vertical gradient
