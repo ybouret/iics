@@ -151,7 +151,6 @@ OutCode ComputeOutCode(const Real x, const Real y, const Real xmin, const Real x
 
 static inline void FinalizeJunction( Junction *J, const Tracer *source, const Tracer *target ) throw()
 {
-    //std::cerr << "alpha=" << J->alpha << std::endl;
     const Real  s_weight = (1-J->alpha);
     const Real  t_weight = J->alpha;
     J->bubble            = source->bubble;
