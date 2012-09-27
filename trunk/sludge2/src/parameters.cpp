@@ -45,7 +45,7 @@ sim_fields(4)
     std::cerr << "lower y    : " << delta.y * full_layout.lower.y << std::endl;
     std::cerr << "upper y    : " << delta.y * full_layout.upper.y << std::endl;
     std::cerr << "upper y+1  : " << delta.y * (full_layout.upper.y+1) << std::endl;
-    std::cerr << "PBC: " << pbc.lo << " -> " << pbc.up << std::endl;
+    std::cerr << "PBC        : " << pbc.lo << " -> " << pbc.up << std::endl;
     std::cerr << "sim_layout : " << sim_layout << std::endl;
 #endif
     

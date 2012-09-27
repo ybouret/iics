@@ -36,6 +36,12 @@ int main( int argc, char *argv[] )
         const Vertex L(3.0,5.0);
         Simulation   sim(MPI,N,L);
         MPI.PrintfI(stderr, "layout: (%d,%d) -> (%d,%d)\n", int(sim.lower.x),int(sim.lower.y),int(sim.upper.x),int(sim.upper.y));
+        MPI.__WaitFor(0.1);
+        for( unsigned i=1; i <= sim.async_count; ++i )
+        {
+            MPI.PrintfI(stderr, "\t\tAsyncGhost #%u: peer=%d\n",i, sim.get_async(i).peer);
+            MPI.__WaitFor(0.1);
+        }
         
         //----------------------------------------------------------------------
         // First time init
