@@ -120,5 +120,39 @@ visit_handle Simulation:: get_curve( const string &name ) const
             
         }
     }
+    
+    if( name == "junctions" )
+    {
+        if( VisIt_CurveData_alloc(&h) == VISIT_OKAY )
+        {
+            // copy juntions coordinates
+            const size_t nj = segmenter.num_junctions();
+            vector<Real> jx(nj,0);
+            vector<Real> jy(nj,0);
+            const Segments &segments = segmenter();
+            for( size_t i=segments.size(),j=1;i>0;--i)
+            {
+                const Segment &seg = *segments[i];
+                for( const Junction *J = seg.head;J;J=J->next)
+                {
+                    assert(j<=nj);
+                    jx[j] = J->vertex.x;
+                    jy[j] = J->vertex.y;
+                    ++j;
+                }
+            }
+            
+            // make a curve
+            visit_handle hcx,hcy;
+            VisIt_VariableData_alloc( &hcx );
+            VisIt_VariableData_alloc( &hcy );
+            VisIt_VariableData_setDataD(hcx, VISIT_OWNER_COPY, 1, nj, jx());
+            VisIt_VariableData_setDataD(hcy, VISIT_OWNER_COPY, 1, nj, jy());
+            VisIt_CurveData_setCoordsXY(h, hcx, hcy);
+
+        }
+
+    }
+    
     return h;
 }

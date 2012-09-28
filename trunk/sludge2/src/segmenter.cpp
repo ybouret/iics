@@ -83,13 +83,25 @@ void Segmenter:: save( const string &filename ) const
     }
 }
 
-void Segmenter:: save_vtk_n( const string &filename, Real scale) const
+size_t Segmenter:: num_junctions() const throw()
 {
-    unsigned n = 0;
+    size_t nj = 0;
     for( size_t i=segcount;i>0;--i)
     {
-        n += segments[i]->size;
+        nj += segments[i]->size;
     }
+    return nj;
+}
+
+const Segments & Segmenter:: operator()(void) const throw()
+{
+    return segments;
+}
+
+
+void Segmenter:: save_vtk_n( const string &filename, Real scale) const
+{
+    const unsigned n = num_junctions();
     ios::ocstream fp( filename, false );
     fp("# vtk DataFile Version 1.0\n");
     fp("Bubble Normals\n");
