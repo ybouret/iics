@@ -34,9 +34,17 @@ public:
     
     //! fill the bubble array and compute the markers
     /**
-     then need a MPI sync
+     Built from the processed bubbles.
+     Then need a MPI sync for parallel computations.
      */
-    void build( Array &B );
+    void build_bubbles_field( Array &B );
+    
+    //! fill array using junctions in both directions
+    /**
+     Built from the processed bubbles.
+     Then need a MPI sync for parallel computations.
+     */
+    void build_effective_pressure( VertexArray &Peff );
     
     //! fill the pressure array with the bubbles pressure
     void pressurize( Array &P ) const;

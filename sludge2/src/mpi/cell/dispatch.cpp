@@ -16,7 +16,7 @@ void Cell:: dispatch( const mpi &MPI )
     segmenter.process(bubbles);
     
     MPI.Printf0(stderr, "\tbuild bubble field...\n");
-    segmenter.build(B);
+    segmenter.build_bubbles_field(B);
     
 //#define SAVE_B
 #if defined(SAVE_B)
