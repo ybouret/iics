@@ -72,6 +72,7 @@ public:
     void save_vtk(   const string &filename )   const;
     void save_vtk_t( const string &filename ) const;
     void save_vtk_n( const string &filename ) const;
+    void rotate(Real alpha);
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Bubble);

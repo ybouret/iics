@@ -30,6 +30,12 @@ public:
     //! step
     virtual void step();
     
+    //! extra commands
+    virtual void perform(const string &cmd);
+    
+    //! get bubble if any
+    virtual visit_handle get_curve( const string &name ) const;
+    
     static const char MeshName[];
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Simulation);

@@ -83,6 +83,7 @@ IF(VISIT_FOUND)
 		visit/sim/step.cpp
 		visit/sim/init.cpp
 		visit/sim/data.cpp
+		visit/sim/cmds.cpp
 		)
 	SOURCE_GROUP( visit/sim FILES ${SOURCES_VIS_SIM} )
 	

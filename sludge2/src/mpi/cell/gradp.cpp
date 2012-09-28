@@ -50,7 +50,7 @@ void Cell:: compute_gradP()
     // initialize: ok for walls and inside bubbles
     //--------------------------------------------------------------------------
     gradP.ldz();
-    
+    return;
     
     //--------------------------------------------------------------------------
     // vertical gradient

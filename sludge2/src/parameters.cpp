@@ -35,7 +35,7 @@ inv_twodel( 0.5/delta.x, 0.5/delta.y),
 pbc(full_length.y),
 sim_layout( full_layout.split(rank, size) ),
 sim_ghosts(),
-sim_fields(4)
+sim_fields(4*sizeof(Real))
 {
     assert(size>0);
 #if 0
@@ -69,8 +69,8 @@ sim_fields(4)
     // fields
     //--------------------------------------------------------------------------
     FieldsSetup &F = sim_fields;
-    Y_SPADE_FIELD(F, "P", Array);
-    Y_SPADE_LOCAL(F, "B", Array);
+    Y_SPADE_FIELD(F, "P",     Array);
+    Y_SPADE_FIELD(F, "B",     Array);
     Y_SPADE_FIELD(F, "gradP", VertexArray);
     Y_SPADE_FIELD(F, "U",     VertexArray);
 
