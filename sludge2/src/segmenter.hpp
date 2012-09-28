@@ -59,6 +59,9 @@ public:
     static
     void locate_value( const Real z, const Array1D &Z, unit_t &klo, unit_t &kup ) throw();
     
+    size_t          num_junctions() const throw(); //!< for all current segments
+    const Segments &operator()(void) const throw();
+    
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Segmenter);
     Segment::Ptr   *hseg;
