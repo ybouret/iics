@@ -1,6 +1,6 @@
 #include "../segmenter.hpp"
 
-void Segmenter:: build( Array &B )
+void Segmenter:: build_bubbles_field( Array &B )
 {
     B.ldz();
     assert( 0 == markers.size);
@@ -50,3 +50,5 @@ void Segmenter:: build( Array &B )
     }
     
 }
+
+

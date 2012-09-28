@@ -22,6 +22,7 @@ public:
     Array         &P;     //!< pressure
     VertexArray   &gradP; //!< pressure gradient
     VertexArray   &U;     //!< velocity field
+    VertexArray   &Peff;  //!< effective pressure in bubble, along X and along Y
     Segmenter      segmenter;
     Bubbles        bubbles;
     const Real     ymin;
