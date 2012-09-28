@@ -43,6 +43,19 @@ void Simulation:: get_meta_data(visit_handle &md) const
         VisIt_SimulationMetaData_addVariable(md, vmd);
     }
     
+    //! append Penter on mesh
+    {
+        visit_handle vmd = variable_meta_data<Vertex>("Penter", MeshName);
+        VisIt_SimulationMetaData_addVariable(md, vmd);
+    }
+    
+    //! append Pleave on mesh
+    {
+        visit_handle vmd = variable_meta_data<Vertex>("Pleave", MeshName);
+        VisIt_SimulationMetaData_addVariable(md, vmd);
+    }
+
+    
     if( !parallel )    //! append the bubbles ?
     {
         const Bubble *p = bubbles.first();

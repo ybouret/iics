@@ -39,4 +39,8 @@ void Cell:: dispatch( const mpi &MPI )
     segmenter.save_vtk_n( vformat("j%d-%d.vtk",MPI.CommWorldSize,MPI.CommWorldRank), bubbles.lambda);
 #endif
     
+    MPI.Printf0(stderr,"\tbuilding effective pressure...\n");
+    segmenter.build_effective_pressure(B, Penter, Pleave);
+    sync1(MPI,Penter);
+    sync1(MPI,Pleave);
 }
