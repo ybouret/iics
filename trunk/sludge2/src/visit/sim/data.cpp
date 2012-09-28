@@ -58,6 +58,30 @@ visit_handle Simulation:: get_variable( int domain, const string &name ) const
         return h;
     }
 
+    if( name == "Penter" )
+    {
+        const int nComponents= 2;
+        const int nTuples    = U.items;
+        assert(Penter.entry!=NULL);
+        if(VisIt_VariableData_alloc(&h) == VISIT_OKAY)
+        {
+            VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, (Real*)(Penter.entry));
+        }
+        return h;
+    }
+    
+    if( name == "Pleave" )
+    {
+        const int nComponents= 2;
+        const int nTuples    = U.items;
+        assert(Pleave.entry!=NULL);
+        if(VisIt_VariableData_alloc(&h) == VISIT_OKAY)
+        {
+            VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, (Real*)(Pleave.entry));
+        }
+        return h;
+    }
+
 
     return h;
 }

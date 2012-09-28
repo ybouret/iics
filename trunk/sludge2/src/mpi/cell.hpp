@@ -18,11 +18,12 @@ public:
     virtual ~Cell() throw();
     const Array1D &X;
     const Array1D &Y;
-    Array         &B;     //!< bubble markers
-    Array         &P;     //!< pressure
-    VertexArray   &gradP; //!< pressure gradient
-    VertexArray   &U;     //!< velocity field
-    VertexArray   &Peff;  //!< effective pressure in bubble, along X and along Y
+    Array         &B;       //!< bubble markers
+    Array         &P;       //!< pressure
+    VertexArray   &gradP;   //!< pressure gradient
+    VertexArray   &U;       //!< velocity field
+    VertexArray   &Penter;  //!< effective pressure in bubble, along X and along Y
+    VertexArray   &Pleave;  //!< effective pressure when leaving bubble
     Segmenter      segmenter;
     Bubbles        bubbles;
     const Real     ymin;
