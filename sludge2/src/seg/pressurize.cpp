@@ -16,8 +16,8 @@ void Segmenter:: build_effective_pressure( const Array &B, VertexArray &Penter, 
 {
     Penter.ldz();
     Pleave.ldz();
-
-#if 1
+    
+#if 0
     for( const Marker *m = markers.head;m;m=m->next)
     {
         const Bubble *bubble = m->bubble; assert(bubble);
@@ -28,9 +28,11 @@ void Segmenter:: build_effective_pressure( const Array &B, VertexArray &Penter, 
     }
 #endif
     
-    const double gamma = 1;
+    const double gamma = 0.1;
     //--------------------------------------------------------------------------
-    // horizontal setting
+    //
+    // horizontal effective pressure
+    //
     //--------------------------------------------------------------------------
     for( unit_t j=Y.lower;j<=Y.upper;++j)
     {
@@ -46,7 +48,7 @@ void Segmenter:: build_effective_pressure( const Array &B, VertexArray &Penter, 
                 assert(J->bubble);
                 assert(J->next->bubble);
                 if(J->bubble != J->next->bubble)
-                    throw exception("Invalid overlapping bubbles in Segmenter::build");
+                    throw exception("Invalid overlapping bubbles in Segmenter::build_effective_pressure/horz");
                 J=J->next;
                 ++count;
             }
@@ -58,19 +60,6 @@ void Segmenter:: build_effective_pressure( const Array &B, VertexArray &Penter, 
                     //! leaving the bubble: take the last curvature
                     assert( B[j][J->klo] >0 );
                     Pleave[j][J->klo].x = bubble->pressure + gamma * J->curvature;
-                    /*
-                     
-                     while(curr<=J->klo)
-                     {
-                     //B_j[curr]   = bubble->id;
-                     //P_j[curr].x = bubble->pressure;
-                     Marker *m   = markers.append();
-                     m->inside.x = curr;
-                     m->inside.y = j;
-                     m->bubble   = bubble;
-                     ++curr;
-                     }
-                     */
                 }
                 else
                 {
@@ -80,11 +69,57 @@ void Segmenter:: build_effective_pressure( const Array &B, VertexArray &Penter, 
                 }
                 inside = !inside;
             }
-            //curr = J->khi;
             J    = J->next;
         }
-        
     }
+    
+    return;
+    
+    //--------------------------------------------------------------------------
+    //
+    // vertical effective pressure
+    //
+    //--------------------------------------------------------------------------
+    for( unit_t i=X.lower;i<=X.upper;++i)
+    {
+        const Segment &seg     = Vert(i);
+        const Junction *J      = seg.head;
+        bool            inside = B[Y.lower][i] > 0;
+        while(J)
+        {
+            std::cerr << "J->klo=" << J->klo << "/Y.lower=" << Y.lower << std::endl;
+            size_t count = 1;
+            const Junction *K  = J; //!< first junction @J->klo
+            while(J->next && J->next->klo == J->klo )
+            {
+                assert(J->bubble);
+                assert(J->next->bubble);
+                if(J->bubble != J->next->bubble)
+                    throw exception("Invalid overlapping bubbles in Segmenter::build_effective_pressure/vert");
+                J=J->next;
+                ++count;
+            }
+            if(count&1)
+            {
+                const Bubble *bubble = J->bubble; assert(bubble);
+                if(inside)
+                {
+                    //! leaving the bubble: take the last curvature
+                    assert( B[J->klo][i]>0);
+                    Pleave[J->klo][i].y = bubble->pressure + gamma * J->curvature;
+                }
+                else
+                {
+                    //! entering the bubble: take the first curvature
+                    assert(B[K->klo][i]<=0);
+                    Penter[K->khi][i].y = bubble->pressure + gamma * K->curvature;
+                }
+                inside = !inside;
+            }
+            J    = J->next;
+        }
+    }
+
     
     
 }
