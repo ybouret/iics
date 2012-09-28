@@ -67,7 +67,7 @@ void Bubble:: assemble( const mpi &MPI )
         for( int r = 1; r < MPI.CommWorldSize; ++r )
         {
             const size_t num_spots = MPI.__Recv<size_t>(r, tag, MPI_COMM_WORLD, status);
-            fprintf( stderr, "from %d: #spots=%u\n", r, unsigned(num_spots));
+            //fprintf( stderr, "from %d: #spots=%u\n", r, unsigned(num_spots));
             
             Tracer *tracer = root;
             for( size_t i=0; i < num_spots; ++i )

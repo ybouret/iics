@@ -1,6 +1,31 @@
 #include "../bubble.hpp"
 #include "yocto/code/utils.hpp"
 
+void Bubble:: rotate( Real alpha )
+{
+    Vertex G;
+    Tracer *p  = root;
+    Vertex  v0 = p->vertex;
+    for( size_t i=size;i>0;--i,p=p->next)
+    {
+        G  += v0;
+        v0 += p->edge;
+    }
+    G /= Real(size);
+    p = root;
+    const Real c = Cos(alpha);
+    const Real s = Sin(alpha);
+    for( size_t i=size;i>0;--i,p=p->next)
+    {
+        Vertex r(G,p->vertex);
+        pbc(r);
+        const Vertex q(r.x * c - r.y*s,r.x*s+r.y*c);
+        p->vertex = G + q;
+        pbc(p->vertex);
+    }
+    
+}
+
 void Bubble:: map_circle( const Vertex &center, Real radius )
 {
     assert(lam>0);

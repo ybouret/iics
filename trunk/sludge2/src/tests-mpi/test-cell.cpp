@@ -29,8 +29,8 @@ YOCTO_UNIT_TEST_IMPL(cell)
         var.append("B");
         var.append("P");
         FieldsSetup FA(2);
-        Y_SPADE_LOCAL(FA, "B", Array);
-        Y_SPADE_LOCAL(FA, "P", Array);
+        Y_SPADE_FIELD(FA, "B", Array);
+        Y_SPADE_FIELD(FA, "P", Array);
         const GhostsSetup no_ghosts;
         pW.reset( new Workspace(cell.full_layout,FA,no_ghosts) );
         cell.setup_grid( pW->mesh );

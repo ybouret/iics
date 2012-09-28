@@ -7,11 +7,12 @@ void Simulation:: step()
     //-- advect spots
     for( Bubble *b = bubbles.first(); b; b=b->next)
     {
+        b->rotate(0.12);
         for( Spot *s = b->spots.head;s;s=s->next)
         {
             Tracer *tracer = s->handle;
             Vertex &v      = tracer->vertex;
-            v.y += 0.1;
+            v.y += 0.05;
         }
     }
     
