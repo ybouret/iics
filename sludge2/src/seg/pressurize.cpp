@@ -16,6 +16,19 @@ void Segmenter:: build_effective_pressure( const Array &B, VertexArray &Penter, 
 {
     Penter.ldz();
     Pleave.ldz();
+
+#if 1
+    for( const Marker *m = markers.head;m;m=m->next)
+    {
+        const Bubble *bubble = m->bubble; assert(bubble);
+        Vertex &Pe = Penter[m->inside.y][m->inside.x];
+        Pe.x = Pe.y = bubble->pressure;
+        Vertex &Pl = Pleave[m->inside.y][m->inside.x];
+        Pl.x = Pl.y = bubble->pressure;
+    }
+#endif
+    
+    const double gamma = 1;
     //--------------------------------------------------------------------------
     // horizontal setting
     //--------------------------------------------------------------------------
@@ -44,7 +57,7 @@ void Segmenter:: build_effective_pressure( const Array &B, VertexArray &Penter, 
                 {
                     //! leaving the bubble: take the last curvature
                     assert( B[j][J->klo] >0 );
-                    Pleave[j][J->klo].x = bubble->pressure + 0 * J->curvature;
+                    Pleave[j][J->klo].x = bubble->pressure + gamma * J->curvature;
                     /*
                      
                      while(curr<=J->klo)
@@ -63,7 +76,7 @@ void Segmenter:: build_effective_pressure( const Array &B, VertexArray &Penter, 
                 {
                     //! entering the bubble: take the first curvature
                     assert(B[j][K->klo]<=0);
-                    Penter[j][K->khi].x = bubble->pressure + 0 * K->curvature;
+                    Penter[j][K->khi].x = bubble->pressure + gamma * K->curvature;
                 }
                 inside = !inside;
             }
