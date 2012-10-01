@@ -19,6 +19,13 @@ void Simulation:: step()
     
     //-- send info to master
     bubbles.assemble(MPI);
+
+    // TODO: remove this
+    for( Bubble *b = bubbles.first(); b; b=b->next)
+    {
+        b->set_pressure(1);
+    }
+
     
     //-- legalize new config
     legalize(MPI);

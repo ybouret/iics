@@ -31,7 +31,7 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
 #endif
     }
     
-    const double gamma = 0.1;
+    const Real gamma = 0.0;
     
     //--------------------------------------------------------------------------
     //
@@ -45,8 +45,8 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
         
         while(J)
         {
-            size_t count = 1;
-            const Junction *K  = J; //!< first junction @J->klo
+            size_t          count = 1;
+            const Junction *K     = J; //!< first junction @J->klo
             while(J->next && J->next->klo == J->klo )
             {
                 assert(J->bubble);
@@ -84,7 +84,7 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
     
     //--------------------------------------------------------------------------
     //
-    // horizontal effective pressure
+    // vertical effective pressure
     //
     //--------------------------------------------------------------------------
     for( unit_t i=X.lower;i<=X.upper;++i)
@@ -112,6 +112,7 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
                 //--------------------------------------------------------------
                 if( B[K->klo][i] > 0 )
                 {
+                    assert(B[J->klo][i]>0);
                     assert(B[J->khi][i]<=0);
                     //----------------------------------------------------------
                     // we leave a bubble
@@ -120,11 +121,12 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
                 }
                 else
                 {
-                    assert(B[J->khi][i]>0);
+                    assert(B[K->klo][i]<=0);
+                    assert(B[K->khi][i]>0);
                     //----------------------------------------------------------
                     // we enter a bubble
                     //----------------------------------------------------------
-                    Penter[K->khi][i].x = K->bubble->pressure + gamma * K->curvature;
+                    Penter[K->khi][i].y = K->bubble->pressure + gamma * K->curvature;
                 }
 
             }

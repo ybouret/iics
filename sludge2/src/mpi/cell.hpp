@@ -42,6 +42,8 @@ public:
     //! compute pressure from bubbles
     /**
      assume bubbles are pressurized by segmenter !!
+     ie that the fields Penter et Pleave
+     are computed and sync.
      */
     void compute_pressure( const mpi &MPI );
     
@@ -56,7 +58,7 @@ public:
      */
     void legalize( const mpi &MPI );
     
-    Real P_left( unit_t j, unit_t i) const throw();   //!< at j,i-1: assuming j,i in the bulk
+    Real P_left(  unit_t j, unit_t i) const throw();  //!< at j,i-1: assuming j,i in the bulk
     Real P_right( unit_t j, unit_t i) const throw();  //!< at j,i+1: assuming j,i in the bulk
     Real P_lower( unit_t j, unit_t i) const throw();  //!< at j-1,i: assuming j,i in the bulk
     Real P_upper( unit_t j, unit_t i) const throw();  //!< at j+1,i: assuming j,i in the bulk
