@@ -1,5 +1,6 @@
 #include "../segmenter.hpp"
 
+#if 0
 void Segmenter:: pressurize(Array &P) const
 {
     
@@ -10,23 +11,25 @@ void Segmenter:: pressurize(Array &P) const
     }
     
 }
+#endif
 
-
-void Segmenter:: build_effective_pressure( const Array &B, VertexArray &Penter, VertexArray &Pleave )
+void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray &Penter, VertexArray &Pleave )
 {
     Penter.ldz();
     Pleave.ldz();
     
-#if 0
     for( const Marker *m = markers.head;m;m=m->next)
     {
+
         const Bubble *bubble = m->bubble; assert(bubble);
+        P[m->inside.y][m->inside.x] = bubble->pressure;
+#if 0
         Vertex &Pe = Penter[m->inside.y][m->inside.x];
         Pe.x = Pe.y = bubble->pressure;
         Vertex &Pl = Pleave[m->inside.y][m->inside.x];
         Pl.x = Pl.y = bubble->pressure;
-    }
 #endif
+    }
     
     const double gamma = 0.1;
     

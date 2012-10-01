@@ -44,7 +44,7 @@ public:
      Built from the processed bubbles.
      Then need a MPI sync for parallel computations.
      */
-    void build_effective_pressure( const Array &B, VertexArray &Penter, VertexArray &Pleave );
+    void build_effective_pressure( const Array &B, Array &P, VertexArray &Penter, VertexArray &Pleave );
     
     //! fill the pressure array with the bubbles pressure
     void pressurize( Array &P ) const;
