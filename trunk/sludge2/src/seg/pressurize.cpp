@@ -29,6 +29,7 @@ void Segmenter:: build_effective_pressure( const Array &B, VertexArray &Penter, 
 #endif
     
     const double gamma = 0.1;
+    
     //--------------------------------------------------------------------------
     //
     // horizontal effective pressure
@@ -38,7 +39,7 @@ void Segmenter:: build_effective_pressure( const Array &B, VertexArray &Penter, 
     {
         const Segment &seg     = Horz(j);
         const Junction *J      = seg.head;
-        bool            inside = false;
+        
         while(J)
         {
             size_t count = 1;
@@ -54,42 +55,44 @@ void Segmenter:: build_effective_pressure( const Array &B, VertexArray &Penter, 
             }
             if(count&1)
             {
-                const Bubble *bubble = J->bubble; assert(bubble);
-                if(inside)
+                //--------------------------------------------------------------
+                // we crossed a bubble: check K
+                //--------------------------------------------------------------
+                if( B[j][K->klo] > 0 )
                 {
-                    //! leaving the bubble: take the last curvature
-                    assert( B[j][J->klo] >0 );
-                    Pleave[j][J->klo].x = bubble->pressure + gamma * J->curvature;
+                    assert(B[j][J->khi]<=0);
+                    //----------------------------------------------------------
+                    // we leave a bubble
+                    //----------------------------------------------------------
+                    Pleave[j][J->klo].x = J->bubble->pressure + gamma * J->curvature;
                 }
                 else
                 {
-                    //! entering the bubble: take the first curvature
-                    assert(B[j][K->klo]<=0);
-                    Penter[j][K->khi].x = bubble->pressure + gamma * K->curvature;
+                    assert(B[j][J->khi]>0);
+                    //----------------------------------------------------------
+                    // we enter a bubble
+                    //----------------------------------------------------------
+                    Penter[j][K->khi].x = K->bubble->pressure + gamma * K->curvature;
                 }
-                inside = !inside;
             }
             J    = J->next;
         }
     }
     
-    return;
-    
     //--------------------------------------------------------------------------
     //
-    // vertical effective pressure
+    // horizontal effective pressure
     //
     //--------------------------------------------------------------------------
     for( unit_t i=X.lower;i<=X.upper;++i)
     {
         const Segment &seg     = Vert(i);
         const Junction *J      = seg.head;
-        bool            inside = B[Y.lower][i] > 0;
+        
         while(J)
         {
-            std::cerr << "J->klo=" << J->klo << "/Y.lower=" << Y.lower << std::endl;
-            size_t count = 1;
-            const Junction *K  = J; //!< first junction @J->klo
+            size_t          count = 1;
+            const Junction *K     = J; //!< first junction @J->klo
             while(J->next && J->next->klo == J->klo )
             {
                 assert(J->bubble);
@@ -101,25 +104,31 @@ void Segmenter:: build_effective_pressure( const Array &B, VertexArray &Penter, 
             }
             if(count&1)
             {
-                const Bubble *bubble = J->bubble; assert(bubble);
-                if(inside)
+                //--------------------------------------------------------------
+                // we crossed a bubble: check K
+                //--------------------------------------------------------------
+                if( B[K->klo][i] > 0 )
                 {
-                    //! leaving the bubble: take the last curvature
-                    assert( B[J->klo][i]>0);
-                    Pleave[J->klo][i].y = bubble->pressure + gamma * J->curvature;
+                    assert(B[J->khi][i]<=0);
+                    //----------------------------------------------------------
+                    // we leave a bubble
+                    //----------------------------------------------------------
+                    Pleave[J->klo][i].y = J->bubble->pressure + gamma * J->curvature;
                 }
                 else
                 {
-                    //! entering the bubble: take the first curvature
-                    assert(B[K->klo][i]<=0);
-                    Penter[K->khi][i].y = bubble->pressure + gamma * K->curvature;
+                    assert(B[J->khi][i]>0);
+                    //----------------------------------------------------------
+                    // we enter a bubble
+                    //----------------------------------------------------------
+                    Penter[K->khi][i].x = K->bubble->pressure + gamma * K->curvature;
                 }
-                inside = !inside;
+
             }
-            J    = J->next;
+            J=J->next;
         }
     }
-
+    
     
     
 }
