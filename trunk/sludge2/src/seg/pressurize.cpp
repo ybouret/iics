@@ -132,8 +132,8 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
                     fp("Penter[%d][%d].y=%g\n", K->khi, i, Penter[K->khi][i].y );
 
                 }
-
             }
+            
             J=J->next;
         }
     }
