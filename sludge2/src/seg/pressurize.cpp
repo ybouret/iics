@@ -20,7 +20,7 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
     
     for( const Marker *m = markers.head;m;m=m->next)
     {
-
+        
         const Bubble *bubble = m->bubble; assert(bubble);
         P[m->inside.y][m->inside.x] = bubble->pressure;
 #if 0
@@ -130,7 +130,7 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
                     //----------------------------------------------------------
                     Penter[K->khi][i].y = K->bubble->pressure + gamma * K->curvature;
                     fp("Penter[%d][%d].y=%g\n", K->khi, i, Penter[K->khi][i].y );
-
+                    
                 }
             }
             
@@ -138,6 +138,21 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
         }
     }
     
+    {
+        ios::ocstream fp2("pvert.dat",false);
+        
+        for( unit_t i=X.lower;i<=X.upper;++i)
+        {
+            fp2("@i=%d\n", i);
+            for( unit_t j=Y.lower;j<=Y.upper;++j)
+            {
+                if( Penter[j][i].y > 0 )
+                    fp2("Penter[%d][%d].y=%g\n", j, i, Penter[j][i].y);
+                if( Pleave[j][i].y > 0 )
+                    fp2("Pleave[%d][%d].y=%g\n", j, i, Pleave[j][i].y);
+            }
+        }
+    }
     
     
 }

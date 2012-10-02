@@ -104,7 +104,7 @@ void Cell:: compute_pressure(const mpi &MPI )
     // Boundary conditions: initial pressure
     //
     //==========================================================================
-    ios::ocstream fp("pvert.dat",false);
+    ios::ocstream fp("py-eff.dat",false);
     
     for( unit_t i=X.lower;i<=X.upper;++i)
     {
