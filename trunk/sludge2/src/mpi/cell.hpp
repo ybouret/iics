@@ -36,6 +36,9 @@ public:
     //! save gnuplot B field
     void save_B( const string &filename ) const;
     
+    //! save gnuplot B field, for outline
+    void save_outB( const string &filename ) const;
+    
     //! compute P gradient from bubbles + boundary conditions
     void compute_gradP();
     

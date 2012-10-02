@@ -66,6 +66,21 @@ void Cell:: save_B( const string &filename ) const
     }
 }
 
+void Cell:: save_outB( const string &filename ) const
+{
+    ios::ocstream fp( filename, false);
+    for( unit_t j=Y.lower;j<=Y.upper;++j)
+    {
+        for(unit_t i=X.lower;i<=X.upper;++i)
+        {
+            if( B[j][i]>0 )
+            {
+                fp("%g %g\n", X[i], Y[j] );
+            }
+        }
+    }
+}
+
 
 void Cell:: legalize(const yocto::mpi &MPI)
 {
