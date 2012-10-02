@@ -37,5 +37,18 @@ void Cell:: dispatch( const mpi &MPI )
     MPI.Printf0(stderr,"\t\tsync effective pressure...\n");
     sync1(MPI,Penter);
     sync1(MPI,Pleave);
+    ios::ocstream fp("py-sync.dat",false);
     
+    for( unit_t i=X.lower;i<=X.upper;++i)
+    {
+        fp("@i=%d\n", i);
+        for( unit_t j=Y.lower;j<=Y.upper;++j)
+        {
+            if( Penter[j][i].y > 0 )
+                fp("Penter[%d][%d].y=%g\n", j, i, Penter[j][i].y);
+            if( Pleave[j][i].y > 0 )
+                fp("Pleave[%d][%d].y=%g\n", j, i, Pleave[j][i].y);
+        }
+    }
+
 }
