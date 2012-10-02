@@ -65,7 +65,7 @@ Real Cell:: P_lower( unit_t j, unit_t i) const throw()
         // leaving a bubble along y
         if( Pleave[jm][i].y != 1)
         {
-            fprintf(stderr,"Invalid Pleave[%d][%d].y=%g\n", jm, i, Pleave[jm][i].y );
+            fprintf(stderr,"P_lower::Invalid Pleave[%d][%d].y=%g\n", jm, i, Pleave[jm][i].y );
             abort();
         }
         return Pleave[jm][i].y;
@@ -89,7 +89,7 @@ Real Cell:: P_upper( unit_t j, unit_t i) const throw()
         // entering a bubble along y
         if( Penter[jp][i].y != 1)
         {
-            fprintf(stderr,"Invalid Penter[%d][%d].y=%g\n", jp, i, Penter[jp][i].y );
+            fprintf(stderr,"P_upper::Invalid Penter[%d][%d].y=%g\n", jp, i, Penter[jp][i].y );
             abort();
         }
         return Penter[jp][i].y;
@@ -104,6 +104,19 @@ void Cell:: compute_pressure(const mpi &MPI )
     // Boundary conditions: initial pressure
     //
     //==========================================================================
+    ios::ocstream fp("pvert.dat",false);
+    
+    for( unit_t i=X.lower;i<=X.upper;++i)
+    {
+        fp("@i=%d\n", i);
+        for( unit_t j=Y.lower;j<=Y.upper;++j)
+        {
+            if( Penter[j][i].y > 0 )
+                fp("Penter[%d][%d].y=%g\n", j, i, Penter[j][i].y);
+            if( Pleave[j][i].y > 0 )
+                fp("Pleave[%d][%d].y=%g\n", j, i, Pleave[j][i].y);
+        }
+    }
     
     
     //--------------------------------------------------------------------------
@@ -147,7 +160,7 @@ void Cell:: compute_pressure(const mpi &MPI )
                         const Real P0      = P_ji;
                         const Real mid     = -(P0+P0);
 #if 1
-                        const Real p_left  = P_left(j, i);
+                        const Real p_left  = P_left( j,i);
                         const Real p_right = P_right(j,i);
                         const Real p_lower = P_lower(j,i);
                         const Real p_upper = P_upper(j,i);

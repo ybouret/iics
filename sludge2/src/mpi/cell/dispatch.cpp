@@ -3,7 +3,7 @@
 
 void Cell:: dispatch( const mpi &MPI )
 {
-    MPI.PrintfI(stderr, "layout: (%d,%d) -> (%d,%d)\n", lower.x, lower.y,upper.x,upper.y);
+    //MPI.PrintfI(stderr, "layout: (%d,%d) -> (%d,%d)\n", lower.x, lower.y,upper.x,upper.y);
     MPI.Printf0(stderr, "\tdispatch %u bubbles...\n", unsigned(bubbles.count()));
     bubbles.dispatch(MPI);
     
@@ -22,7 +22,7 @@ void Cell:: dispatch( const mpi &MPI )
     
 
     
-    MPI.Printf0(stderr, "\tsync bubble field...\n");
+    MPI.Printf0(stderr, "\t\tsync bubble field...\n");
     sync1(MPI,B);
 
 #if 1
@@ -34,6 +34,7 @@ void Cell:: dispatch( const mpi &MPI )
     MPI.Printf0(stderr,"\tbuilding effective pressure...\n");
     segmenter.build_effective_pressure(B, P, Penter, Pleave);
     
+    MPI.Printf0(stderr,"\t\tsync effective pressure...\n");
     sync1(MPI,Penter);
     sync1(MPI,Pleave);
     
