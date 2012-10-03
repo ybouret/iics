@@ -3,7 +3,7 @@
 
 void Cell:: dispatch( const mpi &MPI )
 {
-    //MPI.PrintfI(stderr, "layout: (%d,%d) -> (%d,%d)\n", lower.x, lower.y,upper.x,upper.y);
+    MPI.PrintfI(stderr, "layout: (%d,%d) -> (%d,%d)\n", lower.x, lower.y,upper.x,upper.y);
     MPI.Printf0(stderr, "\tdispatch %u bubbles...\n", unsigned(bubbles.count()));
     bubbles.dispatch(MPI);
     
@@ -34,11 +34,21 @@ void Cell:: dispatch( const mpi &MPI )
     MPI.Printf0(stderr,"\tbuilding effective pressure...\n");
     segmenter.build_effective_pressure(B, P, Penter, Pleave);
     
-    MPI.Printf0(stderr,"\t\tsync effective pressure...\n");
-    sync1(MPI,Penter);
-    sync1(MPI,Pleave);
-    ios::ocstream fp("py-sync.dat",false);
+    // no need to sync effective pressure, computed locally !!!
     
+    //MPI.Printf0(stderr,"\t\tsync effective pressure...\n");
+    
+    
+    //save_effective("eff-core.vtk");
+    
+    //sync1(MPI,Penter);
+    //sync1(MPI,Pleave);
+    
+    //save_effective("eff-sync.vtk");
+
+    
+#if 0
+    ios::ocstream fp("pvert-sync.dat",false);
     for( unit_t i=X.lower;i<=X.upper;++i)
     {
         fp("@i=%d\n", i);
@@ -50,5 +60,20 @@ void Cell:: dispatch( const mpi &MPI )
                 fp("Pleave[%d][%d].y=%g\n", j, i, Pleave[j][i].y);
         }
     }
+#endif
+    
+}
 
+
+void Cell:: save_effective( const string &filename) const
+{
+    
+    variables pvar;
+    pvar.append("Penter");
+    pvar.append("Pleave");
+
+    const Workspace &wksp = *this;
+    const string     title = "effective";
+    vtk.save<Layout,Real>(filename, title, wksp, pvar, outline);
+    
 }

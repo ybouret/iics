@@ -104,6 +104,7 @@ void Cell:: compute_pressure(const mpi &MPI )
     // Boundary conditions: initial pressure
     //
     //==========================================================================
+#if 0
     ios::ocstream fp("py-eff.dat",false);
     
     for( unit_t i=X.lower;i<=X.upper;++i)
@@ -117,7 +118,7 @@ void Cell:: compute_pressure(const mpi &MPI )
                 fp("Pleave[%d][%d].y=%g\n", j, i, Pleave[j][i].y);
         }
     }
-    
+#endif
     
     //--------------------------------------------------------------------------
     // boundary conditions
