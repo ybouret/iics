@@ -11,7 +11,7 @@ void Bubbles:: dispatch(const mpi &MPI )
     {
         num_bubbles = bubbles.size;
     }
-    MPI.__Bcast(num_bubbles, 0, MPI_COMM_WORLD);
+    MPI.Bcast(num_bubbles, 0, MPI_COMM_WORLD);
     
     //--------------------------------------------------------------------------
     // prepare bubbles on slaves
@@ -43,7 +43,7 @@ void Bubbles:: assemble( const mpi & MPI )
     {
         num_bubbles = bubbles.size;
     }
-    MPI.__Bcast(num_bubbles, 0, MPI_COMM_WORLD);
+    MPI.Bcast(num_bubbles, 0, MPI_COMM_WORLD);
     assert( num_bubbles == bubbles.size );
 #endif
     

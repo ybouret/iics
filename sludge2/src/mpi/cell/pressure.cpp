@@ -160,7 +160,7 @@ void Cell:: compute_pressure(const mpi &MPI )
                         Real      &P_ji    = P_j[i];
                         const Real P0      = P_ji;
                         const Real mid     = -(P0+P0);
-#if 1
+#if 0
                         const Real p_left  = P_left( j,i);
                         const Real p_right = P_right(j,i);
                         const Real p_lower = P_lower(j,i);

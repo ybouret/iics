@@ -19,7 +19,7 @@ void Bubble:: dispatch(const mpi &MPI)
     {
         empty();            // for slaves
     }
-    MPI.__Bcast(num_tracers, 0, MPI_COMM_WORLD );
+    MPI.Bcast(num_tracers, 0, MPI_COMM_WORLD );
     
     //--------------------------------------------------------------------------
     // create tracers on slave
@@ -54,7 +54,7 @@ void Bubble:: assemble( const mpi &MPI )
     size_t num_tracers = 0;
     if( MPI.IsMaster )
         num_tracers = size;
-    MPI.__Bcast(num_tracers, 0, MPI_COMM_WORLD );
+    MPI.Bcast(num_tracers, 0, MPI_COMM_WORLD );
     assert( size == num_tracers );
 #endif
     
@@ -66,7 +66,7 @@ void Bubble:: assemble( const mpi &MPI )
         MPI_Status status;
         for( int r = 1; r < MPI.CommWorldSize; ++r )
         {
-            const size_t num_spots = MPI.__Recv<size_t>(r, tag, MPI_COMM_WORLD, status);
+            const size_t num_spots = MPI.Recv<size_t>(r, tag, MPI_COMM_WORLD, status);
             //fprintf( stderr, "from %d: #spots=%u\n", r, unsigned(num_spots));
             
             Tracer *tracer = root;
@@ -75,7 +75,7 @@ void Bubble:: assemble( const mpi &MPI )
                 //--------------------------------------------------------------
                 // get jump
                 //--------------------------------------------------------------
-                const size_t jump = MPI.__Recv<size_t>(r,tag,MPI_COMM_WORLD,status);
+                const size_t jump = MPI.Recv<size_t>(r,tag,MPI_COMM_WORLD,status);
                 
                 //--------------------------------------------------------------
                 // find right tracer
@@ -104,13 +104,13 @@ void Bubble:: assemble( const mpi &MPI )
         //----------------------------------------------------------------------
         // send #slots
         //----------------------------------------------------------------------
-        MPI.__Send<size_t>(spots.size, 0, tag, MPI_COMM_WORLD);
+        MPI.Send<size_t>(spots.size, 0, tag, MPI_COMM_WORLD);
         for( const Spot *spot = spots.head; spot; spot=spot->next )
         {
             //------------------------------------------------------------------
             // send jump
             //------------------------------------------------------------------
-            MPI.__Send<size_t>( spot->jump, 0, tag, MPI_COMM_WORLD);
+            MPI.Send<size_t>( spot->jump, 0, tag, MPI_COMM_WORLD);
             
             //------------------------------------------------------------------
             // send vertex
