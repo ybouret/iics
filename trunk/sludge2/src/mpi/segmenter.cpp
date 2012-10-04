@@ -2,7 +2,17 @@
 
 void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
 {
-    if( MPI.IsFinal )
+    static const int tag = 0xD15;
+    const int source = MPI.CommWorldLast;
+    const int target = 0;
+    const int rank   = MPI.CommWorldRank;
+    const bool is_source = rank == source;
+    const bool is_target = rank == target;
+    
+    
+    MPI_Request      request;
+    unsigned long    count = 0;
+    if( is_source )
     {
         //----------------------------------------------------------------------
         // encoding extraneous vertical junctions
@@ -21,18 +31,30 @@ void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
                 J = J->prev;
             }
         }
-        const size_t count = jcom.size();
-        if(count>0)
+        count = jcom.size();
+        fprintf( stderr, "\t@source: Need to send %lu >= %g\n",count,cell.Y[cell.upper.y] );
+        for(size_t i=1;i<=count;++i)
         {
-            fprintf( stderr, "Need to send %lu >= %g\n",count,cell.Y[cell.upper.y] );
-            for(size_t i=1;i<=count;++i)
-            {
-                fprintf( stderr , "\t@%ld: bubble #%u: y=%g\n", jcom[i].i, jcom[i].b, jcom[i].y);
-            }
+            fprintf( stderr , "\t\t@%ld: bubble #%u: y=%g\n", jcom[i].i, jcom[i].b, jcom[i].y);
         }
+        MPI.Isend(&count, 1, MPI_UNSIGNED_LONG, target, tag, MPI_COMM_WORLD, request);
     }
     
+    if( is_target )
+    {
+        MPI.Irecv(&count, 1, MPI_UNSIGNED_LONG, source, tag, MPI_COMM_WORLD, request);
+    }
     
+    if( is_source || is_target )
+    {
+        MPI_Status status;
+        MPI.Wait(request, status);
+    }
+    
+    if( is_target)
+    {
+        fprintf( stderr, "\t@target: Need to recv %lu\n",count );
+    }
     
     
 }
