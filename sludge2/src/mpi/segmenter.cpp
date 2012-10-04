@@ -20,14 +20,15 @@ void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
         //----------------------------------------------------------------------
         // encoding extraneous vertical junctions
         //----------------------------------------------------------------------
-        const Real ylim = cell.Y[cell.upper.y];
+        const Real ylo = cell.Y[cell.upper.y-1];
+        const Real yhi = cell.Y[cell.upper.y+1];
         jsend.free();
         assert(0==jsend.size());
         for( unit_t i=X.lower;i<=X.upper;++i)
         {
             const  Segment &seg = Vert(i);
             const  Junction *J  = seg.tail;
-            while( J && J->vertex.y >=  ylim)
+            while( J && J->vertex.y >=  ylo && J->vertex.y < yhi)
             {
                 const JPack jpack(i,J);
                 jsend.push_back(jpack);
@@ -39,7 +40,7 @@ void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
         // sending #count to target
         //----------------------------------------------------------------------
         count = jsend.size();
-        fprintf( stderr, "\t@source: Need to send %lu >= %g\n",count,ylim);
+        fprintf( stderr, "\t@source: Need to send %lu\n",count);
         for(size_t i=1;i<=count;++i)
         {
             const JPack &jpack = jsend[i];
