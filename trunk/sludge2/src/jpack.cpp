@@ -1,5 +1,11 @@
 #include "jpack.hpp"
 
+JPack:: JPack() throw() :
+i(0),
+b(0),
+y(0)
+{
+}
 
 JPack:: ~JPack() throw() {}
 

@@ -7,6 +7,7 @@
 class JPack
 {
 public:
+    JPack() throw(); //!< create an invalid Jpack (b=0)
     JPack( unit_t idx, const Junction *J ) throw();
     ~JPack() throw();
     JPack( const JPack &) throw();
