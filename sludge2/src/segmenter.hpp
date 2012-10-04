@@ -68,6 +68,9 @@ public:
     void dispatch_vertical_junctions( const mpi &MPI, Cell &cell );
 #endif
     
+    void SortHorz();
+    void SortVert();
+    
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Segmenter);
     Segment::Ptr   *hseg;

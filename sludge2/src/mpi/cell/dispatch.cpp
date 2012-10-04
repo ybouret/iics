@@ -16,7 +16,8 @@ void Cell:: dispatch( const mpi &MPI )
     
     MPI.Printf0(stderr, "\tsegmentation...\n");
     segmenter.process(bubbles);
-    
+    segmenter.save( vformat("core-j%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
+
     
     MPI.Printf0(stderr, "\tbuild bubble field...\n");
     segmenter.build_bubbles_field(B);
@@ -31,7 +32,7 @@ void Cell:: dispatch( const mpi &MPI )
     sync1(MPI,B);
 
 #if 1
-    segmenter.save( vformat("j%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
+    segmenter.save( vformat("sync-j%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
     save_outB( vformat("sync-b%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
 #endif
 
@@ -40,38 +41,7 @@ void Cell:: dispatch( const mpi &MPI )
     segmenter.build_effective_pressure(B, P, Penter, Pleave);
     
     save_effectiveY("core");
-    sync1(MPI,Penter);
-    sync1(MPI,Pleave);
-    save_effectiveY("sync");
-    
-    // no need to sync effective pressure, computed locally !!!
-    
-    //MPI.Printf0(stderr,"\t\tsync effective pressure...\n");
-    
-    
-    //save_effective("eff-core.vtk");
-    
-    //sync1(MPI,Penter);
-    //sync1(MPI,Pleave);
-    
-    //save_effective("eff-sync.vtk");
-
-    
-#if 0
-    ios::ocstream fp("pvert-sync.dat",false);
-    for( unit_t i=X.lower;i<=X.upper;++i)
-    {
-        fp("@i=%d\n", i);
-        for( unit_t j=Y.lower;j<=Y.upper;++j)
-        {
-            if( Penter[j][i].y > 0 )
-                fp("Penter[%d][%d].y=%g\n", j, i, Penter[j][i].y);
-            if( Pleave[j][i].y > 0 )
-                fp("Pleave[%d][%d].y=%g\n", j, i, Pleave[j][i].y);
-        }
-    }
-#endif
-    
+        
 }
 
 

@@ -13,6 +13,22 @@ int __compare_vert( const Junction *lhs, const Junction *rhs, void * ) throw()
     return __compare<Real>(lhs->vertex.y,rhs->vertex.y);
 }
 
+void Segmenter:: SortHorz()
+{
+    for( unit_t j=Y.lower;j<=Y.upper;++j)
+    {
+        core::merging<Junction>::sort( Horz(j), __compare_horz,0);
+    }
+}
+
+void Segmenter:: SortVert()
+{
+    for(unit_t i=X.lower;i<=X.upper;++i)
+    {
+        core::merging<Junction>::sort( Vert(i), __compare_vert,0);
+    }
+}
+
 void Segmenter:: process( const Bubbles &bubbles )
 {
     assert(hseg!=NULL);
@@ -36,15 +52,8 @@ void Segmenter:: process( const Bubbles &bubbles )
     //--------------------------------------------------------------------------
     // sort junctions
     //--------------------------------------------------------------------------
-    for( unit_t j=Y.lower;j<=Y.upper;++j)
-    {
-        core::merging<Junction>::sort( Horz(j), __compare_horz,0);
-    }
-    
-    for(unit_t i=X.lower;i<=X.upper;++i)
-    {
-        core::merging<Junction>::sort( Vert(i), __compare_vert,0);
-    }
+    SortHorz();
+    SortVert();
     
     //--------------------------------------------------------------------------
     // locate Horizontal junctions (for building B field + gradient eval)

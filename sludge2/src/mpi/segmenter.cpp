@@ -3,33 +3,34 @@
 void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
 {
     static const int tag = 0xD15;
-    const int  source = MPI.CommWorldLast;
-    const int  target = 0;
-    const int  rank   = MPI.CommWorldRank;
-    const bool is_source = rank == source;
-    const bool is_target = rank == target;
-    //const bool is_active = is_source || is_target;
+    const int  source    = MPI.CommWorldLast;
+    const int  target    = 0;
+    const int  rank      = MPI.CommWorldRank;
+    const bool is_source = (rank == source);
+    const bool is_target = (rank == target);
     
     
     MPI_Request      source_request;
     MPI_Request      target_request;
     unsigned long    count = 0;
-    vector<JPack>   &jcom  = cell.jcom;
+    vector<JPack>   &jsend = cell.jsend;
+    vector<JPack>   &jrecv = cell.jrecv;
     if( is_source )
     {
         //----------------------------------------------------------------------
         // encoding extraneous vertical junctions
         //----------------------------------------------------------------------
-        jcom.free();
-        assert(0==jcom.size());
+        const Real ylim = cell.Y[cell.upper.y];
+        jsend.free();
+        assert(0==jsend.size());
         for( unit_t i=X.lower;i<=X.upper;++i)
         {
             const  Segment &seg = Vert(i);
             const  Junction *J  = seg.tail;
-            while( J && J->vertex.y >= cell.Y[cell.upper.y] )
+            while( J && J->vertex.y >=  ylim)
             {
                 const JPack jpack(i,J);
-                jcom.push_back(jpack);
+                jsend.push_back(jpack);
                 J = J->prev;
             }
         }
@@ -37,11 +38,12 @@ void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
         //----------------------------------------------------------------------
         // sending #count to target
         //----------------------------------------------------------------------
-        count = jcom.size();
-        fprintf( stderr, "\t@source: Need to send %lu >= %g\n",count,cell.Y[cell.upper.y] );
+        count = jsend.size();
+        fprintf( stderr, "\t@source: Need to send %lu >= %g\n",count,ylim);
         for(size_t i=1;i<=count;++i)
         {
-            fprintf( stderr , "\t\t-->@%ld: bubble #%u: y=%g\n", jcom[i].i, jcom[i].b, jcom[i].y);
+            const JPack &jpack = jsend[i];
+            fprintf( stderr , "\t\t-->@%ld: bubble #%u: y=%g, c=%g\n", jpack.i, jpack.b, jpack.y, jpack.c);
         }
         MPI.Isend(&count, 1, MPI_UNSIGNED_LONG, target, tag, MPI_COMM_WORLD, source_request);
     }
@@ -66,7 +68,7 @@ void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
         //----------------------------------------------------------------------
         // send data to target
         //----------------------------------------------------------------------
-        MPI.Isend( jcom(), count * sizeof(JPack), MPI_BYTE, target, tag, MPI_COMM_WORLD, source_request);
+        MPI.Isend( jsend(), count * sizeof(JPack), MPI_BYTE, target, tag, MPI_COMM_WORLD, source_request);
     }
     
     if( is_target)
@@ -82,16 +84,12 @@ void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
         //----------------------------------------------------------------------
         fprintf( stderr, "\t@target: Need to recv %lu\n",count );
         const JPack invalid_jpack;
-        jcom.make( count, invalid_jpack);
-        MPI.Irecv( jcom(), count * sizeof(JPack), MPI_BYTE, source, tag, MPI_COMM_WORLD, target_request);
+        jrecv.make( count, invalid_jpack);
+        MPI.Irecv( jrecv(), count * sizeof(JPack), MPI_BYTE, source, tag, MPI_COMM_WORLD, target_request);
+        //MPI.Recv( jcom(), count * sizeof(JPack), MPI_BYTE, source, tag, MPI_COMM_WORLD);
     }
     
-    if( is_source )
-    {
-        MPI_Status status;
-        MPI.Wait(source_request, status);
-        // source is done
-    }
+  
     
     if( is_target )
     {
@@ -99,9 +97,31 @@ void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
         MPI.Wait(target_request, status);
         for( size_t k=1;k<=count;++k)
         {
-            const JPack &jpack = jcom[k];
-            fprintf( stderr , "\t\t<--@%ld: bubble #%u: y=%g\n", jpack.i, jpack.b, jpack.y);
+            const JPack &jpack = jrecv[k];
+            fprintf( stderr , "\t\t<--@%ld: bubble #%u: y=%g, c=%g\n", jpack.i, jpack.b, jpack.y-cell.pbc.L,jpack.c);
+            Junction *J  = Vert(jpack.i).append();
+            J->vertex.x  = X[jpack.i];
+            J->vertex.y  = jpack.y - cell.pbc.L;
+            J->curvature = jpack.c;
+            J->n         = jpack.n;
+            J->bubble    = cell.bubbles.first();
+            assert(jpack.b>0);
+            for(size_t ii=jpack.b;ii>1;--ii)
+            {
+                J->bubble = J->bubble->next;
+                assert(J->bubble);
+            }
+            locate_value( J->vertex.y, Y, J->klo, J->khi);
         }
+        SortVert(); 
+        // target is done
+    }
+    
+    if( is_source )
+    {
+        MPI_Status status;
+        MPI.Wait(source_request, status);
+        // source is done
     }
     
 }

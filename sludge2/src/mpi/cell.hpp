@@ -30,7 +30,8 @@ public:
     const Real     ymin;
     const Real     ymax;
     vtk_writer     vtk;
-    vector<JPack>  jcom;
+    vector<JPack>  jsend;
+    vector<JPack>  jrecv;
     
     //! broadcast, find spots and bubbles, sync B field
     void dispatch( const mpi &MPI );
