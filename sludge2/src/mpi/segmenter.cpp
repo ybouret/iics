@@ -1,26 +1,34 @@
 #include "cell.hpp"
 
-void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, const Cell &cell )
+void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
 {
     if( MPI.IsFinal )
     {
+        //----------------------------------------------------------------------
+        // encoding extraneous vertical junctions
+        //----------------------------------------------------------------------
+        vector<JPack> &jcom = cell.jcom;
+        jcom.free();
+        assert(0==jcom.size());
         for( unit_t i=X.lower;i<=X.upper;++i)
         {
             const  Segment &seg = Vert(i);
-            size_t count        = 0;
             const  Junction *J  = seg.tail;
             while( J && J->vertex.y >= cell.Y[cell.upper.y] )
             {
-                ++count;
+                const JPack jpack(i,J);
+                jcom.push_back(jpack);
                 J = J->prev;
             }
-            if(count>0)
-            {
-                fprintf( stderr, "@i=%ld, Need to send %lu\n",i,count);
-            }
         }
-        
+        const size_t count = jcom.size();
+        if(count>0)
+        {
+            fprintf( stderr, "Need to send %lu >= %g\n",count,cell.Y[cell.upper.y] );
+        }
     }
+    
+    
     
     
 }

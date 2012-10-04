@@ -65,7 +65,7 @@ public:
     
     
 #if defined(HAS_MPI)
-    void dispatch_vertical_junctions( const mpi &MPI, const Cell &cell );
+    void dispatch_vertical_junctions( const mpi &MPI, Cell &cell );
 #endif
     
 private:

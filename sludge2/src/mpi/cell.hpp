@@ -4,6 +4,7 @@
 #include "../parameters.hpp"
 #include "yocto/spade/mpi/workspace.hpp"
 #include "yocto/spade/vtk/writer.hpp"
+#include "../jpack.hpp"
 
 typedef mpi_workspace<Layout,rmesh,Real> Workspace;
 
@@ -29,6 +30,7 @@ public:
     const Real     ymin;
     const Real     ymax;
     vtk_writer     vtk;
+    vector<JPack>  jcom;
     
     //! broadcast, find spots and bubbles, sync B field
     void dispatch( const mpi &MPI );
