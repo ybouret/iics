@@ -66,7 +66,12 @@ public:
     Real P_lower( unit_t j, unit_t i) const throw();  //!< at j-1,i: assuming j,i in the bulk
     Real P_upper( unit_t j, unit_t i) const throw();  //!< at j+1,i: assuming j,i in the bulk
 
+    //! for debugging: VTK fields
     void save_effective(const string &filename) const;
+    
+    //! save where Penter.y and Pleave.y > 0, gnuplot style
+    void save_effectiveY(const string &prefix) const;
+    
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);
