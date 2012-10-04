@@ -12,7 +12,9 @@ void Simulation:: step()
         {
             Tracer *tracer = s->handle;
             Vertex &v      = tracer->vertex;
-            v.y -= 0.05;
+            
+            
+            v.y += 0.05;
         }
     }
     
@@ -29,7 +31,5 @@ void Simulation:: step()
     
     //-- legalize new config
     legalize(MPI);
-    
-    
-    
+        
 }

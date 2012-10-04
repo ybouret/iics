@@ -1,5 +1,7 @@
 #include "../cell.hpp"
 
+#define DEBUG_EFFECTIVE
+
 Real Cell:: P_left( unit_t j, unit_t i) const throw()
 {
     assert(i>X.lower);
@@ -14,12 +16,14 @@ Real Cell:: P_left( unit_t j, unit_t i) const throw()
     }
     else
     {
+#if defined(DEBUG_EFFECTIVE)
         // leaving a bubble along x
         if( Pleave[j][im].x != 1)
         {
             fprintf(stderr,"Invalid Pleave[%d][%d].x=%g\n", j, im, Pleave[j][im].x );
             abort();
         }
+#endif
         return Pleave[j][im].x;
     }
 }
@@ -38,12 +42,15 @@ Real Cell:: P_right( unit_t j, unit_t i) const throw()
     }
     else
     {
+#if defined(DEBUG_EFFECTIVE)
+
         // entering a bubble along x
         if( Penter[j][ip].x != 1)
         {
             fprintf(stderr,"Invalid Penter[%d][%d].x=%g\n", j, ip, Penter[j][ip].x );
-            abort();
+            //abort();
         }
+#endif
         return Penter[j][ip].x;
     }
 }
@@ -62,12 +69,14 @@ Real Cell:: P_lower( unit_t j, unit_t i) const throw()
     }
     else
     {
+#if defined(DEBUG_EFFECTIVE)
         // leaving a bubble along y
         if( Pleave[jm][i].y != 1)
         {
             fprintf(stderr,"P_lower::Invalid Pleave[%d][%d].y=%g\n", jm, i, Pleave[jm][i].y );
             abort();
         }
+#endif
         return Pleave[jm][i].y;
     }
 }
@@ -86,12 +95,14 @@ Real Cell:: P_upper( unit_t j, unit_t i) const throw()
     }
     else
     {
+#if defined(DEBUG_EFFECTIVE)
         // entering a bubble along y
         if( Penter[jp][i].y != 1)
         {
             fprintf(stderr,"P_upper::Invalid Penter[%d][%d].y=%g\n", jp, i, Penter[jp][i].y );
             abort();
         }
+#endif
         return Penter[jp][i].y;
     }
 }
@@ -145,7 +156,7 @@ void Cell:: compute_pressure(const mpi &MPI )
                         Real      &P_ji    = P_j[i];
                         const Real P0      = P_ji;
                         const Real mid     = -(P0+P0);
-#if 0
+#if 1
                         const Real p_left  = P_left( j,i);
                         const Real p_right = P_right(j,i);
                         const Real p_lower = P_lower(j,i);
