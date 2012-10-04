@@ -11,7 +11,7 @@ void Bubble:: dispatch(const mpi &MPI)
     // broadcast num tracers
     //--------------------------------------------------------------------------
     size_t num_tracers = 0;
-    if( MPI.IsMaster )
+    if( MPI.IsFirst )
     {
         num_tracers = size; // from master
     }
@@ -24,7 +24,7 @@ void Bubble:: dispatch(const mpi &MPI)
     //--------------------------------------------------------------------------
     // create tracers on slave
     //--------------------------------------------------------------------------
-    if( !MPI.IsMaster )
+    if( !MPI.IsFirst )
     {
         for(size_t i=num_tracers;i>0;--i)
             append()->bubble = this;
@@ -52,13 +52,13 @@ void Bubble:: assemble( const mpi &MPI )
     static const int tag = 0xA55E;
 #if !defined(NDEBUG)
     size_t num_tracers = 0;
-    if( MPI.IsMaster )
+    if( MPI.IsFirst )
         num_tracers = size;
     MPI.Bcast(num_tracers, 0, MPI_COMM_WORLD );
     assert( size == num_tracers );
 #endif
     
-    if( MPI.IsMaster )
+    if( MPI.IsFirst )
     {
         //----------------------------------------------------------------------
         // loop over slaves

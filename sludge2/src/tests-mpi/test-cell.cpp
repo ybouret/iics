@@ -23,7 +23,7 @@ YOCTO_UNIT_TEST_IMPL(cell)
     //--------------------------------------------------------------------------
     // create the bubble(s) on master
     //--------------------------------------------------------------------------
-    if( MPI.IsMaster)
+    if( MPI.IsFirst)
     {
         //pA.reset( new standalone<Array>( cell.full_layout));
         var.append("B");
@@ -51,7 +51,7 @@ YOCTO_UNIT_TEST_IMPL(cell)
     cell.compute_pressure(MPI);
     mpi_collect0::get(MPI, pB, cell.B, cell.full_layout);
     mpi_collect0::get(MPI, pP, cell.P, cell.full_layout);
-    if( MPI.IsMaster)
+    if( MPI.IsFirst)
     {
         vtk.save("org.vtk", "org", *pW, var, cell.full_layout);
     }
@@ -67,7 +67,7 @@ YOCTO_UNIT_TEST_IMPL(cell)
     cell.bubbles.first()->save_vtk_n( vformat("b%d.%d-n.vtk", MPI.CommWorldSize,MPI.CommWorldRank));
     cell.bubbles.first()->save_vtk_t( vformat("b%d.%d-t.vtk", MPI.CommWorldSize,MPI.CommWorldRank));
 
-    if( MPI.IsMaster)
+    if( MPI.IsFirst)
     {
         Bubble *b      = bubbles.first();
         Vertex  center(L.x/2,L.y/2);
@@ -82,7 +82,7 @@ YOCTO_UNIT_TEST_IMPL(cell)
     cell.compute_pressure(MPI);
     mpi_collect0::get(MPI, pB, cell.B, cell.full_layout);
     mpi_collect0::get(MPI, pP, cell.P, cell.full_layout);
-    if( MPI.IsMaster)
+    if( MPI.IsFirst)
     {
         vtk.save("mov.vtk", "mov", *pW, var, cell.full_layout);
     }

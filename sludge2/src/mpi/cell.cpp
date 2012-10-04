@@ -13,8 +13,8 @@ Parameters(N,L,MPI.CommWorldRank,MPI.CommWorldSize),
 Workspace( sim_layout, sim_fields, sim_ghosts ),
 X( mesh.X() ),
 Y( mesh.Y() ),
-B(       (*this)["B"     ].as<Array>() ),
-P(       (*this)["P"     ].as<Array>() ),
+B(       (*this)["B"     ].as<Array>()       ),
+P(       (*this)["P"     ].as<Array>()       ),
 gradP(   (*this)["gradP" ].as<VertexArray>() ),
 U(       (*this)["U"     ].as<VertexArray>() ),
 Penter(  (*this)["Penter"].as<VertexArray>() ),
@@ -84,7 +84,7 @@ void Cell:: save_outB( const string &filename ) const
 
 void Cell:: legalize(const yocto::mpi &MPI)
 {
-    if( MPI.IsMaster )
+    if( MPI.IsFirst )
     {
         bubbles.update_topology();
     }
