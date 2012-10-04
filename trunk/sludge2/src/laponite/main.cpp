@@ -36,7 +36,7 @@ int main( int argc, char *argv[] )
         const Vertex L(3.0,5.0);
         Simulation   sim(MPI,N,L);
         MPI.PrintfI(stderr, "layout: (%d,%d) -> (%d,%d)\n", int(sim.lower.x),int(sim.lower.y),int(sim.upper.x),int(sim.upper.y));
-        MPI.__WaitFor(0.1);
+        MPI.WaitFor(0.1);
       
         SaveGrid( sim.mesh, vformat("g%d.%d.dat",sim.par_size,sim.par_rank));
         //----------------------------------------------------------------------

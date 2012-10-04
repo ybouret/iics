@@ -15,11 +15,11 @@ YOCTO_UNIT_TEST_IMPL(param)
     
     SaveGrid(grid, vformat("g%d.%d.dat", MPI.CommWorldSize, MPI.CommWorldRank) );
     
-    MPI.__WaitFor(MPI.CommWorldRank*0.5);
+    MPI.WaitFor(MPI.CommWorldRank*0.5);
     std::cerr << MPI.CommWorldSize << "." << MPI.CommWorldRank << std::endl;
     std::cerr << "full_layout: " << param.full_layout << std::endl;
     std::cerr << "sim_layout : " << param.sim_layout << std::endl;
-
+    
     std::cerr.flush();
     MPI.Barrier(MPI_COMM_WORLD);
 }

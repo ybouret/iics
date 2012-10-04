@@ -54,6 +54,7 @@ SET(SOURCES_MPI
 	mpi/bubbles.cpp
 	mpi/cell.hpp
 	mpi/cell.cpp
+	mpi/segmenter.cpp
 )
 SOURCE_GROUP( mpi FILES ${SOURCES_MPI} )
 

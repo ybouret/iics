@@ -6,6 +6,8 @@
 class Parameters
 {
 public:
+    static const size_t NUM_GHOSTS=2;
+    
     explicit Parameters(const Coord  &N,
                         const Vertex &L,
                         int           rank,

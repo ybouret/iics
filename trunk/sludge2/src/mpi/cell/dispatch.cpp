@@ -3,7 +3,7 @@
 
 void Cell:: dispatch( const mpi &MPI )
 {
-    MPI.PrintfI(stderr, "layout: (%d,%d) -> (%d,%d)\n", lower.x, lower.y,upper.x,upper.y);
+    MPI.PrintfI(stderr, "layout: (%ld,%ld) -> (%ld,%ld) | y:%g -> %g\n", lower.x, lower.y,upper.x,upper.y,Y[lower.y],Y[upper.y]);
     MPI.Printf0(stderr, "\tdispatch %u bubbles...\n", unsigned(bubbles.count()));
     bubbles.dispatch(MPI);
     
@@ -23,11 +23,12 @@ void Cell:: dispatch( const mpi &MPI )
 
     
     MPI.Printf0(stderr, "\t\tsync bubble field...\n");
+    save_outB( vformat("core-b%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
     sync1(MPI,B);
 
 #if 1
     segmenter.save( vformat("j%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
-    save_outB( vformat("b%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
+    save_outB( vformat("sync-b%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
 #endif
 
     

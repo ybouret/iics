@@ -62,6 +62,11 @@ public:
     size_t          num_junctions() const throw(); //!< for all current segments
     const Segments &operator()(void) const throw();
     
+    
+#if defined(HAS_MPI)
+    void dispatch_vertical_junctions( const mpi &MPI, const PBC &pbc );
+#endif
+    
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Segmenter);
     Segment::Ptr   *hseg;

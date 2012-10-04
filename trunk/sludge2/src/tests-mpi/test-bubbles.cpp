@@ -24,7 +24,7 @@ YOCTO_UNIT_TEST_IMPL(bubble)
     MPI.Printf0(stderr,"### Dispatching bubble\n");
     bubble->dispatch(MPI);
     MPI.Printf( stderr, "%d.%d: %08x\n",size,rank, uint32_t(bubble->get_hash(H)));
-    MPI.__WaitFor(0.1);
+    MPI.WaitFor(0.1);
     
     
     
@@ -77,7 +77,7 @@ YOCTO_UNIT_TEST_IMPL(bubbles)
     bubbles.dispatch(MPI);
     
     MPI.Printf( stderr, "%d.%d: %08x\n",size,rank, uint32_t(bubbles.get_hash(H)));
-    MPI.__WaitFor(0.1);
+    MPI.WaitFor(0.1);
 
     const Real ylo  = -5;
     const Real yhi  =  5;

@@ -56,13 +56,13 @@ sim_fields(4*sizeof(Real))
     {
         //-- parallel
         const int last = size-1;
-        sim_ghosts.set_async(ghost::at_lower_y, 2, rank <= 0    ?  last : (rank-1) );
-        sim_ghosts.set_async(ghost::at_upper_y, 2, rank >= last ?  0    : (rank+1) );
+        sim_ghosts.set_async(ghost::at_lower_y, NUM_GHOSTS, rank <= 0    ?  last : (rank-1) );
+        sim_ghosts.set_async(ghost::at_upper_y, NUM_GHOSTS, rank >= last ?  0    : (rank+1) );
     }
     else
     {
         //-- not parallel
-        sim_ghosts.set_local(on_y, 2);
+        sim_ghosts.set_local(on_y, NUM_GHOSTS);
     }
     
     //--------------------------------------------------------------------------
