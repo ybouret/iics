@@ -25,6 +25,10 @@ void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
         if(count>0)
         {
             fprintf( stderr, "Need to send %lu >= %g\n",count,cell.Y[cell.upper.y] );
+            for(size_t i=1;i<=count;++i)
+            {
+                fprintf( stderr , "\t@%ld: bubble #%u: y=%g\n", jcom[i].i, jcom[i].b, jcom[i].y);
+            }
         }
     }
     
