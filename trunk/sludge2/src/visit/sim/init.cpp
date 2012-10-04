@@ -4,7 +4,7 @@ void Simulation:: initialize()
 {
     
     bubbles.clear();
-    if( master )
+    if( is_first )
     {
         //-- create bubbles
         const Vertex center(full_length.x/3,0);

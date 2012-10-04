@@ -7,7 +7,7 @@ void Bubbles:: dispatch(const mpi &MPI )
     // broadcast num bubbles
     //--------------------------------------------------------------------------
     size_t num_bubbles = 0;
-    if( MPI.IsMaster )
+    if( MPI.IsFirst )
     {
         num_bubbles = bubbles.size;
     }
@@ -16,7 +16,7 @@ void Bubbles:: dispatch(const mpi &MPI )
     //--------------------------------------------------------------------------
     // prepare bubbles on slaves
     //--------------------------------------------------------------------------
-    if( !MPI.IsMaster )
+    if( !MPI.IsFirst )
     {
         create(num_bubbles);
     }
@@ -39,7 +39,7 @@ void Bubbles:: assemble( const mpi & MPI )
 {
 #if !defined(NDEBUG)
     size_t num_bubbles = 0;
-    if( MPI.IsMaster )
+    if( MPI.IsFirst )
     {
         num_bubbles = bubbles.size;
     }

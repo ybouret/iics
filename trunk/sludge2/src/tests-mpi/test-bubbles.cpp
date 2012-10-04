@@ -12,7 +12,7 @@ YOCTO_UNIT_TEST_IMPL(bubble)
     Bubble   *bubble = bubbles.append();
     hashing::sha1 H;
     
-    if( MPI.IsMaster)
+    if( MPI.IsFirst)
     {
         const Vertex center( 10*(0.5 - Alea()), 10*(0.5-Alea()));
         const Real   radius = 0.1 + 10 * Alea();
@@ -45,7 +45,7 @@ YOCTO_UNIT_TEST_IMPL(bubble)
     MPI.Printf0(stderr,"### Assembling bubble\n");
     bubble->assemble( MPI );
     
-    if( MPI.IsMaster)
+    if( MPI.IsFirst)
     {
         bubble->save_dat("b1.dat");
     }
@@ -62,7 +62,7 @@ YOCTO_UNIT_TEST_IMPL(bubbles)
     Bubbles   bubbles( pbc );
     hashing::sha1 H;
     
-    if( MPI.IsMaster)
+    if( MPI.IsFirst)
     {
         bubbles.create( 2 + 10 * Alea());
         for( Bubble *bubble = bubbles.first(); bubble; bubble=bubble->next )

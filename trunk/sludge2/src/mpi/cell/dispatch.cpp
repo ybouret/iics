@@ -4,7 +4,7 @@
 
 void Cell:: dispatch( const mpi &MPI )
 {
-    MPI.PrintfI(stderr, "layout: (%ld,%ld) -> (%ld,%ld) | y:%g -> %g\n", lower.x, lower.y,upper.x,upper.y,Y[lower.y],Y[upper.y]);
+    MPI.PrintfI(stderr, "layout: (%ld,%ld) -> (%ld,%ld) | y:%g -> %g | ymin=%g, ymax=%g\n", lower.x, lower.y,upper.x,upper.y,Y[lower.y],Y[upper.y],ymin,ymax);
     MPI.Printf0(stderr, "\tdispatch %u bubbles...\n", unsigned(bubbles.count()));
     bubbles.dispatch(MPI);
     

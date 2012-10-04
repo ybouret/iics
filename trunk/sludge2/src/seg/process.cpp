@@ -58,7 +58,7 @@ void Segmenter:: process( const Bubbles &bubbles )
     }
     
     //--------------------------------------------------------------------------
-    // locate Vertical junctions gradient eval
+    // locate Vertical junctions (for gradient eval)
     //--------------------------------------------------------------------------
     for( unit_t i=X.lower;i<=X.upper;++i)
     {
