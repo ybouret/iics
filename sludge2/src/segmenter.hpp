@@ -5,6 +5,7 @@
 #include "marker.hpp"
 #include "bubbles.hpp"
 
+class Cell;
 class Segmenter
 {
 public:
@@ -64,7 +65,7 @@ public:
     
     
 #if defined(HAS_MPI)
-    void dispatch_vertical_junctions( const mpi &MPI, const PBC &pbc );
+    void dispatch_vertical_junctions( const mpi &MPI, const Cell &cell );
 #endif
     
 private:
