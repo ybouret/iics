@@ -31,10 +31,8 @@ void Cell:: dispatch( const mpi &MPI )
     save_outB( vformat("core-b%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
     sync1(MPI,B);
 
-#if 1
     segmenter.save( vformat("sync-j%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
     save_outB( vformat("sync-b%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
-#endif
 
     
     MPI.Printf0(stderr,"\tbuilding effective pressure...\n");
