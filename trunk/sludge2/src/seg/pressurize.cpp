@@ -33,7 +33,7 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
         
         while(J)
         {
-            size_t          count = 1;
+            size_t          count = 1; //!< one junction => one cross
             const Junction *K     = J; //!< first junction @J->klo
             while(J->next && J->next->klo == J->klo )
             {
@@ -44,6 +44,8 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
                 J=J->next;
                 ++count;
             }
+            assert(J->klo==K->klo);
+            assert(J->khi==K->khi);
             if(count&1)
             {
                 //--------------------------------------------------------------
@@ -52,7 +54,7 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
                 if( B[j][K->klo] > 0 )
                 {
                     //----------------------------------------------------------
-                    // we leave a bubble
+                    // we leave a bubble: take the last junction
                     //----------------------------------------------------------
                     assert(B[j][J->khi]<=0);
                     Pleave[j][J->klo].x = J->bubble->pressure - gamma * J->curvature;
@@ -60,9 +62,13 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
                 else
                 {
                     //----------------------------------------------------------
-                    // we enter a bubble
+                    // we enter a bubble: take the first junction
                     //----------------------------------------------------------
-                    assert(B[j][J->khi]>0);
+                    if( B[j][K->khi] <=0 )
+                    {
+                        fprintf( stderr, "error @j=%ld, K->khi=%ld\n and B[klo]=%g\n", j, K->khi, B[j][K->klo]);
+                    }
+                    assert(B[j][K->khi]>0);
                     Penter[j][K->khi].x = K->bubble->pressure - gamma * K->curvature;
                 }
             }
@@ -92,6 +98,8 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
                 J=J->next;
                 ++count;
             }
+            assert(J->klo==K->klo);
+            assert(J->khi==K->khi);
             if(count&1)
             {
                 //--------------------------------------------------------------
