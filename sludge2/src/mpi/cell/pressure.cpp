@@ -43,7 +43,7 @@ Real Cell:: P_right( unit_t j, unit_t i) const throw()
     else
     {
 #if defined(DEBUG_EFFECTIVE)
-
+        
         // entering a bubble along x
         if( Penter[j][ip].x != 1)
         {
@@ -183,10 +183,19 @@ void Cell:: compute_pressure(const mpi &MPI )
             for( unit_t j=lower.y;j<=upper.y;++j)
             {
                 Array1D       &P_j = P[j];
-                P_j[lower.x] = (4.0*P_j[lower.x+1] - P_j[lower.x+2])/3.0;
+                if(B[j][lower.x+1] <= 0 )
+                {
+                    P_j[lower.x] = (4.0*P_j[lower.x+1] - P_right(j,lower.x+1))/3.0;
+                }
+                else
+                {
+                    P_j[lower.x] = P_right(j,lower.x);
+                }
             }
             sync1(MPI,P);
         }
+        
+        
         
         
         int converged = 0;
@@ -197,5 +206,8 @@ void Cell:: compute_pressure(const mpi &MPI )
             break;
         }
     }
+    
+    // for VisIt
+    sync1(MPI,gradP);
     
 }

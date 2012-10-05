@@ -105,7 +105,7 @@ void Cell:: save_effective( const string &filename) const
     pvar.append("Penter");
     pvar.append("Pleave");
 
-    const Workspace &wksp = *this;
+    const Workspace &wksp  = *this;
     const string     title = "effective";
     vtk.save<Layout,Real>(filename, title, wksp, pvar, outline);
     
