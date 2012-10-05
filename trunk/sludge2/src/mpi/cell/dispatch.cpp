@@ -4,7 +4,7 @@
 
 void Cell:: dispatch( const mpi &MPI )
 {
-    MPI.PrintfI(stderr, "layout: (%ld,%ld) -> (%ld,%ld) | y:%g -> %g | ymin=%g, ymax=%g\n", lower.x, lower.y,upper.x,upper.y,Y[lower.y],Y[upper.y],ymin,ymax);
+    //MPI.PrintfI(stderr, "layout: (%ld,%ld) -> (%ld,%ld) | y:%g -> %g | ymin=%g, ymax=%g\n", lower.x, lower.y,upper.x,upper.y,Y[lower.y],Y[upper.y],ymin,ymax);
     
     //--------------------------------------------------------------------------
     // dispatch bubbles
@@ -27,7 +27,7 @@ void Cell:: dispatch( const mpi &MPI )
     //--------------------------------------------------------------------------
     MPI.Printf0(stderr, "\tsegmentation...\n");
     segmenter.process(bubbles);
-    segmenter.save( vformat("core-j%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
+    //segmenter.save( vformat("core-j%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
 
     //--------------------------------------------------------------------------
     // build the local bubble field
@@ -38,21 +38,21 @@ void Cell:: dispatch( const mpi &MPI )
     //--------------------------------------------------------------------------
     // synchronize the bubble field
     //--------------------------------------------------------------------------
-    MPI.Printf0(stderr, "\t\tsync bubble field...\n");
-    save_outB( vformat("core-b%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
+    MPI.Printf0(stderr, "\tsync bubble field...\n");
+    //save_outB( vformat("core-b%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
     sync1(MPI,B);
-    save_outB( vformat("sync-b%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
+    //save_outB( vformat("sync-b%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
 
     //--------------------------------------------------------------------------
     // Junctions PBC
     //--------------------------------------------------------------------------
-    segmenter.show_jvert();
+    //segmenter.show_jvert();
     
     MPI.Printf0(stderr, "\tdispatch vertical junctions...\n");
     segmenter.dispatch_vertical_junctions(MPI, *this);
-    segmenter.show_jvert();
+    //segmenter.show_jvert();
 
-    segmenter.save( vformat("sync-j%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
+    //segmenter.save( vformat("sync-j%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
 
 
     //--------------------------------------------------------------------------
@@ -61,7 +61,7 @@ void Cell:: dispatch( const mpi &MPI )
     MPI.Printf0(stderr,"\tbuilding effective pressure...\n");
     segmenter.build_effective_pressure(B, P, Penter, Pleave);
     
-    save_effectiveY("core");
+    //save_effectiveY("core");
         
 }
 

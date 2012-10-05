@@ -40,7 +40,7 @@ void Segmenter:: remove_vertical_junctions_below( const Real ylim )
             Junction *J = jvert.pop_front();
             if( J->vertex.y < ylim )
             {
-                fprintf( stderr, "\t\t[removing @i=%ld, x=%g, y=%g\n]", i, J->vertex.x, J->vertex.y);
+                //fprintf( stderr, "\t\t[removing @i=%ld, x=%g, y=%g\n]", i, J->vertex.x, J->vertex.y);
                 jvert.garbage(J);
             }
             else
