@@ -40,12 +40,14 @@ void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
         // sending #count to target
         //----------------------------------------------------------------------
         count = jsend.size();
+#if 0
         fprintf( stderr, "\t@source: Need to send %lu\n",count);
         for(size_t i=1;i<=count;++i)
         {
             const JPack &jpack = jsend[i];
             fprintf( stderr , "\t\t-->@%ld: bubble #%u: x=%g, y=%g, c=%g\n", jpack.i, jpack.b, X[jpack.i], jpack.y, jpack.c);
         }
+#endif
         MPI.Isend(&count, 1, MPI_UNSIGNED_LONG, target, tag, MPI_COMM_WORLD, source_request);
     }
     
@@ -84,7 +86,7 @@ void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
         //----------------------------------------------------------------------
         // ok, now recv data from source
         //----------------------------------------------------------------------
-        fprintf( stderr, "\t@target: Need to recv %lu\n",count );
+        //fprintf( stderr, "\t@target: Need to recv %lu\n",count );
         const JPack invalid_jpack;
         jrecv.make( count, invalid_jpack);
         MPI.Recv( jrecv(), count * sizeof(JPack), MPI_BYTE, source, tag, MPI_COMM_WORLD, status);
@@ -95,7 +97,7 @@ void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
         for( size_t k=1;k<=count;++k)
         {
             const JPack &jpack = jrecv[k];
-            fprintf( stderr , "\t\t<--@%ld: bubble #%u: x=%g, y=%g, c=%g\n", jpack.i, jpack.b, X[jpack.i], jpack.y-cell.pbc.L,jpack.c);
+            //fprintf( stderr , "\t\t<--@%ld: bubble #%u: x=%g, y=%g, c=%g\n", jpack.i, jpack.b, X[jpack.i], jpack.y-cell.pbc.L,jpack.c);
             Junction *J  = Vert(jpack.i).append();
             J->vertex.x  = X[jpack.i];
             J->vertex.y  = jpack.y - cell.pbc.L;
