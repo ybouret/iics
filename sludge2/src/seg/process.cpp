@@ -17,7 +17,19 @@ void Segmenter:: SortHorz()
 {
     for( unit_t j=Y.lower;j<=Y.upper;++j)
     {
-        core::merging<Junction>::sort( Horz(j), __compare_horz,0);
+        core::list_of<Junction> &js = Horz(j);
+        core::merging<Junction>::sort( js, __compare_horz,0);
+#if 0
+#if !defined(NDEBUG)
+        for( const Junction *J = js.head;J;J=J->next)
+        {
+            if( J->next )
+            {
+                assert(J->vertex.x <= J->next->vertex.x);
+            }
+        }
+#endif
+#endif
     }
 }
 
@@ -143,7 +155,6 @@ void Segmenter:: process_spot( const Spot *spot, const Real half )
     const Tracer *prec = tracer->prev;
     if( ! prec->is_spot || Fabs(prec->vertex.y - vertex.y) >= half )
     {
-        //std::cerr << "testing with prec" << std::endl;
         target = vertex - prec->edge;
         compute_junctions(spot, vertex, target, prec);
     }
@@ -194,7 +205,7 @@ static inline void FinalizeJunction( Junction *J, const Tracer *source, const Tr
     const Real j_angle = s_weight * s_angle + t_weight * t_angle;
     J->n.x = Cos(j_angle);
     J->n.y = Sin(j_angle);
-    J->n   = source->n;
+    J->n   = source->n; // TODO: change this !!!!
 }
 
 static inline
