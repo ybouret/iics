@@ -69,6 +69,15 @@ Segment & Segmenter:: Vert( unit_t i) throw()
     return *vseg[i];
 }
 
+const Segment & Segmenter:: Vert( unit_t i) const throw()
+{
+    assert(vseg);
+    assert(i>=X.lower);
+    assert(i<=X.upper);
+    return *vseg[i];
+}
+
+
 void Segmenter:: save( const string &filename ) const
 {
     assert(hseg);assert(vseg);
@@ -123,6 +132,26 @@ void Segmenter:: save_vtk_n( const string &filename, Real scale) const
     {
         fp("2 %u %u\n", 2*i, 2*i+1 );
     }
+    
+}
+
+void Segmenter:: show_jvert(  ) const
+{
+    fprintf( stderr, "<JVert>\n");
+    for( unit_t i=X.lower;i<=X.upper;++i)
+    {
+        const Junctions &jseg = Vert(i);
+        if( jseg.size )
+        {
+            fprintf(stderr,"@i=%ld:", i);
+            for( const Junction *J = jseg.head;J;J=J->next)
+            {
+                fprintf( stderr, " %g", J->vertex.y);
+            }
+            fprintf(stderr,"\n");
+        }
+    }
+    fprintf( stderr, "</JVert>\n");
     
 }
 
