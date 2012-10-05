@@ -14,7 +14,7 @@ void Simulation:: step()
             Vertex &v      = tracer->vertex;
             
             
-            v.y += 0.05;
+            v.y -= 0.05;
         }
     }
     
