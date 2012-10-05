@@ -43,13 +43,19 @@ public:
     void save_outB( const string &filename ) const;
     
     //! compute P gradient from bubbles + boundary conditions
+    /**
+     assume P is synchronized before.
+     */
     void compute_gradP();
     
+       
     //! compute pressure from bubbles
     /**
-     assume bubbles are pressurized by segmenter !!
+     - assume bubbles are pressurized by segmenter !!
      ie that the fields Penter et Pleave
-     are computed and sync.
+     are computed.
+     - compute gradP when necessary
+     - compute velocities
      */
     void compute_pressure( const mpi &MPI );
     
@@ -78,6 +84,12 @@ public:
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);
+    //! compute velocity
+    /**
+     assume grapP is computed: called at the end of compute_pressure
+     */
+    void compute_velocities();
+
 };
 
 #endif
