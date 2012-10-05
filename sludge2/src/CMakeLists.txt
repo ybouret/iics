@@ -63,6 +63,7 @@ SET(SOURCES_CELL
 	mpi/cell/dispatch.cpp
 	mpi/cell/pressure.cpp
 	mpi/cell/gradp.cpp
+	mpi/cell/velocity.cpp
 )
 SOURCE_GROUP( mpi/cell FILES ${SOURCES_CELL} )
 

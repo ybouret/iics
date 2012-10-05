@@ -185,19 +185,24 @@ void Cell:: compute_pressure(const mpi &MPI )
                 Array1D       &P_j = P[j];
                 if(B[j][lower.x+1] <= 0 )
                 {
+                    //! second order
                     P_j[lower.x] = (4.0*P_j[lower.x+1] - P_right(j,lower.x+1))/3.0;
                 }
                 else
                 {
+                    //! first order only
                     P_j[lower.x] = P_right(j,lower.x);
                 }
             }
-            sync1(MPI,P);
+            sync1(MPI,P); //! for next Red/Black
         }
         
         
-        
-        
+        //----------------------------------------------------------------------
+        //
+        // test convergence
+        //
+        //----------------------------------------------------------------------
         int converged = 0;
         MPI.Allreduce(&cvg, &converged, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
         if( MPI.CommWorldSize == converged)
@@ -207,7 +212,11 @@ void Cell:: compute_pressure(const mpi &MPI )
         }
     }
     
+    compute_gradP();
+    compute_velocities();
+    
     // for VisIt
     sync1(MPI,gradP);
+    sync1(MPI,U);
     
 }

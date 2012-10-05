@@ -55,7 +55,7 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
                     //----------------------------------------------------------
                     // we leave a bubble
                     //----------------------------------------------------------
-                    Pleave[j][J->klo].x = J->bubble->pressure + gamma * J->curvature;
+                    Pleave[j][J->klo].x = J->bubble->pressure - gamma * J->curvature;
                 }
                 else
                 {
@@ -63,7 +63,7 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
                     //----------------------------------------------------------
                     // we enter a bubble
                     //----------------------------------------------------------
-                    Penter[j][K->khi].x = K->bubble->pressure + gamma * K->curvature;
+                    Penter[j][K->khi].x = K->bubble->pressure - gamma * K->curvature;
                 }
             }
             J    = J->next;
@@ -104,7 +104,7 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
                     //----------------------------------------------------------
                     // we leave a bubble
                     //----------------------------------------------------------
-                    Pleave[J->klo][i].y = J->bubble->pressure + gamma * J->curvature;
+                    Pleave[J->klo][i].y = J->bubble->pressure - gamma * J->curvature;
                 }
                 else
                 {
@@ -113,7 +113,7 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
                     //----------------------------------------------------------
                     // we enter a bubble
                     //----------------------------------------------------------
-                    Penter[K->khi][i].y = K->bubble->pressure + gamma * K->curvature;
+                    Penter[K->khi][i].y = K->bubble->pressure - gamma * K->curvature;
                 }
             }
             
