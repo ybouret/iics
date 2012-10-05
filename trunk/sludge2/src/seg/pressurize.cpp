@@ -19,7 +19,7 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
 #endif
     }
     
-    const Real gamma = 0.0;
+    const Real gamma = 0.2;
     
     //--------------------------------------------------------------------------
     //
@@ -70,7 +70,6 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
         }
     }
     
-    //ios::ocstream fp("jvert.dat",false);
     //--------------------------------------------------------------------------
     //
     // vertical effective pressure
@@ -80,7 +79,6 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
     {
         const Segment &seg     = Vert(i);
         const Junction *J      = seg.head;
-        //fp("@i=%d\n",i);
         while(J)
         {
             size_t          count = 1;
@@ -107,7 +105,6 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
                     // we leave a bubble
                     //----------------------------------------------------------
                     Pleave[J->klo][i].y = J->bubble->pressure + gamma * J->curvature;
-                    //fp("Pleave[%d][%d].y=%g\n", J->klo, i, Pleave[J->klo][i].y );
                 }
                 else
                 {
@@ -117,31 +114,10 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
                     // we enter a bubble
                     //----------------------------------------------------------
                     Penter[K->khi][i].y = K->bubble->pressure + gamma * K->curvature;
-                    //fp("Penter[%d][%d].y=%g\n", K->khi, i, Penter[K->khi][i].y );
                 }
             }
             
             J=J->next;
         }
     }
-    
-#if 0
-    {
-        ios::ocstream fp2("pvert-core.dat",false);
-        
-        for( unit_t i=X.lower;i<=X.upper;++i)
-        {
-            fp2("@i=%d\n", i);
-            for( unit_t j=Y.lower;j<=Y.upper;++j)
-            {
-                if( Penter[j][i].y > 0 )
-                    fp2("Penter[%d][%d].y=%g\n", j, i, Penter[j][i].y);
-                if( Pleave[j][i].y > 0 )
-                    fp2("Pleave[%d][%d].y=%g\n", j, i, Pleave[j][i].y);
-            }
-        }
-    }
-#endif
-    
-    
 }
