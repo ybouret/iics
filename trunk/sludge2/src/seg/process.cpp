@@ -29,6 +29,29 @@ void Segmenter:: SortVert()
     }
 }
 
+void Segmenter:: remove_vertical_junctions_below( const Real ylim )
+{
+    for(unit_t i=X.lower;i<=X.upper;++i)
+    {
+        Junctions &jvert = Vert(i);
+        core::list_of<Junction> tmp;
+        while( jvert.size )
+        {
+            Junction *J = jvert.pop_front();
+            if( J->vertex.y < ylim )
+            {
+                fprintf( stderr, "\t\t[removing @i=%ld, x=%g, y=%g\n]", i, J->vertex.x, J->vertex.y);
+                jvert.garbage(J);
+            }
+            else
+            {
+                tmp.push_back(J);
+            }
+        }
+        jvert.swap_with(tmp);
+    }
+}
+
 void Segmenter:: process( const Bubbles &bubbles )
 {
     assert(hseg!=NULL);
@@ -76,7 +99,7 @@ void Segmenter:: process( const Bubbles &bubbles )
             locate_value( J->vertex.y, Y, J->klo, J->khi);
         }
     }
-
+    
     
 }
 
