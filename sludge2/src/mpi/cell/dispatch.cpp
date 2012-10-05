@@ -25,9 +25,10 @@ void Cell:: dispatch( const mpi &MPI )
     
     segmenter.show_jvert();
     
-    //MPI.Printf0(stderr, "\tdispatch vertical junctions...\n");
-    //segmenter.dispatch_vertical_junctions(MPI, *this);
-        
+    MPI.Printf0(stderr, "\tdispatch vertical junctions...\n");
+    segmenter.dispatch_vertical_junctions(MPI, *this);
+    segmenter.show_jvert();
+
     
 
     

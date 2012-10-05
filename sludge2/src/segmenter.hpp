@@ -76,6 +76,9 @@ public:
     
     void show_jvert() const;
     
+    void remove_vertical_junctions_below( const Real ylim );
+    
+    
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Segmenter);
     Segment::Ptr   *hseg;

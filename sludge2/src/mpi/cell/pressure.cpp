@@ -20,7 +20,7 @@ Real Cell:: P_left( unit_t j, unit_t i) const throw()
         // leaving a bubble along x
         if( Pleave[j][im].x != 1)
         {
-            fprintf(stderr,"Invalid Pleave[%d][%d].x=%g\n", j, im, Pleave[j][im].x );
+            fprintf(stderr,"Invalid Pleave[%ld][%ld].x=%g\n", j, im, Pleave[j][im].x );
             abort();
         }
 #endif
@@ -47,7 +47,7 @@ Real Cell:: P_right( unit_t j, unit_t i) const throw()
         // entering a bubble along x
         if( Penter[j][ip].x != 1)
         {
-            fprintf(stderr,"Invalid Penter[%d][%d].x=%g\n", j, ip, Penter[j][ip].x );
+            fprintf(stderr,"Invalid Penter[%ld][%ld].x=%g\n", j, ip, Penter[j][ip].x );
             //abort();
         }
 #endif
@@ -73,7 +73,7 @@ Real Cell:: P_lower( unit_t j, unit_t i) const throw()
         // leaving a bubble along y
         if( Pleave[jm][i].y != 1)
         {
-            fprintf(stderr,"P_lower::Invalid Pleave[%d][%d].y=%g\n", jm, i, Pleave[jm][i].y );
+            fprintf(stderr,"P_lower::Invalid Pleave[%ld][%ld].y=%g\n", jm, i, Pleave[jm][i].y );
             abort();
         }
 #endif
@@ -99,7 +99,7 @@ Real Cell:: P_upper( unit_t j, unit_t i) const throw()
         // entering a bubble along y
         if( Penter[jp][i].y != 1)
         {
-            fprintf(stderr,"P_upper::Invalid Penter[%d][%d].y=%g\n", jp, i, Penter[jp][i].y );
+            fprintf(stderr,"P_upper::Invalid Penter[%ld][%ld].y=%g\n", jp, i, Penter[jp][i].y );
             abort();
         }
 #endif

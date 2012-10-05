@@ -44,7 +44,7 @@ void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
         for(size_t i=1;i<=count;++i)
         {
             const JPack &jpack = jsend[i];
-            fprintf( stderr , "\t\t-->@%ld: bubble #%u: y=%g, c=%g\n", jpack.i, jpack.b, jpack.y, jpack.c);
+            fprintf( stderr , "\t\t-->@%ld: bubble #%u: x=%g, y=%g, c=%g\n", jpack.i, jpack.b, X[jpack.i], jpack.y, jpack.c);
         }
         MPI.Isend(&count, 1, MPI_UNSIGNED_LONG, target, tag, MPI_COMM_WORLD, source_request);
     }
@@ -52,6 +52,7 @@ void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
     
     if( is_target )
     {
+        remove_vertical_junctions_below(cell.pbc.lo);
         //----------------------------------------------------------------------
         // recv #count
         //----------------------------------------------------------------------
@@ -86,20 +87,15 @@ void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
         fprintf( stderr, "\t@target: Need to recv %lu\n",count );
         const JPack invalid_jpack;
         jrecv.make( count, invalid_jpack);
-        MPI.Irecv( jrecv(), count * sizeof(JPack), MPI_BYTE, source, tag, MPI_COMM_WORLD, target_request);
-        //MPI.Recv( jcom(), count * sizeof(JPack), MPI_BYTE, source, tag, MPI_COMM_WORLD);
-    }
-    
-  
-    
-    if( is_target )
-    {
-        MPI_Status status;
-        MPI.Wait(target_request, status);
+        MPI.Recv( jrecv(), count * sizeof(JPack), MPI_BYTE, source, tag, MPI_COMM_WORLD, status);
+        
+        //----------------------------------------------------------------------
+        // unpacking
+        //----------------------------------------------------------------------
         for( size_t k=1;k<=count;++k)
         {
             const JPack &jpack = jrecv[k];
-            fprintf( stderr , "\t\t<--@%ld: bubble #%u: y=%g, c=%g\n", jpack.i, jpack.b, jpack.y-cell.pbc.L,jpack.c);
+            fprintf( stderr , "\t\t<--@%ld: bubble #%u: x=%g, y=%g, c=%g\n", jpack.i, jpack.b, X[jpack.i], jpack.y-cell.pbc.L,jpack.c);
             Junction *J  = Vert(jpack.i).append();
             J->vertex.x  = X[jpack.i];
             J->vertex.y  = jpack.y - cell.pbc.L;
@@ -114,7 +110,7 @@ void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
             }
             locate_value( J->vertex.y, Y, J->klo, J->khi);
         }
-        SortVert(); 
+        SortVert();
         // target is done
     }
     
