@@ -27,6 +27,9 @@ public:
     //! get vertical  segment @X[i]
     Segment & Vert( unit_t i) throw();
     
+    //! get vertical segment @X[i]
+    const Segment & Vert( unit_t i) const throw();
+
     const Array1D  &X;
     const Array1D  &Y;
     
@@ -70,6 +73,8 @@ public:
     
     void SortHorz();
     void SortVert();
+    
+    void show_jvert() const;
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Segmenter);
