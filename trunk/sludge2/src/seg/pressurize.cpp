@@ -51,18 +51,18 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
                 //--------------------------------------------------------------
                 if( B[j][K->klo] > 0 )
                 {
-                    assert(B[j][J->khi]<=0);
                     //----------------------------------------------------------
                     // we leave a bubble
                     //----------------------------------------------------------
+                    assert(B[j][J->khi]<=0);
                     Pleave[j][J->klo].x = J->bubble->pressure - gamma * J->curvature;
                 }
                 else
                 {
-                    assert(B[j][J->khi]>0);
                     //----------------------------------------------------------
                     // we enter a bubble
                     //----------------------------------------------------------
+                    assert(B[j][J->khi]>0);
                     Penter[j][K->khi].x = K->bubble->pressure - gamma * K->curvature;
                 }
             }
@@ -99,20 +99,20 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
                 //--------------------------------------------------------------
                 if( B[K->klo][i] > 0 )
                 {
-                    assert(B[J->klo][i]>0);
-                    assert(B[J->khi][i]<=0);
                     //----------------------------------------------------------
                     // we leave a bubble
                     //----------------------------------------------------------
+                    assert(B[J->klo][i]>0);
+                    assert(B[J->khi][i]<=0);
                     Pleave[J->klo][i].y = J->bubble->pressure - gamma * J->curvature;
                 }
                 else
                 {
-                    assert(B[K->klo][i]<=0);
-                    assert(B[K->khi][i]>0);
                     //----------------------------------------------------------
                     // we enter a bubble
                     //----------------------------------------------------------
+                    assert(B[K->klo][i]<=0);
+                    assert(B[K->khi][i]>0);
                     Penter[K->khi][i].y = K->bubble->pressure - gamma * K->curvature;
                 }
             }
