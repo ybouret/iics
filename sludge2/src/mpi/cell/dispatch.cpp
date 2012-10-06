@@ -41,7 +41,7 @@ void Cell:: dispatch( const mpi &MPI )
     MPI.Printf0(stderr, "\tsync bubble field...\n");
     //save_outB( vformat("core-b%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
     sync1(MPI,B);
-    save_outB( vformat("sync-b%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
+    //save_outB( vformat("sync-b%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
 
     //--------------------------------------------------------------------------
     // Junctions PBC
@@ -52,7 +52,7 @@ void Cell:: dispatch( const mpi &MPI )
     segmenter.dispatch_vertical_junctions(MPI, *this);
     //segmenter.show_jvert();
 
-    segmenter.save( vformat("sync-j%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
+    //segmenter.save( vformat("sync-j%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
 
 
     //--------------------------------------------------------------------------
