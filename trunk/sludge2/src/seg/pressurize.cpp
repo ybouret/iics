@@ -131,10 +131,12 @@ void Segmenter:: build_effective_pressure( const Array &B,
                     //----------------------------------------------------------
                     // we enter a bubble
                     //----------------------------------------------------------
+#if 0
                     if( !(B[K->khi][i]>0) )
                     {
                         fprintf( stderr, "Error khi=%ld,i=%ld (x=%g,y=%g)\n",K->khi,i,X[i],Y[K->khi]);
                     }
+#endif
                     assert(B[K->klo][i]<=0);
                     assert(B[K->khi][i]>0);
                     
