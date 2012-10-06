@@ -1,7 +1,10 @@
 #include "../segmenter.hpp"
 
 
-void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray &Penter, VertexArray &Pleave )
+void Segmenter:: build_effective_pressure( const Array &B,
+                                          Array        &P,
+                                          VertexArray  &Penter,
+                                          VertexArray  &Pleave)
 {
     Penter.ldz();
     Pleave.ldz();
@@ -79,8 +82,12 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
     //--------------------------------------------------------------------------
     //
     // vertical effective pressure
+    // restriction because of PBC
     //
     //--------------------------------------------------------------------------
+    const unit_t ymin=Y.lower + 1;
+    const unit_t ymax=Y.upper - 1;
+    
     for( unit_t i=X.lower;i<=X.upper;++i)
     {
         const Segment &seg     = Vert(i);
@@ -100,7 +107,12 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
             }
             assert(J->klo==K->klo);
             assert(J->khi==K->khi);
-            if(count&1)
+            
+            // restriction
+            if((count&1) &&
+               (J->klo >= ymin) &&
+               (J->khi <= ymax)
+               )
             {
                 //--------------------------------------------------------------
                 // we crossed a bubble: check K
