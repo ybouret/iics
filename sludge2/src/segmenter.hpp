@@ -46,9 +46,15 @@ public:
     //! fill array using junctions in both directions
     /**
      Built from the processed bubbles.
-     Then need a MPI sync for parallel computations.
+     \warning need to restrict the indices because of PBC
+     \param ymin lower.y+1
+     \param ymax upper.y-1
      */
-    void build_effective_pressure( const Array &B, Array &P, VertexArray &Penter, VertexArray &Pleave );
+    void build_effective_pressure(const Array  &B,
+                                  Array        &P,
+                                  VertexArray &Penter,
+                                  VertexArray &Pleave
+                                  );
     
     //! fill the pressure array with the bubbles pressure
     void pressurize( Array &P ) const;
