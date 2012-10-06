@@ -5,7 +5,7 @@ void Segmenter:: build_bubbles_field( Array &B )
     B.ldz();
     assert( 0 == markers.size);
     
-    fprintf(stderr, "[Bubble Field]\n");
+    //fprintf(stderr, "[Bubble Field]\n");
     //--------------------------------------------------------------------------
     // scan/line
     //--------------------------------------------------------------------------
@@ -16,9 +16,14 @@ void Segmenter:: build_bubbles_field( Array &B )
         unit_t          curr   = X.lower;
         bool            inside = false;
         Array1D        &B_j    = B[j];
-        if( seg.size ) fprintf( stderr, "@j=%ld: Y=%g\n", j, Y[j]);
+        //if( seg.size ) fprintf( stderr, "@j=%ld: Y=%g\n", j, Y[j]);
+        
         while(J)
         {
+            //------------------------------------------------------------------
+            // we met a junction
+            // count how many junctions between two vertices
+            //------------------------------------------------------------------
             size_t count = 1;
             while(J->next &&
                   (J->next->klo == J->klo) )
@@ -30,24 +35,33 @@ void Segmenter:: build_bubbles_field( Array &B )
                 J=J->next;
                 ++count;
             }
-            fprintf( stderr, "\tstatus=%s count=%lu @klo=%ld,khi=%ld\n", (inside ? "inside " : "outside"), count, J->klo, J->khi);
+            //fprintf( stderr, "\tstatus=%s count=%lu @klo=%ld,khi=%ld\n", (inside ? "inside " : "outside"), count, J->klo, J->khi);
+            
+            //------------------------------------------------------------------
+            // update current values
+            //------------------------------------------------------------------
+            if(inside)
+            {
+                while(curr<=J->klo)
+                {
+                    const Bubble *bubble = J->bubble; assert(bubble);
+                    B_j[curr]   = bubble->id;
+                    Marker *m   = markers.append();
+                    m->inside.x = curr;
+                    m->inside.y = j;
+                    m->bubble   = bubble;
+                    ++curr;
+                }
+            }
+            
+            //------------------------------------------------------------------
+            // update current status
+            //------------------------------------------------------------------
             if(count&1)
             {
-                if(inside)
-                {
-                    while(curr<=J->klo)
-                    {
-                        const Bubble *bubble = J->bubble; assert(bubble);
-                        B_j[curr]   = bubble->id;
-                        Marker *m   = markers.append();
-                        m->inside.x = curr;
-                        m->inside.y = j;
-                        m->bubble   = bubble;
-                        ++curr;
-                    }
-                }
                 inside = !inside;
             }
+            
             curr = J->khi;
             J    = J->next;
         }

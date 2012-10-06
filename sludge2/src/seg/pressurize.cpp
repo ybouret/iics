@@ -119,8 +119,13 @@ void Segmenter:: build_effective_pressure( const Array &B, Array &P, VertexArray
                     //----------------------------------------------------------
                     // we enter a bubble
                     //----------------------------------------------------------
+                    if( !(B[K->khi][i]>0) )
+                    {
+                        fprintf( stderr, "Error khi=%ld,i=%ld (x=%g,y=%g)\n",K->khi,i,X[i],Y[K->khi]);
+                    }
                     assert(B[K->klo][i]<=0);
                     assert(B[K->khi][i]>0);
+                    
                     Penter[K->khi][i].y = K->bubble->pressure - gamma * K->curvature;
                 }
             }
