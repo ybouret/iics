@@ -220,7 +220,7 @@ void Cell:: compute_pressure(const mpi &MPI )
     //--------------------------------------------------------------------------
     // final velocities
     //--------------------------------------------------------------------------
-    compute_velocities();
+    compute_bulk_velocities();
     
     // for VisIt
     sync1(MPI,gradP);
