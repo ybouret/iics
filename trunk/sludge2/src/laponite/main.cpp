@@ -32,8 +32,8 @@ int main( int argc, char *argv[] )
         //----------------------------------------------------------------------
         // Setup Simulation
         //----------------------------------------------------------------------
-        const Coord  N(30,60);
-        const Vertex L(3.0,5.0);
+        const Coord  N(70,60);
+        const Vertex L(6.0,5.0);
         Simulation   sim(MPI,N,L);
         MPI.PrintfI(stderr, "layout: (%d,%d) -> (%d,%d)\n", int(sim.lower.x),int(sim.lower.y),int(sim.upper.x),int(sim.upper.y));
         MPI.WaitFor(0.1);
