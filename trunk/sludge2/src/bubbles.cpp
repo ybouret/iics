@@ -43,7 +43,7 @@ Bubble * Bubbles:: append()
     }
     else
     {
-        b = new Bubble( id, pbc, lambda, tcache, scache);
+        b = new Bubble( id, pbc, lambda, gamma, tcache, scache);
     }
     bubbles.push_back(b);
     return b;

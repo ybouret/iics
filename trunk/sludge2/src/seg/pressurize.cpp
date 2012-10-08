@@ -1,10 +1,11 @@
 #include "../segmenter.hpp"
 
 
-void Segmenter:: build_effective_pressure( const Array &B,
+void Segmenter:: build_effective_pressure(const Array  &B,
                                           Array        &P,
                                           VertexArray  &Penter,
-                                          VertexArray  &Pleave)
+                                          VertexArray  &Pleave,
+                                          const Real    gamma)
 {
     Penter.ldz();
     Pleave.ldz();
@@ -22,7 +23,6 @@ void Segmenter:: build_effective_pressure( const Array &B,
 #endif
     }
     
-    const Real gamma = 0.2;
     
     //--------------------------------------------------------------------------
     //

@@ -22,6 +22,7 @@ public:
     
     const PBC  &pbc;
     Real        lambda; //!< default is 1
+    Real        gamma;  //!< default is 0
     
     void        update_topology();
     
