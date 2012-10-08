@@ -82,14 +82,18 @@ public:
     void save_effectiveY(const string &prefix) const;
     
     
+    Vertex gradP_to_U( const Vertex &g ) const;
+    
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);
     //! compute velocity
     /**
      assume grapP is computed: called at the end of compute_pressure
      */
-    void compute_velocities();
+    void compute_bulk_velocities();
 
+    void compute_spot_velocities();
+    void compute_spot_velocity( Spot *spot );
 };
 
 #endif
