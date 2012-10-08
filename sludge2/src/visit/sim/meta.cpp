@@ -3,6 +3,9 @@
 void Simulation:: get_meta_data(visit_handle &md) const
 {
     
+    add_generic_command( "raz", md);
+    
+#if 0
     //! append an UI command
     {
         visit_handle cmd = VISIT_INVALID_HANDLE;
@@ -12,6 +15,7 @@ void Simulation:: get_meta_data(visit_handle &md) const
             VisIt_SimulationMetaData_addGenericCommand(md, cmd);
         }
     }
+#endif
     
     //! append the mesh
     {
