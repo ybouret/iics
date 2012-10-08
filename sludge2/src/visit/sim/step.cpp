@@ -7,14 +7,17 @@ void Simulation:: step()
     //-- advect spots
     for( Bubble *b = bubbles.first(); b; b=b->next)
     {
-        b->rotate(0.12);
+        const Real dv = -0.05 * b->id;
+        const Real da = 0.05 * b->id;
+        b->rotate(da);
+
         for( Spot *s = b->spots.head;s;s=s->next)
         {
             Tracer *tracer = s->handle;
             Vertex &v      = tracer->vertex;
             
             
-            v.y -= 0.05;
+            v.y -= dv;
         }
     }
     
@@ -25,7 +28,7 @@ void Simulation:: step()
     // TODO: remove this
     for( Bubble *b = bubbles.first(); b; b=b->next)
     {
-        b->set_pressure(1);
+        //b->set_pressure(1);
     }
 
     
