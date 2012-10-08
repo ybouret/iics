@@ -28,7 +28,7 @@ void Cell:: dispatch( const mpi &MPI )
     MPI.Printf0(stderr, "\tsegmentation...\n");
     segmenter.process(bubbles);
     //segmenter.save( vformat("core-j%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
-
+    
     //--------------------------------------------------------------------------
     // build the local bubble field
     //--------------------------------------------------------------------------
@@ -39,22 +39,14 @@ void Cell:: dispatch( const mpi &MPI )
     // synchronize the bubble field
     //--------------------------------------------------------------------------
     MPI.Printf0(stderr, "\tsync bubble field...\n");
-    //save_outB( vformat("core-b%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
     sync1(MPI,B);
-    //save_outB( vformat("sync-b%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
-
+    
     //--------------------------------------------------------------------------
     // Junctions PBC
     //--------------------------------------------------------------------------
-    //segmenter.show_jvert();
-    
     MPI.Printf0(stderr, "\tdispatch vertical junctions...\n");
     segmenter.dispatch_vertical_junctions(MPI, *this);
-    //segmenter.show_jvert();
-
-    //segmenter.save( vformat("sync-j%d.%d.dat",MPI.CommWorldSize,MPI.CommWorldRank));
-
-
+    
     //--------------------------------------------------------------------------
     // Effective Pressure
     //--------------------------------------------------------------------------
@@ -62,7 +54,7 @@ void Cell:: dispatch( const mpi &MPI )
     segmenter.build_effective_pressure(B, P, Penter, Pleave);
     
     //save_effectiveY("core");
-        
+    
 }
 
 
@@ -104,7 +96,7 @@ void Cell:: save_effective( const string &filename) const
     variables pvar;
     pvar.append("Penter");
     pvar.append("Pleave");
-
+    
     const Workspace &wksp  = *this;
     const string     title = "effective";
     vtk.save<Layout,Real>(filename, title, wksp, pvar, outline);
