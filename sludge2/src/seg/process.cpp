@@ -26,7 +26,8 @@ void Segmenter:: SortVert()
 {
     for(unit_t i=X.lower;i<=X.upper;++i)
     {
-        core::merging<Junction>::sort( Vert(i), __compare_vert,0);
+		core::list_of<Junction> &js = Vert(i);
+        core::merging<Junction>::sort( js, __compare_vert,0);
     }
 }
 
