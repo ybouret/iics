@@ -53,7 +53,8 @@ public:
     void build_effective_pressure(const Array  &B,
                                   Array        &P,
                                   VertexArray &Penter,
-                                  VertexArray &Pleave
+                                  VertexArray &Pleave,
+                                  const Real   gamma
                                   );
     
     //! fill the pressure array with the bubbles pressure

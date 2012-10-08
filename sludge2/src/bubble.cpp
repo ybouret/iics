@@ -6,7 +6,8 @@ Bubble:: ~Bubble() throw()
 
 Bubble:: Bubble(BubbleID      bubble_id,
                 const PBC    &bubble_pbc,
-                Real          &bubble_lam,
+                Real         &bubble_lam,
+                Real         &bubble_gam,
                 Tracer::Cache &tcache,
                 Spot::Cache   &scache ) throw() :
 Tracers(tcache),
@@ -15,6 +16,7 @@ prev(0),
 id(bubble_id),
 pbc(bubble_pbc),
 lam(bubble_lam),
+gam(bubble_gam),
 spots(scache)
 {
     

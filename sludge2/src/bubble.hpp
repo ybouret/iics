@@ -11,6 +11,7 @@ public:
     explicit Bubble(BubbleID       bubble_id,
                     const PBC     &bubble_pbc,
                     Real          &bubble_lam,
+                    Real          &bubble_gam,
                     Tracer::Cache &tcache,
                     Spot::Cache   &scache ) throw();
     
@@ -21,6 +22,7 @@ public:
     const BubbleID  id;       //!< identifier
     const PBC      &pbc;      //!< periodic boundary conditions
     Real           &lam;      //!< spatial resolution
+    Real           &gam;      //!< surface tension
     Spots           spots;    //!< associated spots on domain
     
     Real            pressure; //!< internal pressure

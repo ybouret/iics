@@ -39,5 +39,7 @@ void Cell:: compute_spot_velocities()
 
 void Cell:: compute_spot_velocity( Spot *spot )
 {
-    
+    const Real gam = 0;
+    Tracer    *tracer = spot->handle;
+    const Real P0     = tracer->bubble->pressure - gam * tracer->curvature;
 }

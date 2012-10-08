@@ -39,6 +39,9 @@ int main( int argc, char *argv[] )
         MPI.WaitFor(0.1);
       
         //SaveGrid( sim.mesh, vformat("g%d.%d.dat",sim.par_size,sim.par_rank));
+        
+        sim.bubbles.gamma = 0.1;
+        
         //----------------------------------------------------------------------
         // First time init
         //----------------------------------------------------------------------
