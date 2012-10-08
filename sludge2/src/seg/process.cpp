@@ -19,17 +19,6 @@ void Segmenter:: SortHorz()
     {
         core::list_of<Junction> &js = Horz(j);
         core::merging<Junction>::sort( js, __compare_horz,0);
-#if 0
-#if !defined(NDEBUG)
-        for( const Junction *J = js.head;J;J=J->next)
-        {
-            if( J->next )
-            {
-                assert(J->vertex.x <= J->next->vertex.x);
-            }
-        }
-#endif
-#endif
     }
 }
 
@@ -52,7 +41,6 @@ void Segmenter:: remove_vertical_junctions_below( const Real ylim )
             Junction *J = jvert.pop_front();
             if( J->vertex.y < ylim )
             {
-                //fprintf( stderr, "\t\t[removing @i=%ld, x=%g, y=%g\n]", i, J->vertex.x, J->vertex.y);
                 jvert.garbage(J);
             }
             else
@@ -205,7 +193,6 @@ static inline void FinalizeJunction( Junction *J, const Tracer *source, const Tr
     const Real j_angle = s_weight * s_angle + t_weight * t_angle;
     J->n.x = Cos(j_angle);
     J->n.y = Sin(j_angle);
-    J->n   = source->n; // TODO: change this !!!!
 }
 
 static inline
