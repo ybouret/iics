@@ -86,10 +86,12 @@ void Cell:: save_outB( const string &filename ) const
 
 void Cell:: legalize(const yocto::mpi &MPI)
 {
+    MPI.Printf0(stderr,"\tbuilding topology\n");
     if( MPI.IsFirst )
     {
         bubbles.update_topology();
     }
     dispatch(MPI);
+    MPI.Printf0(stderr,"\tcomputing pressure and velocities\n");
     compute_pressure(MPI);
 }

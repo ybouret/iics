@@ -187,10 +187,8 @@ static inline void FinalizeJunction( Junction *J, const Tracer *source, const Tr
     const Real  t_weight = J->alpha;
     J->bubble            = source->bubble;
     J->curvature         = s_weight*source->curvature + t_weight * target->curvature;
-    Real s_angle   = source->n.angle();
-    if( s_angle < 0 ) s_angle += numeric<Real>::two_pi;
-    Real t_angle   = target->n.angle();
-    if( t_angle < 0 ) t_angle += numeric<Real>::two_pi;
+    const Real s_angle   = source->n.positive_angle();
+    const Real t_angle   = target->n.positive_angle();
     const Real j_angle = s_weight * s_angle + t_weight * t_angle;
     J->n.x = Cos(j_angle);
     J->n.y = Sin(j_angle);

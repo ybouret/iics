@@ -72,8 +72,9 @@ public:
     void save_dat(   const string &filename ) const;
     void save_spots( const string &filename ) const;
     void save_vtk(   const string &filename )   const;
-    void save_vtk_t( const string &filename ) const;
-    void save_vtk_n( const string &filename ) const;
+    void save_vtk_t( const string &filename ) const; //!< tangents
+    void save_vtk_n( const string &filename ) const; //!< normals + curvature
+    void save_vtk_shell( const string &filename ) const; //!< normals + lambda shell
     void rotate(Real alpha);
     
 private:

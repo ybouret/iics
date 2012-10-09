@@ -38,7 +38,7 @@ int main( int argc, char *argv[] )
         MPI.PrintfI(stderr, "layout: (%d,%d) -> (%d,%d)\n", int(sim.lower.x),int(sim.lower.y),int(sim.upper.x),int(sim.upper.y));
         MPI.WaitFor(0.1);
       
-        //SaveGrid( sim.mesh, vformat("g%d.%d.dat",sim.par_size,sim.par_rank));
+        SaveGrid( sim.mesh, vformat("g%d.%d.dat",sim.par_size,sim.par_rank));
         
         sim.bubbles.gamma = 0.1;
         

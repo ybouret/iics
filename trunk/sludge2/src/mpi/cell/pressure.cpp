@@ -131,7 +131,7 @@ void Cell:: compute_pressure(const mpi &MPI )
     
     
     static const size_t shift[2] = { 1, 2};
-    const Real ftol = 1e-4;
+    const Real ftol = 1e-5;
     for(size_t iter=1;;++iter)
     {
         
@@ -221,8 +221,11 @@ void Cell:: compute_pressure(const mpi &MPI )
     // final velocities
     //--------------------------------------------------------------------------
     compute_bulk_velocities();
+    compute_spot_velocities();
     
+    //--------------------------------------------------------------------------
     // for VisIt
+    //--------------------------------------------------------------------------
     sync1(MPI,gradP);
     sync1(MPI,U);
     

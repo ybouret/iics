@@ -26,6 +26,14 @@ void Cell:: compute_bulk_velocities()
 
 void Cell:: compute_spot_velocities()
 {
+#if 0
+    for( Bubble *bubble = bubbles.first();bubble;bubble=bubble->next)
+    {
+        bubble->save_vtk( vformat("b%u.vtk",bubble->id) );
+        bubble->save_vtk_shell( vformat("b%u-shell.vtk",bubble->id) );
+    }
+#endif
+    
     for( Bubble *bubble = bubbles.first();bubble;bubble=bubble->next)
     {
         
@@ -37,9 +45,48 @@ void Cell:: compute_spot_velocities()
     }
 }
 
+// neighbors
+#define TOP_LEFT  0x01
+#define TOP_RIGHT 0x02
+#define BOT_LEFT  0x04
+#define BOT_RIGHT 0x08
+
 void Cell:: compute_spot_velocity( Spot *spot )
 {
-    const Real gam = 0;
-    Tracer    *tracer = spot->handle;
-    const Real P0     = tracer->bubble->pressure - gam * tracer->curvature;
+    Tracer       *tracer = spot->handle; assert(tracer->bubble);
+    const Bubble *bubble = tracer->bubble;
+    
+    //--------------------------------------------------------------------------
+    // evaluate pressure on the tracer
+    //--------------------------------------------------------------------------
+    const Real    P0     = bubble->pressure -  bubble->gam * tracer->curvature;
+    (void)P0;
+    const Vertex v     = tracer->vertex;
+    Vertex       probe = v - bubble->lam * tracer->n;
+    pbc(probe);
+    
+    int bulk = 0;
+    segmenter.locate_vertex(probe, spot->klo, spot->kup);
+    const unit_t ilo = spot->klo.x;
+    const unit_t iup = spot->kup.x;
+    const unit_t jlo = spot->klo.y;
+    const unit_t jup = spot->kup.y;
+    
+    if( B[jlo][ilo] <= 0)
+        bulk |= BOT_LEFT;
+    
+    if( B[jlo][iup] <= 0)
+        bulk |= BOT_RIGHT;
+    
+    if( B[jup][ilo] <= 0)
+        bulk |= TOP_LEFT;
+    
+    if( B[jup][iup] <= 0)
+        bulk |= TOP_RIGHT;
+    
+    if( !bulk )
+    {
+        throw exception("Can find bulk for tracer @(%g,%g)\n", v.x,v.y);
+    }
+    
 }
