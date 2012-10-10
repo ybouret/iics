@@ -25,6 +25,7 @@ public:
     VertexArray   &U;         //!< velocity field
     VertexArray   &Penter;    //!< effective pressure in bubble, along X and along Y
     VertexArray   &Pleave;    //!< effective pressure when leaving bubble
+    Array         &Bulk;      //!< count of bulk vertices per quad
     Segmenter      segmenter;
     Bubbles        bubbles;
     const Real     ymin;
@@ -83,6 +84,12 @@ public:
     
     
     Vertex gradP_to_U( const Vertex &g ) const;
+    
+    //! build the bulk field
+    /**
+     Bulk[j][i]= #bulk vertices among B[j(+1)][i(+1)]
+     */
+    void build_bulk();
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Cell);
