@@ -313,6 +313,7 @@ TRY_GENERATE:
         }
 #endif
         
+        // accepted !
         this->swap_with( tmp );
     }
    

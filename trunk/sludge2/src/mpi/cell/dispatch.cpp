@@ -41,6 +41,10 @@ void Cell:: dispatch( const mpi &MPI )
     MPI.Printf0(stderr, "\tsync bubble field...\n");
     sync1(MPI,B);
     
+    
+    MPI.Printf0(stderr, "\tbuild bulk field...\n");
+    build_bulk();
+    
     //--------------------------------------------------------------------------
     // Junctions PBC
     //--------------------------------------------------------------------------

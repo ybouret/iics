@@ -69,12 +69,13 @@ sim_fields(4*sizeof(Real))
     // fields
     //--------------------------------------------------------------------------
     FieldsSetup &F = sim_fields;
-    Y_SPADE_FIELD(F, "P",     Array);
-    Y_SPADE_FIELD(F, "B",     Array);
-    Y_SPADE_FIELD(F, "gradP", VertexArray);
-    Y_SPADE_FIELD(F, "U",     VertexArray);
+    Y_SPADE_FIELD(F, "P",       Array);
+    Y_SPADE_FIELD(F, "B",       Array);
+    Y_SPADE_FIELD(F, "gradP",   VertexArray);
+    Y_SPADE_FIELD(F, "U",       VertexArray);
     Y_SPADE_FIELD(F, "Penter",  VertexArray);
     Y_SPADE_FIELD(F, "Pleave",  VertexArray);
+    Y_SPADE_FIELD(F, "Bulk",    Array);
 }
 
 

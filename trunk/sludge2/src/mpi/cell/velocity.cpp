@@ -125,7 +125,7 @@ void Cell:: compute_spot_velocity( Spot *spot )
     const Vertex vec   = -tracer->n;                  // go outside
     const Real   dx    = vec.x * delta.x;
     const Real   dy    = vec.y * delta.y;
-    const Real   len   = Sqrt(dx*dx+dy*dy)*0.5;        // spacing
+    const Real   len   = Sqrt(dx*dx+dy*dy)*0.5;       // spacing
     Vertex       org   = v0 + len * vec;              // starting point
     //pbc(org);
     if(org.x<=0) org.x = 0;
@@ -158,7 +158,7 @@ void Cell:: compute_spot_velocity( Spot *spot )
         assert(nreg[i-1].score>=nreg[i].score);
     }
 #endif
-    fprintf( stderr, "score@(%g,%g): %g %g\n", org.x, org.y, nreg[0].score,nreg[1].score);
+    //fprintf( stderr, "score@(%g,%g): %g %g\n", org.x, org.y, nreg[0].score,nreg[1].score);
     {
         ios::ocstream fp("h0.dat", true);
         fp("%g %g\n", nreg[0].m.x, nreg[0].m.y);

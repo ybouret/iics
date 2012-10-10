@@ -18,6 +18,12 @@ void Simulation:: get_meta_data(visit_handle &md) const
         VisIt_SimulationMetaData_addVariable(md, vmd);
     }
     
+    //! append Bulk on mesh
+    {
+        visit_handle vmd = variable_meta_data<Real>("Bulk", MeshName);
+        VisIt_SimulationMetaData_addVariable(md, vmd);
+    }
+    
     //! append P on mesh
     {
         visit_handle vmd = variable_meta_data<Real>("P", MeshName);
