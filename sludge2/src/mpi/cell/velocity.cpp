@@ -35,7 +35,16 @@ void Cell:: compute_spot_velocities()
 #endif
     
     bubbles.first()->save_dat("b.dat");
-    ios::ocstream fp("h.dat",false);
+    {
+        ios::ocstream fp("h0.dat",false);
+    }
+    
+    {
+        ios::ocstream fp("h1.dat",false);
+    }
+
+    
+    
     ios::ocstream fp2("s.dat",false);
     
     for( Bubble *bubble = bubbles.first();bubble;bubble=bubble->next)
@@ -55,20 +64,48 @@ void Cell:: compute_spot_velocities()
 class neighbor
 {
 public:
-    inline neighbor( const Vertex org, const Real x, const Real y) :
+    inline neighbor(const Vertex org,
+                    const unit_t  i,
+                    const unit_t  j,
+                    const Array1D &X,
+                    const Array1D &Y,
+                    const Vertex vec) :
     v( org ),
-    m( x, y)
+    k(i,j),
+    m( X[i], Y[j]),
+    d(v,m),
+    score( vec * d )
     {
     }
     
-    const Vertex v; //!< this
-    const Vertex m; //!< other
+    const Vertex v; //!< this position
+    const Coord  k; //!< logical position
+    const Vertex m; //!< other, one of the vertices
+    const Vertex d; //!< vm, vector to get it
+    const Real   score;
     
     inline ~neighbor() throw() {}
+    inline neighbor( const neighbor &other ) throw() :
+    v( other.v ),
+    m( other.m ),
+    d( other.d ),
+    score( other.score )
+    {
+        
+    }
+    
+    // decreasing order
+    friend inline
+    bool operator<( const neighbor &lhs, const neighbor &rhs )
+    {
+        return rhs.score < lhs.score;
+    }
     
 private:
-
+    YOCTO_DISABLE_ASSIGN(neighbor);
 };
+
+#include "yocto/code/gsort.hpp"
 
 void Cell:: compute_spot_velocity( Spot *spot )
 {
@@ -96,12 +133,39 @@ void Cell:: compute_spot_velocity( Spot *spot )
     fp2("%g %g\n", org.x, org.y);
     
     //--------------------------------------------------------------------------
-    // find the position or the probe
+    // find the position of the probe
     //--------------------------------------------------------------------------
     Coord klo;
     Coord kup;
     segmenter.locate_vertex(org,klo,kup);
     
-      
+    //--------------------------------------------------------------------------
+    // find neighbors vectors and score
+    //--------------------------------------------------------------------------
+    neighbor nreg[] =
+    {
+        neighbor(org,klo.x,klo.y,X,Y,vec),
+        neighbor(org,klo.x,kup.y,X,Y,vec),
+        neighbor(org,kup.x,kup.y,X,Y,vec),
+        neighbor(org,kup.x,klo.y,X,Y,vec)
+    };
+    const size_t nnum = sizeof(nreg)/sizeof(nreg[0]);
+    c_sort(nreg,nnum);
     
+#if 1
+    for( size_t i=1; i < nnum; ++i )
+    {
+        assert(nreg[i-1].score>=nreg[i].score);
+    }
+#endif
+    fprintf( stderr, "score@(%g,%g): %g %g\n", org.x, org.y, nreg[0].score,nreg[1].score);
+    {
+        ios::ocstream fp("h0.dat", true);
+        fp("%g %g\n", nreg[0].m.x, nreg[0].m.y);
+    }
+    
+    {
+        ios::ocstream fp("h1.dat", true);
+        fp("%g %g\n", nreg[1].m.x, nreg[1].m.y);
+    }
 }
