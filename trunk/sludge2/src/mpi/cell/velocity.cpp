@@ -42,7 +42,7 @@ void Cell:: compute_spot_velocities()
     {
         ios::ocstream fp("h1.dat",false);
     }
-
+    
     
     
     ios::ocstream fp2("s.dat",false);
@@ -126,46 +126,65 @@ void Cell:: compute_spot_velocity( Spot *spot )
     const Real   dx    = vec.x * delta.x;
     const Real   dy    = vec.y * delta.y;
     const Real   len   = Sqrt(dx*dx+dy*dy)*0.5;       // spacing
-    Vertex       org   = v0 + len * vec;              // starting point
-    //pbc(org);
-    if(org.x<=0) org.x = 0;
+    const Vertex step  = len * vec;
+    Vertex       probe = v0 + step;              // starting point
+    
+       
+    
     ios::ocstream fp2("s.dat", true );
-    fp2("%g %g\n", org.x, org.y);
+    fp2("%g %g\n", probe.x, probe.y);
     
     //--------------------------------------------------------------------------
     // find the position of the probe
     //--------------------------------------------------------------------------
     Coord klo;
     Coord kup;
-    segmenter.locate_vertex(org,klo,kup);
-    
-    //--------------------------------------------------------------------------
-    // find neighbors vectors and score
-    //--------------------------------------------------------------------------
-    neighbor nreg[] =
+    for(;;)
     {
-        neighbor(org,klo.x,klo.y,X,Y,vec),
-        neighbor(org,klo.x,kup.y,X,Y,vec),
-        neighbor(org,kup.x,kup.y,X,Y,vec),
-        neighbor(org,kup.x,klo.y,X,Y,vec)
-    };
-    const size_t nnum = sizeof(nreg)/sizeof(nreg[0]);
-    c_sort(nreg,nnum);
-    
+        //----------------------------------------------------------------------
+        // check the probe position
+        //----------------------------------------------------------------------
+        //pbc(org);
+        if(probe.x<=0) probe.x = 0;
+
+        segmenter.locate_vertex(probe,klo,kup);
+        
+        //----------------------------------------------------------------------
+        // find neighbors vectors and score
+        //----------------------------------------------------------------------
+        neighbor nreg[] =
+        {
+            neighbor(probe,klo.x,klo.y,X,Y,vec),
+            neighbor(probe,klo.x,kup.y,X,Y,vec),
+            neighbor(probe,kup.x,kup.y,X,Y,vec),
+            neighbor(probe,kup.x,klo.y,X,Y,vec)
+        };
+        const size_t nnum = sizeof(nreg)/sizeof(nreg[0]);
+        c_sort(nreg,nnum);
+        
+        
 #if 1
-    for( size_t i=1; i < nnum; ++i )
-    {
-        assert(nreg[i-1].score>=nreg[i].score);
-    }
+        for( size_t i=1; i < nnum; ++i )
+        {
+            assert(nreg[i-1].score>=nreg[i].score);
+        }
 #endif
-    //fprintf( stderr, "score@(%g,%g): %g %g\n", org.x, org.y, nreg[0].score,nreg[1].score);
-    {
-        ios::ocstream fp("h0.dat", true);
-        fp("%g %g\n", nreg[0].m.x, nreg[0].m.y);
-    }
-    
-    {
-        ios::ocstream fp("h1.dat", true);
-        fp("%g %g\n", nreg[1].m.x, nreg[1].m.y);
+        if( nreg[1].score < 0 )
+        {
+            probe += step;
+            continue;
+        }
+        
+        //fprintf( stderr, "score@(%g,%g): %g %g\n", org.x, org.y, nreg[0].score,nreg[1].score);
+        {
+            ios::ocstream fp("h0.dat", true);
+            fp("%g %g\n", nreg[0].m.x, nreg[0].m.y);
+        }
+        
+        {
+            ios::ocstream fp("h1.dat", true);
+            fp("%g %g\n", nreg[1].m.x, nreg[1].m.y);
+        }
+        break;
     }
 }
