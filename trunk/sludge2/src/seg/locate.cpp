@@ -2,6 +2,13 @@
 
 void Segmenter:: locate_value( const Real z, const Array1D &Z, unit_t &klo, unit_t &kup ) throw()
 {
+#if 0
+    if(!(z>=Z[Z.lower]))
+    {
+        fprintf( stderr, "error: ! z=%g >= Z[%ld]=%g\n", z, Z.lower, Z[Z.lower] );
+    }
+#endif
+    
     assert(z>=Z[Z.lower]);
     assert(z<Z[Z.upper]);
     klo = Z.lower;

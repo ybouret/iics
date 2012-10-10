@@ -10,6 +10,7 @@ s2(0),
 s(0),
 t(),
 n(),
+angle(0),
 curvature(0),
 bubble(0),
 is_spot(false)

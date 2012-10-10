@@ -53,7 +53,6 @@ void Cell:: dispatch( const mpi &MPI )
     MPI.Printf0(stderr,"\tbuilding effective pressure...\n");
     segmenter.build_effective_pressure(B, P, Penter, Pleave, bubbles.gamma);
     
-    //save_effectiveY("core");
     
 }
 
