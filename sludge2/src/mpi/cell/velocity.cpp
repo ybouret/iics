@@ -34,6 +34,10 @@ void Cell:: compute_spot_velocities()
     }
 #endif
     
+    bubbles.first()->save_dat("b.dat");
+    ios::ocstream fp("h.dat",false);
+    ios::ocstream fp2("s.dat",false);
+    
     for( Bubble *bubble = bubbles.first();bubble;bubble=bubble->next)
     {
         
@@ -46,10 +50,25 @@ void Cell:: compute_spot_velocities()
 }
 
 // neighbors
-#define TOP_LEFT  0x01
-#define TOP_RIGHT 0x02
-#define BOT_LEFT  0x04
-#define BOT_RIGHT 0x08
+#include "yocto/code/utils.hpp"
+
+class neighbor
+{
+public:
+    inline neighbor( const Vertex org, const Real x, const Real y) :
+    v( org ),
+    m( x, y)
+    {
+    }
+    
+    const Vertex v; //!< this
+    const Vertex m; //!< other
+    
+    inline ~neighbor() throw() {}
+    
+private:
+
+};
 
 void Cell:: compute_spot_velocity( Spot *spot )
 {
@@ -61,32 +80,28 @@ void Cell:: compute_spot_velocity( Spot *spot )
     //--------------------------------------------------------------------------
     const Real    P0     = bubble->pressure -  bubble->gam * tracer->curvature;
     (void)P0;
-    const Vertex v     = tracer->vertex;
-    Vertex       probe = v - bubble->lam * tracer->n;
-    pbc(probe);
     
-    int bulk = 0;
-    segmenter.locate_vertex(probe, spot->klo, spot->kup);
-    const unit_t ilo = spot->klo.x;
-    const unit_t iup = spot->kup.x;
-    const unit_t jlo = spot->klo.y;
-    const unit_t jup = spot->kup.y;
+    //--------------------------------------------------------------------------
+    // build the probe
+    //--------------------------------------------------------------------------
+    const Vertex v0    = tracer->vertex;              // original point
+    const Vertex vec   = -tracer->n;                  // go outside
+    const Real   dx    = vec.x * delta.x;
+    const Real   dy    = vec.y * delta.y;
+    const Real   len   = Sqrt(dx*dx+dy*dy)*0.5;        // spacing
+    Vertex       org   = v0 + len * vec;              // starting point
+    //pbc(org);
+    if(org.x<=0) org.x = 0;
+    ios::ocstream fp2("s.dat", true );
+    fp2("%g %g\n", org.x, org.y);
     
-    if( B[jlo][ilo] <= 0)
-        bulk |= BOT_LEFT;
+    //--------------------------------------------------------------------------
+    // find the position or the probe
+    //--------------------------------------------------------------------------
+    Coord klo;
+    Coord kup;
+    segmenter.locate_vertex(org,klo,kup);
     
-    if( B[jlo][iup] <= 0)
-        bulk |= BOT_RIGHT;
-    
-    if( B[jup][ilo] <= 0)
-        bulk |= TOP_LEFT;
-    
-    if( B[jup][iup] <= 0)
-        bulk |= TOP_RIGHT;
-    
-    if( !bulk )
-    {
-        throw exception("Can find bulk for tracer @(%g,%g)\n", v.x,v.y);
-    }
+      
     
 }
