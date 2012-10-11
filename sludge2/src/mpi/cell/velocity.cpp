@@ -33,11 +33,13 @@ void Cell:: compute_spot_velocities()
         bubble->save_vtk_shell( vformat("b%u-shell.vtk",bubble->id) );
     }
 #endif
-    
+   
+#if 0
     for( Bubble *bubble = bubbles.first();bubble;bubble=bubble->next)
     {
         bubble->save_dat(vformat("b%u.dat",bubble->id));
     }
+   
     save_B( "inside.dat" );
     {
         ios::ocstream fp("h0.dat",false);
@@ -50,6 +52,7 @@ void Cell:: compute_spot_velocities()
     
     
     ios::ocstream fp2("s.dat",false);
+#endif
     
     for( Bubble *bubble = bubbles.first();bubble;bubble=bubble->next)
     {
@@ -63,57 +66,20 @@ void Cell:: compute_spot_velocities()
 }
 
 // neighbors
-#include "yocto/code/utils.hpp"
 
-namespace
+struct neighbor
 {
-    class neighbor
+    Real   score;
+    unit_t i;  
+    unit_t j;
+    friend inline bool operator<( const neighbor &lhs, const neighbor &rhs )
     {
-    public:
-        inline neighbor(const Vertex org,
-                        const unit_t  i,
-                        const unit_t  j,
-                        const Array1D &X,
-                        const Array1D &Y,
-                        const Vertex vec) :
-        v( org ),
-        k(i,j),
-        m( X[i], Y[j]),
-        d(v,m),
-        score( vec * d )
-        {
-        }
-        
-        const Vertex v; //!< this position
-        const Coord  k; //!< logical position
-        const Vertex m; //!< other, one of the vertices
-        const Vertex d; //!< vm, vector to get it
-        const Real   score;
-        
-        inline ~neighbor() throw() {}
-        inline neighbor( const neighbor &other ) throw() :
-        v( other.v ),
-        m( other.m ),
-        d( other.d ),
-        score( other.score )
-        {
-            
-        }
-        
-        // decreasing order
-        friend inline
-        bool operator<( const neighbor &lhs, const neighbor &rhs )
-        {
-            return rhs.score < lhs.score;
-        }
-        
-    private:
-        YOCTO_DISABLE_ASSIGN(neighbor);
-    };
-    
-}
+        return rhs.score < lhs.score;
+    }
+};
 
 #include "yocto/code/gsort.hpp"
+
 
 void Cell:: compute_spot_velocity( Spot *spot )
 {
@@ -137,10 +103,15 @@ void Cell:: compute_spot_velocity( Spot *spot )
     const Vertex step  = len * vec;
     Vertex       probe = v0 + step;                   // starting point
     
+    
+    
+#if 0
     {
         ios::ocstream fp("s.dat",true);
         fp("%g %g\n", probe.x, probe.y);
     }
+#endif
+    
     //--------------------------------------------------------------------------
     // find the right position
     //--------------------------------------------------------------------------
@@ -154,75 +125,91 @@ void Cell:: compute_spot_velocity( Spot *spot )
         if(probe.x<=0) probe.x = 0;
         
         segmenter.locate_vertex(probe,klo,kup);
-        if( Bulk[klo.y][klo.x] < 2 )
+        if( Bulk[klo] < 2 )
         {
-            fprintf( stderr, "tracer @(%g,%g): invalid probe (bulk lo@(%g,%g)=%g)\n", v0.x, v0.y, X[klo.x], Y[klo.y], Bulk[klo.y][klo.x]);
-            //fprintf( stderr, "\tB(%g,%g)=%g\n",  X[klo.x],   Y[klo.y],   B[klo.y][klo.x]);
-            //fprintf( stderr, "\tB(%g,%g)=%g\n",  X[klo.x+1], Y[klo.y],   B[klo.y][klo.x+1]);
-            //fprintf( stderr, "\tB(%g,%g)=%g\n",  X[klo.x],   Y[klo.y+1], B[klo.y+1][klo.x]);
-            //fprintf( stderr, "\tB(%g,%g)=%g\n",  X[klo.x+1], Y[klo.y+1], B[klo.y+1][klo.x+1]);
-
-        }
-        break;
-    }
-    
-#if 0
-    ios::ocstream fp2("s.dat", true );
-    fp2("%g %g\n", probe.x, probe.y);
-    
-    //--------------------------------------------------------------------------
-    // find the position of the probe
-    //--------------------------------------------------------------------------
-    Coord klo;
-    Coord kup;
-    for(;;)
-    {
-        //----------------------------------------------------------------------
-        // check the probe position
-        //----------------------------------------------------------------------
-        //pbc(org);
-        if(probe.x<=0) probe.x = 0;
-        
-        segmenter.locate_vertex(probe,klo,kup);
-        
-        //----------------------------------------------------------------------
-        // find neighbors vectors and score
-        //----------------------------------------------------------------------
-        neighbor nreg[] =
-        {
-            neighbor(probe,klo.x,klo.y,X,Y,vec),
-            neighbor(probe,klo.x,kup.y,X,Y,vec),
-            neighbor(probe,kup.x,kup.y,X,Y,vec),
-            neighbor(probe,kup.x,klo.y,X,Y,vec)
-        };
-        const size_t nnum = sizeof(nreg)/sizeof(nreg[0]);
-        c_sort(nreg,nnum);
-        
-        
-#if 1
-        for( size_t i=1; i < nnum; ++i )
-        {
-            assert(nreg[i-1].score>=nreg[i].score);
-        }
-#endif
-        if( nreg[1].score < 0 )
-        {
+            //fprintf( stderr, "tracer @(%g,%g): invalid probe (bulk lo@(%g,%g)=%g)\n", v0.x, v0.y, X[klo.x], Y[klo.y], Bulk[klo.y][klo.x]);
             probe += step;
             continue;
         }
-        
-        //fprintf( stderr, "score@(%g,%g): %g %g\n", org.x, org.y, nreg[0].score,nreg[1].score);
-        {
-            ios::ocstream fp("h0.dat", true);
-            fp("%g %g\n", nreg[0].m.x, nreg[0].m.y);
-        }
-        
-        {
-            ios::ocstream fp("h1.dat", true);
-            fp("%g %g\n", nreg[1].m.x, nreg[1].m.y);
-        }
+        assert(Bulk[klo]>=2);
         break;
+    }
+    
+    //--------------------------------------------------------------------------
+    // find the right neigbhors
+    //--------------------------------------------------------------------------
+    neighbor  neigh[4];
+    size_t    count = 0;
+    for( unit_t j=0;j<2;++j)
+    {
+        const unit_t J = klo.y+j;
+        const Real   y = Y[J];
+        for(unit_t i=0;i<2;++i)
+        {
+            const unit_t I=klo.x+i;
+            if( B[J][I] <= 0)
+            {
+                const Real   x=X[I];
+                const Vertex g(x,y);           // grid vertex
+                const Vertex pg(probe,g);      // probe -> grid
+                assert(count<4);               // sanity check
+                neighbor &n = neigh[count];
+                n.score = pg * vec; // dot product of search direction * (probe->grid)
+                n.i     = I;        // where to take the pressure
+                n.j     = J;        // where to take the pressure
+                ++count;
+            }
+        }
+    }
+    assert( Bulk[klo] == count );
+    assert(count>=2);
+    c_sort(neigh, count);
+#if !defined(NDEBUG)
+    for( size_t i=1; i < count;++i) {  assert(neigh[i-1].score >= neigh[i].score); }
+#endif
+    
+#if 0
+    {
+        ios::ocstream fp("h0.dat", true);
+        fp("%g %g\n", X[ neigh[0].i ], Y[ neigh[0].j ] );
+    }
+    
+    {
+        ios::ocstream fp("h1.dat", true);
+        fp("%g %g\n", X[ neigh[1].i ], Y[ neigh[1].j ] );
     }
 #endif
     
+    //--------------------------------------------------------------------------
+    // Solve the pressure gradient
+    //--------------------------------------------------------------------------
+    const unit_t i1 = neigh[0].i;
+    const unit_t j1 = neigh[0].j;
+    const unit_t i2 = neigh[1].i;
+    const unit_t j2 = neigh[1].j;
+    //fprintf(stderr,"n0.i=%ld,n0.j=%ld,n1.i=%ld,n2.i=%ld\n",i1,j1,i2,j2);
+    const Vertex v1( X[i1], Y[j1] );
+    const Vertex v2( X[i2], Y[j2] );
+    const Real   P1 = P[j1][i1];
+    const Real   P2 = P[j2][i2];
+    const Real   mA  = v1.x - v0.x;
+    const Real   mB  = v1.y - v0.y;
+    const Real   mC  = v2.x - v0.x;
+    const Real   mD  = v2.y - v0.y;
+    const Real   det = mA * mD - mB * mC;
+    //fprintf(stderr,"mA=%g,mB=%g,mC=%g,mD=%g\n",mA,mB,mC,mD);
+    if( Fabs(det) <= 0 )
+    {
+        fprintf( stderr, "invalid points for tracer@(%g,%g)\n", v0.x, v0.y);
+    }
+    const Real   dP1 = P1-P0;
+    const Real   dP2 = P2-P0;
+    const Real   gx  = ( mD * dP1 - mB * dP2)/det;
+    const Real   gy  = (-mC * dP1 + mA * dP2)/det;
+    spot->gradP.x = gx;
+    spot->gradP.y = gy;
+    spot->U = gradP_to_U( spot->gradP );
+    
+    
 }
+
