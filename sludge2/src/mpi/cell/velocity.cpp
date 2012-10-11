@@ -34,7 +34,11 @@ void Cell:: compute_spot_velocities()
     }
 #endif
     
-    bubbles.first()->save_dat("b.dat");
+    for( Bubble *bubble = bubbles.first();bubble;bubble=bubble->next)
+    {
+        bubble->save_dat(vformat("b%u.dat",bubble->id));
+    }
+    save_B( "inside.dat" );
     {
         ios::ocstream fp("h0.dat",false);
     }
@@ -61,49 +65,53 @@ void Cell:: compute_spot_velocities()
 // neighbors
 #include "yocto/code/utils.hpp"
 
-class neighbor
+namespace
 {
-public:
-    inline neighbor(const Vertex org,
-                    const unit_t  i,
-                    const unit_t  j,
-                    const Array1D &X,
-                    const Array1D &Y,
-                    const Vertex vec) :
-    v( org ),
-    k(i,j),
-    m( X[i], Y[j]),
-    d(v,m),
-    score( vec * d )
+    class neighbor
     {
-    }
-    
-    const Vertex v; //!< this position
-    const Coord  k; //!< logical position
-    const Vertex m; //!< other, one of the vertices
-    const Vertex d; //!< vm, vector to get it
-    const Real   score;
-    
-    inline ~neighbor() throw() {}
-    inline neighbor( const neighbor &other ) throw() :
-    v( other.v ),
-    m( other.m ),
-    d( other.d ),
-    score( other.score )
-    {
+    public:
+        inline neighbor(const Vertex org,
+                        const unit_t  i,
+                        const unit_t  j,
+                        const Array1D &X,
+                        const Array1D &Y,
+                        const Vertex vec) :
+        v( org ),
+        k(i,j),
+        m( X[i], Y[j]),
+        d(v,m),
+        score( vec * d )
+        {
+        }
         
-    }
+        const Vertex v; //!< this position
+        const Coord  k; //!< logical position
+        const Vertex m; //!< other, one of the vertices
+        const Vertex d; //!< vm, vector to get it
+        const Real   score;
+        
+        inline ~neighbor() throw() {}
+        inline neighbor( const neighbor &other ) throw() :
+        v( other.v ),
+        m( other.m ),
+        d( other.d ),
+        score( other.score )
+        {
+            
+        }
+        
+        // decreasing order
+        friend inline
+        bool operator<( const neighbor &lhs, const neighbor &rhs )
+        {
+            return rhs.score < lhs.score;
+        }
+        
+    private:
+        YOCTO_DISABLE_ASSIGN(neighbor);
+    };
     
-    // decreasing order
-    friend inline
-    bool operator<( const neighbor &lhs, const neighbor &rhs )
-    {
-        return rhs.score < lhs.score;
-    }
-    
-private:
-    YOCTO_DISABLE_ASSIGN(neighbor);
-};
+}
 
 #include "yocto/code/gsort.hpp"
 
@@ -127,10 +135,38 @@ void Cell:: compute_spot_velocity( Spot *spot )
     const Real   dy    = vec.y * delta.y;
     const Real   len   = Sqrt(dx*dx+dy*dy)*0.5;       // spacing
     const Vertex step  = len * vec;
-    Vertex       probe = v0 + step;              // starting point
+    Vertex       probe = v0 + step;                   // starting point
     
-       
+    {
+        ios::ocstream fp("s.dat",true);
+        fp("%g %g\n", probe.x, probe.y);
+    }
+    //--------------------------------------------------------------------------
+    // find the right position
+    //--------------------------------------------------------------------------
+    Coord klo;
+    Coord kup;
+    for(;;)
+    {
+        //----------------------------------------------------------------------
+        // check the probe position
+        //----------------------------------------------------------------------
+        if(probe.x<=0) probe.x = 0;
+        
+        segmenter.locate_vertex(probe,klo,kup);
+        if( Bulk[klo.y][klo.x] < 2 )
+        {
+            fprintf( stderr, "tracer @(%g,%g): invalid probe (bulk lo@(%g,%g)=%g)\n", v0.x, v0.y, X[klo.x], Y[klo.y], Bulk[klo.y][klo.x]);
+            //fprintf( stderr, "\tB(%g,%g)=%g\n",  X[klo.x],   Y[klo.y],   B[klo.y][klo.x]);
+            //fprintf( stderr, "\tB(%g,%g)=%g\n",  X[klo.x+1], Y[klo.y],   B[klo.y][klo.x+1]);
+            //fprintf( stderr, "\tB(%g,%g)=%g\n",  X[klo.x],   Y[klo.y+1], B[klo.y+1][klo.x]);
+            //fprintf( stderr, "\tB(%g,%g)=%g\n",  X[klo.x+1], Y[klo.y+1], B[klo.y+1][klo.x+1]);
+
+        }
+        break;
+    }
     
+#if 0
     ios::ocstream fp2("s.dat", true );
     fp2("%g %g\n", probe.x, probe.y);
     
@@ -146,7 +182,7 @@ void Cell:: compute_spot_velocity( Spot *spot )
         //----------------------------------------------------------------------
         //pbc(org);
         if(probe.x<=0) probe.x = 0;
-
+        
         segmenter.locate_vertex(probe,klo,kup);
         
         //----------------------------------------------------------------------
@@ -187,4 +223,6 @@ void Cell:: compute_spot_velocity( Spot *spot )
         }
         break;
     }
+#endif
+    
 }

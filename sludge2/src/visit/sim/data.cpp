@@ -100,13 +100,19 @@ visit_handle Simulation:: get_variable( int domain, const string &name ) const
     return h;
 }
 
+#include "yocto/string/conv.hpp"
 
 visit_handle Simulation:: get_curve( const string &name ) const
 {
     visit_handle h = VISIT_INVALID_HANDLE;
-    if( name == "bubble" )
+    
+    if( strncmp(name.c_str(),"bubble",6) == 0 )
     {
-        const Bubble *b = bubbles.first();
+        const size_t  id = strconv::to_size( name.c_str()+6, "bubble id");
+        assert(id>0);
+        assert(id<=bubbles.count());
+        const Bubble *b  = bubbles.first();
+        for(size_t iter=1;iter<id;++iter) b=b->next;
         assert(b);
         if( VisIt_CurveData_alloc(&h) == VISIT_OKAY )
         {
