@@ -119,3 +119,27 @@ void Bubble:: save_vtk_shell( const string &filename ) const
     }
 
 }
+
+void Bubble:: save_vtk_g( const string &filename ) const
+{
+    const unsigned n = spots.size;
+    ios::ocstream fp( filename, false );
+    fp("# vtk DataFile Version 1.0\n");
+    fp("Bubble GradP on Spots\n");
+    fp("ASCII\n");
+    fp("DATASET POLYDATA\n");
+    fp("POINTS %u float\n", 2*n );
+    for( const Spot *spot = spots.head; spot; spot=spot->next )
+    {
+        const Tracer *p = spot->handle;
+        fp("%.15g %.15g 0\n",p->vertex.x,p->vertex.y);
+        const Real fac = 4*lam;
+        fp("%.15g %.15g 0\n",p->vertex.x + fac * spot->gradP.x,p->vertex.y + fac * spot->gradP.y);
+    }
+    fp("\n");
+    fp("LINES %u %u\n", n, 3*n );
+    for( unsigned i=0; i < n; ++i )
+    {
+        fp("2 %u %u\n", 2*i, 2*i+1 );
+    }
+}
