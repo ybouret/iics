@@ -5,6 +5,7 @@ void Simulation:: step()
     VisIt::Simulation::step();
     
     //-- advect spots
+#if 0
     for( Bubble *b = bubbles.first(); b; b=b->next)
     {
         const Real dv = -0.05 * b->id;
@@ -20,6 +21,20 @@ void Simulation:: step()
             v.y -= dv;
         }
     }
+#else
+    for( Bubble *b = bubbles.first(); b; b=b->next)
+    {
+        for( Spot *s = b->spots.head;s;s=s->next)
+        {
+            Tracer      *tracer = s->handle;
+            Vertex       &v      = tracer->vertex;
+            const Vertex &u      = s->U;
+            
+            v += 0.001 * u;
+        }
+
+    }
+#endif
     
     
     //-- send info to master

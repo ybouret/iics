@@ -15,12 +15,6 @@ void Segmenter:: build_effective_pressure(const Array  &B,
         
         const Bubble *bubble = m->bubble; assert(bubble);
         P[m->inside.y][m->inside.x] = bubble->pressure;
-#if 0
-        Vertex &Pe = Penter[m->inside.y][m->inside.x];
-        Pe.x = Pe.y = bubble->pressure;
-        Vertex &Pl = Pleave[m->inside.y][m->inside.x];
-        Pl.x = Pl.y = bubble->pressure;
-#endif
     }
     
     

@@ -131,7 +131,7 @@ void Cell:: compute_pressure(const mpi &MPI )
     
     
     static const size_t shift[2] = { 1, 2};
-    const Real ftol = 1e-2;
+    const Real ftol = 1e-5;
     for(size_t iter=1;;++iter)
     {
         
