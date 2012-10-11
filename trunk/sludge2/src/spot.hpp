@@ -17,7 +17,8 @@ public:
     size_t  jump;             //!< encoding for MPI
     mutable coord2D klo;      //!< lower indices for handle->vertex on grid
     mutable coord2D kup;      //!< upper indices for handle->vertex on grid
-    
+    Vertex  gradP;
+    Vertex  U;
     typedef cache_of<Spot> Cache;
     
 private:
