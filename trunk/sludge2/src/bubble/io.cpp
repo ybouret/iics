@@ -133,7 +133,7 @@ void Bubble:: save_vtk_g( const string &filename ) const
     {
         const Tracer *p = spot->handle;
         fp("%.15g %.15g 0\n",p->vertex.x,p->vertex.y);
-        const Real fac = 4*lam;
+        const Real fac = 2*lam;
         fp("%.15g %.15g 0\n",p->vertex.x + fac * spot->gradP.x,p->vertex.y + fac * spot->gradP.y);
     }
     fp("\n");
