@@ -62,6 +62,7 @@ void Cell:: compute_spot_velocities()
             compute_spot_velocity(spot);
         }
         bubble->save_vtk( vformat("bubble%u.vtk", bubble->id) );
+        bubble->save_vtk_n( vformat("curv%u.vtk", bubble->id) );
         bubble->save_vtk_g( vformat("bgradp%u.vtk", bubble->id) );
     }
 }
