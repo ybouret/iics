@@ -39,6 +39,8 @@ void Cell:: compute_spot_velocities()
     {
         bubble->save_dat(vformat("b%u.dat",bubble->id));
     }
+    
+    { ios::ocstream fp("s.dat",false); }
     { ios::ocstream fp("h0.dat",false); }
     { ios::ocstream fp("h1.dat",false); }
 
@@ -66,6 +68,9 @@ struct neighbor
     Real   score;
     unit_t i;
     unit_t j;
+    Real   dx; //!< to tracer
+    Real   dy; //!< to tracer
+    Real   P;  //!< its pressure
     friend inline bool operator<( const neighbor &lhs, const neighbor &rhs )
     {
         return rhs.score < lhs.score;
@@ -121,6 +126,12 @@ void Cell:: compute_spot_velocity( Spot *spot )
         break;
     }
     
+    if(false)
+    {
+        ios::ocstream fp("s.dat",true);
+        fp("%g %g\n", probe.x, probe.y);
+    }
+    
     //--------------------------------------------------------------------------
     // find the right neigbhors
     //--------------------------------------------------------------------------
@@ -143,6 +154,9 @@ void Cell:: compute_spot_velocity( Spot *spot )
                 n.score     = pg * h;   // dot product of search direction * (probe->grid)
                 n.i         = I;        // where to take the pressure
                 n.j         = J;        // where to take the pressure
+                n.P         = P[J][I];
+                n.dx        = X[I] - v0.x;
+                n.dy        = Y[J] - v0.y;
                 ++count;
             }
         }
@@ -154,6 +168,42 @@ void Cell:: compute_spot_velocity( Spot *spot )
     for( size_t i=1; i < count;++i) {  assert(neigh[i-1].score >= neigh[i].score); }
 #endif
     
+    Real sum_xP = 0;
+    Real sum_yP = 0;
+    Real sum_x  = 0;
+    Real sum_y  = 0;
+    Real sum_xx = 0;
+    Real sum_yy = 0;
+    Real sum_xy = 0;
+    for( size_t i=0; i < count; ++i )
+    {
+        const neighbor &n = neigh[i];
+        sum_xP += n.dx * n.P;
+        sum_yP += n.dy * n.P;
+        sum_x  += n.dx;
+        sum_y  += n.dy;
+        sum_xx += n.dx * n.dx;
+        sum_yy += n.dy * n.dy;
+        sum_xy += n.dx * n.dy;
+    }
+    
+    const Real det = sum_xx * sum_yy - sum_xy * sum_xy;
+    if( Fabs(det) <= 0 )
+    {
+        fprintf( stderr, "invalid points for tracer@(%g,%g)\n", v0.x, v0.y);
+    }
+    
+    const Real Bx = sum_xP - sum_x * P0;
+    const Real By = sum_yP - sum_y * P0;
+    
+    const Real gx = (  sum_yy * Bx - sum_xy * By)/det;
+    const Real gy = ( -sum_xy * Bx + sum_xx * By)/det;
+    const Real   dPdh = gx*h.x + gy*h.y;
+    
+    spot->gradP = dPdh * h;
+    spot->U.ldz();
+    
+#if 0
     //--------------------------------------------------------------------------
     // now we have at least two neighbors, ranked by their dot products
     //--------------------------------------------------------------------------
@@ -189,7 +239,7 @@ void Cell:: compute_spot_velocity( Spot *spot )
     
     spot->gradP = dPdh * h;
     spot->U.ldz();
-    
+#endif
     
 #if 0
     //--------------------------------------------------------------------------
@@ -220,7 +270,7 @@ void Cell:: compute_spot_velocity( Spot *spot )
     }
 #endif
     
-#if 1
+#if 0
     {
         ios::ocstream fp("h0.dat", true);
         fp("%g %g\n", X[ neigh[0].i ], Y[ neigh[0].j ] );
