@@ -33,25 +33,15 @@ void Cell:: compute_spot_velocities()
         bubble->save_vtk_shell( vformat("b%u-shell.vtk",bubble->id) );
     }
 #endif
-   
-#if 0
+    
+#if 1
     for( Bubble *bubble = bubbles.first();bubble;bubble=bubble->next)
     {
         bubble->save_dat(vformat("b%u.dat",bubble->id));
     }
-   
-    save_B( "inside.dat" );
-    {
-        ios::ocstream fp("h0.dat",false);
-    }
-    
-    {
-        ios::ocstream fp("h1.dat",false);
-    }
-    
-    
-    
-    ios::ocstream fp2("s.dat",false);
+    { ios::ocstream fp("h0.dat",false); }
+    { ios::ocstream fp("h1.dat",false); }
+
 #endif
     
     for( Bubble *bubble = bubbles.first();bubble;bubble=bubble->next)
@@ -61,9 +51,11 @@ void Cell:: compute_spot_velocities()
         {
             compute_spot_velocity(spot);
         }
+#if 1
         bubble->save_vtk( vformat("bubble%u.vtk", bubble->id) );
         bubble->save_vtk_n( vformat("curv%u.vtk", bubble->id) );
         bubble->save_vtk_g( vformat("bgradp%u.vtk", bubble->id) );
+#endif
     }
 }
 
@@ -72,7 +64,7 @@ void Cell:: compute_spot_velocities()
 struct neighbor
 {
     Real   score;
-    unit_t i;  
+    unit_t i;
     unit_t j;
     friend inline bool operator<( const neighbor &lhs, const neighbor &rhs )
     {
@@ -97,21 +89,14 @@ void Cell:: compute_spot_velocity( Spot *spot )
     // build the probe
     //--------------------------------------------------------------------------
     const Vertex v0    = tracer->vertex;              // original point
-    const Vertex vec   = -tracer->n;                  // go outside
-    const Real   dx    = vec.x * delta.x;
-    const Real   dy    = vec.y * delta.y;
+    const Vertex h     = -tracer->n;                  // go outside
+    const Real   dx    = h.x * delta.x;
+    const Real   dy    = h.y * delta.y;
     const Real   len   = Sqrt(dx*dx+dy*dy)*0.5;       // spacing
-    const Vertex step  = len * vec;
+    const Vertex step  = len * h;
     Vertex       probe = v0 + step;                   // starting point
     
     
-    
-#if 0
-    {
-        ios::ocstream fp("s.dat",true);
-        fp("%g %g\n", probe.x, probe.y);
-    }
-#endif
     
     //--------------------------------------------------------------------------
     // find the right position
@@ -155,9 +140,9 @@ void Cell:: compute_spot_velocity( Spot *spot )
                 const Vertex pg(probe,g);      // probe -> grid
                 assert(count<4);               // sanity check
                 neighbor &n = neigh[count];
-                n.score = pg * vec; // dot product of search direction * (probe->grid)
-                n.i     = I;        // where to take the pressure
-                n.j     = J;        // where to take the pressure
+                n.score     = pg * h;   // dot product of search direction * (probe->grid)
+                n.i         = I;        // where to take the pressure
+                n.j         = J;        // where to take the pressure
                 ++count;
             }
         }
@@ -169,7 +154,73 @@ void Cell:: compute_spot_velocity( Spot *spot )
     for( size_t i=1; i < count;++i) {  assert(neigh[i-1].score >= neigh[i].score); }
 #endif
     
+    //--------------------------------------------------------------------------
+    // now we have at least two neighbors, ranked by their dot products
+    //--------------------------------------------------------------------------
+    const unit_t i1 = neigh[0].i;
+    const unit_t j1 = neigh[0].j;
+    const unit_t i2 = neigh[1].i;
+    const unit_t j2 = neigh[1].j;
+    const Real   x1 = X[i1];
+    const Real   x2 = X[i2];
+    const Real   y1 = Y[j1];
+    const Real   y2 = Y[j2];
+    
+    //--------------------------------------------------------------------------
+    // estimate the normal gradient pressure
+    //--------------------------------------------------------------------------
+    const Real   dP1 = P[j1][i1] - P0;
+    const Real   dP2 = P[j2][i2] - P0;
+    
+    const Real   mA  = x1 - v0.x;
+    const Real   mB  = y1 - v0.y;
+    const Real   mC  = x2 - v0.x;
+    const Real   mD  = y2 - v0.y;
+    const Real   det = mA * mD - mB * mC;
+    //fprintf(stderr,"mA=%g,mB=%g,mC=%g,mD=%g\n",mA,mB,mC,mD);
+    if( Fabs(det) <= 0 )
+    {
+        fprintf( stderr, "invalid points for tracer@(%g,%g)\n", v0.x, v0.y);
+    }
+    
+    const Real   gx  = ( mD * dP1 - mB * dP2)/det;
+    const Real   gy  = (-mC * dP1 + mA * dP2)/det;
+    const Real   dPdh = gx*h.x + gy*h.y;
+    
+    spot->gradP = dPdh * h;
+    spot->U.ldz();
+    
+    
 #if 0
+    //--------------------------------------------------------------------------
+    // find the intersection with the edge
+    //--------------------------------------------------------------------------
+    const Real dx12 = x2-x1;
+    const Real dy12 = y2-y1;
+    
+    const Real cross_h = dx12 * h.y - dy12 * h.x;
+    if( Fabs(cross_h) <= 0 )
+    {
+        fprintf( stderr, "invalid points for tracer@(%g,%g)\n", v0.x, v0.y);
+    }
+    
+    const Real cross_v = dx12 * (v0.y-y1) - dy12 * (v0.x-x1);
+    const Real mu      = -cross_v/cross_h;
+    if(mu<=0)
+    {
+        fprintf( stderr, "invalid mu=%g for tracer@(%g,%g)\n", mu, v0.x, v0.y);
+    }
+    assert(mu>0);
+    
+    const Vertex shell = v0 + mu * h;
+    
+    {
+        ios::ocstream fp("s.dat",true);
+        fp("%g %g\n", shell.x, shell.y);
+    }
+#endif
+    
+#if 1
     {
         ios::ocstream fp("h0.dat", true);
         fp("%g %g\n", X[ neigh[0].i ], Y[ neigh[0].j ] );
@@ -180,37 +231,6 @@ void Cell:: compute_spot_velocity( Spot *spot )
         fp("%g %g\n", X[ neigh[1].i ], Y[ neigh[1].j ] );
     }
 #endif
-    
-    //--------------------------------------------------------------------------
-    // Solve the pressure gradient
-    //--------------------------------------------------------------------------
-    const unit_t i1 = neigh[0].i;
-    const unit_t j1 = neigh[0].j;
-    const unit_t i2 = neigh[1].i;
-    const unit_t j2 = neigh[1].j;
-    //fprintf(stderr,"n0.i=%ld,n0.j=%ld,n1.i=%ld,n2.i=%ld\n",i1,j1,i2,j2);
-    const Vertex v1( X[i1], Y[j1] );
-    const Vertex v2( X[i2], Y[j2] );
-    const Real   P1 = P[j1][i1];
-    const Real   P2 = P[j2][i2];
-    const Real   mA  = v1.x - v0.x;
-    const Real   mB  = v1.y - v0.y;
-    const Real   mC  = v2.x - v0.x;
-    const Real   mD  = v2.y - v0.y;
-    const Real   det = mA * mD - mB * mC;
-    //fprintf(stderr,"mA=%g,mB=%g,mC=%g,mD=%g\n",mA,mB,mC,mD);
-    if( Fabs(det) <= 0 )
-    {
-        fprintf( stderr, "invalid points for tracer@(%g,%g)\n", v0.x, v0.y);
-    }
-    const Real   dP1 = P1-P0;
-    const Real   dP2 = P2-P0;
-    const Real   gx  = ( mD * dP1 - mB * dP2)/det;
-    const Real   gy  = (-mC * dP1 + mA * dP2)/det;
-    spot->gradP.x = gx;
-    spot->gradP.y = gy;
-    spot->U = gradP_to_U( spot->gradP );
-    
     
 }
 
