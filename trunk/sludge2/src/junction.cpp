@@ -13,3 +13,16 @@ curvature(0),
 n()
 {}
 
+Junction::Junction( const Junction &other ) throw() :
+next(0),
+prev(0),
+vertex( other.vertex ),
+klo( other.klo ),
+khi( other.khi ),
+bubble( other.bubble ),
+alpha( other.alpha ),
+curvature(0),
+n(other.n)
+{
+    
+}

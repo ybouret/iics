@@ -82,6 +82,10 @@ struct neighbor
 
 void Cell:: compute_spot_velocity( Spot *spot )
 {
+
+    segmenter.find_bracketing_junctions(spot);
+    
+#if 0
     Tracer       *tracer = spot->handle; assert(tracer->bubble);
     const Bubble *bubble = tracer->bubble;
     
@@ -202,6 +206,7 @@ void Cell:: compute_spot_velocity( Spot *spot )
     
     spot->gradP = dPdh * h;
     spot->U.ldz();
+#endif
     
 #if 0
     //--------------------------------------------------------------------------
