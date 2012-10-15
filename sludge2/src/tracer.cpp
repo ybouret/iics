@@ -13,7 +13,9 @@ n(),
 angle(0),
 curvature(0),
 bubble(0),
-is_spot(false)
+is_spot(false),
+jnext(0),
+jprev(0)
 {}
 
 

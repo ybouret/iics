@@ -14,6 +14,7 @@ jcache(),
 mcache(),
 segcount( X.items + Y.items ),
 segments( segcount, as_capacity ),
+duplicates(jcache),
 markers(mcache)
 {
 }
@@ -37,8 +38,8 @@ void Segmenter:: create()
         segments.push_back(sp);
     }
     
-    hseg = &segments[1];
-    vseg = hseg + Y.items;
+    hseg  = &segments[1];
+    vseg  = hseg + Y.items;
     hseg -= Y.lower;
     vseg -= X.lower;
     

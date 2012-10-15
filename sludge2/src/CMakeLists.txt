@@ -38,6 +38,7 @@ seg/locate.cpp
 seg/process.cpp
 seg/build.cpp
 seg/pressurize.cpp
+seg/bracket.cpp
 )
 SOURCE_GROUP( seg FILES ${SOURCES_SEG} )
 

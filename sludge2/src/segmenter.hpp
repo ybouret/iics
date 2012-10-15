@@ -66,7 +66,7 @@ public:
     //! save junctions coordinates+normal
     void save_vtk_n( const string &filename, Real scale) const;
     
-    
+    //! fast bissection look up
     static
     void locate_value( const Real z, const Array1D &Z, unit_t &klo, unit_t &kup ) throw();
     
@@ -75,16 +75,27 @@ public:
     
     
 #if defined(HAS_MPI)
+    //! take care of PBC
     void dispatch_vertical_junctions( const mpi &MPI, Cell &cell );
 #endif
     
-    void SortHorz();
-    void SortVert();
+    void SortHorz(); //!< sort horizontal junctions
+    void SortVert(); //!< sort vertical   junctions
     
     void show_jvert() const;
     
-    void remove_vertical_junctions_below( const Real ylim );
+    //! find closest junctions, assumning bubbles are already processed
+    /**
+     so that the spots are located
+     */
+    void find_bracketing_junctions( const Spot *spot ) const;
     
+    
+    //! remove redondant junctions
+    /**
+     use a local list to keep duplicate junctions data (no overwrite)
+     */
+    void remove_vertical_junctions_below( const Real ylim );
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Segmenter);
@@ -94,6 +105,8 @@ private:
     Marker::Cache   mcache;
     const size_t    segcount;
     Segments        segments;
+    Junctions       duplicates;
+    
     void process_bubble( const Bubble *bubble, const Real half );
     void process_spot( const Spot *spot, const Real half);
     void compute_junctions(const Spot   *spot,
@@ -102,6 +115,9 @@ private:
                            const Tracer *to
                            );
     Markers         markers;
+    
+   
+
 };
 
 #endif

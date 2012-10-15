@@ -33,6 +33,7 @@ void Segmenter:: SortVert()
 
 void Segmenter:: remove_vertical_junctions_below( const Real ylim )
 {
+    
     for(unit_t i=X.lower;i<=X.upper;++i)
     {
         Junctions &jvert = Vert(i);
@@ -42,7 +43,8 @@ void Segmenter:: remove_vertical_junctions_below( const Real ylim )
             Junction *J = jvert.pop_front();
             if( J->vertex.y < ylim )
             {
-                jvert.garbage(J);
+                //jvert.garbage(J);
+                duplicates.push_back(J);
             }
             else
             {
@@ -64,6 +66,7 @@ void Segmenter:: process( const Bubbles &bubbles )
     for( size_t i=segcount;i>0;--i)
         segments[i]->empty();
     markers.empty();
+    duplicates.empty();
     
     //--------------------------------------------------------------------------
     // find all junctions
@@ -181,8 +184,43 @@ OutCode ComputeOutCode(const Real x, const Real y, const Real xmin, const Real x
     return code;
 }
 
+#if 1
+static inline Real dist_sq( const Vertex &lhs, const Vertex &rhs ) throw()
+{
+    const Vertex d(lhs,rhs);
+    return d.norm2();
+}
+
+static inline
+void update_jnext( Tracer *p, const Junction *J )
+{
+    if(
+       ( p->jnext == 0 ) ||
+       ( dist_sq(p->vertex,J->vertex) < dist_sq(p->vertex, p->jnext->vertex) )
+       )
+    {
+        p->jnext = J;
+    }
+    
+}
+
+static inline
+void update_jprev( Tracer *p, const Junction *J )
+{
+    if(
+       ( p->jprev == 0 ) ||
+       ( dist_sq(p->vertex,J->vertex) < dist_sq(p->vertex, p->jprev->vertex) )
+       )
+    {
+        p->jprev = J;
+    }
+    
+}
+#endif
+
 static inline void FinalizeJunction( Junction *J, const Tracer *source, const Tracer *target ) throw()
 {
+    assert( target == source->next || target == source->prev );
     const Real  s_weight = (1-J->alpha);
     const Real  t_weight = J->alpha;
     J->bubble            = source->bubble;
@@ -192,6 +230,19 @@ static inline void FinalizeJunction( Junction *J, const Tracer *source, const Tr
     const Real j_angle   = s_weight * s_angle + t_weight * t_angle;
     J->n.x = Cos(j_angle);
     J->n.y = Sin(j_angle);
+    
+    if( target == source->next )
+    {
+        update_jnext( (Tracer *)source, J);
+        update_jprev( (Tracer *)target, J);
+        return;
+    }
+    
+    if( target == source->prev )
+    {
+        update_jprev( (Tracer *)source, J);
+        update_jnext( (Tracer *)target, J);
+    }
 }
 
 static inline

@@ -24,7 +24,8 @@ public:
     typedef cache_of<Junction> Cache;
     
 private:
-    YOCTO_DISABLE_COPY_AND_ASSIGN(Junction);
+    YOCTO_DISABLE_ASSIGN(Junction);
+    Junction( const Junction &other ) throw();
 };
 
 typedef cached_list<core::list_of, Junction> Junctions;
