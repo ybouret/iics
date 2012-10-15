@@ -43,7 +43,6 @@ void Segmenter:: remove_vertical_junctions_below( const Real ylim )
             Junction *J = jvert.pop_front();
             if( J->vertex.y < ylim )
             {
-                //jvert.garbage(J);
                 duplicates.push_back(J);
             }
             else
@@ -184,7 +183,6 @@ OutCode ComputeOutCode(const Real x, const Real y, const Real xmin, const Real x
     return code;
 }
 
-#if 1
 static inline Real dist_sq( const Vertex &lhs, const Vertex &rhs ) throw()
 {
     const Vertex d(lhs,rhs);
@@ -216,7 +214,6 @@ void update_jprev( Tracer *p, const Junction *J )
     }
     
 }
-#endif
 
 static inline void FinalizeJunction( Junction *J, const Tracer *source, const Tracer *target ) throw()
 {
