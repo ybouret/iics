@@ -34,7 +34,7 @@ void Cell:: compute_spot_velocities()
     }
 #endif
     
-#if 1
+#if 0
     for( Bubble *bubble = bubbles.first();bubble;bubble=bubble->next)
     {
         bubble->save_dat(vformat("b%u.dat",bubble->id));
@@ -53,7 +53,7 @@ void Cell:: compute_spot_velocities()
         {
             compute_spot_velocity(spot);
         }
-#if 1
+#if 0
         bubble->save_vtk( vformat("bubble%u.vtk", bubble->id) );
         bubble->save_vtk_n( vformat("curv%u.vtk", bubble->id) );
         bubble->save_vtk_g( vformat("bgradp%u.vtk", bubble->id) );
@@ -91,7 +91,7 @@ void Cell:: compute_spot_velocity( Spot *spot )
     const Real    P0     = bubble->pressure -  bubble->gam * tracer->curvature;
     
     //--------------------------------------------------------------------------
-    // build the probe
+    // build the probe : ellipsoidal direction
     //--------------------------------------------------------------------------
     const Vertex v0    = tracer->vertex;              // original point
     const Vertex h     = -tracer->n;                  // go outside
