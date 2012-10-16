@@ -221,12 +221,23 @@ static inline void FinalizeJunction( Junction *J, const Tracer *source, const Tr
     const Real  s_weight = (1-J->alpha);
     const Real  t_weight = J->alpha;
     J->bubble            = source->bubble;
+    //-- average curvature
     J->curvature         = s_weight*source->curvature + t_weight * target->curvature;
+    
+    //-- average tangent angle
     const Real s_angle   = source->angle;
     const Real t_angle   = target->angle;
     const Real j_angle   = s_weight * s_angle + t_weight * t_angle;
-    J->n.x = Cos(j_angle);
-    J->n.y = Sin(j_angle);
+    
+    //-- compute tangent
+    J->t.x = Cos(j_angle);
+    J->t.y = Sin(j_angle);
+    
+    //-- compute normal
+    J->n.x = -J->t.y;
+    J->n.y =  J->t.x;
+
+    
     
     if( target == source->next )
     {
