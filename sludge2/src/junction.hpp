@@ -19,6 +19,7 @@ public:
     const Bubble   *bubble;
     Real            alpha; //!< weight of the distant tracer for curvature,etc...
     Real            curvature;
+    Vertex          t;     //!< tangent
     Vertex          n;     //!< normal
     
     typedef cache_of<Junction> Cache;

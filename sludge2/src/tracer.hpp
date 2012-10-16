@@ -24,7 +24,7 @@ public:
     Real            s;         //!< |edge|^2                 : +1
     Vertex          t;         //!< local tangent vector     : +2
     Vertex          n;         //!< local normal vector      : +2
-    Real            angle;     //!< normal positive angle    : +1
+    Real            angle;     //!< tangent positive angle   : +1
     Real            curvature; //!< local curvature          : +1
     Bubble         *bubble;    //!< whose that ?
     bool            is_spot;   //!< default: false

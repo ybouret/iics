@@ -2,16 +2,17 @@
 
 
 
-void Segmenter:: find_bracketing_junctions(const Spot *spot) const
+void Segmenter:: find_bracketing_junctions(ConstJunctionPtr &jprev,
+                                           ConstJunctionPtr &jnext,
+                                           const Spot       *spot) const
 {
     assert(spot);
-    
+    assert(0==jnext);
+    assert(0==jprev);
     const Tracer *tracer = spot->handle; assert(tracer);
-    //fprintf( stderr, "\ttracer @(%g,%g)\n", tracer->vertex.x, tracer->vertex.y);
     //--------------------------------------------------------------------------
     // find next
     //--------------------------------------------------------------------------
-    const Junction *jnext = 0;
     {
         const Tracer *p  = tracer;
         if( p->jnext )
@@ -35,19 +36,17 @@ void Segmenter:: find_bracketing_junctions(const Spot *spot) const
                 }
             }
         }
-       
+        
     }
     
     if(!jnext)
     {
-        fprintf( stderr, "can't find jnext!\n");
+        throw exception("can't find jnext for tracer@(%g,%g)!",tracer->vertex.x,tracer->vertex.y);
     }
-    //fprintf( stderr, "\t\t: jnext@(%g,%g)\n", jnext->vertex.x, jnext->vertex.y);
     
     //--------------------------------------------------------------------------
     // find prev
     //--------------------------------------------------------------------------
-    const Junction *jprev = 0;
     {
         const Tracer *p = tracer;
         if( p->jprev )
@@ -74,11 +73,14 @@ void Segmenter:: find_bracketing_junctions(const Spot *spot) const
     }
     if(!jprev)
     {
-        fprintf( stderr, "can't find jprev!");
-    }
-    //fprintf( stderr, "\t\t: jprev@(%g,%g)\n", jprev->vertex.x, jprev->vertex.y);
+        throw exception("can't find jprev for tracer@(%g,%g)!",tracer->vertex.x,tracer->vertex.y);
 
-    assert(jnext!=jprev);
+    }
     
+
+    if(jprev==jnext)
+    {
+        throw exception("same next/prev junction for tracer@(%g,%g)!",tracer->vertex.x,tracer->vertex.y);
+    }
     
 }

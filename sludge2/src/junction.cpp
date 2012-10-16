@@ -10,9 +10,11 @@ khi(0),
 bubble(0),
 alpha(0),
 curvature(0),
+t(),
 n()
 {}
 
+#if 0
 Junction::Junction( const Junction &other ) throw() :
 next(0),
 prev(0),
@@ -26,3 +28,4 @@ n(other.n)
 {
     
 }
+#endif

@@ -6,6 +6,8 @@
 #include "bubbles.hpp"
 
 class Cell;
+
+typedef const Junction * ConstJunctionPtr;
 class Segmenter
 {
 public:
@@ -29,7 +31,7 @@ public:
     
     //! get vertical segment @X[i]
     const Segment & Vert( unit_t i) const throw();
-
+    
     const Array1D  &X;
     const Array1D  &Y;
     
@@ -88,7 +90,9 @@ public:
     /**
      so that the spots are located
      */
-    void find_bracketing_junctions( const Spot *spot ) const;
+    void find_bracketing_junctions(ConstJunctionPtr &jprev,
+                                   ConstJunctionPtr &jnext,
+                                   const Spot       *spot ) const;
     
     
     //! remove redondant junctions
@@ -116,8 +120,8 @@ private:
                            );
     Markers         markers;
     
-   
-
+    
+    
 };
 
 #endif

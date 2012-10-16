@@ -335,7 +335,7 @@ TRY_GENERATE:
         tracer->t                 = (1/tg_norm) * tangent;
         tracer->n.x               = -tracer->t.y;
         tracer->n.y               =  tracer->t.x;
-        tracer->angle             =  tracer->n.positive_angle();
+        tracer->angle             =  tracer->t.positive_angle();
         const Vertex acc          =  vertex_dsplint2(ti, t, v, v2);
         tracer->curvature         = (acc * tracer->n) / tg_norm2;
     }
