@@ -17,7 +17,10 @@ id(bubble_id),
 pbc(bubble_pbc),
 lam(bubble_lam),
 gam(bubble_gam),
-spots(scache)
+spots(scache),
+pressure(0),
+area(0),
+content(0)
 {
     
 }
