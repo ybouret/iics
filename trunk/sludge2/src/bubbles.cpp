@@ -9,6 +9,7 @@ Bubbles:: ~Bubbles() throw()
 Bubbles:: Bubbles( const PBC &bubbles_pbc ) throw() :
 pbc( bubbles_pbc ),
 lambda(1),
+gamma(0),
 bubbles(),
 pool(),
 tcache(),
