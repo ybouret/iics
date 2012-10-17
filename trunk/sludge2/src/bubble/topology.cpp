@@ -1,7 +1,9 @@
 #include "../bubble.hpp"
 #include "yocto/code/utils.hpp"
 
+//==============================================================================
 //! simultaneous tridiagonal system
+//==============================================================================
 static inline
 void vertex_tridiag(const array<Real>   &a,
                     const array<Real>   &b,
@@ -55,7 +57,9 @@ void vertex_tridiag(const array<Real>   &a,
     
 }
 
-
+//==============================================================================
+// simulatneous cyclic tridiagonal system
+//==============================================================================
 static inline
 void vertex_cyclic(const array<Real>   &a,
                    const array<Real>   &b,
@@ -101,7 +105,11 @@ void vertex_cyclic(const array<Real>   &a,
     
 }
 
-static inline void __bracket( size_t &klo, size_t &khi, const Real t, const array<Real> &ta)
+//==============================================================================
+// bracketing by bissectopn
+//==============================================================================
+static inline
+void __bracket( size_t &klo, size_t &khi, const Real t, const array<Real> &ta)
 {
     const size_t n = ta.size();
     assert(t<ta[n]);
@@ -125,6 +133,9 @@ static inline void __bracket( size_t &klo, size_t &khi, const Real t, const arra
     assert(t<=ta[khi]);
 }
 
+//==============================================================================
+// spline interpolation
+//==============================================================================
 static inline
 Vertex vertex_splint( const Real t, const array<Real> &ta, const array<Vertex> &v, const array<Vertex> &v2 )
 {
@@ -143,6 +154,9 @@ Vertex vertex_splint( const Real t, const array<Real> &ta, const array<Vertex> &
     return a*v[klo] + b*v[khi] + C * v2[klo] + D * v2[khi];
 }
 
+//==============================================================================
+// spline interpolation of first derivative
+//==============================================================================
 static inline
 Vertex vertex_dsplint1(const Real t, const array<Real> &ta, const array<Vertex> &v, const array<Vertex> &v2 )
 {
@@ -162,6 +176,9 @@ Vertex vertex_dsplint1(const Real t, const array<Real> &ta, const array<Vertex> 
     return (v[khi] - v[klo])/h + Cp * v2[klo] + Dp * v2[khi];
 }
 
+//==============================================================================
+// spline interpolation of second derivative
+//==============================================================================
 static inline
 Vertex vertex_dsplint2(const Real t, const array<Real> &ta, const array<Vertex> &v, const array<Vertex> &v2 )
 {
@@ -272,7 +289,8 @@ void Bubble:: compute_contour()
     // lazy insertion
     //
     //--------------------------------------------------------------------------
-    size_t Ns = max_of<size_t>( size, max_of<size_t>(Ceil( period/lam ),3));
+    //size_t Ns = max_of<size_t>( size, max_of<size_t>(Ceil( period/lam ),3));
+    size_t Ns = max_of<size_t>(1+Ceil( period/lam ),3);
     
 TRY_GENERATE:
     {
