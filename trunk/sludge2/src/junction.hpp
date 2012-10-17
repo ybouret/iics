@@ -10,9 +10,13 @@ class Junction
 public:
     Junction() throw();
     ~Junction() throw();
+    static const int Vert = 1;
+    static const int Horz = 2;
+    
     
     Junction       *next;
     Junction       *prev;
+    int             kind;      //!< Vert | Horz
     Vertex          vertex;    //!< localization
     unit_t          klo;       //!< lower indices
     unit_t          khi;       //!< upper indices

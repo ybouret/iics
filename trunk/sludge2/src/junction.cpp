@@ -4,6 +4,7 @@ Junction:: ~Junction() throw() {}
 Junction:: Junction() throw() :
 next(0),
 prev(0),
+kind(0),
 vertex(),
 klo(0),
 khi(0),

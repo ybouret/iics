@@ -70,7 +70,7 @@ struct neighbor
 
 void Cell:: compute_junction_gn( Junction *J )
 {
-    
+    assert(J->kind==Junction::Vert || J->kind == Junction::Horz);
 }
 
 void Cell:: compute_junctions_gn()
