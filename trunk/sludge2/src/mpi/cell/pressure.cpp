@@ -222,7 +222,7 @@ void Cell:: compute_pressure(const mpi &MPI )
     //--------------------------------------------------------------------------
     MPI.Printf0(stderr, "\tcomputing velocities...\n");
     compute_bulk_velocities();
-    compute_spot_velocities();
+    compute_spots_velocity();
     
     //--------------------------------------------------------------------------
     // for VisIt

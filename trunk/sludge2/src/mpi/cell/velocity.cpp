@@ -24,9 +24,14 @@ void Cell:: compute_bulk_velocities()
 }
 
 
-void Cell:: compute_spot_velocities()
+
+
+void Cell:: compute_spots_velocity()
 {
- 
+    
+    
+    
+    
     segmenter.save_vtk_gt("gt.vtk");
     segmenter.save_vtk_n( "jn.vtk");
     
@@ -63,10 +68,49 @@ struct neighbor
 
 #include "yocto/code/gsort.hpp"
 
+void Cell:: compute_junction_gn( Junction *J )
+{
+    
+}
+
+void Cell:: compute_junctions_gn()
+{
+    for( unit_t j=Y.lower;j<=Y.upper;++j)
+    {
+        Junctions &junctions = segmenter.Horz(j);
+        for( Junction *J = junctions.head;J;J=J->next)
+        {
+            compute_junction_gn(J);
+        }
+    }
+    
+    for(unit_t i=X.lower;i<=X.upper;++i)
+    {
+        Junctions &junctions = segmenter.Vert(i);
+        for( Junction *J = junctions.head;J;J=J->next)
+        {
+            compute_junction_gn(J);
+        }
+    }
+    
+    {
+        Junctions &junctions = segmenter.duplicated();
+        for( Junction *J = junctions.head;J;J=J->next)
+        {
+            compute_junction_gn(J);
+        }
+    }
+}
+
 
 void Cell:: compute_spot_velocity( Spot *spot )
 {
-
+    
+    //--------------------------------------------------------------------------
+    // compute the junctions ortho gradP
+    //--------------------------------------------------------------------------
+    compute_junctions_gn();
+    
     //--------------------------------------------------------------------------
     // localizing junctions
     //--------------------------------------------------------------------------

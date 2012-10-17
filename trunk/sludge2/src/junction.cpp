@@ -10,6 +10,7 @@ khi(0),
 bubble(0),
 alpha(0),
 curvature(0),
+pressure(0),
 t(),
 n(),
 gradP_t(0)

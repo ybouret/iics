@@ -3,6 +3,8 @@
 
 #include "bubble.hpp"
 
+
+//! resulting from segmentation
 class Marker
 {
 public:

@@ -54,7 +54,7 @@ void Segmenter:: build_effective_pressure(const Array  &B,
                     // we leave a bubble: take the last junction
                     //----------------------------------------------------------
                     assert(B[j][J->khi]<=0);
-                    Pleave[j][J->klo].x = J->bubble->pressure - gamma * J->curvature;
+                    Pleave[j][J->klo].x = J->pressure;
                 }
                 else
                 {
@@ -66,7 +66,7 @@ void Segmenter:: build_effective_pressure(const Array  &B,
                         fprintf( stderr, "error @j=%ld, K->khi=%ld\n and B[klo]=%g\n", j, K->khi, B[j][K->klo]);
                     }
                     assert(B[j][K->khi]>0);
-                    Penter[j][K->khi].x = K->bubble->pressure - gamma * K->curvature;
+                    Penter[j][K->khi].x = K->pressure;
                 }
             }
             J    = J->next;
@@ -118,7 +118,7 @@ void Segmenter:: build_effective_pressure(const Array  &B,
                     //----------------------------------------------------------
                     assert(B[J->klo][i]>0);
                     assert(B[J->khi][i]<=0);
-                    Pleave[J->klo][i].y = J->bubble->pressure - gamma * J->curvature;
+                    Pleave[J->klo][i].y = J->pressure;
                 }
                 else
                 {
@@ -134,7 +134,7 @@ void Segmenter:: build_effective_pressure(const Array  &B,
                     assert(B[K->klo][i]<=0);
                     assert(B[K->khi][i]>0);
                     
-                    Penter[K->khi][i].y = K->bubble->pressure - gamma * K->curvature;
+                    Penter[K->khi][i].y = K->pressure;
                 }
             }
             

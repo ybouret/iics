@@ -32,6 +32,10 @@ public:
     //! get vertical segment @X[i]
     const Segment & Vert( unit_t i) const throw();
     
+    //! get duplicated junctions from PBC
+    Junctions & duplicated() throw();
+
+    
     const Array1D  &X;
     const Array1D  &Y;
     
