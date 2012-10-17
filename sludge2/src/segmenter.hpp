@@ -68,6 +68,9 @@ public:
     //! save junctions coordinates+normal
     void save_vtk_n( const string &filename ) const;
     
+    //! save junctions coordinates+tangential pressure
+    void save_vtk_gt( const string &filename ) const;
+    
     //! fast bissection look up
     static
     void locate_value( const Real z, const Array1D &Z, unit_t &klo, unit_t &kup ) throw();
