@@ -13,15 +13,16 @@ public:
     
     Junction       *next;
     Junction       *prev;
-    Vertex          vertex;  //!< localization
-    unit_t          klo;     //!< lower indices
-    unit_t          khi;     //!< upper indices
-    const Bubble   *bubble;
-    Real            alpha;   //!< weight of the distant tracer for curvature,etc...
-    Real            curvature;
-    Vertex          t;       //!< tangent
-    Vertex          n;       //!< normal
-    Real            gradP_t; //!< tangential gradP
+    Vertex          vertex;    //!< localization
+    unit_t          klo;       //!< lower indices
+    unit_t          khi;       //!< upper indices
+    const Bubble   *bubble;    //!< owner
+    Real            alpha;     //!< weight of the distant tracer for curvature,etc...
+    Real            curvature; //!< average curvature
+    Real            pressure;  //!< from bubble and curvature
+    Vertex          t;         //!< tangent
+    Vertex          n;         //!< normal
+    Real            gradP_t;   //!< tangential gradP
     typedef cache_of<Junction> Cache;
     
 private:

@@ -78,6 +78,10 @@ const Segment & Segmenter:: Vert( unit_t i) const throw()
     return *vseg[i];
 }
 
+Junctions & Segmenter:: duplicated() throw()
+{
+    return duplicates;
+}
 
 
 size_t Segmenter:: num_junctions() const throw()

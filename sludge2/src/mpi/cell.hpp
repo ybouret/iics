@@ -98,8 +98,10 @@ private:
      assume grapP is computed: called at the end of compute_pressure
      */
     void compute_bulk_velocities();
-
-    void compute_spot_velocities();
+    
+    void compute_junctions_gn(); //!< gradient/normal for each junction
+    void compute_junction_gn( Junction *J );
+    void compute_spots_velocity();
     void compute_spot_velocity( Spot *spot );
 };
 
