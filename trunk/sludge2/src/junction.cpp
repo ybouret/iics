@@ -14,6 +14,7 @@ curvature(0),
 pressure(0),
 t(),
 n(),
-gradP_t(0)
+gradP_t(0),
+visited(false)
 {}
 

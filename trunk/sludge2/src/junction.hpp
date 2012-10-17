@@ -17,6 +17,7 @@ public:
     Junction       *next;
     Junction       *prev;
     int             kind;      //!< Vert | Horz
+    unit_t          tag;       //!< Vert=>i, Horz=>j
     Vertex          vertex;    //!< localization
     unit_t          klo;       //!< lower indices
     unit_t          khi;       //!< upper indices
@@ -27,6 +28,7 @@ public:
     Vertex          t;         //!< tangent
     Vertex          n;         //!< normal
     Real            gradP_t;   //!< tangential gradP
+    mutable bool    visited;   //!< for orthonormal gradient
     typedef cache_of<Junction> Cache;
     
 private:

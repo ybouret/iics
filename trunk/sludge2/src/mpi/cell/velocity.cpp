@@ -30,10 +30,10 @@ void Cell:: compute_spots_velocity()
 {
     
     
-    
-    
     segmenter.save_vtk_gt("gt.vtk");
     segmenter.save_vtk_n( "jn.vtk");
+    segmenter.save("j.dat");
+    { ios::ocstream fp("probe.dat",false); }
     
     for( Bubble *bubble = bubbles.first();bubble;bubble=bubble->next)
     {
@@ -68,58 +68,62 @@ struct neighbor
 
 #include "yocto/code/gsort.hpp"
 
-void Cell:: compute_junction_gn( Junction *J )
+void Cell:: compute_junction_gn( ConstJunctionPtr J )
 {
-    switch( J->kind )
-    {
-        case Junction::Vert:
-            // junction is on a vertical line
-            assert(J->klo>=Y.lower);
-            assert(J->khi<=Y.upper);
-            if( J->klo > Y.lower && J->khi < Y.upper )
-            {
-                
-            }
-            break;
-            
-        case Junction::Horz:
-            // junction is on an horizontal line
-            assert(J->klo>X.lower);
-            assert(J->khi<X.upper);
-            break;
-            
-        default:
-            throw exception("Invalid Junction kind @(%g,%g)", J->vertex.x, J->vertex.y);
-    }
-}
-
-void Cell:: compute_junctions_gn()
-{
-    for( unit_t j=Y.lower;j<=Y.upper;++j)
-    {
-        Junctions &junctions = segmenter.Horz(j);
-        for( Junction *J = junctions.head;J;J=J->next)
-        {
-            compute_junction_gn(J);
-        }
-    }
     
-    for(unit_t i=X.lower;i<=X.upper;++i)
-    {
-        Junctions &junctions = segmenter.Vert(i);
-        for( Junction *J = junctions.head;J;J=J->next)
-        {
-            compute_junction_gn(J);
-        }
-    }
+    //--------------------------------------------------------------------------
+    // compute it only once
+    //--------------------------------------------------------------------------
+    if( J->visited )
+        return;
+    
+    const Vertex v0    = J->vertex;              // original point
+    const Vertex h     = -J->n;                  // go outside
+    const Real   dx    = h.x * delta.x;
+    const Real   dy    = h.y * delta.y;
+    const Real   len   = Sqrt(dx*dx+dy*dy)*0.5;       // spacing
+    const Vertex step  = len * h;
+    Vertex       probe = v0 + step;                   // starting point
     
     {
-        Junctions &junctions = segmenter.duplicated();
-        for( Junction *J = junctions.head;J;J=J->next)
-        {
-            compute_junction_gn(J);
-        }
+        ios::ocstream fp("probe.dat",true);
+        fp("%g %g\n", probe.x, probe.y);
     }
+    Coord klo;
+    Coord khi;
+    segmenter.locate_vertex(probe, klo, khi);
+    if( Bulk[klo] <= 1 )
+    {
+        fprintf( stderr, "junction @(%g,%g): bulk=%g for probe@(%g,%g)\n", v0.x, v0.y, Bulk[klo], probe.x, probe.y );
+        fflush(stderr);
+        //abort();
+    }
+    
+#if 0
+    Coord klo;
+    Coord khi;
+    segmenter.locate_vertex(J->vertex, klo, khi);
+#endif
+    
+#if 0
+    if( J->kind == Junction::Vert )
+    {
+        Coord klo(J->tag,J->klo);
+        Coord khi(J->tag,J->khi);
+        if( B[khi] <= 0 )
+        {
+            assert(khi.y < Y.upper);
+        }
+        goto VISITED;
+    }
+    
+    
+VISITED:
+#endif
+    J->visited = true;
+    return;
+    
+    
 }
 
 
@@ -127,17 +131,11 @@ void Cell:: compute_spot_velocity( Spot *spot )
 {
     
     //--------------------------------------------------------------------------
-    // compute the junctions ortho gradP
-    //--------------------------------------------------------------------------
-    compute_junctions_gn();
-    
-    //--------------------------------------------------------------------------
     // localizing junctions
     //--------------------------------------------------------------------------
     ConstJunctionPtr jprev = 0;
     ConstJunctionPtr jnext = 0;
     segmenter.find_bracketing_junctions(jprev,jnext,spot);
-    
     
     //--------------------------------------------------------------------------
     // sanity check
@@ -149,6 +147,14 @@ void Cell:: compute_spot_velocity( Spot *spot )
         assert(jprev->khi<Y.upper);
     }
 #endif
+    
+    //--------------------------------------------------------------------------
+    // compute (once) their normal gradient
+    //--------------------------------------------------------------------------
+    compute_junction_gn(jprev);
+    compute_junction_gn(jnext);
+    
+    
     
     
 #if 0
