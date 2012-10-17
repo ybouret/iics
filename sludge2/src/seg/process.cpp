@@ -293,6 +293,7 @@ void Segmenter:: compute_junctions(const Spot   *spot,
         assert( other.x < self.x);
         Segment  &seg = Vert(klo.x);
         Junction *J   = seg.append();
+        J->kind       = Junction::Vert;
         J->vertex.x   = seg.value;
         J->alpha      = ( J->vertex.x - self.x)/(other.x - self.x);
         J->vertex.y   = self.y + (J->alpha)*(other.y - self.y);
@@ -304,6 +305,7 @@ void Segmenter:: compute_junctions(const Spot   *spot,
         assert( other.x > self.x);
         Segment  &seg = Vert(kup.x);
         Junction *J   = seg.append();
+        J->kind       = Junction::Vert;
         J->vertex.x   = seg.value;
         J->alpha      = ( J->vertex.x - self.x)/(other.x - self.x);
         J->vertex.y   = self.y + (J->alpha)*(other.y - self.y);
@@ -315,6 +317,7 @@ void Segmenter:: compute_junctions(const Spot   *spot,
         assert( other.y < self.y );
         Segment  &seg = Horz(klo.y);
         Junction *J   = seg.append();
+        J->kind       = Junction::Horz;
         J->vertex.y   = seg.value;
         J->alpha      = (J->vertex.y - self.y)/(other.y-self.y);
         J->vertex.x   = self.x + (J->alpha)*(other.x-self.x);
@@ -327,6 +330,7 @@ void Segmenter:: compute_junctions(const Spot   *spot,
         assert( other.y > self.y );
         Segment  &seg = Horz(kup.y);
         Junction *J   = seg.append();
+        J->kind       = Junction::Horz;
         J->vertex.y   = seg.value;
         J->alpha      = (J->vertex.y - self.y)/(other.y-self.y);
         J->vertex.x   = self.x + (J->alpha)*(other.x-self.x);
