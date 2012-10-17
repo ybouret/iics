@@ -70,7 +70,27 @@ struct neighbor
 
 void Cell:: compute_junction_gn( Junction *J )
 {
-    assert(J->kind==Junction::Vert || J->kind == Junction::Horz);
+    switch( J->kind )
+    {
+        case Junction::Vert:
+            // junction is on a vertical line
+            assert(J->klo>=Y.lower);
+            assert(J->khi<=Y.upper);
+            if( J->klo > Y.lower && J->khi < Y.upper )
+            {
+                
+            }
+            break;
+            
+        case Junction::Horz:
+            // junction is on an horizontal line
+            assert(J->klo>X.lower);
+            assert(J->khi<X.upper);
+            break;
+            
+        default:
+            throw exception("Invalid Junction kind @(%g,%g)", J->vertex.x, J->vertex.y);
+    }
 }
 
 void Cell:: compute_junctions_gn()
@@ -117,6 +137,18 @@ void Cell:: compute_spot_velocity( Spot *spot )
     ConstJunctionPtr jprev = 0;
     ConstJunctionPtr jnext = 0;
     segmenter.find_bracketing_junctions(jprev,jnext,spot);
+    
+    
+    //--------------------------------------------------------------------------
+    // sanity check
+    //--------------------------------------------------------------------------
+#if !defined(NDEBUG)
+    if( jprev->kind == Junction::Vert )
+    {
+        assert(jprev->klo>Y.lower);
+        assert(jprev->khi<Y.upper);
+    }
+#endif
     
     
 #if 0
