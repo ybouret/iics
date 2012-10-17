@@ -11,8 +11,9 @@ clean:
 	@echo "-- removing .ppm" && rm -f *.ppm
 
 
-veryclean:
+veryclean: clean
 	@echo "-- removing out of sources builds" && cd forge && touch targets && ( cat targets | xargs rm -rf ) && rm -f targets
+
 
 gnu:
 	@bash $(CREATE) src gnu ${BUILD_TYPE}

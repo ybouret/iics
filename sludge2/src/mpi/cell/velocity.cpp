@@ -83,9 +83,13 @@ struct neighbor
 void Cell:: compute_spot_velocity( Spot *spot )
 {
 
+    //--------------------------------------------------------------------------
+    // localizing junctions
+    //--------------------------------------------------------------------------
     ConstJunctionPtr jprev = 0;
     ConstJunctionPtr jnext = 0;
     segmenter.find_bracketing_junctions(jprev,jnext,spot);
+    
     
 #if 0
     Tracer       *tracer = spot->handle; assert(tracer->bubble);

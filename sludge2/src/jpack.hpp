@@ -15,6 +15,7 @@ public:
     const BubbleID b;    //!< which bubble
     const Real     y;    //!< junction Y
     const Real     c;    //!< curvature
+    const Vertex   t;    //!< tangent
     const Vertex   n;    //!< normal
     
 private:
