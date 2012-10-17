@@ -72,6 +72,12 @@ void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
         //----------------------------------------------------------------------
         // send data to target
         //----------------------------------------------------------------------
+#if !defined(NDEBUG)
+        if( count > 0 )
+        {
+            assert( jsend() == &jsend[1] );
+        }
+#endif
         MPI.Isend( jsend(), count * sizeof(JPack), MPI_BYTE, target, tag, MPI_COMM_WORLD, source_request);
     }
     
@@ -89,6 +95,12 @@ void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
         //fprintf( stderr, "\t@target: Need to recv %lu\n",count );
         const JPack invalid_jpack;
         jrecv.make( count, invalid_jpack);
+#if !defined(NDEBUG)
+        if( count > 0 )
+        {
+            assert(jrecv() == &jrecv[1]);
+        }
+#endif
         MPI.Recv( jrecv(), count * sizeof(JPack), MPI_BYTE, source, tag, MPI_COMM_WORLD, status);
         
         //----------------------------------------------------------------------

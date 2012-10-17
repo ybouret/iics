@@ -333,9 +333,9 @@ TRY_GENERATE:
         const Real   tg_norm2     = tangent.norm2();
         const Real   tg_norm      = Sqrt( tg_norm2 );
         tracer->t                 = (1/tg_norm) * tangent;
+        tracer->angle             =  tracer->t.positive_angle();
         tracer->n.x               = -tracer->t.y;
         tracer->n.y               =  tracer->t.x;
-        tracer->angle             =  tracer->t.positive_angle();
         const Vertex acc          =  vertex_dsplint2(ti, t, v, v2);
         tracer->curvature         = (acc * tracer->n) / tg_norm2;
     }
