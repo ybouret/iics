@@ -215,6 +215,7 @@ void update_jprev( Tracer *p, const Junction *J )
     
 }
 
+
 static inline void FinalizeJunction(Junction     *J,
                                     const Tracer *source,
                                     const Tracer *target ) throw()
