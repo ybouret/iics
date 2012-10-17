@@ -26,6 +26,9 @@ void Cell:: compute_bulk_velocities()
 
 void Cell:: compute_spot_velocities()
 {
+ 
+    segmenter.save_vtk_gt("gt.vtk");
+    segmenter.save_vtk_n( "jn.vtk");
     
     for( Bubble *bubble = bubbles.first();bubble;bubble=bubble->next)
     {
@@ -34,8 +37,8 @@ void Cell:: compute_spot_velocities()
         {
             compute_spot_velocity(spot);
         }
-#if 0
         bubble->save_vtk( vformat("bubble%u.vtk", bubble->id) );
+#if 0
         bubble->save_vtk_n( vformat("curv%u.vtk", bubble->id) );
         bubble->save_vtk_g( vformat("bgradp%u.vtk", bubble->id) );
 #endif
