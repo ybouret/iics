@@ -13,20 +13,19 @@ public:
     
     Junction       *next;
     Junction       *prev;
-    Vertex          vertex; //!< localization
-    unit_t          klo;    //!< lower indices
-    unit_t          khi;    //!< upper indices
+    Vertex          vertex;  //!< localization
+    unit_t          klo;     //!< lower indices
+    unit_t          khi;     //!< upper indices
     const Bubble   *bubble;
-    Real            alpha; //!< weight of the distant tracer for curvature,etc...
+    Real            alpha;   //!< weight of the distant tracer for curvature,etc...
     Real            curvature;
-    Vertex          t;     //!< tangent
-    Vertex          n;     //!< normal
-    
+    Vertex          t;       //!< tangent
+    Vertex          n;       //!< normal
+    Real            gradP_t; //!< tangential gradP
     typedef cache_of<Junction> Cache;
     
 private:
-    YOCTO_DISABLE_ASSIGN(Junction);
-    Junction( const Junction &other ) throw();
+    YOCTO_DISABLE_COPY_AND_ASSIGN(Junction);
 };
 
 typedef cached_list<core::list_of, Junction> Junctions;

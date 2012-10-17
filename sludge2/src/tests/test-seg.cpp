@@ -62,7 +62,7 @@ YOCTO_UNIT_TEST_IMPL(seg)
     seg.save( "j0.dat" );
     
     bubble->save_vtk_n( "b0-n.vtk" );
-    seg.save_vtk_n("j0-n.vtk", bubble->lam/2);
+    seg.save_vtk_n("j0-n.vtk");
     
     //! failure on G.Y, not big enough... should check 
     return 0;
@@ -77,7 +77,7 @@ YOCTO_UNIT_TEST_IMPL(seg)
     bubble->save_dat( "b1.dat");
     seg.save( "j1.dat" );
     bubble->save_vtk_n( "b1-n.vtk" );
-    seg.save_vtk_n("j1-n.vtk", bubble->lam/2);
+    seg.save_vtk_n("j1-n.vtk");
     
 }
 YOCTO_UNIT_TEST_DONE()

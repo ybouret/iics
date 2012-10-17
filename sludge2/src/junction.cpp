@@ -11,21 +11,7 @@ bubble(0),
 alpha(0),
 curvature(0),
 t(),
-n()
+n(),
+gradP_t(0)
 {}
 
-#if 0
-Junction::Junction( const Junction &other ) throw() :
-next(0),
-prev(0),
-vertex( other.vertex ),
-klo( other.klo ),
-khi( other.khi ),
-bubble( other.bubble ),
-alpha( other.alpha ),
-curvature(0),
-n(other.n)
-{
-    
-}
-#endif
