@@ -17,7 +17,7 @@ public:
     const Real     c;    //!< curvature
     const Vertex   t;    //!< tangent
     const Vertex   n;    //!< normal
-    
+    const Real     g;    //!< gradP, tangential only
 private:
     YOCTO_DISABLE_ASSIGN(JPack);
 };

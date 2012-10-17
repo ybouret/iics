@@ -215,12 +215,16 @@ void update_jprev( Tracer *p, const Junction *J )
     
 }
 
-static inline void FinalizeJunction( Junction *J, const Tracer *source, const Tracer *target ) throw()
+static inline void FinalizeJunction(Junction     *J,
+                                    const Tracer *source,
+                                    const Tracer *target ) throw()
 {
     assert( target == source->next || target == source->prev );
     const Real  s_weight = (1-J->alpha);
     const Real  t_weight = J->alpha;
-    J->bubble            = source->bubble;
+    const Bubble *bubble = source->bubble; assert(bubble);
+    J->bubble            = bubble;
+    
     //-- average curvature
     J->curvature         = s_weight*source->curvature + t_weight * target->curvature;
     
@@ -233,11 +237,18 @@ static inline void FinalizeJunction( Junction *J, const Tracer *source, const Tr
     J->t.x = Cos(j_angle);
     J->t.y = Sin(j_angle);
     
-    //-- compute normal
+    //-- deduce normal
     J->n.x = -J->t.y;
     J->n.y =  J->t.x;
-
     
+    //-- compute tangential gradient
+    const Vertex delta_r(source->vertex,target->vertex);
+    const Real   pressure = bubble->pressure;
+    const Real   gamma    = bubble->gam;
+    const Real   P_source = pressure - gamma * source->curvature;
+    const Real   P_target = pressure - gamma * target->curvature;
+    const Vertex grad_P   = ( (P_target-P_source) / delta_r.norm2() ) * delta_r;
+    J->gradP_t = grad_P * J->t;
     
     if( target == source->next )
     {

@@ -109,7 +109,7 @@ const Segments & Segmenter:: operator()(void) const throw()
 }
 
 
-void Segmenter:: save_vtk_n( const string &filename, Real scale) const
+void Segmenter:: save_vtk_n( const string &filename ) const
 {
     const unsigned n = num_junctions();
     ios::ocstream fp( filename, false );
@@ -123,6 +123,7 @@ void Segmenter:: save_vtk_n( const string &filename, Real scale) const
         for( const Junction *p=segments[i]->head;p;p=p->next)
         {
             fp("%.15g %.15g 0\n",p->vertex.x,p->vertex.y);
+            const Real scale = p->bubble->lam/2;
             const Real fac = scale * p->curvature;
             fp("%.15g %.15g 0\n",p->vertex.x + fac * p->n.x,p->vertex.y+ fac * p->n.y);
         }

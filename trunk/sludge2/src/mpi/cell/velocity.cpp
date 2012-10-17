@@ -26,25 +26,6 @@ void Cell:: compute_bulk_velocities()
 
 void Cell:: compute_spot_velocities()
 {
-#if 0
-    for( Bubble *bubble = bubbles.first();bubble;bubble=bubble->next)
-    {
-        bubble->save_vtk( vformat("b%u.vtk",bubble->id) );
-        bubble->save_vtk_shell( vformat("b%u-shell.vtk",bubble->id) );
-    }
-#endif
-    
-#if 0
-    for( Bubble *bubble = bubbles.first();bubble;bubble=bubble->next)
-    {
-        bubble->save_dat(vformat("b%u.dat",bubble->id));
-    }
-    
-    { ios::ocstream fp("s.dat",false); }
-    { ios::ocstream fp("h0.dat",false); }
-    { ios::ocstream fp("h1.dat",false); }
-
-#endif
     
     for( Bubble *bubble = bubbles.first();bubble;bubble=bubble->next)
     {

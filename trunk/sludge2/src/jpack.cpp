@@ -6,7 +6,8 @@ b(0),
 y(0),
 c(0),
 t(),
-n()
+n(),
+g(0)
 {
 }
 
@@ -18,7 +19,8 @@ b( J->bubble->id ),
 y( J->vertex.y ),
 c( J->curvature),
 t( J->t ),
-n( J->n )
+n( J->n ),
+g( J->gradP_t)
 {
 }
 
@@ -29,6 +31,7 @@ b( other.b ),
 y( other.y ),
 c( other.c ),
 t( other.t ),
-n( other.n )
+n( other.n ),
+g( other.g )
 {
 }
