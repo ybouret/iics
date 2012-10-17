@@ -229,9 +229,14 @@ static inline void FinalizeJunction(Junction     *J,
     J->curvature         = s_weight*source->curvature + t_weight * target->curvature;
     
     //-- average tangent angle
-    const Real s_angle   = source->angle;
-    const Real t_angle   = target->angle;
-    const Real j_angle   = s_weight * s_angle + t_weight * t_angle;
+    const Real s_angle         = source->angle;
+    const Real t_angle         = target->angle;
+    Real d_angle = t_angle - s_angle;
+    if( d_angle <= 0 )
+        d_angle += numeric<Real>::two_pi;
+    
+    //const Real j_angle   = s_weight * s_angle + t_weight * t_angle;
+    const Real j_angle = s_angle + t_weight * d_angle;
     
     //-- compute tangent
     J->t.x = Cos(j_angle);
@@ -294,6 +299,7 @@ void Segmenter:: compute_junctions(const Spot   *spot,
         Segment  &seg = Vert(klo.x);
         Junction *J   = seg.append();
         J->kind       = Junction::Vert;
+        J->tag        = klo.x;
         J->vertex.x   = seg.value;
         J->alpha      = ( J->vertex.x - self.x)/(other.x - self.x);
         J->vertex.y   = self.y + (J->alpha)*(other.y - self.y);
@@ -306,6 +312,7 @@ void Segmenter:: compute_junctions(const Spot   *spot,
         Segment  &seg = Vert(kup.x);
         Junction *J   = seg.append();
         J->kind       = Junction::Vert;
+        J->tag        = kup.x;
         J->vertex.x   = seg.value;
         J->alpha      = ( J->vertex.x - self.x)/(other.x - self.x);
         J->vertex.y   = self.y + (J->alpha)*(other.y - self.y);
@@ -318,6 +325,7 @@ void Segmenter:: compute_junctions(const Spot   *spot,
         Segment  &seg = Horz(klo.y);
         Junction *J   = seg.append();
         J->kind       = Junction::Horz;
+        J->tag        = klo.y;
         J->vertex.y   = seg.value;
         J->alpha      = (J->vertex.y - self.y)/(other.y-self.y);
         J->vertex.x   = self.x + (J->alpha)*(other.x-self.x);
@@ -331,6 +339,7 @@ void Segmenter:: compute_junctions(const Spot   *spot,
         Segment  &seg = Horz(kup.y);
         Junction *J   = seg.append();
         J->kind       = Junction::Horz;
+        J->tag        = kup.y;
         J->vertex.y   = seg.value;
         J->alpha      = (J->vertex.y - self.y)/(other.y-self.y);
         J->vertex.x   = self.x + (J->alpha)*(other.x-self.x);

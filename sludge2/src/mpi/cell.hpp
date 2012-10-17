@@ -99,8 +99,11 @@ private:
      */
     void compute_bulk_velocities();
     
-    void compute_junctions_gn(); //!< gradient/normal for each junction
-    void compute_junction_gn( Junction *J );
+    //! compute orhtonormal gradient
+    /**
+     use J->visited to do it once
+     */
+    void compute_junction_gn( ConstJunctionPtr J );
     void compute_spots_velocity();
     void compute_spot_velocity( Spot *spot );
 };
