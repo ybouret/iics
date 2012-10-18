@@ -113,10 +113,10 @@ void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
             Junction *J  = Vert(jpack.i).append();
             J->vertex.x  = X[jpack.i];
             J->vertex.y  = jpack.y - cell.pbc.L;
-            
+#if JUNCTION_TAG == 1
             J->kind      = Junction::Vert;
             J->tag       = jpack.i;
-            
+#endif
             J->curvature = jpack.c;
             J->n         = jpack.n;
             J->t         = jpack.t;

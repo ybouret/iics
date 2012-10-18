@@ -4,7 +4,10 @@ Junction:: ~Junction() throw() {}
 Junction:: Junction() throw() :
 next(0),
 prev(0),
+#if JUNCTION_TAG == 1
 kind(0),
+tag(0),
+#endif
 vertex(),
 klo(0),
 khi(0),
