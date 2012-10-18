@@ -31,7 +31,7 @@ public:
     virtual void step();
     
     //! extra commands
-    virtual void perform(const string &cmd);
+    virtual void perform(const string &cmd, const array<string> &args);
     
     //! get bubble if any
     virtual visit_handle get_curve( const string &name ) const;
