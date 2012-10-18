@@ -48,6 +48,9 @@ void Cell:: compute_spots_velocity()
         bubble->save_vtk_g( vformat("bgradp%u.vtk", bubble->id) );
 #endif
     }
+    
+    segmenter.save_vtk_gn("gn.vtk");
+
 }
 
 // neighbors
@@ -77,6 +80,9 @@ void Cell:: compute_junction_gn( ConstJunctionPtr J )
     if( J->visited )
         return;
     
+    //--------------------------------------------------------------------------
+    // locate a probe
+    //--------------------------------------------------------------------------
     const Vertex v0    = J->vertex;              // original point
     const Vertex h     = -J->n;                  // go outside
     const Real   dx    = h.x * delta.x;
@@ -92,33 +98,66 @@ void Cell:: compute_junction_gn( ConstJunctionPtr J )
     Coord klo;
     Coord khi;
     segmenter.locate_vertex(probe, klo, khi);
-    if( Bulk[klo] <= 1 )
+    if( Bulk[klo] < 2 )
     {
         fprintf( stderr, "junction @(%g,%g): bulk=%g for probe@(%g,%g)\n", v0.x, v0.y, Bulk[klo], probe.x, probe.y );
         fflush(stderr);
+        abort();
     }
-    
-#if 0
-    Coord klo;
-    Coord khi;
-    segmenter.locate_vertex(J->vertex, klo, khi);
-#endif
-    
-#if 0
-    if( J->kind == Junction::Vert )
+
+    //--------------------------------------------------------------------------
+    // Least Square Fitting
+    //--------------------------------------------------------------------------
+    size_t count = 0;
+    Real sum_x = 0;
+    Real sum_y = 0;
+    Real sum_xx = 0;
+    Real sum_xy = 0;
+    Real sum_yy = 0;
+    Real sum_xP = 0;
+    Real sum_yP = 0;
+    for( unit_t jj=0; jj <=1; ++jj )
     {
-        Coord klo(J->tag,J->klo);
-        Coord khi(J->tag,J->khi);
-        if( B[khi] <= 0 )
+        const unit_t     j = klo.y + jj;
+        for( unit_t ii=0; ii <=1; ++ii )
         {
-            assert(khi.y < Y.upper);
+            const unit_t i = klo.x + ii;
+            if(B[j][i] <= 0 )
+            {
+                ++count;
+                const Real pressure = P[j][i];
+                const Real x        = X[i] - v0.x;
+                const Real y        = Y[j] - v0.y;
+                sum_x += x;
+                sum_y += y;
+                sum_xx += x*x;
+                sum_xy += x*y;
+                sum_yy += y*y;
+                sum_xP += pressure * x;
+                sum_yP += pressure * y;
+            }
         }
-        goto VISITED;
     }
+    assert( count == Bulk[klo] );
+    const Real mA = sum_xx;
+    const Real mB = sum_xy;
+    const Real mC = sum_xy;
+    const Real mD = sum_yy;
     
+    const Real P0 = J->pressure;
+    const Real vX = P0 * sum_x - sum_xP;
+    const Real vY = P0 * sum_y - sum_yP;
     
-VISITED:
-#endif
+    const Real det = mA * mD - mB * mC;
+    
+    const Real dPdx = ( mD * vX - mB * vY) / det;
+    const Real dPdy = (-mC * vX + mA * vY) / det;
+    
+    //--------------------------------------------------------------------------
+    // Projection
+    //--------------------------------------------------------------------------
+    J->gn = dPdx * h.x + dPdy * h.y;
+    
     J->visited = true;
     return;
     

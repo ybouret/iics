@@ -22,7 +22,7 @@ c( J->curvature),
 t( J->t ),
 n( J->n ),
 p( J->pressure ),
-g( J->gradP_t)
+g( J->gt)
 {
 }
 

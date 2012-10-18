@@ -259,7 +259,7 @@ static inline void FinalizeJunction(Junction     *J,
     const Real   P_source = pressure - gamma * source->curvature;
     const Real   P_target = pressure - gamma * target->curvature;
     const Vertex grad_P   = ( (P_target-P_source) / delta_r.norm2() ) * delta_r;
-    J->gradP_t = grad_P * J->t;
+    J->gt = grad_P * J->t;
     
     //-- compute pressure
     J->pressure = bubble->pressure - bubble->gam * J->curvature;
