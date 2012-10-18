@@ -77,7 +77,8 @@ public:
     void save_vtk_shell( const string &filename ) const; //!< normals + lambda shell
     void rotate(Real alpha);
     void save_vtk_g( const string &filename ) const; //!< grad P for the spots
-    
+    void save_vtk_u( const string &filename ) const; //!< U for the spots
+
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Bubble);
 };

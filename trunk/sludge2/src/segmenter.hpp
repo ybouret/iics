@@ -81,6 +81,12 @@ public:
      */
     void save_vtk_gn( const string &filename ) const;
 
+    //! save junctions coordinates+gradient
+    /**
+     valid after Cell::compute_velocity
+     */
+    void save_vtk_gradP( const string &filename ) const;
+    
     //! fast bissection look up
     static
     void locate_value( const Real z, const Array1D &Z, unit_t &klo, unit_t &kup ) throw();
