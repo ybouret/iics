@@ -5,7 +5,7 @@ void Simulation:: step()
     VisIt::Simulation::step();
     
     //-- advect spots
-#if 1
+#if 0
     for( Bubble *b = bubbles.first(); b; b=b->next)
     {
         const Real dv = -0.05 * b->id;
@@ -30,7 +30,7 @@ void Simulation:: step()
             Vertex       &v      = tracer->vertex;
             const Vertex &u      = s->U;
             
-            v += 0.001 * u;
+            v += 0.01 * u;
         }
 
     }
