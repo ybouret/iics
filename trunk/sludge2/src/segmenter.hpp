@@ -74,7 +74,13 @@ public:
     
     //! save junctions coordinates+tangential pressure
     void save_vtk_gt( const string &filename ) const;
-    
+
+    //! save junctions coordinates+normal pressure
+    /**
+     valid after Cell::compute_velocity
+     */
+    void save_vtk_gn( const string &filename ) const;
+
     //! fast bissection look up
     static
     void locate_value( const Real z, const Array1D &Z, unit_t &klo, unit_t &kup ) throw();
@@ -102,7 +108,7 @@ public:
                                    const Spot       *spot ) const;
     
     
-    //! remove redondant junctions
+    //! remove redondant vertical junctions
     /**
      use a local list to keep duplicate junctions data (no overwrite)
      */

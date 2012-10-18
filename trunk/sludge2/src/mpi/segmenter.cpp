@@ -111,15 +111,17 @@ void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
             const JPack &jpack = jrecv[k];
             //fprintf( stderr , "\t\t<--@%ld: bubble #%u: x=%g, y=%g, c=%g\n", jpack.i, jpack.b, X[jpack.i], jpack.y-cell.pbc.L,jpack.c);
             Junction *J  = Vert(jpack.i).append();
-            J->kind      = Junction::Vert;
             J->vertex.x  = X[jpack.i];
             J->vertex.y  = jpack.y - cell.pbc.L;
+            
+            J->kind      = Junction::Vert;
             J->tag       = jpack.i;
+            
             J->curvature = jpack.c;
             J->n         = jpack.n;
             J->t         = jpack.t;
             J->pressure  = jpack.p;
-            J->gradP_t   = jpack.g;
+            J->gt        = jpack.g;
             J->bubble    = cell.bubbles.first();
             assert(jpack.b>0);
             for(size_t ii=jpack.b;ii>1;--ii)

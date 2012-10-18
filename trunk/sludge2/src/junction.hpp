@@ -27,8 +27,9 @@ public:
     Real            pressure;  //!< from bubble and curvature
     Vertex          t;         //!< tangent
     Vertex          n;         //!< normal
-    Real            gradP_t;   //!< tangential gradP
+    Real            gt;        //!< tangential gradP
     mutable bool    visited;   //!< for orthonormal gradient
+    mutable Real    gn;        //!< normal gradP, LOCALLY computed
     typedef cache_of<Junction> Cache;
     
 private:
