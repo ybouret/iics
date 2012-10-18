@@ -45,7 +45,7 @@ void Cell:: compute_spots_velocity()
         bubble->save_vtk( vformat("bubble%u.vtk", bubble->id) );
         //bubble->save_vtk_n( vformat("curv%u.vtk", bubble->id) );
         bubble->save_vtk_u( vformat("bu%u.vtk", bubble->id) );
-
+        
     }
     
     segmenter.save_vtk_gn("jgn.vtk");
@@ -87,7 +87,7 @@ void Cell:: compute_junction_gn( ConstJunctionPtr J )
         fflush(stderr);
         abort();
     }
-
+    
     //--------------------------------------------------------------------------
     // Least Square Fitting
     //--------------------------------------------------------------------------
@@ -162,11 +162,13 @@ void Cell:: compute_spot_velocity( Spot *spot )
     // sanity check
     //--------------------------------------------------------------------------
 #if !defined(NDEBUG)
+#if JUNCTION_TAG == 1
     if( jprev->kind == Junction::Vert )
     {
         assert(jprev->klo>Y.lower);
         assert(jprev->khi<Y.upper);
     }
+#endif
 #endif
     
     //--------------------------------------------------------------------------
