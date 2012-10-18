@@ -96,7 +96,6 @@ void Cell:: compute_junction_gn( ConstJunctionPtr J )
     {
         fprintf( stderr, "junction @(%g,%g): bulk=%g for probe@(%g,%g)\n", v0.x, v0.y, Bulk[klo], probe.x, probe.y );
         fflush(stderr);
-        //abort();
     }
     
 #if 0
