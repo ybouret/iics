@@ -229,6 +229,7 @@ static inline void FinalizeJunction(Junction     *J,
     //-- average curvature
     J->curvature         = s_weight*source->curvature + t_weight * target->curvature;
     
+#if 0
     //-- average tangent angle
     const Real s_angle         = source->angle;
     const Real t_angle         = target->angle;
@@ -237,6 +238,10 @@ static inline void FinalizeJunction(Junction     *J,
         d_angle += numeric<Real>::two_pi;
     
     //const Real j_angle   = s_weight * s_angle + t_weight * t_angle;
+    const Real j_angle = s_angle + t_weight * d_angle;
+#endif
+    const Real s_angle = source->angle;
+    const Real d_angle = Vertex::angle_of(source->t,target->t);
     const Real j_angle = s_angle + t_weight * d_angle;
     
     //-- compute tangent
