@@ -84,8 +84,7 @@ void Segmenter:: save_vtk_gn( const string &filename ) const
         for( const Junction *p=segments[i]->head;p;p=p->next)
         {
             fp("%.15g %.15g 0\n",p->vertex.x,p->vertex.y);
-            const Real scale = 2*p->bubble->lam;
-            //const Real scale = 1;
+            const Real scale = 1;
             const Real fac  = scale * (p->g*p->n);
             fp("%.15g %.15g 0\n",p->vertex.x + fac * p->n.x,p->vertex.y + fac * p->n.y);
         }

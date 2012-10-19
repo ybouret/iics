@@ -30,7 +30,6 @@ void Cell:: compute_spots_velocity()
 {
     
     
-    //segmenter.save_vtk_gt("jgt.vtk");
     segmenter.save_vtk_n( "jn.vtk");
     segmenter.save("j.dat");
     { ios::ocstream fp("probe.dat",false); }
@@ -44,12 +43,13 @@ void Cell:: compute_spots_velocity()
         }
         bubble->save_vtk( vformat("bubble%u.vtk", bubble->id) );
         bubble->save_vtk_gt( vformat("bgt%u.vtk", bubble->id) );
+        bubble->save_vtk_gn( vformat("bgn%u.vtk", bubble->id) );
         //bubble->save_vtk_n( vformat("curv%u.vtk", bubble->id) );
         bubble->save_vtk_u( vformat("bu%u.vtk", bubble->id) );
         
     }
     
-    //segmenter.save_vtk_gn("jgn.vtk");
+    segmenter.save_vtk_gn("jgn.vtk");
     //segmenter.save_vtk_gradP( "jg.vtk" );
     
 }
@@ -201,12 +201,17 @@ void Cell:: compute_spot_velocity( Spot *spot )
     const Vertex delta_p(jprev->vertex,here);
     const Real   mu = (delta_r*delta_p)/(delta_r*delta_r);
     
-    const Real   P_probe = P_prev + mu * (P_next - P_prev);
+    //const Real   P_probe = P_prev + mu * (P_next - P_prev);
+    const Real   P_probe = 0.5* (P_next + P_prev);
     const Real   P_here  = tracer->pressure;
     
     //--------------------------------------------------------------------------
-    // tangential gradient
+    // gradient construction
     //--------------------------------------------------------------------------
+    const Real   gn      = (P_probe-P_here)/len;
+    spot->gn    = gn;
+    spot->gradP = tracer->gt * tracer->t + gn * h;
+    
     
     
     
