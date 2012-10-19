@@ -133,7 +133,7 @@ void Bubble:: save_vtk_gt( const string &filename ) const
     for( size_t i=size;i>0;--i,p=p->next)
     {
         fp("%.15g %.15g 0\n",p->vertex.x,p->vertex.y);
-        const Real fac = 2*lam;
+        const Real fac = 2*lam * p->gt;
         fp("%.15g %.15g 0\n",p->vertex.x + fac * p->t.x,p->vertex.y +  fac * p->t.y);
     }
     fp("\n");

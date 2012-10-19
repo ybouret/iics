@@ -359,6 +359,11 @@ TRY_GENERATE:
         tracer->pressure          = pressure - gam * tracer->curvature;
     }
     
+    tracer = root;
+    for(size_t i=0; i<size; ++i,tracer=tracer->next)
+    {
+        tracer->compute_gt();
+    }
     
     //--------------------------------------------------------------------------
     // update area with iso pressure
