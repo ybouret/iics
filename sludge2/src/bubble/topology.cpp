@@ -356,6 +356,7 @@ TRY_GENERATE:
         tracer->n.y               =  tracer->t.x;
         const Vertex acc          =  vertex_dsplint2(ti, t, v, v2);
         tracer->curvature         = (acc * tracer->n) / tg_norm2;
+        tracer->pressure          = pressure - gam * tracer->curvature;
     }
     
     

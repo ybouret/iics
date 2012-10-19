@@ -10,6 +10,8 @@
 class Junction
 {
 public:
+    typedef cache_of<Junction> Cache;
+
     Junction() throw();
     ~Junction() throw();
 #if JUNCTION_TAG == 1
@@ -32,10 +34,12 @@ public:
     Real            pressure;  //!< from bubble and curvature
     Vertex          t;         //!< tangent
     Vertex          n;         //!< normal
-    Real            gt;        //!< tangential gradP
+    Real            gt;        //!< tangential gradP, globally computed
     mutable bool    visited;   //!< for orthonormal gradient
+    mutable Vertex  g;         //!< gradP in cartesian coordinate, LOCALLY computed
     mutable Real    gn;        //!< normal gradP, LOCALLY computed
-    typedef cache_of<Junction> Cache;
+    
+    Real Peff( const Vertex &pos ) const throw(); //! pressure + (pos-vertex) * g
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Junction);

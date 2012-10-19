@@ -137,6 +137,12 @@ void Cell:: compute_junction_gn( ConstJunctionPtr J )
     const Real dPdy = (-mC * vX + mA * vY) / det;
     
     //--------------------------------------------------------------------------
+    // copy local gradient
+    //--------------------------------------------------------------------------
+    J->g.x = dPdx;
+    J->g.y = dPdy;
+    
+    //--------------------------------------------------------------------------
     // Projection ON THE NORMAL
     //--------------------------------------------------------------------------
     J->gn = dPdx * J->n.x + dPdy * J->n.y;
@@ -177,11 +183,39 @@ void Cell:: compute_spot_velocity( Spot *spot )
     compute_junction_gn(jprev);
     compute_junction_gn(jnext);
     
+    //--------------------------------------------------------------------------
+    // effective pressure estimation
+    //--------------------------------------------------------------------------
+    const Tracer *tracer = spot->handle;
+    const Vertex  h      = -tracer->n;
+    const Real    dx     = h.x * delta.x;
+    const Real    dy     = h.y * delta.y;
+    const Real    len    = Sqrt(dx*dx+dy*dy)*0.5;
+    const Vertex  here   = tracer->vertex;
+    const Vertex  probe  = here + len * h;
+    const Real    P_prev = jprev->Peff(probe);
+    const Real    P_next = jnext->Peff(probe);
     
+    //--------------------------------------------------------------------------
+    // weight estimation
+    //--------------------------------------------------------------------------
+    const Vertex delta_r(jprev->vertex,jnext->vertex);
+    const Vertex delta_p(jprev->vertex,here);
+    const Real   mu = (delta_r*delta_p)/(delta_r*delta_r);
+    
+    const Real   P_probe = P_prev + mu * (P_next - P_prev);
+    const Real   P_here  = tracer->pressure;
+    
+    //--------------------------------------------------------------------------
+    // tangential gradient
+    //--------------------------------------------------------------------------
+    
+    
+    
+#if 0
     //--------------------------------------------------------------------------
     // compute the projection coefficient
     //--------------------------------------------------------------------------
-    Tracer *tracer = spot->handle;
     const Vertex delta_r(jprev->vertex,jnext->vertex);
     const Vertex delta_p(jprev->vertex,tracer->vertex);
     const Real   mu = (delta_r*delta_p)/(delta_r*delta_r);
@@ -192,6 +226,7 @@ void Cell:: compute_spot_velocity( Spot *spot )
     const Real gt = jprev->gt + mu * (jnext->gt-jprev->gt);
     const Real gn = jprev->gn + mu * (jnext->gn-jprev->gn);
     spot->gradP = (gt * tracer->t) + (gn * tracer->n);
+#endif
     spot->U     = gradP_to_U(spot->gradP);
 }
 

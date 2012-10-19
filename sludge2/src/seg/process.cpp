@@ -229,17 +229,10 @@ static inline void FinalizeJunction(Junction     *J,
     //-- average curvature
     J->curvature         = s_weight*source->curvature + t_weight * target->curvature;
     
-#if 0
-    //-- average tangent angle
-    const Real s_angle         = source->angle;
-    const Real t_angle         = target->angle;
-    Real d_angle = t_angle - s_angle;
-    if( d_angle <= 0 )
-        d_angle += numeric<Real>::two_pi;
+    //-- average pressure
+    J->pressure = bubble->pressure - bubble->gam * J->curvature;
     
-    //const Real j_angle   = s_weight * s_angle + t_weight * t_angle;
-    const Real j_angle = s_angle + t_weight * d_angle;
-#endif
+    //-- average tangent angle
     const Real s_angle = source->angle;
     const Real d_angle = Vertex::angle_of(source->t,target->t);
     const Real j_angle = s_angle + t_weight * d_angle;
@@ -254,15 +247,12 @@ static inline void FinalizeJunction(Junction     *J,
     
     //-- compute tangential gradient
     const Vertex delta_r(source->vertex,target->vertex);
-    const Real   pressure = bubble->pressure;
-    const Real   gamma    = bubble->gam;
-    const Real   P_source = pressure - gamma * source->curvature;
-    const Real   P_target = pressure - gamma * target->curvature;
+    const Real   P_source   = source->pressure;
+    const Real   P_target   = target->pressure;
     const Vertex grad_P   = ( (P_target-P_source) / delta_r.norm2() ) * delta_r;
     J->gt = grad_P * J->t;
     
-    //-- compute pressure
-    J->pressure = bubble->pressure - bubble->gam * J->curvature;
+    
     
     if( target == source->next )
     {
