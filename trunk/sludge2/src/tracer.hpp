@@ -26,12 +26,13 @@ public:
     Vertex          n;         //!< local normal vector      : +2
     Real            angle;     //!< tangent positive angle   : +1
     Real            curvature; //!< local curvature          : +1
+    Real            pressure;  //!< local pressure           : +1
     Bubble         *bubble;    //!< whose that ?
     bool            is_spot;   //!< default: false
     const Junction *jnext;     //!< a junction is between this and next tracer
     const Junction *jprev;     //!< a junction is between this and prev tracer
     
-    static const size_t IO_COUNT = 12;
+    static const size_t IO_COUNT = 13;
     
     typedef cache_of<Tracer>                     Cache;
     
