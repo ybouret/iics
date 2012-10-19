@@ -47,11 +47,7 @@ int main( int argc, char *argv[] )
         // First time init
         //----------------------------------------------------------------------
         sim.initialize();
-        
-        //sim.segmenter.save_vtk_n( "j.vtk");
-        //sim.bubbles.first()->save_vtk("b.vtk");
-        //sim.bubbles.first()->save_vtk_n("b-n.vtk");
-        
+                
         //----------------------------------------------------------------------
         // Process VisIt main loop
         //----------------------------------------------------------------------
