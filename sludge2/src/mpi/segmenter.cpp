@@ -121,7 +121,6 @@ void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
             J->n         = jpack.n;
             J->t         = jpack.t;
             J->pressure  = jpack.p;
-            J->gt        = jpack.g;
             J->bubble    = cell.bubbles.first();
             assert(jpack.b>0);
             for(size_t ii=jpack.b;ii>1;--ii)

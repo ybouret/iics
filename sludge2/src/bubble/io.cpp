@@ -120,6 +120,31 @@ void Bubble:: save_vtk_shell( const string &filename ) const
 
 }
 
+void Bubble:: save_vtk_gt( const string &filename ) const
+{
+    const unsigned n = size;
+    ios::ocstream fp( filename, false );
+    fp("# vtk DataFile Version 1.0\n");
+    fp("Bubble Normals\n");
+    fp("ASCII\n");
+    fp("DATASET POLYDATA\n");
+    fp("POINTS %u float\n", 2*n );
+    const Tracer *p     = root;
+    for( size_t i=size;i>0;--i,p=p->next)
+    {
+        fp("%.15g %.15g 0\n",p->vertex.x,p->vertex.y);
+        const Real fac = 2*lam;
+        fp("%.15g %.15g 0\n",p->vertex.x + fac * p->t.x,p->vertex.y +  fac * p->t.y);
+    }
+    fp("\n");
+    fp("LINES %u %u\n", n, 3*n );
+    for( unsigned i=0; i < n; ++i )
+    {
+        fp("2 %u %u\n", 2*i, 2*i+1 );
+    }
+    
+}
+
 void Bubble:: save_vtk_g( const string &filename ) const
 {
     const unsigned n = spots.size;

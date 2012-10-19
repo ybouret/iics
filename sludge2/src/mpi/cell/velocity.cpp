@@ -30,7 +30,7 @@ void Cell:: compute_spots_velocity()
 {
     
     
-    segmenter.save_vtk_gt("jgt.vtk");
+    //segmenter.save_vtk_gt("jgt.vtk");
     segmenter.save_vtk_n( "jn.vtk");
     segmenter.save("j.dat");
     { ios::ocstream fp("probe.dat",false); }
@@ -43,13 +43,14 @@ void Cell:: compute_spots_velocity()
             compute_spot_velocity(spot);
         }
         bubble->save_vtk( vformat("bubble%u.vtk", bubble->id) );
+        bubble->save_vtk_gt( vformat("bgt%u.vtk", bubble->id) );
         //bubble->save_vtk_n( vformat("curv%u.vtk", bubble->id) );
         bubble->save_vtk_u( vformat("bu%u.vtk", bubble->id) );
         
     }
     
-    segmenter.save_vtk_gn("jgn.vtk");
-    segmenter.save_vtk_gradP( "jg.vtk" );
+    //segmenter.save_vtk_gn("jgn.vtk");
+    //segmenter.save_vtk_gradP( "jg.vtk" );
     
 }
 
@@ -133,19 +134,16 @@ void Cell:: compute_junction_gn( ConstJunctionPtr J )
     
     const Real det = mA * mD - mB * mC;
     
-    const Real dPdx = ( mD * vX - mB * vY) / det;
-    const Real dPdy = (-mC * vX + mA * vY) / det;
-    
     //--------------------------------------------------------------------------
     // copy local gradient
     //--------------------------------------------------------------------------
-    J->g.x = dPdx;
-    J->g.y = dPdy;
+    J->g.x = ( mD * vX - mB * vY) / det;
+    J->g.x = (-mC * vX + mA * vY) / det;
     
     //--------------------------------------------------------------------------
     // Projection ON THE NORMAL
     //--------------------------------------------------------------------------
-    J->gn = dPdx * J->n.x + dPdy * J->n.y;
+    //J->gn = dPdx * J->n.x + dPdy * J->n.y;
     
     J->visited = true;
     return;

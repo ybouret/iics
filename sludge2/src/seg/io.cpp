@@ -40,6 +40,7 @@ void Segmenter:: save_vtk_n( const string &filename ) const
     }
 }
 
+#if 0
 void Segmenter:: save_vtk_gt( const string &filename ) const
 {
     const unsigned n = num_junctions();
@@ -56,7 +57,7 @@ void Segmenter:: save_vtk_gt( const string &filename ) const
             fp("%.15g %.15g 0\n",p->vertex.x,p->vertex.y);
             const Real scale = 2*p->bubble->lam;
             //const Real scale = 1;
-            const Real fac  = scale * p->gt;
+            const Real fac  = scale * (p->g * p->t);
             fp("%.15g %.15g 0\n",p->vertex.x + fac * p->t.x,p->vertex.y+ fac * p->t.y);
         }
     }
@@ -67,6 +68,7 @@ void Segmenter:: save_vtk_gt( const string &filename ) const
         fp("2 %u %u\n", 2*i, 2*i+1 );
     }
 }
+#endif
 
 void Segmenter:: save_vtk_gn( const string &filename ) const
 {
@@ -84,7 +86,7 @@ void Segmenter:: save_vtk_gn( const string &filename ) const
             fp("%.15g %.15g 0\n",p->vertex.x,p->vertex.y);
             const Real scale = 2*p->bubble->lam;
             //const Real scale = 1;
-            const Real fac  = scale * p->gn;
+            const Real fac  = scale * (p->g*p->n);
             fp("%.15g %.15g 0\n",p->vertex.x + fac * p->n.x,p->vertex.y + fac * p->n.y);
         }
     }
@@ -97,6 +99,7 @@ void Segmenter:: save_vtk_gn( const string &filename ) const
 }
 
 
+#if 0
 void Segmenter:: save_vtk_gradP( const string &filename ) const
 {
     const unsigned n = num_junctions();
@@ -125,7 +128,7 @@ void Segmenter:: save_vtk_gradP( const string &filename ) const
     }
 
 }
-
+#endif
 
 
 void Segmenter:: show_jvert(  ) const

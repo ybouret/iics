@@ -76,6 +76,7 @@ public:
     void save_vtk_n( const string &filename ) const; //!< normals + curvature
     void save_vtk_shell( const string &filename ) const; //!< normals + lambda shell
     void rotate(Real alpha);
+    void save_vtk_gt( const string &filename) const; //!< tangential gradient, after compute topology
     void save_vtk_g( const string &filename ) const; //!< grad P for the spots
     void save_vtk_u( const string &filename ) const; //!< U for the spots
 
