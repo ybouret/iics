@@ -15,6 +15,7 @@ void Simulation:: initialize()
             bubble->set_pressure(1.0);
         }
         
+        if(false)
         {
             const Vertex center(3*full_length.x/4,full_length.y/4);
             const Real   radius(full_length.x/9);
