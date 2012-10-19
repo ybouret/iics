@@ -85,7 +85,7 @@ void Segmenter:: save_vtk_gn( const string &filename ) const
         {
             fp("%.15g %.15g 0\n",p->vertex.x,p->vertex.y);
             const Real scale = 1;
-            const Real fac  = scale * (p->g*p->n);
+            const Real fac  = scale * p->gn;
             fp("%.15g %.15g 0\n",p->vertex.x + fac * p->n.x,p->vertex.y + fac * p->n.y);
         }
     }

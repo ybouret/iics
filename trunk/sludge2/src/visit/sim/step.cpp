@@ -29,10 +29,8 @@ void Simulation:: step()
             Tracer      *tracer = s->handle;
             Vertex       &v      = tracer->vertex;
             const Vertex &u      = s->U;
-            
             v += 0.01 * u;
         }
-
     }
 #endif
     

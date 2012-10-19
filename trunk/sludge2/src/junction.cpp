@@ -18,11 +18,13 @@ pressure(0),
 t(),
 n(),
 visited(false),
-g()
+gn(0)
 {}
 
+#if 0
 Real Junction:: Peff( const Vertex &pos ) const throw()
 {
     const Vertex dr(vertex,pos);
     return pressure + dr * g;
 }
+#endif

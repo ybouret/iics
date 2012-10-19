@@ -41,7 +41,7 @@ int main( int argc, char *argv[] )
         SaveGrid( sim.mesh, vformat("g%d.%d.dat",sim.par_size,sim.par_rank));
         
         sim.bubbles.gamma = 0.01;
-        sim.bubbles.gamma = 0.00;
+        //sim.bubbles.gamma = 0.05;
 
         //----------------------------------------------------------------------
         // First time init
