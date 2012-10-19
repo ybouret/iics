@@ -75,7 +75,7 @@ void Segmenter:: save_vtk_gn( const string &filename ) const
     const unsigned n = num_junctions();
     ios::ocstream fp( filename, false );
     fp("# vtk DataFile Version 1.0\n");
-    fp("Bubble Normals\n");
+    fp("Junctions Normals\n");
     fp("ASCII\n");
     fp("DATASET POLYDATA\n");
     fp("POINTS %u float\n", 2*n );

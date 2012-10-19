@@ -93,13 +93,13 @@ void Cell:: compute_junction_gn( ConstJunctionPtr J )
     // Least Square Fitting
     //--------------------------------------------------------------------------
     size_t count = 0;
-    Real sum_x = 0;
-    Real sum_y = 0;
-    Real sum_xx = 0;
-    Real sum_xy = 0;
-    Real sum_yy = 0;
-    Real sum_xP = 0;
-    Real sum_yP = 0;
+    Real sum_x   = 0;
+    Real sum_y   = 0;
+    Real sum_xx  = 0;
+    Real sum_xy  = 0;
+    Real sum_yy  = 0;
+    Real sum_xP  = 0;
+    Real sum_yP  = 0;
     for( unit_t jj=0; jj <=1; ++jj )
     {
         const unit_t     j = klo.y + jj;
@@ -112,8 +112,8 @@ void Cell:: compute_junction_gn( ConstJunctionPtr J )
                 const Real pressure = P[j][i];
                 const Real x        = X[i] - v0.x;
                 const Real y        = Y[j] - v0.y;
-                sum_x += x;
-                sum_y += y;
+                sum_x  += x;
+                sum_y  += y;
                 sum_xx += x*x;
                 sum_xy += x*y;
                 sum_yy += y*y;
@@ -138,7 +138,7 @@ void Cell:: compute_junction_gn( ConstJunctionPtr J )
     // copy local gradient
     //--------------------------------------------------------------------------
     J->g.x = ( mD * vX - mB * vY) / det;
-    J->g.x = (-mC * vX + mA * vY) / det;
+    J->g.y = (-mC * vX + mA * vY) / det;
     
     //--------------------------------------------------------------------------
     // Projection ON THE NORMAL
