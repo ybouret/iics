@@ -35,9 +35,9 @@ public:
     Vertex          t;         //!< tangent
     Vertex          n;         //!< normal
     mutable bool    visited;   //!< for orthonormal gradient
-    mutable Vertex  g;         //!< gradP in cartesian coordinate, LOCALLY computed
+    mutable Real    gn;        //!< local orthonormal gradP, LOCALLY computed, on NORMAL
     
-    Real Peff( const Vertex &pos ) const throw(); //! pressure + (pos-vertex) * g
+    //Real Peff( const Vertex &pos ) const throw(); //! pressure + (pos-vertex) * g
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Junction);

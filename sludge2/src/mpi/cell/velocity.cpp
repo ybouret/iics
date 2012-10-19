@@ -135,8 +135,10 @@ void Cell:: compute_junction_gn( ConstJunctionPtr J )
     //--------------------------------------------------------------------------
     // copy local gradient component
     //--------------------------------------------------------------------------
-    J->g.x = ( mD * vX - mB * vY) / det;
-    J->g.y = (-mC * vX + mA * vY) / det;
+    const Vertex g(( mD * vX - mB * vY) / det,
+                   (-mC * vX + mA * vY) / det );
+    
+    J->gn = g * J->n;
     
     
     J->visited = true;
@@ -176,35 +178,22 @@ void Cell:: compute_spot_velocity( Spot *spot )
     compute_junction_gn(jnext);
     
     //--------------------------------------------------------------------------
-    // effective pressure estimation
+    // get the tracer location
     //--------------------------------------------------------------------------
     const Tracer *tracer = spot->handle;
-    const Vertex  h      = -tracer->n;
-    const Real    dx     = h.x * delta.x;
-    const Real    dy     = h.y * delta.y;
-    const Real    len    = Sqrt(dx*dx+dy*dy)*0.5;
     const Vertex  here   = tracer->vertex;
-    const Vertex  probe  = here + len * h;
-    const Real    P_prev = jprev->Peff(probe);
-    const Real    P_next = jnext->Peff(probe);
-    
-    //--------------------------------------------------------------------------
-    // weight estimation
-    //--------------------------------------------------------------------------
     const Vertex delta_r(jprev->vertex,jnext->vertex);
     const Vertex delta_p(jprev->vertex,here);
     const Real   mu = (delta_r*delta_p)/(delta_r*delta_r);
-    
-    //const Real   P_probe = P_prev + mu * (P_next - P_prev);
-    const Real   P_probe = 0.5 * (P_next + P_prev);
-    const Real   P_here  = tracer->pressure;
+    const Real   gn0 = jprev->gn;
+    const Real   gn1 = jnext->gn;
+    const Real   gn  = gn0 + mu * (gn1-gn0);
+    spot->gn = gn;
     
     //--------------------------------------------------------------------------
     // gradient construction
     //--------------------------------------------------------------------------
-    spot->gn    = (P_probe-P_here)/len;
-    spot->gradP = tracer->gt * tracer->t + spot->gn * h;
-  
+    spot->gradP = tracer->gt * tracer->t + gn * tracer->n;
     
     //--------------------------------------------------------------------------
     // velocity estimation

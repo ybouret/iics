@@ -159,7 +159,7 @@ void Bubble:: save_vtk_gn( const string &filename ) const
         const Tracer *p = spot->handle;
         fp("%.15g %.15g 0\n",p->vertex.x,p->vertex.y);
         const Real fac = spot->gn;
-        fp("%.15g %.15g 0\n",p->vertex.x - fac * p->n.x,p->vertex.y - fac * p->n.y);
+        fp("%.15g %.15g 0\n",p->vertex.x + fac * p->n.x,p->vertex.y + fac * p->n.y);
     }
     fp("\n");
     fp("LINES %u %u\n", n, 3*n );
