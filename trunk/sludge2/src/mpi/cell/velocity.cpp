@@ -195,7 +195,8 @@ void Cell:: compute_spot_velocity( Spot *spot )
     const Vertex delta_p(jprev->vertex,here);
     const Real   mu = (delta_r*delta_p)/(delta_r*delta_r);
     
-    const Real   P_probe = P_prev + mu * (P_next - P_prev);
+    //const Real   P_probe = P_prev + mu * (P_next - P_prev);
+    const Real   P_probe = 0.5 * (P_next + P_prev);
     const Real   P_here  = tracer->pressure;
     
     //--------------------------------------------------------------------------
