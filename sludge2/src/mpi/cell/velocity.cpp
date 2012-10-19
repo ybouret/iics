@@ -30,9 +30,9 @@ void Cell:: compute_spots_velocity()
 {
     
     
-    segmenter.save_vtk_n( "jn.vtk");
-    segmenter.save("j.dat");
-    { ios::ocstream fp("probe.dat",false); }
+    //segmenter.save_vtk_n( "jn.vtk");
+    //segmenter.save("j.dat");
+    //{ ios::ocstream fp("probe.dat",false); }
     
     for( Bubble *bubble = bubbles.first();bubble;bubble=bubble->next)
     {
@@ -69,16 +69,14 @@ void Cell:: compute_junction_gn( ConstJunctionPtr J )
     //--------------------------------------------------------------------------
     const Vertex v0    = J->vertex;              // original point
     const Vertex h     = -J->n;                  // go outside
-    const Real   dx    = h.x * delta.x;
-    const Real   dy    = h.y * delta.y;
-    const Real   len   = Sqrt(dx*dx+dy*dy)*0.5;       // spacing
-    const Vertex step  = len * h;
-    Vertex       probe = v0 + step;                   // starting point
+    const Real   dx    = h.x * delta.x;          // ellipsoidal dx
+    const Real   dy    = h.y * delta.y;          // ellipsoidal dy
+    const Real   len   = Sqrt(dx*dx+dy*dy)*0.5;  // probe spacing
+    const Vertex step  = len * h;                // probe step
+    Vertex       probe = v0 + step;              // starting probe
     
-    {
-        ios::ocstream fp("probe.dat",true);
-        fp("%g %g\n", probe.x, probe.y);
-    }
+    { ios::ocstream fp("probe.dat",true); fp("%g %g\n", probe.x, probe.y); }
+    
     Coord klo;
     Coord khi;
     segmenter.locate_vertex(probe, klo, khi);
@@ -135,15 +133,11 @@ void Cell:: compute_junction_gn( ConstJunctionPtr J )
     const Real det = mA * mD - mB * mC;
     
     //--------------------------------------------------------------------------
-    // copy local gradient
+    // copy local gradient component
     //--------------------------------------------------------------------------
     J->g.x = ( mD * vX - mB * vY) / det;
     J->g.y = (-mC * vX + mA * vY) / det;
     
-    //--------------------------------------------------------------------------
-    // Projection ON THE NORMAL
-    //--------------------------------------------------------------------------
-    //J->gn = dPdx * J->n.x + dPdy * J->n.y;
     
     J->visited = true;
     return;
@@ -201,35 +195,19 @@ void Cell:: compute_spot_velocity( Spot *spot )
     const Vertex delta_p(jprev->vertex,here);
     const Real   mu = (delta_r*delta_p)/(delta_r*delta_r);
     
-    //const Real   P_probe = P_prev + mu * (P_next - P_prev);
-    const Real   P_probe = 0.5* (P_next + P_prev);
+    const Real   P_probe = P_prev + mu * (P_next - P_prev);
     const Real   P_here  = tracer->pressure;
     
     //--------------------------------------------------------------------------
     // gradient construction
     //--------------------------------------------------------------------------
-    const Real   gn      = (P_probe-P_here)/len;
-    spot->gn    = gn;
-    spot->gradP = tracer->gt * tracer->t + gn * h;
-    
-    
-    
-    
-#if 0
-    //--------------------------------------------------------------------------
-    // compute the projection coefficient
-    //--------------------------------------------------------------------------
-    const Vertex delta_r(jprev->vertex,jnext->vertex);
-    const Vertex delta_p(jprev->vertex,tracer->vertex);
-    const Real   mu = (delta_r*delta_p)/(delta_r*delta_r);
+    spot->gn    = (P_probe-P_here)/len;
+    spot->gradP = tracer->gt * tracer->t + spot->gn * h;
+  
     
     //--------------------------------------------------------------------------
-    // propagate the gradient
+    // velocity estimation
     //--------------------------------------------------------------------------
-    const Real gt = jprev->gt + mu * (jnext->gt-jprev->gt);
-    const Real gn = jprev->gn + mu * (jnext->gn-jprev->gn);
-    spot->gradP = (gt * tracer->t) + (gn * tracer->n);
-#endif
     spot->U     = gradP_to_U(spot->gradP);
 }
 
