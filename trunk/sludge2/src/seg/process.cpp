@@ -246,12 +246,13 @@ static inline void FinalizeJunction(Junction     *J,
     J->n.y =  J->t.x;
     
     //-- compute tangential gradient
+#if 0
     const Vertex delta_r(source->vertex,target->vertex);
     const Real   P_source   = source->pressure;
     const Real   P_target   = target->pressure;
     const Vertex grad_P   = ( (P_target-P_source) / delta_r.norm2() ) * delta_r;
     J->gt = grad_P * J->t;
-    
+#endif
     
     
     if( target == source->next )

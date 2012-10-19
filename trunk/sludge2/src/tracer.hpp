@@ -27,17 +27,20 @@ public:
     Real            angle;     //!< tangent positive angle   : +1
     Real            curvature; //!< local curvature          : +1
     Real            pressure;  //!< local pressure           : +1
+    Real            gt;        //!< tangential pressure grad : +1
     Bubble         *bubble;    //!< whose that ?
     bool            is_spot;   //!< default: false
     const Junction *jnext;     //!< a junction is between this and next tracer
     const Junction *jprev;     //!< a junction is between this and prev tracer
     
-    static const size_t IO_COUNT = 13;
+    static const size_t IO_COUNT = 14;
     
     typedef cache_of<Tracer>                     Cache;
     
     void hash( hashing::function &h ) const;
     
+    //! evaluate tangential gradient
+    void compute_gt();
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Tracer);

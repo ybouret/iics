@@ -17,10 +17,8 @@ curvature(0),
 pressure(0),
 t(),
 n(),
-gt(0),
 visited(false),
-g(),
-gn(0)
+g()
 {}
 
 Real Junction:: Peff( const Vertex &pos ) const throw()

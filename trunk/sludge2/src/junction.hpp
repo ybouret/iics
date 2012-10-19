@@ -34,10 +34,8 @@ public:
     Real            pressure;  //!< from bubble and curvature
     Vertex          t;         //!< tangent
     Vertex          n;         //!< normal
-    Real            gt;        //!< tangential gradP, globally computed
     mutable bool    visited;   //!< for orthonormal gradient
     mutable Vertex  g;         //!< gradP in cartesian coordinate, LOCALLY computed
-    mutable Real    gn;        //!< normal gradP, LOCALLY computed
     
     Real Peff( const Vertex &pos ) const throw(); //! pressure + (pos-vertex) * g
     

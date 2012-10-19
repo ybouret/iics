@@ -7,8 +7,7 @@ y(0),
 c(0),
 t(),
 n(),
-p(0),
-g(0)
+p(0)
 {
 }
 
@@ -21,9 +20,7 @@ y( J->vertex.y ),
 c( J->curvature),
 t( J->t ),
 n( J->n ),
-p( J->pressure ),
-g( J->gt)
-{
+p( J->pressure ){
 }
 
 
@@ -34,7 +31,6 @@ y( other.y ),
 c( other.c ),
 t( other.t ),
 n( other.n ),
-p( other.p ),
-g( other.g )
+p( other.p )
 {
 }
