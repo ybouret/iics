@@ -233,7 +233,7 @@ static inline void FinalizeJunction(Junction     *J,
     J->pressure = bubble->pressure - bubble->gam * J->curvature;
     
     //-- average tangent angle
-    const Real s_angle = source->angle;
+    const Real s_angle = source->t.angle();
     const Real d_angle = Vertex::angle_of(source->t,target->t);
     const Real j_angle = s_angle + t_weight * d_angle;
     
