@@ -41,7 +41,7 @@ void Bubble:: map_circle( const Vertex &center, Real radius )
         p->vertex.x = center.x + radius * Cos( theta );
         p->vertex.y = center.y + radius * Sin( theta );
     }
-    update_area();
+    update_area_full();
 }
 
 void Bubble:: map_peanut( const Vertex &center, Real radius, Real alpha )
@@ -73,5 +73,5 @@ void Bubble:: map_peanut( const Vertex &center, Real radius, Real alpha )
         p->vertex.x = center.x + rho * Cos( theta );
         p->vertex.y = center.y + rho * Sin( theta );
     }
-    update_area();
+    update_area_full();
 }

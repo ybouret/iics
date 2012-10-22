@@ -24,10 +24,12 @@ void Simulation:: initialize()
             bubble->set_pressure(1.0);
         }
         
+#if 0
         //----------------------------------------------------------------------
         //-- arrange bubbles
         //----------------------------------------------------------------------
         bubbles.update_topology();
+#endif
     }
     
     legalize(MPI);

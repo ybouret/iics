@@ -67,7 +67,7 @@ void Bubble:: locate_spots( const Real ymin, const Real ymax )
     }
 }
 
-void Bubble:: update_area() throw()
+void Bubble:: update_area_fast() throw()
 {
     const Tracer *p = root;
     Vertex  v0(0,0);
@@ -79,6 +79,23 @@ void Bubble:: update_area() throw()
         v0 = v1;
     }
     area = Fabs(ans)/2;
+}
+
+void Bubble:: update_area_full() throw()
+{
+    const Tracer *p = root;
+    Vertex  v0(0,0);
+    Real ans= 0;
+    for( size_t i=size;i>0;--i,p=p->next )
+    {
+        Vertex edge = p->next->vertex - p->vertex;
+        pbc(edge);
+        const Vertex v1 = v0 + edge;
+        ans += v0.x * v1.y - v0.y * v1.x;
+        v0 = v1;
+    }
+    area = Fabs(ans)/2;
+
 }
 
 void Bubble:: set_pressure( Real p ) throw()

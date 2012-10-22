@@ -58,10 +58,10 @@ void Bubble:: assemble( const mpi &MPI )
     assert( size == num_tracers );
 #endif
     
-    MPI.Printf0(stderr, "\tBEFORE: Bubble %u: pressure=%g, area=%g, content=%g\n", id, pressure, area, content);
     
     if( MPI.IsFirst )
     {
+        fprintf( stderr, "\t[BEFORE] #%u: area=%g, pressure=%g\n", id, area, pressure);
         //----------------------------------------------------------------------
         // loop over slaves
         //----------------------------------------------------------------------
@@ -98,8 +98,9 @@ void Bubble:: assemble( const mpi &MPI )
         //----------------------------------------------------------------------
         // update area, iso content
         //----------------------------------------------------------------------
-        update_area();
+        update_area_full();
         pressure = content / area;
+        fprintf( stderr, "\t[AFTER ] #%u: area=%g, pressure=%g\n", id, area, pressure);
     }
     else
     {
@@ -121,5 +122,5 @@ void Bubble:: assemble( const mpi &MPI )
         }
         
     }
-    MPI.Printf0(stderr, "\tAFTER : Bubble %u: pressure=%g, area=%g, content=%g\n", id, pressure, area, content);
+    //MPI.Printf0(stderr, "\tAFTER : Bubble %u: pressure=%g, area=%g, content=%g\n", id, pressure, area, content);
 }
