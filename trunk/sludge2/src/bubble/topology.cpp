@@ -336,7 +336,7 @@ TRY_GENERATE:
         // accepted !
         this->swap_with( tmp );
     }
-   
+    
     //--------------------------------------------------------------------------
     //
     // pbc and differential properties
@@ -362,6 +362,10 @@ TRY_GENERATE:
         tracer->pressure          = pressure - gam * tracer->curvature;
     }
 #endif
+    
+    //--------------------------------------------------------------------------
+    // first pass: tangent and normal
+    //--------------------------------------------------------------------------
     tracer = root;
     for(size_t i=0; i<size; ++i,tracer=tracer->next)
     {
@@ -375,18 +379,37 @@ TRY_GENERATE:
         
         const Real dsc = sp * sm2 + sm * sp2;
         //gt = (sm2 * Pp - sp2 * Pm) /  dsc;
-        const Vertex tangent = (1/dsc) * ( sm2 * rp + sp2 * rm);
-        const Real   tg_norm2     = tangent.norm2();
-        const Real   tg_norm      = Sqrt( tg_norm2 );
-        tracer->t                 = (1/tg_norm) * tangent;
-        tracer->n.x               = -tracer->t.y;
-        tracer->n.y               =  tracer->t.x;
-        tracer->curvature         = 0;
-        tracer->pressure = pressure - gam * tracer->curvature;
+        const Vertex tangent  = (1/dsc) * ( sm2 * rp + sp2 * rm);
+        const Real   tg_norm2 = tangent.norm2();
+        const Real   tg_norm  = Sqrt( tg_norm2 );
+        tracer->t             = (1/tg_norm) * tangent;
+        tracer->n.x           = -tracer->t.y;
+        tracer->n.y           =  tracer->t.x;
+        
     }
     
+    //--------------------------------------------------------------------------
+    // second pass: curvature and pressure from dt/ds
+    //--------------------------------------------------------------------------
+    tracer = root;
+    for(size_t i=0; i<size; ++i,tracer=tracer->next)
+    {
+        const Real   sp  = tracer->s;
+        const Real   sp2 = tracer->s2;
+        const Real   sm  = tracer->prev->s;
+        const Real   sm2 = tracer->prev->s2;
+        const Real   dsc = sp * sm2 + sm * sp2;
+        const Vertex dTp(tracer->t,tracer->next->t);
+        const Vertex dTm(tracer->t,tracer->prev->t);
+        const Vertex dTds = (1/dsc) * ( sm2 * dTp - sp2 * dTm );
+        
+        tracer->curvature = dTds * tracer->n;
+        tracer->pressure  = pressure - gam * tracer->curvature;
+    }
     
-    
+    //--------------------------------------------------------------------------
+    // third pass: tangential gradient from pressure
+    //--------------------------------------------------------------------------
     tracer = root;
     for(size_t i=0; i<size; ++i,tracer=tracer->next)
     {
@@ -398,5 +421,5 @@ TRY_GENERATE:
     //--------------------------------------------------------------------------
     update_area_fast();
     content = area * pressure;
-    //fprintf(stderr,"\t[TOPOL ]: area=%g\n",area);
+
 }
