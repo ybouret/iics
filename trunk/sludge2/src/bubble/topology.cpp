@@ -370,5 +370,5 @@ TRY_GENERATE:
     //--------------------------------------------------------------------------
     update_area_fast();
     content = area * pressure;
-    fprintf(stderr,"\t[TOPOL ]: area=%g\n",area);
+    //fprintf(stderr,"\t[TOPOL ]: area=%g\n",area);
 }

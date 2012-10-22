@@ -41,15 +41,15 @@ void Cell:: compute_spots_velocity()
         {
             compute_spot_velocity(spot);
         }
-        bubble->save_vtk( vformat("bubble%u.vtk", bubble->id) );
-        bubble->save_vtk_gt( vformat("bgt%u.vtk", bubble->id) );
-        bubble->save_vtk_gn( vformat("bgn%u.vtk", bubble->id) );
+       // bubble->save_vtk( vformat("bubble%u.vtk", bubble->id) );
+        //bubble->save_vtk_gt( vformat("bgt%u.vtk", bubble->id) );
+        //bubble->save_vtk_gn( vformat("bgn%u.vtk", bubble->id) );
         //bubble->save_vtk_n( vformat("curv%u.vtk", bubble->id) );
-        bubble->save_vtk_u( vformat("bu%u.vtk", bubble->id) );
+        //bubble->save_vtk_u( vformat("bu%u.vtk", bubble->id) );
         
     }
     
-    segmenter.save_vtk_gn("jgn.vtk");
+    //segmenter.save_vtk_gn("jgn.vtk");
     //segmenter.save_vtk_gradP( "jg.vtk" );
     
 }
@@ -75,7 +75,7 @@ void Cell:: compute_junction_gn( ConstJunctionPtr J )
     const Vertex step  = len * h;                // probe step
     Vertex       probe = v0 + step;              // starting probe
     
-    { ios::ocstream fp("probe.dat",true); fp("%g %g\n", probe.x, probe.y); }
+    //{ ios::ocstream fp("probe.dat",true); fp("%g %g\n", probe.x, probe.y); }
     
     Coord klo;
     Coord khi;
