@@ -119,9 +119,12 @@ void Cell:: compute_pressure(const mpi &MPI )
     //--------------------------------------------------------------------------
     // boundary conditions
     //--------------------------------------------------------------------------
-    for( unit_t j=lower.y;j<=upper.y;++j)
+    if( !right_wall )
     {
-        P[j][upper.x] = 0.5;
+        for( unit_t j=lower.y;j<=upper.y;++j)
+        {
+            P[j][upper.x] = right_pressure;
+        }
     }
     
     //----------------------------------------------------------------------
@@ -141,6 +144,9 @@ void Cell:: compute_pressure(const mpi &MPI )
         int cvg = 1;
         for(size_t c=0;c<2;++c)
         {
+            //------------------------------------------------------------------
+            // update pressure gradient
+            //------------------------------------------------------------------
             compute_gradP();
             //------------------------------------------------------------------
             // core
@@ -177,23 +183,48 @@ void Cell:: compute_pressure(const mpi &MPI )
                 }
             }
             
-            //------------------------------------------------------------------
-            // sides
-            //------------------------------------------------------------------
+            
             for( unit_t j=lower.y;j<=upper.y;++j)
             {
                 Array1D       &P_j = P[j];
-                if(B[j][lower.x+1] <= 0 )
+                const Array1D &B_j = B[j];
+                //--------------------------------------------------------------
+                // left side
+                //--------------------------------------------------------------
+                if( true )
                 {
-                    //! second order
-                    P_j[lower.x] = (4.0*P_j[lower.x+1] - P_right(j,lower.x+1))/3.0;
+                    if(B_j[lower.x+1] <= 0 )
+                    {
+                        //! second order
+                        P_j[lower.x] = (4.0*P_j[lower.x+1] - P_right(j,lower.x+1))/3.0;
+                    }
+                    else
+                    {
+                        //! first order only
+                        P_j[lower.x] = P_right(j,lower.x);
+                    }
                 }
-                else
+                
+                //--------------------------------------------------------------
+                // right side
+                //--------------------------------------------------------------
+                if( right_wall )
                 {
-                    //! first order only
-                    P_j[lower.x] = P_right(j,lower.x);
+                    if(B_j[upper.x-1]<=0)
+                    {
+                        //! second order
+                        P_j[upper.x] = (4.0 * P_j[upper.x-1] - P_left(j,upper.x-1))/3.0;
+                    }
+                    else
+                    {
+                        //! first order only
+                        P_j[upper.x] = P_left(j,upper.x);
+                    }
                 }
             }
+            
+            
+            
             sync1(MPI,P); //! for next Red/Black
         }
         

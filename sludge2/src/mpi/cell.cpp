@@ -26,7 +26,9 @@ ymin(0),
 ymax(0),
 vtk(),
 jsend(),
-jrecv()
+jrecv(),
+right_pressure(1),
+right_wall(false)
 {
     
     //--------------------------------------------------------------------------

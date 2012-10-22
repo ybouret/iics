@@ -33,7 +33,7 @@ void Simulation:: step()
             Vertex       &v     = tracer->vertex;
             const Vertex &u     = s->U;
             //fprintf(stderr,"(%g,%g) => ", v.x,v.y);
-            v += 0.02 * u;
+            v += 0.01 * u;
             //fprintf(stderr,"(%g,%g)\n", v.x,v.y);
         }
     }
