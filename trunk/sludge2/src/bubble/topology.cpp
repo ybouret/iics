@@ -154,6 +154,7 @@ Vertex vertex_splint( const Real t, const array<Real> &ta, const array<Vertex> &
     return a*v[klo] + b*v[khi] + C * v2[klo] + D * v2[khi];
 }
 
+#if 0
 //==============================================================================
 // spline interpolation of first derivative
 //==============================================================================
@@ -194,6 +195,7 @@ Vertex vertex_dsplint2(const Real t, const array<Real> &ta, const array<Vertex> 
     
     return a * v2[klo] + b * v2[khi];
 }
+#endif
 
 void Bubble:: compute_contour()
 {
@@ -340,6 +342,7 @@ TRY_GENERATE:
     // pbc and differential properties
     //
     //--------------------------------------------------------------------------
+#if 0
     tracer = root;
     for(size_t i=0; i<size; ++i,tracer=tracer->next)
     {
@@ -358,6 +361,31 @@ TRY_GENERATE:
         tracer->curvature         = (acc * tracer->n) / tg_norm2;
         tracer->pressure          = pressure - gam * tracer->curvature;
     }
+#endif
+    tracer = root;
+    for(size_t i=0; i<size; ++i,tracer=tracer->next)
+    {
+        tracer->bubble = this;
+        const Real   sp  = tracer->s;
+        const Real   sp2 = tracer->s2;
+        const Real   sm  = tracer->prev->s;
+        const Real   sm2 = tracer->prev->s2;
+        const Vertex rp  = tracer->edge;
+        const Vertex rm  = tracer->prev->edge;
+        
+        const Real dsc = sp * sm2 + sm * sp2;
+        //gt = (sm2 * Pp - sp2 * Pm) /  dsc;
+        const Vertex tangent = (1/dsc) * ( sm2 * rp + sp2 * rm);
+        const Real   tg_norm2     = tangent.norm2();
+        const Real   tg_norm      = Sqrt( tg_norm2 );
+        tracer->t                 = (1/tg_norm) * tangent;
+        tracer->n.x               = -tracer->t.y;
+        tracer->n.y               =  tracer->t.x;
+        tracer->curvature         = 0;
+        tracer->pressure = pressure - gam * tracer->curvature;
+    }
+    
+    
     
     tracer = root;
     for(size_t i=0; i<size; ++i,tracer=tracer->next)

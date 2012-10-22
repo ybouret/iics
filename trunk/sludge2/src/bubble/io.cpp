@@ -80,11 +80,12 @@ void  Bubble:: save_vtk_n( const string &filename ) const
     fp("DATASET POLYDATA\n");
     fp("POINTS %u float\n", 2*n );
     const Tracer *p     = root;
-    const Real   scale = lam/2;
+    const Real   scale  = lam;
     for( size_t i=size;i>0;--i,p=p->next)
     {
         fp("%.15g %.15g 0\n",p->vertex.x,p->vertex.y);
-        const Real fac = scale * p->curvature;
+        //const Real fac = scale * p->curvature;
+        const Real fac = scale;
         fp("%.15g %.15g 0\n",p->vertex.x + fac * p->n.x,p->vertex.y+ fac * p->n.y);
     }
     fp("\n");
