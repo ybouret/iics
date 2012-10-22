@@ -37,8 +37,13 @@ void Cell:: compute_gradP()
         //----------------------------------------------------------------------
         // process right boundary condition
         //----------------------------------------------------------------------
-        if( !right_wall )
+        if( right_wall )
         {
+            //-- zero right gradient, already set
+        }
+        else
+        {
+            //-- right gradient estimation
             Vertex &g = g_j[xhi];
             g.y = inv_twodel.y * (P[j+1][xhi] -P[j-1][xhi]);
             if( B_j[xhim1] <= 0 )
