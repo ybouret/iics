@@ -58,10 +58,10 @@ void Bubble:: assemble( const mpi &MPI )
     assert( size == num_tracers );
 #endif
     
-    
+    MPI.Printf0( stderr, "\t[BEFORE] #%u: area=%g, pressure=%g\n", id, area, pressure);
+
     if( MPI.IsFirst )
     {
-        fprintf( stderr, "\t[BEFORE] #%u: area=%g, pressure=%g\n", id, area, pressure);
         //----------------------------------------------------------------------
         // loop over slaves
         //----------------------------------------------------------------------
@@ -69,8 +69,6 @@ void Bubble:: assemble( const mpi &MPI )
         for( int r = 1; r < MPI.CommWorldSize; ++r )
         {
             const size_t num_spots = MPI.Recv<size_t>(r, tag, MPI_COMM_WORLD, status);
-            //fprintf( stderr, "from %d: #spots=%u\n", r, unsigned(num_spots));
-            
             Tracer *tracer = root;
             for( size_t i=0; i < num_spots; ++i )
             {
@@ -100,7 +98,6 @@ void Bubble:: assemble( const mpi &MPI )
         //----------------------------------------------------------------------
         update_area_full();
         pressure = content / area;
-        fprintf( stderr, "\t[AFTER ] #%u: area=%g, pressure=%g\n", id, area, pressure);
     }
     else
     {
@@ -122,5 +119,6 @@ void Bubble:: assemble( const mpi &MPI )
         }
         
     }
-    //MPI.Printf0(stderr, "\tAFTER : Bubble %u: pressure=%g, area=%g, content=%g\n", id, pressure, area, content);
+    MPI.Printf0( stderr, "\t[AFTER ] #%u: area=%g, pressure=%g\n", id, area, pressure);
+
 }
