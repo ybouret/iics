@@ -1,7 +1,33 @@
 #include "../visit/simulation.hpp"
+#include "yocto/lua/lua-config.hpp"
+#include "yocto/lua/lua-state.hpp"
+#include "yocto/string/vfs-utils.hpp"
+
+static inline
+Real GetLuaReal( lua_State *L, const char *id )
+{
+    assert(id);
+    lua_settop(L,0);
+    lua_getglobal(L, id);
+    if( !lua_isnumber(L, -1))
+        throw exception("Lua: '%s' is not a number", id);
+    return Real(lua_tonumber(L, -1));
+}
+
+static inline
+bool GetLuaBool( lua_State *L, const char *id )
+{
+    assert(id);
+    lua_settop(L,0);
+    lua_getglobal(L, id);
+    if( !lua_isboolean(L, -1))
+        throw exception("Lua: '%s' is not a boolean", id);
+    return lua_toboolean(L,-1) == 1;
+}
 
 int main( int argc, char *argv[] )
 {
+    const char *progname = _vfs::get_base_name(argv[0]);
     try
     {
         //----------------------------------------------------------------------
@@ -15,6 +41,10 @@ int main( int argc, char *argv[] )
         // Setup MPI
         //----------------------------------------------------------------------
         YOCTO_MPI;
+        if( argc <= 1 )
+        {
+            throw exception("usage: %s config.lua", progname);
+        }
         
         //----------------------------------------------------------------------
         // Trace File
@@ -28,6 +58,13 @@ int main( int argc, char *argv[] )
         const string *sim_interface = 0;
         VisIt:: SetupParallel( MPI, sim_name, sim_comment, sim_path, sim_interface);
         
+        //----------------------------------------------------------------------
+        // Read Lua config
+        //----------------------------------------------------------------------
+        Lua::State VM;
+        lua_State *lua = VM();
+        Lua::Config::DoFile(lua, argv[1]);
+        
         
         //----------------------------------------------------------------------
         // Setup Simulation
@@ -40,9 +77,10 @@ int main( int argc, char *argv[] )
       
         SaveGrid( sim.mesh, vformat("g%d.%d.dat",sim.par_size,sim.par_rank));
         
-        sim.bubbles.gamma = 0.01;
-        //sim.bubbles.gamma = 0.05;
-
+        sim.bubbles.gamma  = 0.01;
+        sim.right_pressure = GetLuaReal(lua, "right_pressure");
+        sim.right_wall     = GetLuaBool(lua, "right_wall");
+        
         //----------------------------------------------------------------------
         // First time init
         //----------------------------------------------------------------------

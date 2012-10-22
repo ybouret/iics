@@ -34,6 +34,10 @@ public:
     vector<JPack>  jsend;
     vector<JPack>  jrecv;
     
+    Real           right_pressure; //!< right pressure, default is 1
+    bool           right_wall;     //!< right is a wall, default is false (set right_pressure)
+    
+    
     //! broadcast, find spots and bubbles, sync B field
     void dispatch( const mpi &MPI );
     

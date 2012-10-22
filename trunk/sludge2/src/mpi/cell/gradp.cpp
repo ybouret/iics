@@ -33,18 +33,25 @@ void Cell:: compute_gradP()
                 g.y = inv_twodel.y * (p_upper - p_lower);
             }
         }
-        Vertex &g = g_j[xhi];
-        g.y = inv_twodel.y * (P[j+1][xhi] -P[j-1][xhi]);
-        //inv_two_dX * ( 3*P_j[upper.x] + P_j[upper.x-2] - 4*P_j[upper.x-1]);
-        if( B_j[xhim1] <= 0 )
-        {
-            g.x = inv_twodel.x * ( 3*P_j[xhi] - 4* P_j[xhim1] + P_left(j,xhim1));
-        }
-        else
-        {
-            g.x = inv_delta.x * ( P_j[xhi] - P_left(j,xhi) );
-        }
         
+        //----------------------------------------------------------------------
+        // process right boundary condition
+        //----------------------------------------------------------------------
+        if( !right_wall )
+        {
+            Vertex &g = g_j[xhi];
+            g.y = inv_twodel.y * (P[j+1][xhi] -P[j-1][xhi]);
+            if( B_j[xhim1] <= 0 )
+            {
+                //-- second order
+                g.x = inv_twodel.x * ( 3*P_j[xhi] - 4* P_j[xhim1] + P_left(j,xhim1));
+            }
+            else
+            {
+                //-- first order only
+                g.x = inv_delta.x * ( P_j[xhi] - P_left(j,xhi) );
+            }
+        }
         
     }
     
