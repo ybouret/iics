@@ -32,8 +32,9 @@ public:
     static const size_t IO_COUNT = 3; //!< pressure, area, content to dispatch
     
     void            set_pressure( Real p ) throw();
-    void            update_area() throw();
-    
+    void            update_area_fast() throw(); //!< use precomputed edges
+    void            update_area_full() throw(); //!< don't use edges
+
     void clear() throw(); //!< no tracers, no spots
     
     //! partial hash
