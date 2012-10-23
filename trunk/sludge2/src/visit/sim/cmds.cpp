@@ -13,6 +13,8 @@ void Simulation:: perform(const string &cmd, const array<string> &args)
     {
         segmenter.save_vtk_gn( "jgn.vtk" );
         bubbles.first()->save_vtk_gn( "bgn.vtk" );
+        bubbles.first()->save_vtk( "b.vtk" );
+        return;
     }
 }
 
