@@ -4,7 +4,8 @@ void Simulation:: get_meta_data(visit_handle &md) const
 {
     
     add_generic_command( "raz", md);
-    
+    if( par_size == 1)
+        add_generic_command( "geo", md);
     
     //! append the mesh
     {
