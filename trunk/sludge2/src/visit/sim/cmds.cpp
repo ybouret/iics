@@ -8,5 +8,11 @@ void Simulation:: perform(const string &cmd, const array<string> &args)
         initialize();
         return;
     }
+    
+    if( cmd == "geo" )
+    {
+        segmenter.save_vtk_gn( "jgn.vtk" );
+        bubbles.first()->save_vtk_gn( "bgn.vtk" );
+    }
 }
 
