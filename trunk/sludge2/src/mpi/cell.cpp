@@ -27,6 +27,7 @@ ymax(0),
 vtk(),
 jsend(),
 jrecv(),
+ftol(1e-5),
 right_pressure(1),
 right_wall(false)
 {

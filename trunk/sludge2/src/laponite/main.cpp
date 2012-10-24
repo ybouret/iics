@@ -80,6 +80,7 @@ int main( int argc, char *argv[] )
         sim.bubbles.gamma  = GetLuaReal(lua, "gamma" );
         sim.right_pressure = GetLuaReal(lua, "right_pressure");
         sim.right_wall     = GetLuaBool(lua, "right_wall");
+        sim.ftol           = GetLuaReal(lua, "ftol");
         
         //----------------------------------------------------------------------
         // First time init

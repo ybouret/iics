@@ -17,6 +17,7 @@ void Segmenter:: build_effective_pressure(const Array  &B,
         P[m->inside.y][m->inside.x] = bubble->pressure;
     }
     
+    save( "j.dat" );
     
     //--------------------------------------------------------------------------
     //
@@ -61,9 +62,9 @@ void Segmenter:: build_effective_pressure(const Array  &B,
                     //----------------------------------------------------------
                     // we enter a bubble: take the first junction
                     //----------------------------------------------------------
-                    if( B[j][K->khi] <=0 )
+                    if( B[j][K->khi] <= 0 )
                     {
-                        fprintf( stderr, "error @j=%ld, K->khi=%ld\n and B[klo]=%g\n", j, K->khi, B[j][K->klo]);
+                        fprintf( stderr, "error @j=%ld, K->khi=%ld\n and B[klo]=%g @(%g,%g)\n", j, K->khi, B[j][K->klo], X[K->klo],Y[j] );
                     }
                     assert(B[j][K->khi]>0);
                     Penter[j][K->khi].x = K->pressure;
