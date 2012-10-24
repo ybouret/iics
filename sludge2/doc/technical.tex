@@ -1,0 +1,59 @@
+\documentclass[11pt]{amsart}
+\usepackage{xcolor}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{a4paper}                   % ... or a4paper or a5paper or ... 
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\title{Technical Details}
+
+\begin{document}
+\maketitle
+
+\section{Non uniform differential approximations}
+
+Let $f(x)$ be a function estimated by
+\[
+	f(x) = f_0 + ax + b x^2
+\]
+with
+\[
+	f_\pm = f_0 \pm a \delta_\pm + b \delta_\pm^2
+\]
+and the conditions
+\[
+	\delta_\pm > 0 %,\; \delta_- + \delta_+ > 0.
+\]
+Then
+\[
+\begin{array}{rcl}
+	a & = &
+	\dfrac{1}{\delta_-^2\delta_+ + \delta_+^2\delta_-}
+	\left[ 
+	   \delta_-^2\left(f_+ - f_0 \right)
+	 - \delta_+^2\left(f_- - f_0 \right)
+	\right] \\
+	\\
+	& = & \dfrac{1}{\delta_- + \delta_+} 
+	\left[
+	 \dfrac{\delta_-}{\delta_+} \left(f_+ - f_0 \right)
+	-\dfrac{\delta_+}{\delta_-} \left(f_- - f_0 \right)
+	\right] \\
+	\\
+	& = & \dfrac{1}{\delta_- + \delta_+} 
+	\left[
+	\dfrac{\delta_-}{\delta_+} f_+
+	+\left(\dfrac{\delta_+}{\delta_-} - \dfrac{\delta_-}{\delta_+}\right) f_0
+	-\dfrac{\delta_+}{\delta_-} f_-
+	\right]\\
+\end{array}
+\]
+
+\end{document}
+%& = &\dfrac{1}{\delta_-^2\delta_+ + \delta_+^2\delta_-}
+%	\left[ 
+%		\delta_-^2 f_ 
+%		+ \left(\delta_+^2 - \delta_-^2\right)f_0 
+%		- \delta_+^2 f_-\right] \\
