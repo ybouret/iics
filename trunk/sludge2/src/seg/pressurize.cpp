@@ -65,8 +65,9 @@ void Segmenter:: build_virtual_pressure(const Array  &B,
                     if( i0 < X.upper )
                     {
                         const unit_t iplus  = i0+1;
-                        const Real Pplus    = P[j][iplus];
-                        const Real PJ       = J->pressure;
+                        const Real   Pplus  = P[j][iplus];
+                        const Real   PJ     = J->pressure;
+                        
                         Pleave[j][J->klo].x = Pplus - (two_delta_X) * ( Pplus - PJ ) / (delta_X+delta_J);
                     }
                     else
@@ -87,8 +88,8 @@ void Segmenter:: build_virtual_pressure(const Array  &B,
 #endif
                     assert(B[j][K->khi]>0);
                     const unit_t i0      = K->klo;
-                    const Real   x0      = X[i0]; assert(x0<=J->vertex.x);
-                    const Real   delta_J = J->vertex.x - x0;
+                    const Real   x0      = X[i0]; assert(x0<=K->vertex.x);
+                    const Real   delta_J = K->vertex.x - x0;
                     if( i0 > X.lower )
                     {
                         const Real Pminus   = P[j][i0-1];
@@ -150,12 +151,14 @@ void Segmenter:: build_virtual_pressure(const Array  &B,
                     //----------------------------------------------------------
                     assert(B[J->klo][i]>0);
                     assert(B[J->khi][i]<=0);
+                    
                     const unit_t j0      = J->khi;
                     const Real   y0      = Y[j0]; assert(J->vertex.y<=y0);
                     const Real   delta_J = y0 - J->vertex.y;
                     const unit_t jplus   = j0+1;
                     const Real   Pplus   = P[jplus][i];
                     const Real   PJ      = J->pressure;
+                    
                     Pleave[J->klo][i].y  = Pplus - (two_delta_Y) * ( Pplus - PJ ) / (delta_Y+delta_J);
                     //Pleave[J->klo][i].y = J->pressure;
                 }
@@ -172,12 +175,14 @@ void Segmenter:: build_virtual_pressure(const Array  &B,
 #endif
                     assert(B[K->klo][i]<=0);
                     assert(B[K->khi][i]>0);
-                    const unit_t j0      = J->klo;
-                    const Real   y0      = Y[j0]; assert(J->vertex.y >= y0);
-                    const Real   delta_J = J->vertex.y - y0;
+                    
+                    const unit_t j0      = K->klo;
+                    const Real   y0      = Y[j0]; assert(K->vertex.y >= y0);
+                    const Real   delta_J = K->vertex.y - y0;
                     const unit_t jminus  = j0-1;
                     const Real   Pminus  = P[jminus][i];
                     const Real   PJ      = K->pressure;
+                    
                     Penter[K->khi][i].y  = Pminus + (two_delta_Y) * (PJ - Pminus) / (delta_Y+delta_J);
                     //Penter[K->khi][i].y = K->pressure;
                 }
