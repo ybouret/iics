@@ -364,7 +364,7 @@ TRY_GENERATE:
 #endif
     
     //--------------------------------------------------------------------------
-    // first pass: tangent and normal
+    // first pass: PBC, tangent and normal
     //--------------------------------------------------------------------------
     tracer = root;
     for(size_t i=0; i<size; ++i,tracer=tracer->next)
@@ -378,9 +378,9 @@ TRY_GENERATE:
         const Vertex rp  = tracer->edge;
         const Vertex rm  = tracer->prev->edge;
         
-        const Real dsc = sp * sm2 + sm * sp2;
-        //gt = (sm2 * Pp - sp2 * Pm) /  dsc;
-        const Vertex tangent  = (1/dsc) * ( sm2 * rp + sp2 * rm);
+        const Real   dsc      = sp * sm2 + sm * sp2;
+        tracer->idsc          = (1/dsc);
+        const Vertex tangent  = tracer->idsc * ( sm2 * rp + sp2 * rm);
         const Real   tg_norm2 = tangent.norm2();
         const Real   tg_norm  = Sqrt( tg_norm2 );
         tracer->t             = (1/tg_norm) * tangent;
@@ -395,14 +395,14 @@ TRY_GENERATE:
     tracer = root;
     for(size_t i=0; i<size; ++i,tracer=tracer->next)
     {
-        const Real   sp  = tracer->s;
+        //const Real   sp  = tracer->s;
         const Real   sp2 = tracer->s2;
-        const Real   sm  = tracer->prev->s;
+        //const Real   sm  = tracer->prev->s;
         const Real   sm2 = tracer->prev->s2;
-        const Real   dsc = sp * sm2 + sm * sp2;
+        //const Real   dsc = sp * sm2 + sm * sp2;
         const Vertex dTp(tracer->t,tracer->next->t);
         const Vertex dTm(tracer->t,tracer->prev->t);
-        const Vertex dTds = (1/dsc) * ( sm2 * dTp - sp2 * dTm );
+        const Vertex dTds = tracer->idsc * ( sm2 * dTp - sp2 * dTm );
         
         tracer->curvature = dTds * tracer->n;
         tracer->pressure  = pressure - gam * tracer->curvature;
