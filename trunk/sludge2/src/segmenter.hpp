@@ -34,8 +34,11 @@ public:
     
     //! get duplicated junctions from PBC
     Junctions & duplicated() throw();
-
     
+    const Real      delta_X;
+    const Real      two_delta_X;
+    const Real      delta_Y;
+    const Real      two_delta_Y;
     const Array1D  &X;
     const Array1D  &Y;
     
@@ -49,19 +52,21 @@ public:
      */
     void build_bubbles_field( Array &B );
     
+    //! fill pressure inside the bubble (for output)
+    /**
+     Called once per step
+     */
+    void build_inside_bubble_pressure( Array &P );
+    
     //! fill array using junctions in both directions
     /**
      Built from the processed bubbles.
-     \warning need to restrict the indices because of PBC
-     \param ymin lower.y+1
-     \param ymax upper.y-1
      */
-    void build_effective_pressure(const Array  &B,
-                                  Array        &P,
-                                  VertexArray &Penter,
-                                  VertexArray &Pleave,
-                                  const Real   gamma
-                                  );
+    void build_virtual_pressure(const Array  &B,
+                                const Array  &P,
+                                VertexArray  &Penter,
+                                VertexArray  &Pleave
+                                );
     
     //! fill the pressure array with the bubbles pressure
     void pressurize( Array &P ) const;
@@ -74,13 +79,13 @@ public:
     
     //! save junctions coordinates+tangential pressure
     void save_vtk_gt( const string &filename ) const;
-
+    
     //! save junctions coordinates+normal pressure
     /**
      valid after Cell::compute_velocity
      */
     void save_vtk_gn( const string &filename ) const;
-
+    
     //! save junctions coordinates+gradient
     /**
      valid after Cell::compute_velocity

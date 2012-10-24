@@ -19,8 +19,8 @@ void Cell:: dispatch( const mpi &MPI )
     for( Bubble *b = bubbles.first(); b;b=b->next)
     {
         b->locate_spots(ymin, ymax);
-        b->save_dat(   vformat("bubble%u.dat", b->id) );
-        b->save_spots( vformat("spots%u.dat",  b->id) );
+        //b->save_dat(   vformat("bubble%u.dat", b->id) );
+        //b->save_spots( vformat("spots%u.dat",  b->id) );
     }
     
     
@@ -43,7 +43,7 @@ void Cell:: dispatch( const mpi &MPI )
     MPI.Printf0(stderr, "\tsync bubble field...\n");
     sync1(MPI,B);
     
-    save_outB("b.dat");
+    //save_outB("b.dat");
     
     MPI.Printf0(stderr, "\tbuild bulk field...\n");
     build_bulk();
@@ -55,10 +55,16 @@ void Cell:: dispatch( const mpi &MPI )
     segmenter.dispatch_junctions(MPI, *this);
     
     //--------------------------------------------------------------------------
+    // copy pressure inside bubbles
+    //--------------------------------------------------------------------------
+    MPI.Printf0(stderr, "\tfill pressure inside bubbles\n");
+    segmenter.build_inside_bubble_pressure(P);
+    
+    //--------------------------------------------------------------------------
     // Effective Pressure
     //--------------------------------------------------------------------------
-    MPI.Printf0(stderr,"\tbuilding effective pressure...\n");
-    segmenter.build_effective_pressure(B, P, Penter, Pleave, bubbles.gamma);
+    //MPI.Printf0(stderr,"\tbuilding virtual pressure...\n");
+    //segmenter.build_virtual_pressure(B, P, Penter, Pleave, bubbles.gamma);
     
     
 }
