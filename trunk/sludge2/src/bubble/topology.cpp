@@ -370,6 +370,7 @@ TRY_GENERATE:
     for(size_t i=0; i<size; ++i,tracer=tracer->next)
     {
         tracer->bubble = this;
+        pbc(tracer->vertex);
         const Real   sp  = tracer->s;
         const Real   sp2 = tracer->s2;
         const Real   sm  = tracer->prev->s;
