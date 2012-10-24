@@ -1,15 +1,7 @@
 #include "../segmenter.hpp"
 
-
-void Segmenter:: build_effective_pressure(const Array  &B,
-                                          Array        &P,
-                                          VertexArray  &Penter,
-                                          VertexArray  &Pleave,
-                                          const Real    gamma)
+void Segmenter:: build_inside_bubble_pressure(Array &P)
 {
-    Penter.ldz();
-    Pleave.ldz();
-    
     for( const Marker *m = markers.head;m;m=m->next)
     {
         
@@ -17,7 +9,18 @@ void Segmenter:: build_effective_pressure(const Array  &B,
         P[m->inside.y][m->inside.x] = bubble->pressure;
     }
     
-    save( "j.dat" );
+}
+
+void Segmenter:: build_virtual_pressure(const Array  &B,
+                                        const Array  &P,
+                                        VertexArray  &Penter,
+                                        VertexArray  &Pleave)
+{
+    Penter.ldz();
+    Pleave.ldz();
+    
+    
+    //save( "j.dat" );
     
     //--------------------------------------------------------------------------
     //
@@ -55,19 +58,47 @@ void Segmenter:: build_effective_pressure(const Array  &B,
                     // we leave a bubble: take the last junction
                     //----------------------------------------------------------
                     assert(B[j][J->khi]<=0);
-                    Pleave[j][J->klo].x = J->pressure;
+                    const unit_t i0      = J->khi;
+                    const Real   x0      = X[i0]; assert(x0>=J->vertex.x);
+                    const Real   delta_J = x0 - J->vertex.x;
+                    
+                    if( i0 < X.upper )
+                    {
+                        const unit_t iplus  = i0+1;
+                        const Real Pplus    = P[j][iplus];
+                        const Real PJ       = J->pressure;
+                        Pleave[j][J->klo].x = Pplus - (two_delta_X) * ( Pplus - PJ ) / (delta_X+delta_J);
+                    }
+                    else
+                    {
+                        Pleave[j][J->klo].x = J->pressure;
+                    }
                 }
                 else
                 {
                     //----------------------------------------------------------
                     // we enter a bubble: take the first junction
                     //----------------------------------------------------------
+#if 0
                     if( B[j][K->khi] <= 0 )
                     {
                         fprintf( stderr, "error @j=%ld, K->khi=%ld\n and B[klo]=%g @(%g,%g)\n", j, K->khi, B[j][K->klo], X[K->klo],Y[j] );
                     }
+#endif
                     assert(B[j][K->khi]>0);
-                    Penter[j][K->khi].x = K->pressure;
+                    const unit_t i0      = K->klo;
+                    const Real   x0      = X[i0]; assert(x0<=J->vertex.x);
+                    const Real   delta_J = J->vertex.x - x0;
+                    if( i0 > X.lower )
+                    {
+                        const Real Pminus   = P[j][i0-1];
+                        const Real PJ       = K->pressure;
+                        Penter[j][K->khi].x = Pminus + (two_delta_X) * (PJ - Pminus) / (delta_X+delta_J);
+                    }
+                    else
+                    {
+                        Penter[j][K->khi].x = K->pressure;
+                    }
                 }
             }
             J    = J->next;
@@ -119,7 +150,14 @@ void Segmenter:: build_effective_pressure(const Array  &B,
                     //----------------------------------------------------------
                     assert(B[J->klo][i]>0);
                     assert(B[J->khi][i]<=0);
-                    Pleave[J->klo][i].y = J->pressure;
+                    const unit_t j0      = J->khi;
+                    const Real   y0      = Y[j0]; assert(J->vertex.y<=y0);
+                    const Real   delta_J = y0 - J->vertex.y;
+                    const unit_t jplus   = j0+1;
+                    const Real   Pplus   = P[jplus][i];
+                    const Real   PJ      = J->pressure;
+                    Pleave[J->klo][i].y  = Pplus - (two_delta_Y) * ( Pplus - PJ ) / (delta_Y+delta_J);
+                    //Pleave[J->klo][i].y = J->pressure;
                 }
                 else
                 {
@@ -134,8 +172,14 @@ void Segmenter:: build_effective_pressure(const Array  &B,
 #endif
                     assert(B[K->klo][i]<=0);
                     assert(B[K->khi][i]>0);
-                    
-                    Penter[K->khi][i].y = K->pressure;
+                    const unit_t j0      = J->klo;
+                    const Real   y0      = Y[j0]; assert(J->vertex.y >= y0);
+                    const Real   delta_J = J->vertex.y - y0;
+                    const unit_t jminus  = j0-1;
+                    const Real   Pminus  = P[jminus][i];
+                    const Real   PJ      = K->pressure;
+                    Penter[K->khi][i].y  = Pminus + (two_delta_Y) * (PJ - Pminus) / (delta_Y+delta_J);
+                    //Penter[K->khi][i].y = K->pressure;
                 }
             }
             

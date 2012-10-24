@@ -143,6 +143,7 @@ void Cell:: compute_pressure(const mpi &MPI )
         int cvg = 1;
         for(size_t c=0;c<2;++c)
         {
+            segmenter.build_virtual_pressure(B, P, Penter, Pleave);
             //------------------------------------------------------------------
             // update pressure gradient
             //------------------------------------------------------------------

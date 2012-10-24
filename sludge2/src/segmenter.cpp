@@ -6,6 +6,10 @@ Segmenter:: ~Segmenter() throw()
 }
 
 Segmenter:: Segmenter( const Grid &g ) :
+delta_X(0),
+two_delta_X(0),
+delta_Y(0),
+two_delta_Y(0),
 X( g.X() ),
 Y( g.Y() ),
 hseg(0),
@@ -25,6 +29,11 @@ void Segmenter:: create()
     assert(segments.capacity()>=segcount);
     hseg=0;
     vseg=0;
+    
+    (Real &)delta_X = X[X.lower+1]-X[X.lower];
+    (Real &)delta_Y = Y[Y.lower+1]-Y[Y.lower];
+    (Real &)two_delta_X = delta_X + delta_X;
+    (Real &)two_delta_Y = delta_Y + delta_Y;
     
     for( unit_t j=Y.lower;j<=Y.upper;++j)
     {
