@@ -97,7 +97,7 @@ public:
     
 #if defined(HAS_MPI)
     //! take care of PBC
-    void dispatch_vertical_junctions( const mpi &MPI, Cell &cell );
+    void dispatch_junctions( const mpi &MPI, Cell &cell );
 #endif
     
     void SortHorz(); //!< sort horizontal junctions

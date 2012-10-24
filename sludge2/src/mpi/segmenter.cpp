@@ -1,6 +1,6 @@
 #include "cell.hpp"
 
-void Segmenter:: dispatch_vertical_junctions( const mpi &MPI, Cell &cell )
+void Segmenter:: dispatch_junctions( const mpi &MPI, Cell &cell )
 {
     static const int tag = 0xD15;
     const int  source    = MPI.CommWorldLast;

@@ -19,6 +19,8 @@ void Cell:: dispatch( const mpi &MPI )
     for( Bubble *b = bubbles.first(); b;b=b->next)
     {
         b->locate_spots(ymin, ymax);
+        b->save_dat(   vformat("bubble%u.dat", b->id) );
+        b->save_spots( vformat("spots%u.dat",  b->id) );
     }
     
     
@@ -49,8 +51,8 @@ void Cell:: dispatch( const mpi &MPI )
     //--------------------------------------------------------------------------
     // Junctions PBC
     //--------------------------------------------------------------------------
-    MPI.Printf0(stderr, "\tdispatch vertical junctions...\n");
-    segmenter.dispatch_vertical_junctions(MPI, *this);
+    MPI.Printf0(stderr, "\tdispatch  junctions...\n");
+    segmenter.dispatch_junctions(MPI, *this);
     
     //--------------------------------------------------------------------------
     // Effective Pressure
