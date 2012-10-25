@@ -51,6 +51,66 @@ Then
 \end{array}
 \]
 
+\section{Differential Arc}
+Let $\vec{r}_0$ and $\vec{r}_1$ be two points of a curve
+with some respective tangent vector $\vec{\tau}_0$ and $\vec{\tau}_1$, and their
+respective curvature $C_0$ and $C_1$.
+
+We assume that $\vec{r}(\mu)$ represent the arc between those two points:
+\[
+	\vec{r}(\mu) = \vec{r}_0 + \mu \vec{a} + \mu^2 \vec{b} + \mu^3 \vec{c}
+\]
+We obtain
+\[
+	\dot{\vec{r}}(\mu) = \vec{a} + 2 \mu \vec{b} + 3 \mu^2 \vec{c}
+\]
+and
+\[
+	\ddot{\vec{r}}(\mu) = 2\vec{b} + 6 \mu \vec{c}.
+\]
+The curvature is
+\[
+	C(\mu) = \dfrac{\det\left(\dot{\vec{r}},\ddot{\vec{r}}\right)}{\left|\dot{\vec{r}}\right|^3}.
+\]
+
+%We need six scalar relations to determine the constant vectors.
+%\[
+%\begin{array}{rcl}
+%	\delta\vec{r} & = &\vec{r}_1 - \vec{r}_0 = \vec{a} + \vec{b} + \vec{c}\\
+%	\det(\vec{a},\vec{\tau}_0) & = & 0 \\
+%	\det(\vec{a}+2\vec{b}+3\vec{c},\vec{\tau}_1) & = & 0 \\  
+%	\dfrac{C_0}{2} & = & \dfrac{\det\left(\vec{a},\vec{b}\right)}{\left|\vec{a}\right|^3}\\
+%	\dfrac{C_1}{2} & = & 
+%	\dfrac{
+%	\det\left(\vec{a},\vec{b}\right)
+%	+ 3 \det\left(\vec{a},\vec{c}\right)
+%	+ 3 \det\left(\vec{b},\vec{c}\right)
+%	}{\left|\vec{a}+2\vec{b}+3\vec{c}\right|^3}
+%\end{array}
+%\]
+%
+%With $\vec{U} = (a_x,a_y,b_x,b_y,c_x,c_y)$,
+%\[
+%\left\lbrack
+%	\begin{array}{cccccc}
+%	1 & 0 & 1 & 0 & 1 & 0 \\
+%	0 & 1 & 0 & 1 & 0 & 1 \\
+%	\vec{\tau}_{0,y} & - \vec{\tau}_{0,x} & 0 & 0 & 0 & 0 \\
+%	\vec{\tau}_{1,y} & - \vec{\tau}_{1,x} & 2\vec{\tau}_{1,y} & - 2\vec{\tau}_{1,x} & 3\vec{\tau}_{1,y} & -3\vec{\tau}_{1,x} \\
+%	\end{array}
+%\right\rbrack
+%\vec{U} 
+%=
+%\left[
+%\begin{array}{c}
+%\delta\vec{r}_x\\
+%\delta\vec{r}_y\\
+%0\\
+%0\\
+%\end{array}
+%\right]
+%\]
+
 \end{document}
 %& = &\dfrac{1}{\delta_-^2\delta_+ + \delta_+^2\delta_-}
 %	\left[ 
