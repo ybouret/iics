@@ -7,6 +7,7 @@ test-spots.cpp
 test-bubble.cpp
 test-seg.cpp
 test-param.cpp
+test-arc.cpp
 )
 
 TARGET_LINK_LIBRARIES(testing sludge)
