@@ -14,7 +14,8 @@ public:
     mutable Vertex a;
     mutable Vertex b;
     mutable Vertex c;
-    
+   
+
     Vertex operator()( const Real mu ) const throw();
     
     
@@ -28,7 +29,7 @@ public:
     
     mutable Vertex delta_r;
     
-    //! extract a,b,c from U
+    //! extract a,b,c,alpha,beta from U
     void load( const array<Real> &U ) const;
     
     //! compute delta_r and init U
@@ -52,7 +53,6 @@ public:
     
 private:
     matrix<Real> P;
-    matrix<Real> iP;
     vector<Real> U;
     vector<Real> F;
     vector<Real> h;
