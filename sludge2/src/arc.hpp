@@ -26,14 +26,14 @@ public:
     Vertex t1;
     Real   C1;
     
-    mutable Vertex dr;
+    mutable Vertex delta_r;
     
-    // extract a,b,c from U
+    //! extract a,b,c from U
     void load( const array<Real> &U ) const;
     
-    //! fill rows 3 and 4, and compute dr, and initialize U
-    void fill( matrix<Real> &P, array<Real> &U) const;
-    
+    //! compute delta_r and init U
+    void init( array<Real> &U ) const;
+        
     //! fill rows 5 and 6 of P,
     void estimate( matrix<Real> &P, array<Real> &F, const array<Real> &U ) const;
     

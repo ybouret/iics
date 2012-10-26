@@ -10,7 +10,7 @@ C0(),
 r1(),
 t1(),
 C1(),
-dr()
+delta_r()
 {
 }
 
@@ -31,52 +31,25 @@ void Arc:: load( const array<Real> &U ) const
     c.y = U[6];
 }
 
-
-void Arc:: fill( matrix<Real> &P, array<Real> &U ) const
+void Arc:: init(array<Real> &U) const
 {
-    assert( P.cols == 6 );
-    assert( P.rows == 6 );
+    delta_r = r1 - r0;
+    const Real scale = 0.1 * delta_r.norm();
     
+    a = scale * t0;
+    const Vertex v1 = delta_r - a;
+    const Vertex v2 = scale * t1 - a;
     
-    dr = r1-r0;
-    //--------------------------------------------------------------------------
-    // rows 3
-    //--------------------------------------------------------------------------
-    //P[3][1] = t0.y; P[3][2] = -t0.x;
+    c = v2 - 2.0*v1;
+    b = v1 - c;
     
-    //--------------------------------------------------------------------------
-    // rows 3
-    //--------------------------------------------------------------------------
-    P[4][1] = t1.y; P[4][2] = -t1.x; P[4][3] = 2*t1.y; P[4][4] = -2*t1.x; P[4][5] = 3*t1.y; P[4][6] = -3*t1.x;
-    
-#if 1
-    const Real len = 0.5*dr.norm();
-    a = len * t0;
     U[1] = a.x;
     U[2] = a.y;
-    
-    const Vertex v1 = dr - a;
-    const Vertex v2 = len * t1 - a;
-    b = 3.0 * v1 - v2;
-    c = v2 - 2.0 * v1;
-    
     U[3] = b.x;
     U[4] = b.y;
-    
     U[5] = c.x;
     U[6] = c.y;
-#else
-    
-    U[1] = dr.x;
-    U[2] = dr.y;
-    
-    U[3] = 0;
-    U[4] = 0;
-    U[5] = 0;
-    U[6] = 0;
-    
-#endif
-    
+    std::cerr << "init=" << U << std::endl;
 }
 
 #include "yocto/code/ipower.hpp"
@@ -84,79 +57,64 @@ void Arc:: fill( matrix<Real> &P, array<Real> &U ) const
 void Arc:: estimate( matrix<Real> &P, array<Real> &F, const array<Real> &U ) const
 {
     load(U);
-    const Vertex dot_r0 = a;
-    const Vertex dot_r1 = a+2.0*b+3.0*c;
-    const Real dot_r0_norm = dot_r0.norm();
-    const Real dot_r1_norm = dot_r1.norm();
-    
-    F[1] = a.x + b.x + c.x - dr.x;        // P[1] = dF[1]/dU was set
-    F[2] = a.y + b.y + c.y - dr.y;        // P[2] = dF[2]/dU was set
-    
-    
-    F[3] = dot_r0 * t0 - dot_r0_norm;
-    
+    const Vertex dr0 = a;
+    const Vertex dr1 = a+2.0*b+3.0*c;
+    const Real dr0_norm  = dr0.norm();
+    const Real dr0_norm3 = ipower( dr0_norm, 3);
+    const Real dr1_norm  = dr1.norm();
+    const Real dr1_norm3 = ipower( dr1_norm, 3);
+
     {
-        // dF[3]/da.x
-        P[3][1] = t0.x - a.x / dot_r0_norm;
-        
-        // dF[3]/da.y
-        P[3][2] = t0.y - a.y / dot_r0_norm;
-        
-        P[3][3] = 0;
-        P[3][4] = 0;
-        P[3][5] = 0;
-        P[3][6] = 0;
-        
+        F[1] = a.x + b.x + c.x - delta_r.x;        // P[1] = dF[1]/dU was set
     }
     
-    F[4] = Vertex::det(dot_r1,t1);        // P[4] = dF[4]/dU was set
-    
-    F[5] = Vertex::det(a,b) - 0.5 * C0 * ipower( dot_r0_norm,3);
-    
     {
-        const Real fac5 = 1.5 * C0 * dot_r0_norm;
-        
-        // dF[5]/da.x
-        P[5][1] = b.y -  fac5 * a.x;
-        
-        // dF[5]/da.y
-        P[5][2] = -b.x - fac5 * a.y;
-        
-        // dF[5]/db.x
-        P[5][3] = -a.y;
-        
-        // dF[5]/db.y
-        P[5][4] = a.x;
-        
-        // dF[5]/dc.x
-        P[5][5] = 0;
-        
-        // dF[6]/dc.y
-        P[5][6] = 0;
+        F[2] = a.y + b.y + c.y - delta_r.y;        // P[2] = dF[2]/dU was set
     }
     
-    F[6] = Vertex::det(a,b) + 3 * Vertex::det(b,c) + 3 * Vertex::det(a,c) - 0.5 * C1 * ipower( dot_r1_norm, 3 );
+    {
+        F[3] = t0.x - dr0.x / dr0_norm;
+        
+        // dF3/da.x
+        P[3][1] = a.x * a.x / dr0_norm3 - 1.0 / dr0_norm;
+        
+        // dF3/da.y
+        P[3][2] = a.x * a.y / dr0_norm3;
+        
+        P[3][3] = P[3][4] = P[3][5] = P[3][6] = 0;
+    }
     
     {
-        const Real fac6 = 1.5 * C1 * dot_r1_norm;
+        F[4] = t0.y - dr0.y / dr0_norm;
         
-        // dF[6]/da.x
-        P[6][1] = b.y + 3*c.y    -  fac6 * a.x;
+        // dF4/da.x
+        P[4][1] = a.x * a.y / dr0_norm3;
         
-        // dF[6]/da.y
-        P[6][2] = -b.x - 3*c.x   - fac6 * a.y;
+        // dF4/da.y
+        P[4][2] = a.y*a.y / dr0_norm3 - 1.0 / dr0_norm;
         
-        // dF[6]/db.x
-        P[6][3] = -a.y + 3*c.y   - fac6 * (2*b.x);
+        P[4][3] = P[4][4] = P[4][5] = P[4][6] = 0;
+    }
+    
+    {
+        F[5] = t1.x - dr1.x / dr1_norm;
         
-        // dF[6]/db.y
-        P[6][4] = a.x - 3*c.x    - fac6 * (2*b.y);
-        
-        // dF[6]/dc.x
-        P[6][5] = -3*b.y - 3*a.y - fac6 * (3*c.x);
-        
-        // dF[6]/dc.y
-        P[6][6] = 3*b.x  + 3*a.x - fac6 * (3*c.y);
+        P[5][1] = dr1.x * dr1.x / dr1_norm3 - 1.0/dr1_norm;
+        P[5][2] = dr1.x * dr1.y / dr1_norm3;
+        P[5][3] = 2 * P[5][1];
+        P[5][4] = 2 * P[5][2];
+        P[5][5] = 3 * P[5][1];
+        P[5][6] = 3 * P[5][2];
+    }
+    
+    {
+        F[6] = t1.y - dr1.y / dr1_norm;
+        P[6][1] = P[5][2];
+        P[6][2] = dr1.y * dr1.y / dr1_norm3 - 1.0/dr1_norm;
+        P[6][3] = 2 * P[6][1];
+        P[6][4] = 2 * P[6][2];
+        P[6][5] = 3 * P[6][1];
+        P[6][6] = 3 * P[6][2];
     }
 }
 
@@ -187,9 +145,8 @@ void ArcSolver:: compute(const Arc &arc)
     //--------------------------------------------------------------------------
     // initialize
     //--------------------------------------------------------------------------
-    arc.fill(P,U);
-    
-    
+    arc.init(U);
+        
     for(size_t iter=0; iter<10;++iter)
     {
         //-- compute jacobian and value
