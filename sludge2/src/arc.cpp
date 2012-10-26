@@ -4,12 +4,15 @@
 Arc:: ~Arc() throw() {}
 
 Arc:: Arc() throw() :
+a(),
+b(),
+c(),
 r0(),
 t0(),
-C0(),
+C0(0),
 r1(),
 t1(),
-C1(),
+C1(0),
 delta_r()
 {
 }
@@ -20,9 +23,11 @@ Vertex Arc:: operator()( const Real mu ) const throw()
     return r0 + mu * a + (mu*mu) * b + (mu*mu*mu) * c;
 }
 
+#define ARC_NVAR 6
+
 void Arc:: load( const array<Real> &U ) const
 {
-    assert( U.size() == 6 );
+    assert( U.size() == ARC_NVAR );
     a.x = U[1];
     a.y = U[2];
     b.x = U[3];
@@ -35,7 +40,6 @@ void Arc:: init(array<Real> &U) const
 {
     delta_r = r1 - r0;
     const Real scale = 0.1 * delta_r.norm();
-    
     a = scale * t0;
     const Vertex v1 = delta_r - a;
     const Vertex v2 = scale * t1 - a;
@@ -57,64 +61,74 @@ void Arc:: init(array<Real> &U) const
 void Arc:: estimate( matrix<Real> &P, array<Real> &F, const array<Real> &U ) const
 {
     load(U);
-    const Vertex dr0 = a;
-    const Vertex dr1 = a+2.0*b+3.0*c;
-    const Real dr0_norm  = dr0.norm();
-    const Real dr0_norm3 = ipower( dr0_norm, 3);
-    const Real dr1_norm  = dr1.norm();
-    const Real dr1_norm3 = ipower( dr1_norm, 3);
-
+    
     {
-        F[1] = a.x + b.x + c.x - delta_r.x;        // P[1] = dF[1]/dU was set
+        F[1] = a.x+b.x+c.x - delta_r.x;
+        array<Real> &J = P[1];
+        J[1] = 1;
+        J[2] = 0;
+        J[3] = 1;
+        J[4] = 0;
+        J[5] = 1;
+        J[6] = 0;
     }
     
     {
-        F[2] = a.y + b.y + c.y - delta_r.y;        // P[2] = dF[2]/dU was set
+        F[2] = a.y+b.y+c.y - delta_r.y;
+        array<Real> &J = P[2];
+        J[1] = 0;
+        J[2] = 1;
+        J[3] = 0;
+        J[4] = 1;
+        J[5] = 0;
+        J[6] = 1;
+    }
+    
+    const Vertex dr0      = a;
+    const Real   dr0_norm = dr0.norm();
+    {
+        F[3] = dr0 * t0 - dr0_norm;
+        array<Real> &J = P[3];
+        J[1] = t0.x - dr0.x / dr0_norm;
+        J[2] = t0.y - dr0.y / dr0_norm;
+        J[3] = J[4] = J[5] = J[6] = 0;
+    }
+    
+    const Vertex dr1 = a + (b+b) + (c+c+c);
+    const Real   dr1_norm = dr1.norm();
+    {
+        F[4] = dr1 * t1 - dr1_norm;
+        array<Real> &J = P[4];
+        J[1] = t1.x - dr1.x / dr1_norm;
+        J[2] = t1.y - dr1.y / dr1_norm;
+        J[3] = 2 * J[1];
+        J[4] = 2 * J[2];
+        J[5] = 3 * J[1];
+        J[6] = 3 * J[2];
     }
     
     {
-        F[3] = t0.x - dr0.x / dr0_norm;
-        
-        // dF3/da.x
-        P[3][1] = a.x * a.x / dr0_norm3 - 1.0 / dr0_norm;
-        
-        // dF3/da.y
-        P[3][2] = a.x * a.y / dr0_norm3;
-        
-        P[3][3] = P[3][4] = P[3][5] = P[3][6] = 0;
+        F[5] = Vertex::det(a,b) - 0.5 * C0 * ipower(dr0_norm,3);
+        array<Real> &J = P[5];
+        const Real fac5 = 1.5 * C0 * dr0_norm;
+        J[1] =  b.y -  a.x * fac5;
+        J[2] = -b.x -  a.y * fac5;
+        J[3] = -a.y;
+        J[4] =  a.x;
+        J[5] = 0;
+        J[6] = 0;
     }
     
     {
-        F[4] = t0.y - dr0.y / dr0_norm;
-        
-        // dF4/da.x
-        P[4][1] = a.x * a.y / dr0_norm3;
-        
-        // dF4/da.y
-        P[4][2] = a.y*a.y / dr0_norm3 - 1.0 / dr0_norm;
-        
-        P[4][3] = P[4][4] = P[4][5] = P[4][6] = 0;
-    }
-    
-    {
-        F[5] = t1.x - dr1.x / dr1_norm;
-        
-        P[5][1] = dr1.x * dr1.x / dr1_norm3 - 1.0/dr1_norm;
-        P[5][2] = dr1.x * dr1.y / dr1_norm3;
-        P[5][3] = 2 * P[5][1];
-        P[5][4] = 2 * P[5][2];
-        P[5][5] = 3 * P[5][1];
-        P[5][6] = 3 * P[5][2];
-    }
-    
-    {
-        F[6] = t1.y - dr1.y / dr1_norm;
-        P[6][1] = P[5][2];
-        P[6][2] = dr1.y * dr1.y / dr1_norm3 - 1.0/dr1_norm;
-        P[6][3] = 2 * P[6][1];
-        P[6][4] = 2 * P[6][2];
-        P[6][5] = 3 * P[6][1];
-        P[6][6] = 3 * P[6][2];
+        F[5] = Vertex::det(a,b) + 3 * Vertex::det(a,c) + 3 * Vertex::det(b,c) - 0.5 * C1 * ipower(dr1_norm,3);
+        array<Real> &J = P[6];
+        const Real fac6 = 1.5 * C1* dr1_norm;
+        J[1] =  3 * c.y +     b.y - fac6 * dr1.x;
+        J[2] = -3 * c.x -     b.x - fac6 * dr1.y;
+        J[3] =  3 * c.y -     a.y - 2 * fac6 * dr1.x;
+        J[4] = -3 * c.x +     a.x - 2 * fac6 * dr1.y;
+        J[5] = -3 * b.y - 3 * a.y - 3 * fac6 * dr1.x;
+        J[6] =  3 * b.x + 3 * a.x - 3 * fac6 * dr1.y;
     }
 }
 
@@ -123,22 +137,18 @@ void Arc:: estimate( matrix<Real> &P, array<Real> &F, const array<Real> &U ) con
 ArcSolver:: ~ArcSolver() throw() {}
 
 ArcSolver:: ArcSolver() :
-P(6,6),
-iP(6,6),
-U(6,0.0),
-F(6,0.0),
-h(6,0.0),
-ls(6)
+P(ARC_NVAR,ARC_NVAR),
+U(ARC_NVAR,0.0),
+F(ARC_NVAR,0.0),
+h(ARC_NVAR,0.0),
+ls(ARC_NVAR)
 {
-    //--------------------------------------------------------------------------
-    // first two rows: won't change
-    //--------------------------------------------------------------------------
-    P[1][1] = 1; P[1][2] = 0; P[1][3] = 1; P[1][4] = 0; P[1][5] = 1; P[1][6] = 0;
-    P[2][1] = 0; P[2][2] = 1; P[2][3] = 0; P[2][4] = 1; P[2][5] = 0; P[2][6] = 1;
+    
     
 }
 
 #include "yocto/math/kernel/algebra.hpp"
+#include "yocto/math/kernel/svd.hpp"
 
 void ArcSolver:: compute(const Arc &arc)
 {
@@ -146,8 +156,8 @@ void ArcSolver:: compute(const Arc &arc)
     // initialize
     //--------------------------------------------------------------------------
     arc.init(U);
-        
-    for(size_t iter=0; iter<10;++iter)
+    
+    for(size_t iter=0; iter<30;++iter)
     {
         //-- compute jacobian and value
         arc.estimate(P, F, U);
@@ -155,17 +165,21 @@ void ArcSolver:: compute(const Arc &arc)
         std::cerr << "P=" << P << std::endl;
         std::cerr << "F=" << F << std::endl;
         
-        //-- compute Newton's step
-        iP.assign(P);
-        if( !ls.LU(iP) )
+        vector<Real> W(ARC_NVAR,0);
+        matrix<Real> V(ARC_NVAR,ARC_NVAR);
+        if( !svd<Real>::build(P, W, V) )
         {
-            throw exception("singular arc");
+            throw exception("Singular SVD arc");
         }
-        for( size_t i=1; i <= U.size(); ++i ) h[i] = -F[i];
-        ls(iP,h);
+        //std::cerr << "W=" << W << std::endl;
+        //std::cerr << "M=" << P << std::endl;
+        svd<Real>::truncate(W,1e-3);
+        std::cerr << "W=" << W << std::endl;
+        //std::cerr << "V=" << V << std::endl;
+        svd<Real>::solve(P, W, V, F, h);
         std::cerr << "h=" << h << std::endl;
         
-        algebra<Real>::add(U, h);
+        algebra<Real>::sub(U, h);
         
     }
     
