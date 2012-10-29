@@ -9,7 +9,7 @@ clean:
 	@echo "-- removing .curve" && rm -f *.curve
 	@echo "-- removing .vtk" && rm -f *.vtk
 	@echo "-- removing .ppm" && rm -f *.ppm
-
+	@${MAKE} -C doc clean
 
 veryclean: clean
 	@echo "-- removing out of sources builds" && cd forge && touch targets && ( cat targets | xargs rm -rf ) && rm -f targets
