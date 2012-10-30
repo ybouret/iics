@@ -11,20 +11,23 @@ YOCTO_UNIT_TEST_IMPL(arc)
     arc.r0 = Vertex(-1,1);
     arc.t0 = Vertex(1,1);
     arc.t0.normalize();
-    arc.C0 = 0;
+    arc.C0 = -1;
     
     
     arc.r1 = Vertex(1,1);
-    arc.t1 = Vertex(1,-1);
+    arc.t1 = Vertex(1,-0.5);
     arc.t1.normalize();
     arc.C1 = 0;
     
     solver.compute(arc);
     
     ios::ocstream fp("arc.dat",false);
-    for( Real mu=0; mu <= 1; mu += 0.01 )
+    
+    const size_t NP = 100;
+    for( size_t i=0; i <= NP; ++i )
     {
-        const Vertex v = arc(mu);
+        const Real   mu = Real(i)/NP;
+        const Vertex v  = arc(mu);
         fp("%g %g\n", v.x, v.y);
     }
     

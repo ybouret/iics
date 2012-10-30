@@ -2,8 +2,6 @@
 #define ARC_INCLUDED 1
 
 #include "./types.hpp"
-#include "yocto/math/kernel/linsys.hpp"
-
 
 class Arc
 {
@@ -11,6 +9,9 @@ public:
     Arc() throw();
     ~Arc() throw();
     
+    
+    mutable numeric<Real>::scalar_field Func;
+    mutable numeric<Real>::vector_field Grad;
     mutable Vertex a;
     mutable Vertex b;
     mutable Vertex c;
@@ -28,18 +29,23 @@ public:
     Real   C1;
     
     mutable Vertex delta_r;
+    mutable Real   delta;
+    mutable Real   delta2;
     
     //! extract a,b,c,alpha,beta from U
     void load( const array<Real> &U ) const;
     
     //! compute delta_r and init U
     void init( array<Real> &U ) const;
-        
-    //! fill rows 5 and 6 of P,
-    void estimate( matrix<Real> &P, array<Real> &F, const array<Real> &U ) const;
+    
+    
+    bool disp( const array<Real> &U ) const;
     
     
 private:
+    Real func( const array<Real> &U ) const;
+    void grad( array<Real> &g, const array<Real> &U) const;
+    
     YOCTO_DISABLE_COPY_AND_ASSIGN(Arc);
 };
 
@@ -52,11 +58,7 @@ public:
     void compute( const Arc &arc );
     
 private:
-    matrix<Real> P;
     vector<Real> U;
-    vector<Real> F;
-    vector<Real> h;
-    linsys<Real> ls;
     
     YOCTO_DISABLE_COPY_AND_ASSIGN(ArcSolver);
 };
