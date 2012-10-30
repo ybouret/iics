@@ -79,9 +79,47 @@ so that
 	\det\left(\vec{a},\vec{b}\right)
 	+3\mu\det\left(\vec{a},\vec{c}\right)
 	+3\mu^2\det\left(\vec{b},\vec{c}\right)
-	\right]
+	\right].
 \]
-
+We need a third degree polynomial, otherwise we can only represent
+the arcs with the same sign of curvature.
+We must solve
+\[
+	\left\lbrace
+	\begin{array}{rcl}
+	0 & = & \vec{a}+\vec{b}+\vec{c} - \vec{\delta}\\
+	0 & = & 1 - \dfrac{\vec{a}.\vec{\tau}_0}{\left|\vec{a}\right|}\\
+	0 & = & 1 - \dfrac{\left(\vec{a}+2\vec{b}+3\vec{c}\right).\vec{\tau}_1}{\left|\vec{a}+2\vec{b}+3\vec{c}\right|}\\
+	0 & = & \left|\vec{a}\right|^3\dfrac{C_0}{2} -\det\left(\vec{a},\vec{b}\right)\\
+	0 & = & \left|\vec{a}+2\vec{b}+3\vec{c}\right|^3\dfrac{C_1}{2} -
+	 \left( 
+	 \det\left(\vec{a},\vec{b}\right)
+	 + 3 \det\left(\vec{a},\vec{c}\right)
+	 + 3 \det\left(\vec{b},\vec{c}\right)
+	 \right)\\
+	\end{array}
+	\right.
+\]
+Because the gradient of some of those equation vanishes, we can't directly
+use the Newton's algorithm.
+We shall use a conjugated gradient on the sum of the following objective functions:
+\[
+	\left\lbrace
+	\begin{array}{rcl}
+	E_1 & = & \dfrac{1}{2\delta^2}\left(\vec{a}+\vec{b}+\vec{c} - \vec{\delta}\right)^2\\
+	E_2 & = & 1 - \dfrac{\vec{a}.\vec{\tau}_0}{\left|\vec{a}\right|}\\
+	E_3 & = & 1 - \dfrac{\left(\vec{a}+2\vec{b}+3\vec{c}\right).\vec{\tau}_1}{\left|\vec{a}+2\vec{b}+3\vec{c}\right|}\\
+	E_4 & = & \dfrac{\delta^2}{2}\left[ \dfrac{\det\left(\vec{a},\vec{b}\right)}{\left|\vec{a}\right|^3}-\dfrac{C_0}{2}\right]^2\\
+	E_5 & = & \dfrac{\delta^2}{2}\left[
+	\dfrac
+	{\det\left(\vec{a},\vec{b}\right)
+	 + 3 \det\left(\vec{a},\vec{c}\right)
+	 + 3 \det\left(\vec{b},\vec{c}\right)}
+	{\left|\vec{a}+2\vec{b}+3\vec{c}\right|^3}
+	 -\dfrac{C_1}{2}\right]^2\\
+	\end{array}
+	\right.
+\]
 \end{document}
 
 
