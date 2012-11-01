@@ -2,6 +2,7 @@
 #define ARC_INCLUDED 1
 
 #include "./types.hpp"
+#include "yocto/math/kernel/matrix.hpp"
 
 class Arc
 {
@@ -10,13 +11,11 @@ public:
     ~Arc() throw();
     
     
-    mutable numeric<Real>::scalar_field Func;
-    mutable numeric<Real>::vector_field Grad;
     mutable Vertex a;
     mutable Vertex b;
     mutable Vertex c;
-   
-
+    
+    
     Vertex operator()( const Real mu ) const throw();
     
     
@@ -39,13 +38,10 @@ public:
     void init( array<Real> &U ) const;
     
     
-    bool disp( const array<Real> &U ) const;
-    
+    void func( array<Real>  &F, const array<Real> &U ) const;
+    void fjac( matrix<Real> &J, const array<Real> &U ) const;
     
 private:
-    Real func( const array<Real> &U ) const;
-    void grad( array<Real> &g, const array<Real> &U) const;
-    
     YOCTO_DISABLE_COPY_AND_ASSIGN(Arc);
 };
 
