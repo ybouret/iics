@@ -9,13 +9,13 @@ YOCTO_UNIT_TEST_IMPL(arc)
     Arc arc;
     
     arc.r0 = Vertex(-1,1);
-    arc.t0 = Vertex(1,1);
+    arc.t0 = Vertex(1,0.5);
     arc.t0.normalize();
-    arc.C0 = -1;
+    arc.C0 = 0;
     
     
     arc.r1 = Vertex(1,1);
-    arc.t1 = Vertex(1,-0.5);
+    arc.t1 = Vertex(-1,-1);
     arc.t1.normalize();
     arc.C1 = 0;
     
