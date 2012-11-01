@@ -29,7 +29,7 @@ Vertex Arc:: operator()( const Real mu ) const throw()
 
 
 
-#define ARC_NVAR 4
+#define ARC_NVAR 6
 
 void Arc:: load( const array<Real> &U ) const
 {
@@ -38,9 +38,8 @@ void Arc:: load( const array<Real> &U ) const
     a.y = U[2];
     b.x = U[3];
     b.y = U[4];
-    
-    //c.x = U[5];
-    //c.y = U[6];
+    c.x = U[5];
+    c.y = U[6];
 }
 
 void Arc:: init(array<Real> &U) const
@@ -49,7 +48,7 @@ void Arc:: init(array<Real> &U) const
     delta2  = delta_r.norm2();
     delta   = Sqrt(delta2);
     
-    const Real scale = 0.1 * delta;
+    const Real scale = 0.5 * delta;
     a = scale * t0;
     
 #if 0
@@ -65,12 +64,16 @@ void Arc:: init(array<Real> &U) const
     b = 0.5 * (scale*t1 - a );
 #endif
     
+    a=delta_r;
+    b.ldz();
+    c.ldz();
+    
     U[1] = a.x;
     U[2] = a.y;
     U[3] = b.x;
     U[4] = b.y;
-    //U[5] = c.x;
-    //U[6] = c.y;
+    U[5] = c.x;
+    U[6] = c.y;
     std::cerr << "init=" << U << std::endl;
 }
 
@@ -90,7 +93,12 @@ void Arc:: func( array<Real> &F, const array<Real> &U) const
     const Real   dr1n = dr1.norm();
     F[4] = 1 - (dr1*t1)/dr1n;
     
+    //std::cerr << "dr0=" << dr0 << std::endl;
+    //std::cerr << "dr1=" << dr1 << std::endl;
     
+    F[5] = delta * ( C0/2 - Vertex::det(a,b) / (dr0n*dr0n*dr0n) );
+    
+    F[6] = delta * ( C1/2 - (Vertex::det(a,b)+3*Vertex::det(b,c)+3*Vertex::det(a,c))/(dr1n*dr1n*dr1n));
 }
 
 void Arc:: fjac( matrix<Real> &J, const array<Real> &U ) const
@@ -105,6 +113,8 @@ void Arc:: fjac( matrix<Real> &J, const array<Real> &U ) const
         Q[2] = 0;
         Q[3] = idelta;
         Q[4] = 0;
+        Q[5] = idelta;
+        Q[6] = 0;
     }
     
     {
@@ -113,6 +123,8 @@ void Arc:: fjac( matrix<Real> &J, const array<Real> &U ) const
         Q[2] = idelta;
         Q[3] = 0;
         Q[4] = idelta;
+        Q[5] = 0;
+        Q[6] = idelta;
     }
     
     const Vertex dr0   = a;
@@ -135,11 +147,32 @@ void Arc:: fjac( matrix<Real> &J, const array<Real> &U ) const
         Q[2] = dr1.y * as1 / dr1n3 - t1.y / dr1n;
         Q[3] = 2 * Q[1];
         Q[4] = 2 * Q[2];
-        //Q[5] = 3 * Q[1];
-        //Q[6] = 3 * Q[2];
+        Q[5] = 3 * Q[1];
+        Q[6] = 3 * Q[2];
     }
-
     
+    {
+        array<Real> &Q = J[5];
+        const Real f5 = 3*Vertex::det(a,b)/(dr0n3*dr0n*dr0n);
+        Q[1] =  delta*( a.x * f5 - b.y / dr0n3);
+        Q[2] =  delta*( a.y * f5 + b.x / dr0n3);
+        Q[3] =  delta*a.y/dr0n3;
+        Q[4] = -delta*a.x/dr0n3;
+    }
+    
+    std::cerr << "[dr0n=" << dr0n << ", dr1n=" << dr1n << " ]" << std::endl;
+    {
+        array<Real> &Q = J[6];
+        const Real f6 = 3*(Vertex::det(a,b)+3*Vertex::det(b,c)+3*Vertex::det(a,c))/(dr1n3*dr1n*dr1n);
+        const Real gx = dr1.x * f6;
+        const Real gy = dr1.y * f6;
+        Q[1] = delta * (   gx - ( 3*c.y +   b.y)/dr1n3);
+        Q[2] = delta * (   gy - (-3*c.x -   b.x)/dr1n3);
+        Q[3] = delta * ( 2*gx - ( 3*c.y -   a.y)/dr1n3);
+        Q[4] = delta * ( 2*gy - (   a.x - 3*c.x)/dr1n3);
+        Q[5] = delta * ( 3*gx - (-3*b.y - 3*a.y)/dr1n3);
+        Q[6] = delta * ( 3*gy - ( 3*b.x + 3*a.x)/dr1n3);
+    }
 }
 
 
