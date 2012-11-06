@@ -12,6 +12,50 @@
 \begin{document}
 \maketitle
 
+
+\section{Bezier Curve}
+Let $\vec{P}_0,\vec{P}_1,\vec{P}_2,\vec{P}_3$
+be the four control points of a Bezier curve
+\[
+	P(t) = \sum_{i=0}^4 B_i(t) \vec{P}_i
+\]
+where the $B_i$ are the Bernstein polynomials
+\[
+	\begin{array}{rcl|rcl|rcl}
+	B_0(t) & = & (1-t)^3  & \dot{B}_0(t) & = & -3(1-t)^2     & \ddot{B}_0(t) & = & 6(1-t)\\
+ 	B_1(t) & = & (1-t)^2t & \dot{B}_1(t) & = &  3(3t^2-4t+1) & \ddot{B}_1(t) & = & 6(3t-2)\\
+	B_2(t) & = & (1-t)t^2 & \dot{B}_2(t) & = &  3(2t-3t^2)   & \ddot{B}_2(t) & = & 6(1-3t)\\
+	B_3(t) & = & t^3      & \dot{B}_3(t) & = &  3t^2         & \ddot{B}_3(t) & = & 6t    \\
+	\end{array} 
+\]
+With
+\[
+	\dot{P}(t) = \sum_{i=0}^4 B_i(t) \vec{P}_i
+\]
+we have
+\[
+\begin{array}{rcl}
+	\dot{P}(0) & = & 3\vec{P}_1 - 3\vec{P}_0 \\
+	\dot{P}(1) & = & 3\vec{P}_3 - 3\vec{P}_2 \\
+\end{array}
+\]
+and
+\[
+	\begin{array}{rcl}
+	\ddot{P}(0) & = & 6\vec{P}_0 - 12 \vec{P}_1 + 6\vec{P}_2\\
+	\ddot{P}(1) & = & 6\vec{P}_1 - 12 \vec{P}_2 + 6\vec{P}_3\\
+	\end{array}
+\]
+We have
+\[
+	C_0 = \dfrac{\det(\dot{P}(0),\ddot{P}(0))}{\left|\dot{P}(0)\right|^3} 
+	= \dfrac{2}{3} \dfrac{\det(\vec{P}_1 - \vec{P}_0,\vec{P}_2 - \vec{P}_1)}{\left|\vec{P}_1 - \vec{P}_0\right|^3}
+\]
+and
+\[
+	C_1 = \dfrac{\det(\dot{P}(1),\ddot{P}(1))}{\left|\dot{P}(1)\right|^3} 
+	= \dfrac{2}{3} \dfrac{\det(\vec{P}_3 - \vec{P}_2,\vec{P}_1 - \vec{P}_2)}{\left|\vec{P}_3 - \vec{P}_2\right|^3}
+\]
 \section{Non uniform differential approximations}
 
 Let $f(x)$ be a function estimated by
@@ -83,43 +127,42 @@ so that
 \]
 We need a third degree polynomial, otherwise we can only represent
 the arcs with the same sign of curvature.
-We must solve
+We must solve the following equations
 \[
 	\left\lbrace
 	\begin{array}{rcl}
-	0 & = & \vec{a}+\vec{b}+\vec{c} - \vec{\delta}\\
-	0 & = & 1 - \dfrac{\vec{a}.\vec{\tau}_0}{\left|\vec{a}\right|}\\
-	0 & = & 1 - \dfrac{\left(\vec{a}+2\vec{b}+3\vec{c}\right).\vec{\tau}_1}{\left|\vec{a}+2\vec{b}+3\vec{c}\right|}\\
-	0 & = & \left|\vec{a}\right|^3\dfrac{C_0}{2} -\det\left(\vec{a},\vec{b}\right)\\
-	0 & = & \left|\vec{a}+2\vec{b}+3\vec{c}\right|^3\dfrac{C_1}{2} -
-	 \left( 
-	 \det\left(\vec{a},\vec{b}\right)
-	 + 3 \det\left(\vec{a},\vec{c}\right)
-	 + 3 \det\left(\vec{b},\vec{c}\right)
-	 \right)\\
+	\vec{\delta} & = & \vec{a} + \vec{b} + \vec{c}\\
+	0 & = & \left|\vec{a}\right| - \vec{a}\vec{\tau}_0\\
+	0 & = & \left|\vec{a}+2\vec{b}+3\vec{c}\right| - \left(\vec{a}+2\vec{b}+3\vec{c}\right)\vec{\tau}_1\\
+	0 & = & \dfrac{C_0}{2} \left|\vec{a}\right|^3 - \det\left(\vec{a},\vec{b}\right)\\
+	\\
+	0 & = & \dfrac{C_1}{2} \left|\vec{a}+2\vec{b}+3\vec{c}\right|^3 
+	- \left[\det\left(\vec{a},\vec{b}\right)+3\det\left(\vec{a},\vec{c}\right)+3\det\left(\vec{b},\vec{c}\right)\right]
 	\end{array}
 	\right.
 \]
-Because the gradient of some of those equation vanishes, we can't directly
-use the Newton's algorithm.
-We shall use a conjugated gradient on the sum of the following objective functions:
+Using $\vec{c} = \vec{\delta} - \left(\vec{a}+\vec{b}\right)$, so that
+$\vec{a}+2\vec{b}+3\vec{c}=3\vec{\delta}-(2\vec{a}+\vec{b})$
+and normalizing the equations we obtain
 \[
 	\left\lbrace
 	\begin{array}{rcl}
-	E_1 & = & \dfrac{1}{2\delta^2}\left(\vec{a}+\vec{b}+\vec{c} - \vec{\delta}\right)^2\\
-	E_2 & = & 1 - \dfrac{\vec{a}.\vec{\tau}_0}{\left|\vec{a}\right|}\\
-	E_3 & = & 1 - \dfrac{\left(\vec{a}+2\vec{b}+3\vec{c}\right).\vec{\tau}_1}{\left|\vec{a}+2\vec{b}+3\vec{c}\right|}\\
-	E_4 & = & \dfrac{\delta^2}{2}\left[ \dfrac{\det\left(\vec{a},\vec{b}\right)}{\left|\vec{a}\right|^3}-\dfrac{C_0}{2}\right]^2\\
-	E_5 & = & \dfrac{\delta^2}{2}\left[
-	\dfrac
-	{\det\left(\vec{a},\vec{b}\right)
-	 + 3 \det\left(\vec{a},\vec{c}\right)
-	 + 3 \det\left(\vec{b},\vec{c}\right)}
-	{\left|\vec{a}+2\vec{b}+3\vec{c}\right|^3}
-	 -\dfrac{C_1}{2}\right]^2\\
+	0 & = &  1-\dfrac{\vec{a}\vec{\tau}_0}{\left|\vec{a}\right|}\\
+	\\
+	0 & = & 1 
+	- \dfrac{\left( 3\vec{\delta}-(2\vec{a}+\vec{b})\right)\vec{\tau}_1}{\left|3\vec{\delta}-(2\vec{a}+\vec{b})\right|}
+	\\
+	\\
+	0 & = & \delta\left( \dfrac{C_0}{2} -  \dfrac{\det\left(\vec{a},\vec{b}\right)}{\left|\vec{a}\right|^3 }\right)\\
+	\\
+	0 & = & \delta\left( \dfrac{C_1}{2}
+	 - \dfrac{\left[
+	 \det\left(\vec{a},\vec{b}\right) + 3\det\left(\vec{a},\vec{\delta}\right) + 3\det\left(\vec{b},\vec{\delta}\right)
+	  \right]}{\left|3\vec{\delta}-(2\vec{a}+\vec{b})\right|^3}\right)\\
 	\end{array}
 	\right.
 \]
+
 \end{document}
 
 

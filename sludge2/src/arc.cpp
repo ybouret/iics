@@ -15,7 +15,8 @@ t1(),
 C1(0),
 delta_r(),
 delta(0),
-delta2(0)
+idelta(0),
+idelta2(0)
 {
 }
 
@@ -29,7 +30,7 @@ Vertex Arc:: operator()( const Real mu ) const throw()
 
 
 
-#define ARC_NVAR 6
+#define ARC_NVAR 4
 
 void Arc:: load( const array<Real> &U ) const
 {
@@ -38,42 +39,26 @@ void Arc:: load( const array<Real> &U ) const
     a.y = U[2];
     b.x = U[3];
     b.y = U[4];
-    c.x = U[5];
-    c.y = U[6];
+    c.x = delta_r.x - (a.x+b.x);
+    c.y = delta_r.y - (a.y+b.y);
 }
 
 void Arc:: init(array<Real> &U) const
 {
     delta_r = r1 - r0;
-    delta2  = delta_r.norm2();
-    delta   = Sqrt(delta2);
+    delta   = delta_r.norm();
+    idelta  = 1/delta;
+    idelta2 = 1/(delta*delta);
     
     const Real scale = 0.5 * delta;
     a = scale * t0;
-    
-#if 0
-    // 3 params
-    const Vertex v1 = delta_r - a;
-    const Vertex v2 = scale * t1 - a;
-    
-    c = v2 - 2.0*v1;
-    b = 3.0*v1 - v2;
-#else
-    // 2 params
-    c.ldz();
-    b = 0.5 * (scale*t1 - a );
-#endif
-    
-    a=delta_r;
-    b.ldz();
-    c.ldz();
+    b = 3.0*delta_r - scale * ( t1+2.0*t0);
     
     U[1] = a.x;
     U[2] = a.y;
     U[3] = b.x;
     U[4] = b.y;
-    U[5] = c.x;
-    U[6] = c.y;
+    load(U);
     std::cerr << "init=" << U << std::endl;
 }
 
@@ -81,97 +66,76 @@ void Arc:: init(array<Real> &U) const
 void Arc:: func( array<Real> &F, const array<Real> &U) const
 {
     load(U);
-    F[1] = (a.x+b.x+c.x - delta_r.x)/delta;
-    F[2] = (a.y+b.y+c.y - delta_r.y)/delta;
     
     const Vertex dr0   = a;
     const Real   dr0n  = dr0.norm();
-    F[3] = 1 - (dr0*t0)/dr0n;
+    const Real   dr0n3 = dr0n * dr0n * dr0n;
     
+    const Vertex dr1   = a+2.0*b+3.0*c;
+    const Real   dr1n  = dr1.norm();
+    const Real   dr1n3 = dr1n * dr1n * dr1n;
     
-    const Vertex dr1 = a+2.0*b+3.0*c;
-    const Real   dr1n = dr1.norm();
-    F[4] = 1 - (dr1*t1)/dr1n;
-    
-    //std::cerr << "dr0=" << dr0 << std::endl;
-    //std::cerr << "dr1=" << dr1 << std::endl;
-    
-    F[5] = delta * ( C0/2 - Vertex::det(a,b) / (dr0n*dr0n*dr0n) );
-    
-    F[6] = delta * ( C1/2 - (Vertex::det(a,b)+3*Vertex::det(b,c)+3*Vertex::det(a,c))/(dr1n*dr1n*dr1n));
+    F[1] = 1 - (dr0*t0)/dr0n;
+    F[2] = 1 - (dr1*t1)/dr1n;
+    F[3] = delta * ( 0.5*C0 - Vertex::det(a,b)/dr0n3 );
+    F[4] = delta * ( 0.5*C1 - (Vertex::det(a,b)+3*Vertex::det(b,c)+3*Vertex::det(a,c))/dr1n3);
 }
 
 void Arc:: fjac( matrix<Real> &J, const array<Real> &U ) const
 {
     load(U);
     J.ldz();
-    const Real idelta = 1/delta;
+    
+    const Vertex dr0   = a;
+    const Real   dr0n  = dr0.norm();
+    const Real   dr0n2 = dr0n * dr0n;
+    const Real   dr0n3 = dr0n * dr0n2;
+    const Real   as0   = dr0 * t0;
+    
+    const Vertex dr1   = a+2.0*b+3.0*c;
+    const Real   dr1n  = dr1.norm();
+    const Real   dr1n2 = dr1n * dr1n;
+    const Real   dr1n3 = dr1n * dr1n2;
+    const Real   as1   = dr1 * t1;
+    std::cerr << "[dr0n=" << dr0n << ", dr1n=" << dr1n << " ]" << std::endl;
     
     {
         array<Real> &Q = J[1];
-        Q[1] = idelta;
-        Q[2] = 0;
-        Q[3] = idelta;
-        Q[4] = 0;
-        Q[5] = idelta;
-        Q[6] = 0;
+        Q[1] = ((a.x*as0)/dr0n2 - t0.x)/dr0n;
+        Q[2] = ((a.y*as0)/dr0n2 - t0.y)/dr0n;
     }
     
     {
         array<Real> &Q = J[2];
-        Q[1] = 0;
-        Q[2] = idelta;
-        Q[3] = 0;
-        Q[4] = idelta;
-        Q[5] = 0;
-        Q[6] = idelta;
+        const Real  gx = (t1.x - (dr1.x * as1) /dr1n2)/dr1n;
+        const Real  gy = (t1.y - (dr1.y * as1) /dr1n2)/dr1n;
+        Q[1] = 2*gx;
+        Q[2] = 2*gy;
+        Q[3] = gx;
+        Q[4] = gy;
     }
     
-    const Vertex dr0   = a;
-    const Real   dr0n  = dr0.norm();
-    const Real   dr0n3 = dr0n * dr0n * dr0n;
-    const Real   as0   = dr0 * t0;
     {
         array<Real> &Q = J[3];
-        Q[1] = dr0.x * as0 / dr0n3 - t0.x / dr0n;
-        Q[2] = dr0.y * as0 / dr0n3 - t0.y / dr0n;
-    }
-    
-    const Vertex dr1   = a+2.0*b+3.0*c;
-    const Real   dr1n  = dr1.norm();
-    const Real   dr1n3 = dr1n * dr1n * dr1n;
-    const Real   as1   = dr1 * t1;
-    {
-        array<Real> &Q = J[4];
-        Q[1] = dr1.x * as1 / dr1n3 - t1.x / dr1n;
-        Q[2] = dr1.y * as1 / dr1n3 - t1.y / dr1n;
-        Q[3] = 2 * Q[1];
-        Q[4] = 2 * Q[2];
-        Q[5] = 3 * Q[1];
-        Q[6] = 3 * Q[2];
+        const Real fac   = 3* Vertex::det(a,b)/dr0n2;
+        const Real scale = delta / dr0n3;
+        Q[1] = scale * ( dr0.x * fac - b.y );
+        Q[2] = scale * ( dr0.y * fac + b.x );
+        Q[3] = scale * (  a.y );
+        Q[4] = scale * ( -a.x );
     }
     
     {
-        array<Real> &Q = J[5];
-        const Real f5 = 3*Vertex::det(a,b)/(dr0n3*dr0n*dr0n);
-        Q[1] =  delta*( a.x * f5 - b.y / dr0n3);
-        Q[2] =  delta*( a.y * f5 + b.x / dr0n3);
-        Q[3] =  delta*a.y/dr0n3;
-        Q[4] = -delta*a.x/dr0n3;
-    }
-    
-    std::cerr << "[dr0n=" << dr0n << ", dr1n=" << dr1n << " ]" << std::endl;
-    {
-        array<Real> &Q = J[6];
-        const Real f6 = 3*(Vertex::det(a,b)+3*Vertex::det(b,c)+3*Vertex::det(a,c))/(dr1n3*dr1n*dr1n);
-        const Real gx = dr1.x * f6;
-        const Real gy = dr1.y * f6;
-        Q[1] = delta * (   gx - ( 3*c.y +   b.y)/dr1n3);
-        Q[2] = delta * (   gy - (-3*c.x -   b.x)/dr1n3);
-        Q[3] = delta * ( 2*gx - ( 3*c.y -   a.y)/dr1n3);
-        Q[4] = delta * ( 2*gy - (   a.x - 3*c.x)/dr1n3);
-        Q[5] = delta * ( 3*gx - (-3*b.y - 3*a.y)/dr1n3);
-        Q[6] = delta * ( 3*gy - ( 3*b.x + 3*a.x)/dr1n3);
+        array<Real> &Q   = J[4];
+        const Real fac   = 3 * (  Vertex::det(a,b) + 3*Vertex::det(a,delta_r) + 3*Vertex::det(b,delta_r) )/dr1n2;
+        const Real scale = delta / dr1n3;
+        const Real gx    = dr1.x * fac;
+        const Real gy    = dr1.y * fac;
+        
+        Q[1] = - scale * (  3*delta_r.y+b.y + 2*gx);
+        Q[2] = - scale * ( -3*delta_r.x-b.x + 2*gy);
+        Q[3] = - scale * (  3*delta_r.y-a.y +   gx);
+        Q[4] = - scale * ( -3*delta_r.x+a.x +   gy);
     }
 }
 
@@ -198,6 +162,7 @@ void ArcSolver:: compute(const Arc &arc)
     Newton<Real>::Jacobian Jn( &arc, & Arc::fjac );
     
     Newton<Real>::solve(Fn, Jn, U, 1e-7);
+    
     
     arc.load(U);
     std::cerr << "a=" << arc.a << std::endl;
