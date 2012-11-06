@@ -29,7 +29,8 @@ public:
     
     mutable Vertex delta_r;
     mutable Real   delta;
-    mutable Real   delta2;
+    mutable Real   idelta;
+    mutable Real   idelta2;
     
     //! extract a,b,c,alpha,beta from U
     void load( const array<Real> &U ) const;

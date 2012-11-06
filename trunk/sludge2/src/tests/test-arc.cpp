@@ -2,17 +2,16 @@
 #include "../arc.hpp"
 
 
+
 YOCTO_UNIT_TEST_IMPL(arc)
 {
     ArcSolver solver;
-    
     Arc arc;
     
     arc.r0 = Vertex(-1,1);
     arc.t0 = Vertex(1,1);
     arc.t0.normalize();
-    arc.C0 = 0;
-    
+    arc.C0 = -0.3;
     
     arc.r1 = Vertex(1,1);
     arc.t1 = Vertex(1,-1);
@@ -30,6 +29,8 @@ YOCTO_UNIT_TEST_IMPL(arc)
         const Vertex v  = arc(mu);
         fp("%g %g\n", v.x, v.y);
     }
+    
+
     
 }
 YOCTO_UNIT_TEST_DONE()
