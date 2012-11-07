@@ -34,3 +34,36 @@ YOCTO_UNIT_TEST_IMPL(arc)
     
 }
 YOCTO_UNIT_TEST_DONE()
+
+namespace
+{
+    class Param
+    {
+    public:
+        inline  Param() {}
+        inline ~Param() throw() {}
+        
+        
+        void eval( array<double> &dydx, double x, const array<double> &y )
+        {
+            
+        }
+        
+    private:
+        YOCTO_DISABLE_COPY_AND_ASSIGN(Param);
+    };
+}
+
+#include "yocto/math/ode/drvck.hpp"
+
+YOCTO_UNIT_TEST_IMPL(arc2)
+{
+    Param param;
+    ode::field<double>::type eq( &param, & Param::eval );
+    ode::drvck<double>::type odeint(1e-4);
+    
+    odeint.start( 3 );
+    
+    
+}
+YOCTO_UNIT_TEST_DONE()
