@@ -185,21 +185,19 @@ void Cell:: compute_spot_velocity( Spot *spot )
     const Vertex delta_r(jprev->vertex,jnext->vertex);
     const Vertex delta_p(jprev->vertex,here);
     const Real   mu = (delta_r*delta_p)/(delta_r*delta_r); // projection
-    const Real   gn0 = jprev->gn;
-    const Real   gn1 = jnext->gn;
-    const Real   gn  = gn0 + mu * (gn1-gn0); // estimated gradient
-    const Real   P0  = jprev->pressure;
-    const Real   P1  = jnext->pressure;
-    const Real   Pn  = P0 + mu * (P1 - P0 );
-    const Real   gn_extra = (Pn-tracer->pressure)/(scaling);
-    spot->gn = gn + gn_extra;
+   
+    const Real Pa  = jprev->pressure + scaling * jprev->gn;
+    const Real Pb  = jnext->pressure + scaling * jnext->gn;
+    const Real Pmu = Pa + mu * (Pb - Pa);
+    const Real Psp = tracer->pressure;
+    const Real gn  = (Pmu - Psp)/scaling;
+    spot->gn = gn;
     
-    //spot->gn = gn;
     
     //--------------------------------------------------------------------------
     // gradient construction
     //--------------------------------------------------------------------------
-    spot->gradP = tracer->gt * tracer->t + gn * tracer->n;
+    spot->gradP = tracer->gt * tracer->t + spot->gn * tracer->n;
     
     //--------------------------------------------------------------------------
     // velocity estimation
