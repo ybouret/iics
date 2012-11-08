@@ -31,7 +31,8 @@ public:
     bool            is_spot;   //!< default: false
     const Junction *jnext;     //!< a junction is between this and next tracer
     const Junction *jprev;     //!< a junction is between this and prev tracer
-    Real            idsc;      //!< inverse of the first order discriminant
+    Real            spd;       //!< parametric speed = ds/dparam
+    Real            dsc;       //!< parabolic fit discriminant
     
     static const size_t IO_COUNT = 13;
     

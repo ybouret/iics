@@ -191,10 +191,10 @@ void Cell:: compute_spot_velocity( Spot *spot )
     const Real   P0  = jprev->pressure;
     const Real   P1  = jnext->pressure;
     const Real   Pn  = P0 + mu * (P1 - P0 );
-    const Real   gn_extra = (Pn-tracer->pressure)/ (tracer->bubble->lam);
+    const Real   gn_extra = (Pn-tracer->pressure)/(scaling);
     spot->gn = gn + gn_extra;
     
-    spot->gn = gn;
+    //spot->gn = gn;
     
     //--------------------------------------------------------------------------
     // gradient construction
