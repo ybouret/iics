@@ -70,7 +70,7 @@ some normal gradients $g_A$ and $g_B$.\\
 Let $Q$ be a point of that arc with its curvature $C_Q$ and its tangent vector $\vec{\tau}_Q$.
 The geometrical curvature of $Q$ is
 \[
-	\hat{C}_Q = \dfrac{2}{|AB|} \dfrac{\det(\myvec{AQ},\myvec{QB})}{|AQ||AB|}
+	\hat{C}_Q = \dfrac{2}{|AB|} \dfrac{\det(\myvec{AQ},\myvec{QB})}{|AQ||QB|}
 \]
 with the limiting cases
 \[
@@ -80,23 +80,30 @@ with the limiting cases
 	\end{array}
 \]
 How can we evaluate $g_Q$ ?\\
-The geometrical excess curvatures at the arc extremity are
+Let us introduce 
 \[
-	\kappa_A = C_A - \hat{C}_A \text{ and } \kappa_B = C_B - \hat{C}_B
+	\mu = \dfrac{\myvec{AQ}\myvec{AB}}{|AB|^2}
 \]
-so that we can defined the first order authorized excess curvature
+Firstly, since we now the gradient, we have access to the pressure
+at a distance $\sigma$ from the side
 \[
-	\kappa(\mu) = \kappa_A + \mu (\kappa_B - \kappa_A)
+	\tilde{P} = P + \sigma g
 \]
-with
+and, naturally, we can estimate the raw pressure off the arc as
 \[
-	\mu = \dfrac{\myvec{AQ}\myvec{AB}}{|AB|^2}.
+	\tilde{P}(\mu) = \tilde{P}_A + \mu \left(\tilde{P}_B-\tilde{P}_A\right)
 \]
-Accordingly,
+but this pressure doesn't take into account the exact shape of the
+arch between $A$ and $B$.
+The correction can be evaluated by the difference of geometrical curvature.
+Let us define
 \[
-	\delta_\kappa = \kappa_Q - \kappa(\mu)
+	C_\mu = \tilde{C}_A + \mu \left(\tilde{C}_B-\tilde{C}_A\right)
 \]
-is the true curvature excess for $Q$.
+and finally
+\[
+	g_Q = \dfrac{\tilde{P}(\mu)-P_Q + \gamma \left(\tilde{C}_Q - C_\mu\right)}{\sigma}
+\]
 
 \section{Differential Arc}
 Let $\vec{r}_0$ and $\vec{r}_1$ be two points of a curve
