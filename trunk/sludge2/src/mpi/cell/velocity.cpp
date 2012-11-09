@@ -41,7 +41,7 @@ void Cell:: compute_spots_velocity()
         {
             compute_spot_velocity(spot);
         }
-       // bubble->save_vtk( vformat("bubble%u.vtk", bubble->id) );
+        // bubble->save_vtk( vformat("bubble%u.vtk", bubble->id) );
         //bubble->save_vtk_gt( vformat("bgt%u.vtk", bubble->id) );
         //bubble->save_vtk_gn( vformat("bgn%u.vtk", bubble->id) );
         //bubble->save_vtk_n( vformat("curv%u.vtk", bubble->id) );
@@ -181,18 +181,48 @@ void Cell:: compute_spot_velocity( Spot *spot )
     // get the tracer location
     //--------------------------------------------------------------------------
     const Tracer *tracer = spot->handle;
-    const Vertex  here   = tracer->vertex;
-    const Vertex delta_r(jprev->vertex,jnext->vertex);
-    const Vertex delta_p(jprev->vertex,here);
-    const Real   mu = (delta_r*delta_p)/(delta_r*delta_r); // projection
-   
-    const Real Pa  = jprev->pressure + scaling * jprev->gn;
-    const Real Pb  = jnext->pressure + scaling * jnext->gn;
-    const Real Pmu = Pa + mu * (Pb - Pa);
-    const Real Psp = tracer->pressure;
-    const Real gn  = (Pmu - Psp)/scaling;
-    spot->gn = gn;
+    const Vertex  A      = jprev->vertex;  // one arc vertex
+    const Vertex  B      = jnext->vertex;  // other arc vertex
+    const Vertex  Q      = tracer->vertex; // current point
+    const Vertex  AB(A,B);
+    const Vertex  AQ(A,Q);
+    const Vertex  QB(Q,B);
+    const Real    AB2 = AB.norm2();
+    const Real    mu  = (AQ*AB)/AB2; // projection, order 1 coordinate
     
+    //--------------------------------------------------------------------------
+    // get the geometrical curvatures
+    //--------------------------------------------------------------------------
+    const Real   Ca    = 2*Vertex::det(jprev->t,AB)/AB2;
+    const Real   Cb    = 2*Vertex::det(AB,jnext->t)/AB2;
+    const Real   Cmu   = Ca + mu * (Cb-Ca);
+    const Real   AQn = AQ.norm();
+    const Vertex tAQ = AQn >= numeric<Real>::ftol ? AQ/AQn : jprev->t;
+    
+    const Real   QBn = QB.norm();
+    const Vertex tQB = QBn >= numeric<Real>::ftol ? QB/QBn : jnext->t;
+    
+    const Real   Cq  = 2*Vertex::det(tAQ,tQB)/Sqrt(AB2);
+    
+    //--------------------------------------------------------------------------
+    // compute the effective pressure at distance 'scaling' from side
+    //--------------------------------------------------------------------------
+    const Real Peff_a    = jprev->pressure + scaling * jprev->gn;
+    const Real Peff_b    = jnext->pressure + scaling * jnext->gn;
+    const Real Peff_mu   = Peff_a + mu * (Peff_b - Peff_a);
+    const Real Pq        = tracer->pressure;
+    const Bubble *bubble = tracer->bubble;
+    const Real    gamma  = bubble->gam;
+    
+    const Real dP_lin  = Peff_mu - Pq;
+    const Real dP_geo  = gamma * (Cq-Cmu);
+    std::cerr << "mu=" << mu << ", Cmu=" << Cmu << ", Cq=" << Cq <<  " => dP_lin=" << dP_lin << ", dP_geo=" << dP_geo << " / Pq=" << Pq <<  std::endl;
+    
+    //--------------------------------------------------------------------------
+    // estimate the gradient
+    //--------------------------------------------------------------------------
+    spot->gn = ( dP_lin + dP_geo )/scaling;
+    spot->gn = ( dP_lin )/scaling;
     
     //--------------------------------------------------------------------------
     // gradient construction
