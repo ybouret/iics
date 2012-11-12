@@ -1,0 +1,41 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 12.01.0 ] */
+
+/* [wxMaxima: input   start ] */
+alpha(mu) := alpha_A + mu * U_alpha + mu^2 * V_alpha;
+beta(mu)  := beta_B  + mu * U_beta  + mu^2 * V_beta;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+alpha_p(mu) := alpha_B + mu * W_alpha + mu^2 * Z_alpha;
+beta_p(mu)  := beta_B  + mu * W_beta  + mu^2 * Z_beta;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+X : [U_alpha,V_alpha,U_beta,V_beta,W_alpha,Z_alpha,W_beta,Z_beta];
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+I: expand(30*integrate(alpha(mu)^2+beta(mu)^2+alpha_p(mu)^2+beta_p(mu)^2,mu,0,1));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+J : transpose(jacobian([I],X));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+M : matrix(
+[20,15,0,0,0,0,0,0],
+[15,12,0,0,0,0,0,0],
+[0,0,20,15,0,0,0,0],
+[0,0,15,12,0,0,0,0],
+[0,0,0,0,20,15,0,0],
+[0,0,0,0,15,12,0,0],
+[0,0,0,0,0,0,20,15],
+[0,0,0,0,0,0,15,12]);
+M.X;
+A : J - M.X;
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$
