@@ -232,6 +232,9 @@ static inline void FinalizeJunction(Junction     *J,
     //-- average pressure
     J->pressure = bubble->pressure - bubble->gam * J->curvature;
     
+    //-- average gradient pressure
+    J->gt = s_weight * source->gt + t_weight * target->gt;
+    
     //-- average tangent angle
     const Real s_angle = source->t.angle();
     const Real d_angle = Vertex::angle_of(source->t,target->t);
