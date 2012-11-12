@@ -18,6 +18,7 @@ public:
     const Vertex   t;    //!< tangent
     const Vertex   n;    //!< normal
     const Real     p;    //!< pressure
+    const Real     gt;   //!< tangential pressure
 private:
     YOCTO_DISABLE_ASSIGN(JPack);
 };

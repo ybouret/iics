@@ -203,26 +203,20 @@ void Cell:: compute_spot_velocity( Spot *spot )
     const Vertex tQB = QBn >= numeric<Real>::ftol ? QB/QBn : jnext->t;
     
     const Real   Cq  = 2*Vertex::det(tAQ,tQB)/Sqrt(AB2);
+    const Real   dCq = Cq - Cmu;
     
     //--------------------------------------------------------------------------
     // compute the effective pressure at distance 'scaling' from side
     //--------------------------------------------------------------------------
-    const Real Peff_a    = jprev->pressure + scaling * jprev->gn;
-    const Real Peff_b    = jnext->pressure + scaling * jnext->gn;
-    const Real Peff_mu   = Peff_a + mu * (Peff_b - Peff_a);
-    const Real Pq        = tracer->pressure;
-    const Bubble *bubble = tracer->bubble;
-    const Real    gamma  = bubble->gam;
-    
-    const Real dP_lin  = Peff_mu - Pq;
-    const Real dP_geo  = gamma * (Cq-Cmu);
-    std::cerr << "mu=" << mu << ", Cmu=" << Cmu << ", Cq=" << Cq <<  " => dP_lin=" << dP_lin << ", dP_geo=" << dP_geo << " / Pq=" << Pq <<  std::endl;
-    
+    const Real ga  = jprev->gn;
+    const Real gb  = jnext->gn;
+    const Real gq  = ga + mu * (gb-ga);
+    const Real dgq = tracer->bubble->gam * dCq / scaling;
+    std::cerr << "gq=" << gq << ", dgq=" << dgq << std::endl;
     //--------------------------------------------------------------------------
     // estimate the gradient
     //--------------------------------------------------------------------------
-    spot->gn = ( dP_lin + dP_geo )/scaling;
-    spot->gn = ( dP_lin )/scaling;
+    spot->gn = gq - dgq;
     
     //--------------------------------------------------------------------------
     // gradient construction

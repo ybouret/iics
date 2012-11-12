@@ -7,6 +7,7 @@
 \usepackage{epstopdf}
 \DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
 \newcommand{\myvec}[1]{\overrightarrow{#1}}
+\newcommand{\mygrad}{\vec{\nabla}}
 
 \title{Technical Details}
 
@@ -66,8 +67,16 @@ and
 \section{Geometrical Curvatures on an arc}
 Let $A$ and $B$ be two points of an arc with their tangent unit vector $\vec{\tau}_A$
 and $\vec{\tau}_B$ and their real curvatures $C_A$ and $C_B$, producing
-some normal gradients $g_A$ and $g_B$.\\
-Let $Q$ be a point of that arc with its curvature $C_Q$ and its tangent vector $\vec{\tau}_Q$.
+some normal gradients $g_A$ and $g_B$.Let $Q$ be a point of that arc: 
+how can we evaluate $g_Q$ ?\\
+Let us introduce the first order position of $Q$ on the arc
+\[
+	\mu = \dfrac{\myvec{AQ}\myvec{AB}}{|AB|^2}.
+\]
+The first order gradient is
+\[
+	\tilde{g}_Q = g_A + \mu (g_B-g_A).
+\]
 The geometrical curvature of $Q$ is
 \[
 	\hat{C}_Q = \dfrac{2}{|AB|} \dfrac{\det(\myvec{AQ},\myvec{QB})}{|AQ||QB|}
@@ -79,30 +88,53 @@ with the limiting cases
 	\hat{C}_B & = & \dfrac{2}{|AB|^2}\det(\myvec{AB},\vec{\tau}_B). \\
 	\end{array}
 \]
-How can we evaluate $g_Q$ ?\\
-Let us introduce 
+
+
+\section{Gradient propagation}
+Let's assume we know the gradient pressure at point $A$ and $B$, and
+the tangential gradient pressure at point $Q$.
+We also know the tangential and normal vectors at this three points
+Let us assume that
 \[
-	\mu = \dfrac{\myvec{AQ}\myvec{AB}}{|AB|^2}
+	\mygrad P = \alpha \vec{\tau} + \beta \vec{n}
 \]
-Firstly, since we now the gradient, we have access to the pressure
-at a distance $\sigma$ from the side
+Then on $\myvec{AQ}$
 \[
-	\tilde{P} = P + \sigma g
+	\begin{array}{rcl}
+		\alpha(\mu) & = & \alpha_A + \mu U_\alpha + \mu^2 V_\alpha\\
+		\beta(\mu)  & = & \beta_A + \mu U_\beta + \mu^2 V_\beta \\
+		\theta(\mu) & = & \theta_A + \mu \delta \theta.\\
+	\end{array}
 \]
-and, naturally, we can estimate the raw pressure off the arc as
+On $\myvec{QB}$
 \[
-	\tilde{P}(\mu) = \tilde{P}_A + \mu \left(\tilde{P}_B-\tilde{P}_A\right)
+	\begin{array}{rcl}
+		\alpha'(\lambda) & = & \alpha_B + \lambda W_\alpha + \lambda^2 Z_\alpha\\
+		\beta'(\lambda)  & = & \beta_B  + \lambda W_\beta + \lambda^2 Z_\beta \\
+		\theta'(\lambda) & = & \theta_B + \lambda \delta \theta'.\\
+	\end{array}
 \]
-but this pressure doesn't take into account the exact shape of the
-arch between $A$ and $B$.
-The correction can be evaluated by the difference of geometrical curvature.
-Let us define
+So we have
 \[
-	C_\mu = \tilde{C}_A + \mu \left(\tilde{C}_B-\tilde{C}_A\right)
+	P_Q - P_A = \int_0^1 
+	\left[ \alpha(\mu)\vec{\tau}(\mu) + \beta(\mu) \vec{n}(\mu)\right]\myvec{AQ} \; d\mu
 \]
-and finally
+and
 \[
-	g_Q = \dfrac{\tilde{P}(\mu)-P_Q + \gamma \left(\tilde{C}_Q - C_\mu\right)}{\sigma}
+	P_Q - P_B = \int_0^1 
+	\left[ 
+		\alpha'(\lambda)\vec{\tau}'(\lambda) + 
+		\beta'(\lambda) \vec{n}'(\lambda)
+	\right]
+	\myvec{BQ} \; d\lambda.
+\]
+The continuity relations are
+\[
+	\begin{array}{rcl}
+		U_\alpha + V_\alpha & = & \alpha_Q - \alpha_A\\
+		W_\alpha + Z_\alpha & = & \alpha_Q - \alpha_B\\
+		\beta_A + U_\beta + V_\beta & = & \beta_B + W_\beta + Z_\beta\\
+	\end{array}
 \]
 
 \section{Differential Arc}

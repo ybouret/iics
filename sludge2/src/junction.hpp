@@ -34,6 +34,7 @@ public:
     Real            pressure;  //!< from bubble and curvature
     Vertex          t;         //!< tangent
     Vertex          n;         //!< normal
+    Real            gt;        //!< tangential gradient
     mutable bool    visited;   //!< for orthonormal gradient
     mutable Real    gn;        //!< local orthonormal gradP, LOCALLY computed, on NORMAL
     

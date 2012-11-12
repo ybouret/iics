@@ -37,7 +37,6 @@ void Tracer:: compute_gt()
     const Real Pp  = next->pressure - pressure;
     const Real Pm  = prev->pressure - pressure;
     
-    //const Real dsc = sp * sm2 + sm * sp2;
     gt = ((sm2 * Pp - sp2 * Pm) / dsc) / spd;
     
     
