@@ -2,17 +2,17 @@
 /* [ Created with wxMaxima version 12.01.0 ] */
 
 /* [wxMaxima: input   start ] */
-alpha(mu) := alpha_A + mu * U_alpha + mu^2 * V_alpha;
-beta(mu)  := beta_B  + mu * U_beta  + mu^2 * V_beta;
+alpha(mu) := alpha_A + mu * X1 + mu^2 * X2;
+beta(mu)  := beta_A  + mu * X3  + mu^2 * X4;
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: input   start ] */
-alpha_p(mu) := alpha_B + mu * W_alpha + mu^2 * Z_alpha;
-beta_p(mu)  := beta_B  + mu * W_beta  + mu^2 * Z_beta;
+alpha_p(mu) := alpha_B + mu * X5 + mu^2 * X6;
+beta_p(mu)  := beta_B  + mu * X7  + mu^2 * X8;
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: input   start ] */
-X : [U_alpha,V_alpha,U_beta,V_beta,W_alpha,Z_alpha,W_beta,Z_beta];
+X : [X1,X2,X3,X4,X5,X6,X7,X8];
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: input   start ] */
@@ -20,7 +20,7 @@ I: expand(30*integrate(alpha(mu)^2+beta(mu)^2+alpha_p(mu)^2+beta_p(mu)^2,mu,0,1)
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: input   start ] */
-J : transpose(jacobian([I],X));
+dI : transpose(jacobian([I],X));
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: input   start ] */
@@ -34,7 +34,31 @@ M : matrix(
 [0,0,0,0,0,0,20,15],
 [0,0,0,0,0,0,15,12]);
 M.X;
-A : J - M.X;
+S : dI - M.X;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+E : expand(transpose(X).M.X/2+transpose(S).X);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+I - E;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+J : invert(M);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+Ka : transpose([1,1,0,0,0,0,0,0]);
+Kb : transpose([0,0,0,0,1,1,0,0]);
+K0 : transpose([0,0,1,1,0,0,-1,-1]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+transpose(Ka).X;
+transpose(Kb).X;
+transpose(K0).X;
 /* [wxMaxima: input   end   ] */
 
 /* Maxima can't load/batch files which end with a comment! */
