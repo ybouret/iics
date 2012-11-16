@@ -57,6 +57,16 @@ JKa : J.Ka; JKb:J.Kb; JK0: J.K0; JPiA : J.PiA; JPiB : J.PiB;
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: input   start ] */
+JK : transpose(matrix(
+list_matrix_entries(JKa),
+list_matrix_entries(JKb),
+list_matrix_entries(JK0),
+list_matrix_entries(JPiA),
+list_matrix_entries(JPiB)
+));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
 H : matrix(
 [ transpose(Ka).J.Ka, transpose(Ka).J.Kb, transpose(Ka).J.K0, transpose(Ka).J.PiA, transpose(Ka).J.PiB],
 [ transpose(Kb).J.Ka, transpose(Kb).J.Kb, transpose(Kb).J.K0, transpose(Kb).J.PiA, transpose(Kb).J.PiB],
