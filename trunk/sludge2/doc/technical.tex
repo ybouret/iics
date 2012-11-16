@@ -284,7 +284,25 @@ we find
 	 	(\beta_B-\beta_A)\cr
 	 	\delta\tilde{P}_A\cr
 	 	\delta\tilde{P}_B\cr
-	\end{pmatrix}
+	\end{pmatrix}.
+\]
+The 5x5 matrix is
+\[ \mymat{H} = \dfrac{1}{6}
+\begin{pmatrix}
+1 & 0 & 0 & I_1 & 0\cr 
+0 & 1 & 0 & 0 & I_1'\cr
+0 & 0 & 2 & J_1 & -J_1'\cr
+I_1 & 0 & J_1 &  \eta & 0\cr
+0 & I_1' & -J_1' & 0 & \eta'
+\end{pmatrix}
+\]
+with
+\[
+	\begin{array}{rclcl}
+		\eta & = & 3\,{J_2}^{2}-6\,J_1\,J_2+4\,{J_1}^{2}+3\,{I_2}^{2}-6\,I_1\,I_2+4\,{I_1}^{2} & = & 
+		{I_1}^2+3(I_1-I_2)^2 + {J_1}^2 + 3 (J_1-J_2)^2\\
+		\eta' & = & 3\,{J_2'}^{2}-6\,J_1'\,J_2'+4\,{J_1'}^{2}+3\,{I_2'}^{2}-6\,I_1'\,I_2'+4\,{I_1'}^{2} & = & {I_1'}^2+3(I_1'-I_2')^2 + {J_1'}^2 + 3 (J_1'-J_2')^2\\
+	\end{array}
 \]
 \section{Differential Arc}
 Let $\vec{r}_0$ and $\vec{r}_1$ be two points of a curve
