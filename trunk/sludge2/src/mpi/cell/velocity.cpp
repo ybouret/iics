@@ -181,42 +181,15 @@ void Cell:: compute_spot_velocity( Spot *spot )
     // get the tracer location
     //--------------------------------------------------------------------------
     const Tracer *tracer = spot->handle;
-    const Vertex  A      = jprev->vertex;  // one arc vertex
-    const Vertex  B      = jnext->vertex;  // other arc vertex
-    const Vertex  Q      = tracer->vertex; // current point
-    const Vertex  AB(A,B);
-    const Vertex  AQ(A,Q);
-    const Vertex  QB(Q,B);
-    const Real    AB2 = AB.norm2();
-    const Real    mu  = (AQ*AB)/AB2; // projection, order 1 coordinate
+     
+    ArcPoint A( jprev->vertex,  jprev->t,  jprev->pressure,  jprev->gt,  jprev->gn);
+    ArcPoint Q( tracer->vertex, tracer->t, tracer->pressure, tracer->gt, 0 );
+    ArcPoint B( jprev->vertex,  jnext->t,  jnext->pressure,  jnext->gt,  jnext->gn);
+
+    Arc arc(A,Q,B);
+    arcsol(arc);
     
-    //--------------------------------------------------------------------------
-    // get the geometrical curvatures
-    //--------------------------------------------------------------------------
-    const Real   Ca    = 2*Vertex::det(jprev->t,AB)/AB2;
-    const Real   Cb    = 2*Vertex::det(AB,jnext->t)/AB2;
-    const Real   Cmu   = Ca + mu * (Cb-Ca);
-    const Real   AQn = AQ.norm();
-    const Vertex tAQ = AQn >= numeric<Real>::ftol ? AQ/AQn : jprev->t;
-    
-    const Real   QBn = QB.norm();
-    const Vertex tQB = QBn >= numeric<Real>::ftol ? QB/QBn : jnext->t;
-    
-    const Real   Cq  = 2*Vertex::det(tAQ,tQB)/Sqrt(AB2);
-    const Real   dCq = Cq - Cmu;
-    
-    //--------------------------------------------------------------------------
-    // compute the effective pressure at distance 'scaling' from side
-    //--------------------------------------------------------------------------
-    const Real ga  = jprev->gn;
-    const Real gb  = jnext->gn;
-    const Real gq  = ga + mu * (gb-ga);
-    const Real dgq = tracer->bubble->gam * dCq / scaling;
-    std::cerr << "gq=" << gq << ", dgq=" << dgq << std::endl;
-    //--------------------------------------------------------------------------
-    // estimate the gradient
-    //--------------------------------------------------------------------------
-    spot->gn = gq - dgq;
+    spot->gn = 0;
     
     //--------------------------------------------------------------------------
     // gradient construction

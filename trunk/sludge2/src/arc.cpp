@@ -82,37 +82,37 @@ void ArcPoint::computeIntegrals() const
     {
         numeric<Real>::function F( this, & ArcPoint::dC0 );
         C0 = integrate<Real>(0,1,F,ftol);
-        std::cerr << "\tC0=" << C0 << std::endl;
+        //std::cerr << "\tC0=" << C0 << std::endl;
     }
     
     {
         numeric<Real>::function F( this, & ArcPoint::dS0 );
         S0 = integrate<Real>(0,1,F,ftol);
-        std::cerr << "\tS0=" << S0 << std::endl;
+        //std::cerr << "\tS0=" << S0 << std::endl;
     }
     
     {
         numeric<Real>::function F( this, & ArcPoint::dC1 );
         C1 = integrate<Real>(0,1,F,ftol);
-        std::cerr << "\tC1=" << C1 << std::endl;
+        //std::cerr << "\tC1=" << C1 << std::endl;
     }
     
     {
         numeric<Real>::function F( this, & ArcPoint::dS1 );
         S1 = integrate<Real>(0,1,F,ftol);
-        std::cerr << "\tS1=" << S1 << std::endl;
+        //std::cerr << "\tS1=" << S1 << std::endl;
     }
     
     {
         numeric<Real>::function F( this, & ArcPoint::dC2 );
         C2 = integrate<Real>(0,1,F,ftol);
-        std::cerr << "\tC2=" << C2 << std::endl;
+       // std::cerr << "\tC2=" << C2 << std::endl;
     }
     
     {
         numeric<Real>::function F( this, & ArcPoint::dS2 );
         S2 = integrate<Real>(0,1,F,ftol);
-        std::cerr << "\tS2=" << S2 << std::endl;
+        //std::cerr << "\tS2=" << S2 << std::endl;
     }
     
 }
@@ -149,24 +149,24 @@ J2(0)
     //--------------------------------------------------------------------------
     // Compute Integrals
     //--------------------------------------------------------------------------
-    std::cerr << "A:" << std::endl;
-    std::cerr << "\ttheta=" << A.theta << std::endl;
-    std::cerr << "\tdelta=" << A.delta << std::endl;
+    //std::cerr << "A:" << std::endl;
+    //std::cerr << "\ttheta=" << A.theta << std::endl;
+    //std::cerr << "\tdelta=" << A.delta << std::endl;
     
-    std::cerr << "Compute A Integrals" << std::endl;
+    //std::cerr << "Compute A Integrals" << std::endl;
     A.computeIntegrals();
     
-    std::cerr << "B:" << std::endl;
-    std::cerr << "\ttheta=" << B.theta << std::endl;
-    std::cerr << "\tdelta=" << B.delta << std::endl;
+    //std::cerr << "B:" << std::endl;
+    //std::cerr << "\ttheta=" << B.theta << std::endl;
+    //std::cerr << "\tdelta=" << B.delta << std::endl;
     
-    std::cerr << "Compute B Integrals" << std::endl;
+    //std::cerr << "Compute B Integrals" << std::endl;
     B.computeIntegrals();
     
     //--------------------------------------------------------------------------
     // Compute pressure integrals
     //--------------------------------------------------------------------------
-    std::cerr << "Compute Pressure Integrals" << std::endl;
+    //std::cerr << "Compute Pressure Integrals" << std::endl;
     
     // AQ
     I0 =  A.C0 * AQ.x + A.S0 * AQ.y;
@@ -198,6 +198,7 @@ J2(0)
     tmp   = J1p - J2p;
     etap += J1p*J1p + tmp*tmp;
     
+#if 0
     std::cerr << "I0   = " << I0 << std::endl;
     std::cerr << "J0   = " << J0 << std::endl;
     std::cerr << "I1   = " << I1 << std::endl;
@@ -214,6 +215,7 @@ J2(0)
     
     std::cerr << "eta  =" << eta << std::endl;
     std::cerr << "etap =" << etap << std::endl;
+#endif
     
 }
 
@@ -226,7 +228,7 @@ void Arc:: load( matrix<Real> &H, array<Real> &U , matrix<Real> &JK) const throw
     H[3][3] = 2;   H[3][4] =  J1;  H[3][5] = -J1p;
     H[4][1] = I1;  H[4][3] =  J1;  H[4][4] = eta;
     H[5][2] = I1p; H[5][3] = -J1p; H[5][5] = etap;
-    std::cerr << "H=" << H << "/6" << std::endl;
+    //std::cerr << "H=" << H << "/6" << std::endl;
     
     //-- build unknown vector
     U[1] = Q.alpha - A.alpha;
@@ -234,7 +236,7 @@ void Arc:: load( matrix<Real> &H, array<Real> &U , matrix<Real> &JK) const throw
     U[3] = B.beta  - A.beta;
     U[4] = (Q.P - A.P) - ( A.alpha * I0  + A.beta * J0 );
     U[5] = (Q.P - B.P) - ( B.alpha * I0p + B.beta * J0p);
-    std::cerr << "U=" << U << std::endl;
+    //std::cerr << "U=" << U << std::endl;
     
     for( size_t i=U.size();i>0;--i)
         U[i] *= 6;
@@ -254,7 +256,7 @@ void Arc:: load( matrix<Real> &H, array<Real> &U , matrix<Real> &JK) const throw
     JK[7][5] = (2*J1p)/3 - J2/2;
     JK[8][5] = (J2p-J1p)/2;
     
-    std::cerr << "JK=" << JK << std::endl;
+    //std::cerr << "JK=" << JK << std::endl;
     
     
     
@@ -302,7 +304,7 @@ void ArcSolver:: operator()( const Arc &arc )
     //--------------------------------------------------------------------------
     algebra<double>::mul(X, JK, L);
     std::cerr << "X=" << X << std::endl;
-    const Real gQ1 = arc.A.beta + X[3] + X[4];
+    const Real gQ1 = arc.A.beta + X[4] + X[5];
     const Real gQ2 = arc.B.beta + X[7] + X[8];
 
     std::cerr << "gQ1=" << gQ1 << std::endl;
