@@ -61,5 +61,79 @@ transpose(Kb).X;
 transpose(K0).X;
 /* [wxMaxima: input   end   ] */
 
+/* [wxMaxima: input   start ] */
+PiA : transpose([I1,J1,I2,J2,0,0,0,0]);
+PiB : transpose([0,0,0,0,I1p,J1p,I2p,J2p]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+ H : matrix(
+[ transpose(Ka).J.Ka, transpose(Ka).J.Kb, transpose(Ka).J.K0, transpose(Ka).J.PiA, transpose(Ka).J.PiB],
+[ transpose(Kb).J.Ka, transpose(Kb).J.Kb, transpose(Kb).J.K0, transpose(Kb).J.PiA, transpose(Kb).J.PiB],
+[ transpose(K0).J.Ka, transpose(K0).J.Kb, transpose(K0).J.K0, transpose(K0).J.PiA, transpose(K0).J.PiB],
+[ transpose(PiA).J.Ka, transpose(PiA).J.Kb, transpose(PiA).J.K0, transpose(PiA).J.PiA, transpose(PiA).J.PiB],
+[ transpose(PiB).J.Ka, transpose(PiB).J.Kb, transpose(PiB).J.K0, transpose(PiB).J.PiA, transpose(PiB).J.PiB]
+);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+U : transpose([ transpose(Ka).J.S , transpose(Kb).J.S,transpose(K0).J.S,transpose(PiA).J.S,transpose(PiB).J.S]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+V : transpose( [
+alpha_Q - alpha_A, 
+alpha_Q-alpha_B,
+beta_B - beta_A,
+PQ-PA - (alpha_A * I0 + beta_A * J0),
+PQ-PB - (alpha_B * I0p+beta_B*J0p)
+]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+Lambda : invert(H).(U+V);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: hide output   ] */
+/* [wxMaxima: input   start ] */
+lambda_A : (Lambda[1][1]);
+lambda_B : (Lambda[2][1]);
+lambda_0 : (Lambda[3][1]);
+Lambda_A : (Lambda[4][1]);
+Lambda_B : (Lambda[5][1]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+X0 : lambda_A * J.Ka + lambda_B * J.Kb + lambda_0 * J.K0 + Lambda_A * J.PiA + Lambda_B * J.PiB - J.S;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+expand(
+subst(
+[
+I0=AQ,
+J0=0,
+I1=AQ/2,
+J1=0,
+I2=AQ/3,
+J2=0,
+I0p=BQ,
+J0p=0,
+I1p=BQ/2,
+J1p=0,
+I2p=AQ/3,
+J2p=0,
+PQ=PA,
+PB=PA,
+alpha_Q=0,
+alpha_A=0,
+alpha_B=0,
+beta_B=beta_A,
+AQ=1,
+BQ=1],
+X0)
+);
+/* [wxMaxima: input   end   ] */
+
 /* Maxima can't load/batch files which end with a comment! */
 "Created with wxMaxima"$
