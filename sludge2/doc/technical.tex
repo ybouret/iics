@@ -137,19 +137,14 @@ The supplementary continuity relations are
 		\beta_A + X_4 + X_5 & = & \beta_B + X_7 + X_8\\
 	\end{array}
 \]
-The right approximation is the one that minimizes $\mygrad P ^2$,
+The right approximation is the one that minimizes the change in $\mygrad P$
 which is equivalent to minimize
 \[
-	E(\vec{X}) = \dfrac{1}{2} \vec{X}\mymat{M}\vec{X} + \vec{S}\vec{X}
+	E(\vec{X}) = \dfrac{1}{2} \vec{X}\mymat{M}\vec{X}
 \]
 with
-\[
-	\mymat{M} = \begin{pmatrix}20 & 15 & 0 & 0 & 0 & 0 & 0 & 0\cr 15 & 12 & 0 & 0 & 0 & 0 & 0 & 0\cr 0 & 0 & 20 & 15 & 0 & 0 & 0 & 0\cr 0 & 0 & 15 & 12 & 0 & 0 & 0 & 0\cr 0 & 0 & 0 & 0 & 20 & 15 & 0 & 0\cr 0 & 0 & 0 & 0 & 15 & 12 & 0 & 0\cr 0 & 0 & 0 & 0 & 0 & 0 & 20 & 15\cr 0 & 0 & 0 & 0 & 0 & 0 & 15 & 12\end{pmatrix}
-\]
-and
-\[\vec{S}=
-\begin{pmatrix}30\,\alpha_A\cr 20\,\alpha_A\cr 30\,\beta_A\cr 20\,\beta_A\cr 30\,\alpha_B\cr 20\,\alpha_B\cr 30\,\beta_B\cr 20\,\beta_B\end{pmatrix}.
-\]
+\[\mymat{M} =\begin{pmatrix}6 & 6 & 0 & 0 & 0 & 0 & 0 & 0\cr 6 & 8 & 0 & 0 & 0 & 0 & 0 & 0\cr 0 & 0 & 6 & 6 & 0 & 0 & 0 & 0\cr 0 & 0 & 6 & 8 & 0 & 0 & 0 & 0\cr 0 & 0 & 0 & 0 & 6 & 6 & 0 & 0\cr 0 & 0 & 0 & 0 & 6 & 8 & 0 & 0\cr 0 & 0 & 0 & 0 & 0 & 0 & 6 & 6\cr 0 & 0 & 0 & 0 & 0 & 0 & 6 & 8\end{pmatrix}.\]
+
 We have the following constraints
 \begin{itemize}
 	\item
@@ -251,7 +246,7 @@ We introduce the lagrangian
 \]
 which is to be minimized w.r.t $\vec{X}$, meaning
 \[
-	\mymat{M}\vec{X} + \vec{S} = 
+	\mymat{M}\vec{X}  = 
 	\lambda_A \vec{K}_A +
 	\lambda_B \vec{K}_B +
 	\lambda_0 \vec{K}_0 +
@@ -264,8 +259,7 @@ With $\mymat{J}=\mymat{M}^{-1}$,
 	\lambda_B \mymat{J}\vec{K}_B +
 	\lambda_0 \mymat{J}\vec{K}_0 +
 	\Lambda_A \mymat{J}\vec{\Pi}_A +
-	\Lambda_B \mymat{J}\vec{\Pi}_B 
-	- \mymat{J}\vec{S}.
+	\Lambda_B \mymat{J}\vec{\Pi}_B.
 \]
 we find
 \[
@@ -285,11 +279,11 @@ we find
 	\end{pmatrix}
 	=
 	\begin{pmatrix}
-		\vec{K}_A\mymat{J}\vec{S} + (\alpha_Q-\alpha_A)\cr
-		\vec{K}_B\mymat{J}\vec{S} + (\alpha_Q-\alpha_B)\cr
-	 	\vec{K}_0\mymat{J}\vec{S} + (\beta_B-\beta_A)\cr
-	 	\vec{\Pi}_A\mymat{J}\vec{S} + \delta\tilde{P}_A\cr
-	 	\vec{\Pi}_B\mymat{J}\vec{S}+ \delta\tilde{P}_B\cr
+		(\alpha_Q-\alpha_A)\cr
+		(\alpha_Q-\alpha_B)\cr
+	 	(\beta_B-\beta_A)\cr
+	 	\delta\tilde{P}_A\cr
+	 	\delta\tilde{P}_B\cr
 	\end{pmatrix}
 \]
 \section{Differential Arc}

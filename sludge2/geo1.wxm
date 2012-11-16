@@ -1,0 +1,77 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 12.01.0 ] */
+
+/* [wxMaxima: input   start ] */
+g(mu) := gA + mu * X1 + mu^2 * X2;
+gp(mu) := gB + mu * X3 + mu^2 * X4;
+var : [X1,X2,X3,X4];
+X : transpose(var);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+I : expand(3*integrate( diff(g(mu),mu)^2+diff(gp(mu),mu)^2, mu, 0, 1));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+dI : transpose(jacobian([I],var));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+M : matrix(
+    [6,6,0,0],
+    [6,8,0,0],
+    [0,0,6,6],
+    [0,0,6,8]
+);
+M.X - dI;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+Ka : transpose([1/2,1/3,0,0]);
+Ka.X;
+Kb : transpose([0,0,1/2,1/3]);
+Kb.X;
+K0 : transpose([1,1,-1,-1]);
+K0.X;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+J : invert(M);
+JKa : J.Ka;
+JKb : J.Kb;
+JK0 : J.K0;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+H : matrix( 
+[ transpose(Ka).JKa, transpose(Ka).JKb, transpose(Ka).JK0],
+[ transpose(Kb).JKa, transpose(Kb).JKb, transpose(Kb).JK0],
+[ transpose(K0).JKa, transpose(K0).JKb, transpose(K0).JK0]
+);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+U : transpose([ (PQ-PA)/AQ - gA, (PQ-PB)/BQ - gB, gB-gA]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+L : invert(H).U;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+X0 : expand(L[1][1] * JKa + L[2][1] * JKb + L[3][1] * JK0);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+gQ1 : gA + X0[1][1] + X0[2][1];
+gQ2 : gB + X0[3][1] + X0[4][1];
+gQ1 - gQ2;
+gQ : gQ1;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+expand(subst([gB=gA,PQ=PA+gA*AQ,PB=PA+gA*(AQ-BQ)],gQ));
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$
