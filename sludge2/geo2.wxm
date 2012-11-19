@@ -46,6 +46,13 @@ Kb  : transpose([0,0,0,0,1,1,0,0]);
 K0  : transpose([0,0,1,1,0,0,-1,-1]);
 PiA : transpose([I1,I2,J1,J2,0,0,0,0]);
 PiB : transpose([0,0,0,0,I1p,I2p,J1p,J2p]);
+Kmat : transpose(matrix(
+list_matrix_entries(Ka),
+list_matrix_entries(Kb),
+list_matrix_entries(K0),
+list_matrix_entries(PiA),
+list_matrix_entries(PiB)
+));
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: input   start ] */
@@ -53,27 +60,11 @@ J : invert(M);
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: input   start ] */
-JKa : J.Ka; JKb:J.Kb; JK0: J.K0; JPiA : J.PiA; JPiB : J.PiB;
+JK : J.Kmat; expand(6*JK);
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: input   start ] */
-JK : transpose(matrix(
-list_matrix_entries(JKa),
-list_matrix_entries(JKb),
-list_matrix_entries(JK0),
-list_matrix_entries(JPiA),
-list_matrix_entries(JPiB)
-));
-/* [wxMaxima: input   end   ] */
-
-/* [wxMaxima: input   start ] */
-H : matrix(
-[ transpose(Ka).J.Ka, transpose(Ka).J.Kb, transpose(Ka).J.K0, transpose(Ka).J.PiA, transpose(Ka).J.PiB],
-[ transpose(Kb).J.Ka, transpose(Kb).J.Kb, transpose(Kb).J.K0, transpose(Kb).J.PiA, transpose(Kb).J.PiB],
-[ transpose(K0).J.Ka, transpose(K0).J.Kb, transpose(K0).J.K0, transpose(K0).J.PiA, transpose(K0).J.PiB],
-[ transpose(PiA).J.Ka, transpose(PiA).J.Kb, transpose(PiA).J.K0, transpose(PiA).J.PiA, transpose(PiA).J.PiB],
-[ transpose(PiB).J.Ka, transpose(PiB).J.Kb, transpose(PiB).J.K0, transpose(PiB).J.PiA, transpose(PiB).J.PiB]
-);
+H : transpose(Kmat).JK;
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: input   start ] */
@@ -103,15 +94,7 @@ L : (Hadj.V)/Hdet;
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: input   start ] */
-lambda_A : L[1][1];
-lambda_B : L[2][1];
-lambda_0 : L[3][1];
-Lambda_A : L[4][1];
-Lambda_B : L[5][1];
-/* [wxMaxima: input   end   ] */
-
-/* [wxMaxima: input   start ] */
-X0 : (lambda_A * J.Ka + lambda_B * J.Kb + lambda_0 * J.K0 + Lambda_A * J.PiA + Lambda_B * J.PiB);
+X0 : JK.L;
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: input   start ] */

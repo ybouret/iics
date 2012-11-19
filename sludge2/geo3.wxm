@@ -1,0 +1,82 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 12.01.0 ] */
+
+/* [wxMaxima: input   start ] */
+rx(mu) := Ax + mu * ax + mu^2 * bx;
+ry(mu) := Ay + mu * ay + mu^2 * by;
+define(drx(mu),diff(rx(mu),mu));
+define(dry(mu),diff(ry(mu),mu));
+var : [ax,ay,bx,by];
+X   : transpose(var);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+lam : (AQx*ABx+AQy*ABy)/(ABx*ABx+ABy*ABy);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+I : expand(3*integrate(drx(mu)^2+dry(mu)^2,mu,0,1));
+dI : transpose(jacobian([I],var));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+M : matrix(
+[6,0,6,0],
+[0,6,0,6],
+[6,0,8,0],
+[0,6,0,8]
+);
+J : invert(M);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+K : transpose(matrix(
+[1,0,1,0],
+[0,1,0,1],
+[lambda,0,lambda^2,0],
+[0,lambda,0,lambda^2]));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+JK : expand(J.K);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+JK6 : expand(6*JK);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+H : expand(transpose(K).JK);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+H6 : expand(6 * H);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+U6 :  6 * transpose([ABx,ABy,AQx,AQy]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+H6det : expand(determinant(H6)/lambda^2);
+H6adj : expand(adjoint(H6)/lambda^2);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+L_times_det : H6adj.U6;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+X1 : expand(JK.L_times_det/(9*lambda));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+fac : 1/(expand(H6det/(9*lambda)));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+X0 : (subst([lambda=lambda],X1*fac));
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$

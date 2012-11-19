@@ -3,7 +3,7 @@
 
 #include "./junction.hpp"
 
-
+#if 0
 class ArcPoint
 {
 public:
@@ -106,6 +106,7 @@ private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(ArcSolver);
     
 };
+#endif
 
 
 #endif
