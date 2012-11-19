@@ -9,6 +9,7 @@
 \newcommand{\myvec}[1]{\overrightarrow{#1}}
 \newcommand{\mygrad}{\vec{\nabla}}
 \newcommand{\mymat}[1]{\mathbf{#1}}
+\newcommand{\mytrn}[1]{{\!\!~^{\mathsf{t}}{#1}}}
 
 \title{Technical Details}
 
@@ -90,220 +91,390 @@ with the limiting cases
 	\end{array}
 \]
 
-
-\section{Gradient propagation}
+\section{Gradient Propagation}
+\subsection{Setup}
 Let's assume we know the gradient pressure at point $A$ and $B$, and
 the tangential gradient pressure at point $Q$.
 We also know the tangential and normal vectors at this three points
 Let us assume that
 \[
-	\mygrad P = \alpha \vec{\tau} + \beta \vec{n}
+	\mygrad P = \alpha \vec{\tau} + \beta \vec{n}.
 \]
-Then on $\myvec{AQ}$
+So
 \[
-	\begin{array}{rcl}
-		\alpha(\mu) & = & \alpha_A + \mu X_1 + \mu^2 X_2\\
-		\beta(\mu)  & = & \beta_A  + \mu X_3 + \mu^2 X_4 \\
-		\theta(\mu) & = & \theta_A + \mu \delta \theta.\\
-	\end{array}
-\]
-On $\myvec{QB}$
-\[
-	\begin{array}{rcl}
-		\alpha'(\lambda) & = & \alpha_B + \lambda X_5 + \lambda^2 X_6\\
-		\beta'(\lambda)  & = & \beta_B  + \lambda X_7 + \lambda^2 X_8 \\
-		\theta'(\lambda) & = & \theta_B + \lambda \delta \theta'.\\
-	\end{array}
-\]
-So we have
-\[
-	P_Q - P_A = \int_0^1 
-	\left[ \alpha(\mu)\vec{\tau}(\mu) + \beta(\mu) \vec{n}(\mu)\right]\myvec{AQ} \; d\mu
+	P_Q - P_A = \int_A^Q \mygrad P \; d\vec{r}
 \]
 and
 \[
-	P_Q - P_B = \int_0^1 
-	\left[ 
-		\alpha'(\lambda)\vec{\tau}'(\lambda) + 
-		\beta'(\lambda) \vec{n}'(\lambda)
-	\right]
-	\myvec{BQ} \; d\lambda.
+	P_B - P_Q = \int_Q^B  \mygrad P \; d\vec{r}
 \]
-The supplementary continuity relations are
+To integrate the gradient pressure, we need a path from $A$ to $B$ including $Q$.
+Let us assume that the arc
 \[
-	\begin{array}{rcl}
-		X_1 + X_2 & = & \alpha_Q - \alpha_A\\
-		X_5 + X_6 & = & \alpha_Q - \alpha_B\\
-		\beta_A + X_4 + X_5 & = & \beta_B + X_7 + X_8\\
-	\end{array}
+		\vec{r}(\mu), \;\mu\in[0;1]
 \]
-The right approximation is the one that minimizes the change in $\mygrad P$
+is the path from $A$ to $B$ such that $\vec{r}(0)=\vec{A}$, $\vec{r}(1)=\vec{B}$, and that $\vec{r}(\lambda)=\vec{Q}$.
+Then
+\[
+	P_Q - P_A = \int_0^\lambda \mygrad P \; \dot{\vec{r}}(\mu) d\mu
+\]
+and
+\[
+	P_B - P_Q = \int_\lambda^1 \mygrad P \; \dot{\vec{r}}(\mu) d\mu
+\]
+\subsection{Gradient Expression}
+\subsubsection{Degrees Of Freedom}
+Let us determine the minimum degrees of freedom requested for $\mygrad P$.
+It is know at $A$ and $B$ (+4 scalar values).
+The tangential part is known at $Q$ (+1).
+Then we must respect the pressure jumps (+2).
+We need at least 7 degrees of freedom.
+By symetry, $\alpha$ and $\beta$ are some third order polynomials in $\mu$.
+\[
+	\left\lbrace
+	\begin{array}{rcl}
+		\alpha(\mu) & = & \alpha_A + \mu X_1 + \mu^2 X_2 + \mu^3 X_3\\
+		\beta(\mu)  & = & \beta_A  + \mu X_4 + \mu^2 X_5 + \mu^3 X_6\\
+	\end{array}
+	\right.
+\]
+while the Frenet basis is supposed to vary linearly from $A$ to $Q$ and from $Q$ to $B$:
+\[
+	\vec{\tau}(\mu\in[0:\lambda]) =
+	\begin{pmatrix}
+	 \cos \theta(\mu)\cr
+	 \sin \theta(\mu)
+	 \end{pmatrix},\;
+	 \vec{n}(\mu\in[0:\lambda]) =
+	\begin{pmatrix}
+	 -\sin \theta(\mu)\cr
+	 \cos \theta(\mu)
+	 \end{pmatrix}
+\]
+with 
+\[
+	\theta(\mu) = \theta_A + \frac{\mu}{\lambda} \delta\theta
+\]
+and
+\[
+	\vec{\tau}(\mu\in[\lambda:1]) =
+	\begin{pmatrix}
+	 \cos \theta'(\mu)\cr
+	 \sin \theta'(\mu)
+	 \end{pmatrix},\;
+	 \vec{n}(\mu\in[\lambda:1]) =
+	\begin{pmatrix}
+	 -\sin \theta'(\mu)\cr
+	 \cos \theta'(\mu)
+	 \end{pmatrix}
+\]
+with 
+\[
+	\theta'(\mu) = \theta_Q + \dfrac{\mu-\lambda}{1-\lambda} \delta\theta'.
+\]
+
+\subsubsection{Constraints}
+With $\vec{X}=\left(X_1,\cdots,X_8\right)$, the constraints are:
+\begin{itemize}
+\item
+\[
+	\vec{K}_\alpha\vec{X} = \alpha_B-\alpha_A, \; \vec{K}_\alpha= \mytrn{\begin{pmatrix} 1 & 0 & 1 & 0 & 1 & 0\cr \end{pmatrix}}
+\]
+\item
+\[
+	\vec{K}_\beta\vec{X} = \beta_B-\beta_A, \; \vec{K}_\beta= \mytrn{\begin{pmatrix} 0 & 1 & 0 & 1 & 0 & 1\cr \end{pmatrix}}
+\]
+\item
+\[
+	\vec{K}_\lambda\vec{X} = \alpha_Q-\alpha_A, \;\vec{K}_\lambda= \mytrn{\begin{pmatrix} \lambda & 0 & \lambda^2 & 0 & \lambda^3 & 0\cr \end{pmatrix}}
+ \]
+ \item
+ \[
+ P_Q-P_A = \alpha_A I_0 + \beta_A J_0 + \vec{K}\vec{X},
+ \;\vec{K} = \mytrn{\begin{pmatrix} I_1 & J_1 & I_2 & J_2 & I_3 & J_3\cr \end{pmatrix}}
+ \]
+ with
+ \[
+ 	I_\nu = \int_0^\lambda \mu^\nu\, \vec{\tau}(\mu)\dot{\vec{r}}(\mu) d\mu,\;\;
+ 	J_\nu = \int_0^\lambda \mu^\nu\, \vec{n}(\mu)\dot{\vec{r}}(\mu) d\mu,
+ \]
+ \item
+ \[
+ P_B-P_Q = \alpha_Q {I_0}' + \beta_Q {J_0}' + \vec{K}'\vec{X},
+ \;\vec{K}' = \mytrn{\begin{pmatrix} {I_1}' & {J_1}' & {I_2}' & {J_2}' & {I_3}' & {J_3}'\cr \end{pmatrix}}
+ \]
+ with
+ \[
+ 	{I_\nu}' = \int_\lambda^1 \mu^\nu\, \vec{\tau}(\mu)\dot{\vec{r}}(\mu) d\mu,\;\;
+ 	{J_\nu}' = \int_\lambda^1 \mu^\nu\, \vec{n}(\mu)\dot{\vec{r}}(\mu) d\mu,
+ \]
+ \end{itemize}
+
+\subsubsection{Minimization}
+We assume that the gradient reconstruction respect the least variation principle,
+so that we want to minimize
+\[
+	\int_0^1 \left[ \left(\partial_\mu\alpha\right)^2 + \left(\partial_\mu\beta\right)^2\right] \; d\mu
+\]
 which is equivalent to minimize
 \[
-	E(\vec{X}) = \dfrac{1}{2} \vec{X}\mymat{M}\vec{X}
+	E(\vec{X}) = \frac{1}{2} \mytrn{\vec{X}} \mymat{M} \vec{X}
 \]
 with
-\[\mymat{M} =\begin{pmatrix}6 & 6 & 0 & 0 & 0 & 0 & 0 & 0\cr 6 & 8 & 0 & 0 & 0 & 0 & 0 & 0\cr 0 & 0 & 6 & 6 & 0 & 0 & 0 & 0\cr 0 & 0 & 6 & 8 & 0 & 0 & 0 & 0\cr 0 & 0 & 0 & 0 & 6 & 6 & 0 & 0\cr 0 & 0 & 0 & 0 & 6 & 8 & 0 & 0\cr 0 & 0 & 0 & 0 & 0 & 0 & 6 & 6\cr 0 & 0 & 0 & 0 & 0 & 0 & 6 & 8\end{pmatrix}.\]
-
-We have the following constraints
-\begin{itemize}
-	\item
-	\[
-		\vec{K}_A\vec{X} - \left(\alpha_Q-\alpha_A\right) = 0
-	\]
-	with
-	\[\vec{K}_A=\begin{pmatrix}1\cr 1\cr 0\cr 0\cr 0\cr 0\cr 0\cr 0\end{pmatrix}\]
-	
-	\item
-	\[
-		\vec{K}_B\vec{X} - \left(\alpha_Q-\alpha_B\right) = 0
-	\]
-	with
-	\[\vec{K}_B=\begin{pmatrix}0\cr 0\cr 0\cr 0\cr 1\cr 1\cr 0\cr 0\end{pmatrix}\]
-	
-	\item
-	\[
-		\vec{K}_0\vec{X} - \left(\beta_B - \beta_A\right) = 0
-	\]
-	with
-	\[\vec{K}_0=\begin{pmatrix}0\cr 0\cr 1\cr 1\cr 0\cr 0\cr -1\cr -1\end{pmatrix}\]
-	
-	\item
-	\[
-	\begin{array}{rcl}
-		P_Q - P_A & = & \displaystyle\int_0^1 
-	\left[ \alpha(\mu)\vec{\tau}(\mu) + \beta(\mu) \vec{n}(\mu)\right]\myvec{AQ} \; d\mu \\
-	& = & \alpha_A I_0 + \beta_A J_0 + \vec{\Pi}_A \vec{X}\\
-	\end{array}
-	\]
-	with
-	\[
-		\vec{\Pi}_A =
-		\begin{pmatrix}
-			I_1\cr
-			I_2\cr
-			J_1\cr
-			J_2\cr
-			0\cr
-			0\cr
-			0\cr
-			0\cr
-		\end{pmatrix}
-	\]
-	and
-	\[
-		\begin{array}{rcl}
-		I_0 & = & \int_0^1 \vec{\tau}(\mu)\myvec{AQ}\;d\mu\\
-		J_0 & = & \int_0^1 \vec{n}(\mu)\myvec{AQ}\;d\mu\\
-		I_1 & = & \int_0^1 \mu\vec{\tau}(\mu)\myvec{AQ}\;d\mu\\
-		J_1 & = & \int_0^1 \mu\vec{n}(\mu)\myvec{AQ}\;d\mu\\
-		I_2 & = & \int_0^1 \mu^2\vec{\tau}(\mu)\myvec{AQ}\;d\mu\\
-		J_2 & = & \int_0^1 \mu^2\vec{n}(\mu)\myvec{AQ}\;d\mu\\
-		\end{array}
-	\]
-	
-	\item
-	Likewise,
-	\[
-		P_Q - P_B = \alpha_B I_0' + \beta_B J_0' + \vec{\Pi}_B \vec{X}
-	\]
-	with
-	\[
-	\vec{\Pi}_B =
-		\begin{pmatrix}
-			0\cr
-			0\cr
-			0\cr
-			0\cr
-			I_1'\cr
-			I_2'\cr
-			J_1'\cr
-			J_2'\cr
-		\end{pmatrix}
-	\]
-	and
-	\[
-		\begin{array}{rcl}
-		I_0' & = & \int_0^1 \vec{\tau}'(\mu)\myvec{BQ}\;d\mu\\
-		J_0' & = & \int_0^1 \vec{n}'(\mu)\myvec{BQ}\;d\mu\\
-		I_1' & = & \int_0^1 \mu\vec{\tau}'(\mu)\myvec{BQ}\;d\mu\\
-		J_1' & = & \int_0^1 \mu\vec{n}'(\mu)\myvec{BQ}\;d\mu\\
-		I_2' & = & \int_0^1 \mu^2\vec{\tau}'(\mu)\myvec{BQ}\;d\mu\\
-		J_2' & = & \int_0^1 \mu^2\vec{n}'(\mu)\myvec{BQ}\;d\mu\\
-		\end{array}
-	\]
-\end{itemize}
-We introduce the lagrangian
-\[
-	\begin{array}{rcl}
-	L(\vec{X}) &=& E(\vec{X}) \\
-	           & & - \lambda_A\left[ \vec{K}_A\vec{X}   - (\alpha_Q-\alpha_A)\right]\\
-	           & & - \lambda_B\left[ \vec{K}_A\vec{X}   - (\alpha_Q-\alpha_A)\right]\\
-	           & & - \lambda_0\left[ \vec{K}_0\vec{X}   - (\beta_B-\beta_A)\right]\\
-	           & & - \Lambda_A\left[ \vec{\Pi}_A\vec{X} - \delta\tilde{P}_A\right]\\
-	           & & - \Lambda_B\left[ \vec{\Pi}_B\vec{X} - \delta\tilde{P}_B\right]\\
-	\end{array}
+\[\mymat{M}=\begin{pmatrix}30 & 0 & 30 & 0 & 30 & 0\cr 0 & 30 & 0 & 30 & 0 & 30\cr 30 & 0 & 40 & 0 & 45 & 0\cr 0 & 30 & 0 & 40 & 0 & 45\cr 30 & 0 & 45 & 0 & 54 & 0\cr 0 & 30 & 0 & 45 & 0 & 54\end{pmatrix}.
 \]
-which is to be minimized w.r.t $\vec{X}$, meaning
+We define the Lagrangian of this system as
 \[
-	\mymat{M}\vec{X}  = 
-	\lambda_A \vec{K}_A +
-	\lambda_B \vec{K}_B +
-	\lambda_0 \vec{K}_0 +
-	\Lambda_A \vec{\Pi}_A +
-	\Lambda_B \vec{\Pi}_B.
-\]
-With $\mymat{J}=\mymat{M}^{-1}$,
-\[
-	\vec{X} = \lambda_A \mymat{J}\vec{K}_A +
-	\lambda_B \mymat{J}\vec{K}_B +
-	\lambda_0 \mymat{J}\vec{K}_0 +
-	\Lambda_A \mymat{J}\vec{\Pi}_A +
-	\Lambda_B \mymat{J}\vec{\Pi}_B.
-\]
-we find
-\[
-	\begin{pmatrix}
-		\vec{K}_A\mymat{J}\vec{K}_A&\vec{K}_A\mymat{J}\vec{K}_B&\vec{K}_A\mymat{J}\vec{K}_0&\vec{K}_A\mymat{J}\vec{\Pi}_A&\vec{K}_A\mymat{J}\vec{\Pi}_B\cr
-		\vec{K}_B\mymat{J}\vec{K}_A&\vec{K}_B\mymat{J}\vec{K}_B&\vec{K}_B\mymat{J}\vec{K}_0&\vec{K}_B\mymat{J}\vec{\Pi}_A&\vec{K}_B\mymat{J}\vec{\Pi}_B\cr
-		\vec{K}_0\mymat{J}\vec{K}_A&\vec{K}_0\mymat{J}\vec{K}_B&\vec{K}_0\mymat{J}\vec{K}_0&\vec{K}_0\mymat{J}\vec{\Pi}_A&\vec{K}_0\mymat{J}\vec{\Pi}_B\cr
-		\vec{\Pi}_A\mymat{J}\vec{K}_A&\vec{\Pi}_A\mymat{J}\vec{K}_B&\vec{\Pi}_A\mymat{J}\vec{K}_0&\vec{\Pi}_A\mymat{J}\vec{\Pi}_A&\vec{\Pi}_A\mymat{J}\vec{\Pi}_B\cr
-		\vec{\Pi}_B\mymat{J}\vec{K}_A&\vec{\Pi}_B\mymat{J}\vec{K}_B&\vec{\Pi}_B\mymat{J}\vec{K}_0&\vec{\Pi}_B\mymat{J}\vec{\Pi}_A&\vec{\Pi}_B\mymat{J}\vec{\Pi}_B\cr
-	\end{pmatrix}
-	\begin{pmatrix}
-	\lambda_A\cr
-	\lambda_B\cr
-	\lambda_0\cr
-	\Lambda_A\cr
-	\Lambda_B\cr
-	\end{pmatrix}
-	=
-	\begin{pmatrix}
-		(\alpha_Q-\alpha_A)\cr
-		(\alpha_Q-\alpha_B)\cr
-	 	(\beta_B-\beta_A)\cr
-	 	\delta\tilde{P}_A\cr
-	 	\delta\tilde{P}_B\cr
-	\end{pmatrix}.
-\]
-The 5x5 matrix is
-\[ \mymat{H} = \dfrac{1}{6}
-\begin{pmatrix}
-1 & 0 & 0 & I_1 & 0\cr 
-0 & 1 & 0 & 0 & I_1'\cr
-0 & 0 & 2 & J_1 & -J_1'\cr
-I_1 & 0 & J_1 &  \eta & 0\cr
-0 & I_1' & -J_1' & 0 & \eta'
-\end{pmatrix}
+	L(\vec{X}) = E(\vec{X}) - \mytrn{\vec{\Lambda}} \left( \mymat{K}\vec{X} - \vec{U}\right)
 \]
 with
 \[
-	\begin{array}{rclcl}
-		\eta & = & 3\,{J_2}^{2}-6\,J_1\,J_2+4\,{J_1}^{2}+3\,{I_2}^{2}-6\,I_1\,I_2+4\,{I_1}^{2} & = & 
-		{I_1}^2+3(I_1-I_2)^2 + {J_1}^2 + 3 (J_1-J_2)^2\\
-		\eta' & = & 3\,{J_2'}^{2}-6\,J_1'\,J_2'+4\,{J_1'}^{2}+3\,{I_2'}^{2}-6\,I_1'\,I_2'+4\,{I_1'}^{2} & = & {I_1'}^2+3(I_1'-I_2')^2 + {J_1'}^2 + 3 (J_1'-J_2')^2\\
-	\end{array}
+	\mymat{K} =
+	\begin{pmatrix}
+	1 & 0 & 1 & 0 & 1 & 0\cr
+	0 & 1 & 0 & 1 & 0 & 1\cr
+	\lambda & 0 & \lambda^2 & 0 & \lambda^3 & 0\cr
+	I_1 & J_1 & I_2 & J_2 & I_3 & J_3\cr
+	{I_1}' & {J_1}' & {I_2}' & {J_2}' & {I_3}' & {J_3}'\cr
+	\end{pmatrix},\;\;
+	\vec{U} =
+	\begin{pmatrix}
+	\alpha_B - \alpha_A \cr
+	\beta_Q  - \beta_A  \cr
+	\alpha_Q - \alpha_A \cr
+	P_Q-P_A -( \alpha_A I_0    + \beta_A J_0)\cr
+	P_B-P_Q -( \alpha_Q {I_0}' + \beta_Q {J_0}')\cr \cr
+	\end{pmatrix}
 \]
+The constraint optimum is defined by
+\[
+	\mymat{M}\vec{X} = \mytrn{\mymat{K}} \vec{\Lambda}
+\]
+so that with
+\[
+	\mymat{J} = \mymat{M}^{-1}, \vec{X} = \mymat{J}\mytrn{\mymat{K}} \vec{\Lambda}.
+\]
+The Lagrange multipliers are solution of
+\[
+	 \mymat{K}\mymat{J}\mytrn{\mymat{K}}\vec{\Lambda} = \vec{U}
+\]
+and
+\[
+	\beta_Q = \beta_A + \lambda X_4 + \lambda^2 X_5 + \lambda^3 X_6
+\]
+%\section{Gradient propagation}
+%Let's assume we know the gradient pressure at point $A$ and $B$, and
+%the tangential gradient pressure at point $Q$.
+%We also know the tangential and normal vectors at this three points
+%Let us assume that
+%\[
+%	\mygrad P = \alpha \vec{\tau} + \beta \vec{n}
+%\]
+%Then on $\myvec{AQ}$
+%\[
+%	\begin{array}{rcl}
+%		\alpha(\mu) & = & \alpha_A + \mu X_1 + \mu^2 X_2\\
+%		\beta(\mu)  & = & \beta_A  + \mu X_3 + \mu^2 X_4 \\
+%		\theta(\mu) & = & \theta_A + \mu \delta \theta.\\
+%	\end{array}
+%\]
+%On $\myvec{QB}$
+%\[
+%	\begin{array}{rcl}
+%		\alpha'(\lambda) & = & \alpha_B + \lambda X_5 + \lambda^2 X_6\\
+%		\beta'(\lambda)  & = & \beta_B  + \lambda X_7 + \lambda^2 X_8 \\
+%		\theta'(\lambda) & = & \theta_B + \lambda \delta \theta'.\\
+%	\end{array}
+%\]
+%So we have
+%\[
+%	P_Q - P_A = \int_0^1 
+%	\left[ \alpha(\mu)\vec{\tau}(\mu) + \beta(\mu) \vec{n}(\mu)\right]\myvec{AQ} \; d\mu
+%\]
+%and
+%\[
+%	P_Q - P_B = \int_0^1 
+%	\left[ 
+%		\alpha'(\lambda)\vec{\tau}'(\lambda) + 
+%		\beta'(\lambda) \vec{n}'(\lambda)
+%	\right]
+%	\myvec{BQ} \; d\lambda.
+%\]
+%The supplementary continuity relations are
+%\[
+%	\begin{array}{rcl}
+%		X_1 + X_2 & = & \alpha_Q - \alpha_A\\
+%		X_5 + X_6 & = & \alpha_Q - \alpha_B\\
+%		\beta_A + X_4 + X_5 & = & \beta_B + X_7 + X_8\\
+%	\end{array}
+%\]
+%The right approximation is the one that minimizes the change in $\mygrad P$
+%which is equivalent to minimize
+%\[
+%	E(\vec{X}) = \dfrac{1}{2} \vec{X}\mymat{M}\vec{X}
+%\]
+%with
+%\[\mymat{M} =\begin{pmatrix}6 & 6 & 0 & 0 & 0 & 0 & 0 & 0\cr 6 & 8 & 0 & 0 & 0 & 0 & 0 & 0\cr 0 & 0 & 6 & 6 & 0 & 0 & 0 & 0\cr 0 & 0 & 6 & 8 & 0 & 0 & 0 & 0\cr 0 & 0 & 0 & 0 & 6 & 6 & 0 & 0\cr 0 & 0 & 0 & 0 & 6 & 8 & 0 & 0\cr 0 & 0 & 0 & 0 & 0 & 0 & 6 & 6\cr 0 & 0 & 0 & 0 & 0 & 0 & 6 & 8\end{pmatrix}.\]
+%
+%We have the following constraints
+%\begin{itemize}
+%	\item
+%	\[
+%		\vec{K}_A\vec{X} - \left(\alpha_Q-\alpha_A\right) = 0
+%	\]
+%	with
+%	\[\vec{K}_A=\begin{pmatrix}1\cr 1\cr 0\cr 0\cr 0\cr 0\cr 0\cr 0\end{pmatrix}\]
+%	
+%	\item
+%	\[
+%		\vec{K}_B\vec{X} - \left(\alpha_Q-\alpha_B\right) = 0
+%	\]
+%	with
+%	\[\vec{K}_B=\begin{pmatrix}0\cr 0\cr 0\cr 0\cr 1\cr 1\cr 0\cr 0\end{pmatrix}\]
+%	
+%	\item
+%	\[
+%		\vec{K}_0\vec{X} - \left(\beta_B - \beta_A\right) = 0
+%	\]
+%	with
+%	\[\vec{K}_0=\begin{pmatrix}0\cr 0\cr 1\cr 1\cr 0\cr 0\cr -1\cr -1\end{pmatrix}\]
+%	
+%	\item
+%	\[
+%	\begin{array}{rcl}
+%		P_Q - P_A & = & \displaystyle\int_0^1 
+%	\left[ \alpha(\mu)\vec{\tau}(\mu) + \beta(\mu) \vec{n}(\mu)\right]\myvec{AQ} \; d\mu \\
+%	& = & \alpha_A I_0 + \beta_A J_0 + \vec{\Pi}_A \vec{X}\\
+%	\end{array}
+%	\]
+%	with
+%	\[
+%		\vec{\Pi}_A =
+%		\begin{pmatrix}
+%			I_1\cr
+%			I_2\cr
+%			J_1\cr
+%			J_2\cr
+%			0\cr
+%			0\cr
+%			0\cr
+%			0\cr
+%		\end{pmatrix}
+%	\]
+%	and
+%	\[
+%		\begin{array}{rcl}
+%		I_0 & = & \int_0^1 \vec{\tau}(\mu)\myvec{AQ}\;d\mu\\
+%		J_0 & = & \int_0^1 \vec{n}(\mu)\myvec{AQ}\;d\mu\\
+%		I_1 & = & \int_0^1 \mu\vec{\tau}(\mu)\myvec{AQ}\;d\mu\\
+%		J_1 & = & \int_0^1 \mu\vec{n}(\mu)\myvec{AQ}\;d\mu\\
+%		I_2 & = & \int_0^1 \mu^2\vec{\tau}(\mu)\myvec{AQ}\;d\mu\\
+%		J_2 & = & \int_0^1 \mu^2\vec{n}(\mu)\myvec{AQ}\;d\mu\\
+%		\end{array}
+%	\]
+%	
+%	\item
+%	Likewise,
+%	\[
+%		P_Q - P_B = \alpha_B I_0' + \beta_B J_0' + \vec{\Pi}_B \vec{X}
+%	\]
+%	with
+%	\[
+%	\vec{\Pi}_B =
+%		\begin{pmatrix}
+%			0\cr
+%			0\cr
+%			0\cr
+%			0\cr
+%			I_1'\cr
+%			I_2'\cr
+%			J_1'\cr
+%			J_2'\cr
+%		\end{pmatrix}
+%	\]
+%	and
+%	\[
+%		\begin{array}{rcl}
+%		I_0' & = & \int_0^1 \vec{\tau}'(\mu)\myvec{BQ}\;d\mu\\
+%		J_0' & = & \int_0^1 \vec{n}'(\mu)\myvec{BQ}\;d\mu\\
+%		I_1' & = & \int_0^1 \mu\vec{\tau}'(\mu)\myvec{BQ}\;d\mu\\
+%		J_1' & = & \int_0^1 \mu\vec{n}'(\mu)\myvec{BQ}\;d\mu\\
+%		I_2' & = & \int_0^1 \mu^2\vec{\tau}'(\mu)\myvec{BQ}\;d\mu\\
+%		J_2' & = & \int_0^1 \mu^2\vec{n}'(\mu)\myvec{BQ}\;d\mu\\
+%		\end{array}
+%	\]
+%\end{itemize}
+%We introduce the lagrangian
+%\[
+%	\begin{array}{rcl}
+%	L(\vec{X}) &=& E(\vec{X}) \\
+%	           & & - \lambda_A\left[ \vec{K}_A\vec{X}   - (\alpha_Q-\alpha_A)\right]\\
+%	           & & - \lambda_B\left[ \vec{K}_A\vec{X}   - (\alpha_Q-\alpha_A)\right]\\
+%	           & & - \lambda_0\left[ \vec{K}_0\vec{X}   - (\beta_B-\beta_A)\right]\\
+%	           & & - \Lambda_A\left[ \vec{\Pi}_A\vec{X} - \delta\tilde{P}_A\right]\\
+%	           & & - \Lambda_B\left[ \vec{\Pi}_B\vec{X} - \delta\tilde{P}_B\right]\\
+%	\end{array}
+%\]
+%which is to be minimized w.r.t $\vec{X}$, meaning
+%\[
+%	\mymat{M}\vec{X}  = 
+%	\lambda_A \vec{K}_A +
+%	\lambda_B \vec{K}_B +
+%	\lambda_0 \vec{K}_0 +
+%	\Lambda_A \vec{\Pi}_A +
+%	\Lambda_B \vec{\Pi}_B.
+%\]
+%With $\mymat{J}=\mymat{M}^{-1}$,
+%\[
+%	\vec{X} = \lambda_A \mymat{J}\vec{K}_A +
+%	\lambda_B \mymat{J}\vec{K}_B +
+%	\lambda_0 \mymat{J}\vec{K}_0 +
+%	\Lambda_A \mymat{J}\vec{\Pi}_A +
+%	\Lambda_B \mymat{J}\vec{\Pi}_B.
+%\]
+%we find
+%\[
+%	\begin{pmatrix}
+%		\vec{K}_A\mymat{J}\vec{K}_A&\vec{K}_A\mymat{J}\vec{K}_B&\vec{K}_A\mymat{J}\vec{K}_0&\vec{K}_A\mymat{J}\vec{\Pi}_A&\vec{K}_A\mymat{J}\vec{\Pi}_B\cr
+%		\vec{K}_B\mymat{J}\vec{K}_A&\vec{K}_B\mymat{J}\vec{K}_B&\vec{K}_B\mymat{J}\vec{K}_0&\vec{K}_B\mymat{J}\vec{\Pi}_A&\vec{K}_B\mymat{J}\vec{\Pi}_B\cr
+%		\vec{K}_0\mymat{J}\vec{K}_A&\vec{K}_0\mymat{J}\vec{K}_B&\vec{K}_0\mymat{J}\vec{K}_0&\vec{K}_0\mymat{J}\vec{\Pi}_A&\vec{K}_0\mymat{J}\vec{\Pi}_B\cr
+%		\vec{\Pi}_A\mymat{J}\vec{K}_A&\vec{\Pi}_A\mymat{J}\vec{K}_B&\vec{\Pi}_A\mymat{J}\vec{K}_0&\vec{\Pi}_A\mymat{J}\vec{\Pi}_A&\vec{\Pi}_A\mymat{J}\vec{\Pi}_B\cr
+%		\vec{\Pi}_B\mymat{J}\vec{K}_A&\vec{\Pi}_B\mymat{J}\vec{K}_B&\vec{\Pi}_B\mymat{J}\vec{K}_0&\vec{\Pi}_B\mymat{J}\vec{\Pi}_A&\vec{\Pi}_B\mymat{J}\vec{\Pi}_B\cr
+%	\end{pmatrix}
+%	\begin{pmatrix}
+%	\lambda_A\cr
+%	\lambda_B\cr
+%	\lambda_0\cr
+%	\Lambda_A\cr
+%	\Lambda_B\cr
+%	\end{pmatrix}
+%	=
+%	\begin{pmatrix}
+%		(\alpha_Q-\alpha_A)\cr
+%		(\alpha_Q-\alpha_B)\cr
+%	 	(\beta_B-\beta_A)\cr
+%	 	\delta\tilde{P}_A\cr
+%	 	\delta\tilde{P}_B\cr
+%	\end{pmatrix}.
+%\]
+%The 5x5 matrix is
+%\[ \mymat{H} = \dfrac{1}{6}
+%\begin{pmatrix}
+%1 & 0 & 0 & I_1 & 0\cr 
+%0 & 1 & 0 & 0 & I_1'\cr
+%0 & 0 & 2 & J_1 & -J_1'\cr
+%I_1 & 0 & J_1 &  \eta & 0\cr
+%0 & I_1' & -J_1' & 0 & \eta'
+%\end{pmatrix}
+%\]
+%with
+%\[
+%	\begin{array}{rclcl}
+%		\eta & = & 3\,{J_2}^{2}-6\,J_1\,J_2+4\,{J_1}^{2}+3\,{I_2}^{2}-6\,I_1\,I_2+4\,{I_1}^{2} & = & 
+%		{I_1}^2+3(I_1-I_2)^2 + {J_1}^2 + 3 (J_1-J_2)^2\\
+%		\eta' & = & 3\,{J_2'}^{2}-6\,J_1'\,J_2'+4\,{J_1'}^{2}+3\,{I_2'}^{2}-6\,I_1'\,I_2'+4\,{I_1'}^{2} & = & {I_1'}^2+3(I_1'-I_2')^2 + {J_1'}^2 + 3 (J_1'-J_2')^2\\
+%	\end{array}
+%\]
 \section{Differential Arc}
 Let $\vec{r}_0$ and $\vec{r}_1$ be two points of a curve
 with some respective tangent vector $\vec{\tau}_0$ and $\vec{\tau}_1$, and their
