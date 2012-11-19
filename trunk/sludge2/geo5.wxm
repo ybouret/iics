@@ -1,0 +1,69 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 12.01.0 ] */
+
+/* [wxMaxima: input   start ] */
+rx(mu) := Ax + mu * ax + mu^2 * bx + mu^3 * cx;
+ry(mu) := Ay + mu * ay + mu^2 * by + mu^3 * cy;
+define(drx(mu),diff(rx(mu),mu));
+define(dry(mu),diff(ry(mu),mu));
+var : [ ax, ay, bx, by, cx, cy ];
+X   : transpose(var);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+I : expand(15*integrate( drx(mu)^2+dry(mu)^2, mu, 0, 1 ));
+dI : transpose(jacobian([I],var));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+M : matrix(
+[30,0,30,0,30,0],
+[0,30,0,30,0,30],
+[30,0,40,0,45,0],
+[0,30,0,40,0,45],
+[30,0,45,0,54,0],
+[0,30,0,45,0,54]
+);
+M.X - dI;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+H : matrix(
+    [1,0,1,0,1,0],
+    [0,1,0,1,0,1],
+    [1,0,0,0,0,0],
+    [0,1,0,0,0,0],
+    [1,0,2,0,3,0],
+    [0,1,0,2,0,3]
+);
+H.X;
+U : transpose([ABx,ABy,sigma_A*cA,sigma_A*sA,sigma_B*cB,sigma_B*sB]);
+XX : list_matrix_entries(invert(H).U);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+L2 : expand(subst([ax=XX[1],ay=XX[2],bx=XX[3],by=XX[4],cx=XX[5],cy=XX[6]],I));
+dL2 : expand(transpose(jacobian([L2],[sigma_A,sigma_B])));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+J : matrix(
+[4*cA^2+4*sA^2,-(cA*cB+sA*sB)],
+[-(cA*cB+sA*sB),4*cB^2+4*sB^2]
+);
+V :expand(J.transpose([sigma_A,sigma_B]) - dL2);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+JJ : matrix(
+[4,-(cA*cB+sA*sB)],
+[-(cA*cB+sA*sB),4]
+);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+expand(adjoint(JJ).V);
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$

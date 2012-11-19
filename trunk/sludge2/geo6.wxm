@@ -1,0 +1,39 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 12.01.0 ] */
+
+/* [wxMaxima: input   start ] */
+rx(mu) := Ax + mu * ax + mu^2 * bx + mu^3 * cx;
+ry(mu) := Ay + mu * ay + mu^2 * by + mu^3 * cy;
+define(drx(mu),diff(rx(mu),mu));
+define(dry(mu),diff(ry(mu),mu));
+var : [ ax, ay, bx, by, cx, cy ];
+X   : transpose(var);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+I : expand(15*integrate( drx(mu)^2+dry(mu)^2, mu, 0, 1 ));
+dI : transpose(jacobian([I],var));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+M : matrix(
+[30,0,30,0,30,0],
+[0,30,0,30,0,30],
+[30,0,40,0,45,0],
+[0,30,0,40,0,45],
+[30,0,45,0,54,0],
+[0,30,0,45,0,54]
+);
+transpose(M.X - dI);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+K : matrix(
+[1,0,1,0,1,0],
+[0,1,0,1,0,1],
+[lambda,0,lambda^2,0,lambda^3,0]);
+K.X;
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$

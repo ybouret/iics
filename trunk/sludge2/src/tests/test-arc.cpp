@@ -3,12 +3,66 @@
 
 #include "yocto/math/kernel/svd.hpp"
 #include "yocto/math/kernel/algebra.hpp"
+#include "yocto/math/kernel/linsys.hpp"
 
 #include "yocto/string/conv.hpp"
 
 YOCTO_UNIT_TEST_IMPL(arc)
 {
+#if 0
+    linsys<Real> solve(2);
     
+    const Vertex A( 10*(0.5-Alea()), 10*(0.5-Alea()) );
+    const Vertex B( 10*(0.5-Alea()), 10*(0.5-Alea()) );
+    const Vertex AB(A,B);
+    
+    Vertex tauA(  10*(0.5-Alea()), 10*(0.5-Alea()) );
+    Vertex tauB(  10*(0.5-Alea()), 10*(0.5-Alea()) );
+    
+    tauA.normalize();
+    tauB.normalize();
+    
+    matrix<Real> M(2,2);
+    vector<Real> X(2,0);
+    
+    M[1][1] = 4; M[1][2] = -tauA*tauB;
+    M[2][1] = -tauA*tauB; M[2][2] = 4;
+    
+    X[1] = 3 * (AB * tauA);
+    X[2] = 3 * (AB * tauB);
+    
+    solve.LU(M);
+    solve(M,X);
+    const Real sigA =X[1];
+    const Real sigB =X[2];
+    const Vertex a  = sigA * tauA;
+    const Vertex v1 = AB - a;
+    const Vertex v2 = sigB * tauB - a;
+    const Vertex c  = v2 - (v1+v1);
+    const Vertex b  = 3.0 * v1 - v2;
+    
+    std::cerr << "AB=" << AB << std::endl;
+    std::cerr << "sigA=" << sigA << std::endl;
+    std::cerr << "sigB=" << sigB << std::endl;
+    std::cerr << "tauA=" << tauA << std::endl;
+    std::cerr << "tauB=" << tauB << std::endl;
+    std::cerr << "a=" << a << std::endl;
+    std::cerr << "b=" << b << std::endl;
+    std::cerr << "c=" << c << std::endl;
+    
+    {
+        ios::ocstream fp("arc.dat",false);
+        for(size_t i=0;i<=100;++i)
+        {
+            const Real   mu = Real(i)/100;
+            const Vertex r  = A + mu * a + mu*mu*b + (mu*mu*mu) *c;
+            fp("%g %g\n",r.x,r.y);
+        }
+        
+    }
+#endif
+    
+#if 0
     Real lambda = 0.5;
     if( argc >1 )
         lambda = strconv::to_real<Real>( argv[1], "lambda" );
@@ -90,8 +144,11 @@ YOCTO_UNIT_TEST_IMPL(arc)
         fp("%g %g\n", Q.x, Q.y);
         fp("%g %g\n", B.x, B.y);
     }
-#if 0
-    ArcSolver solver;
+    
+#endif
+    
+#if 1
+    ArcSolver asolv;
     
     {
         // Circle with same pressure
@@ -101,9 +158,8 @@ YOCTO_UNIT_TEST_IMPL(arc)
         
         Arc arc(A,Q,B);
         
+        asolv(arc);
         
-        solver(arc);
-        std::cerr << "gA=" << A.beta << ", gB=" << B.beta << " => gQ=" << Q.beta << std::endl;
     }
     
     
@@ -114,8 +170,8 @@ YOCTO_UNIT_TEST_IMPL(arc)
         ArcPoint B( Vertex(2.0,0), Vertex(1,0), 2.2, 0, 1);
         
         Arc arc(A,Q,B);
-        solver(arc);
-        std::cerr << "gA=" << A.beta << ", gB=" << B.beta << " => gQ=" << Q.beta << std::endl;
+        asolv(arc);
+
     }
 #endif
     
