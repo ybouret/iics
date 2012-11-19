@@ -1,5 +1,6 @@
 #include "arc.hpp"
 
+#if 0
 ////////////////////////////////////////////////////////////////////////////////
 //
 // ArcPoint
@@ -171,8 +172,10 @@ J2(0)
     // AQ
     I0 =  A.C0 * AQ.x + A.S0 * AQ.y;
     J0 = -A.S0 * AQ.x + A.C0 * AQ.y;
+    
     I1 =  A.C1 * AQ.x + A.S1 * AQ.y;
     J1 = -A.S1 * AQ.x + A.C1 * AQ.y;
+    
     I2 =  A.C2 * AQ.x + A.S2 * AQ.y;
     J2 = -A.S2 * AQ.x + A.C2 * AQ.y;
     
@@ -188,8 +191,10 @@ J2(0)
     // BQ
     I0p =  B.C0 * BQ.x + B.S0 * BQ.y;
     J0p = -B.S0 * BQ.x + B.C0 * BQ.y;
+    
     I1p =  B.C1 * BQ.x + B.S1 * BQ.y;
     J1p = -B.S1 * BQ.x + B.C1 * BQ.y;
+    
     I2p =  B.C2 * BQ.x + B.S2 * BQ.y;
     J2p = -B.S2 * BQ.x + B.C2 * BQ.y;
     
@@ -224,12 +229,13 @@ void Arc:: load( matrix<Real> &H, array<Real> &U , matrix<Real> &JK) const throw
     //-- build H * 6
     H.ldz();
     H[1][1] = 1;   H[1][4] =  I1;
-    H[2][1] = 1;   H[2][5] =  I1p;
+    H[2][2] = 1;   H[2][5] =  I1p;
     H[3][3] = 2;   H[3][4] =  J1;  H[3][5] = -J1p;
     H[4][1] = I1;  H[4][3] =  J1;  H[4][4] = eta;
     H[5][2] = I1p; H[5][3] = -J1p; H[5][5] = etap;
     //std::cerr << "H=" << H << "/6" << std::endl;
-    
+   // std::cerr << "H6=" << H  << std::endl;
+
     //-- build unknown vector
     U[1] = Q.alpha - A.alpha;
     U[2] = Q.alpha - B.alpha;
@@ -253,7 +259,7 @@ void Arc:: load( matrix<Real> &H, array<Real> &U , matrix<Real> &JK) const throw
     
     JK[5][5] = (2*I1p)/3 - I2p/2;
     JK[6][5] = (I2p-I1p)/2;
-    JK[7][5] = (2*J1p)/3 - J2/2;
+    JK[7][5] = (2*J1p)/3 - J2p/2;
     JK[8][5] = (J2p-J1p)/2;
     
     //std::cerr << "JK=" << JK << std::endl;
@@ -290,21 +296,24 @@ void ArcSolver:: operator()( const Arc &arc )
     // create the matrix and the vector to compute lagrange multipliers
     //--------------------------------------------------------------------------
     arc.load(H,U,JK);
+
     if( ! svd<Real>::build(H,W,V) )
         throw exception("Invalid Arc");
-    std::cerr << "W=" << W << std::endl;
+    //std::cerr << "W=" << W << std::endl;
     //--------------------------------------------------------------------------
     // TODO: truncate
     // compute the lagrange multipliers into L
     //--------------------------------------------------------------------------
     svd<Real>::solve(H, W, V, U, L);
+    //std::cerr << "L=" << L << std::endl;
     
     //--------------------------------------------------------------------------
     // compute the solution vector
     //--------------------------------------------------------------------------
     algebra<double>::mul(X, JK, L);
-    std::cerr << "X=" << X << std::endl;
-    const Real gQ1 = arc.A.beta + X[4] + X[5];
+    
+    //std::cerr << "X=" << X << std::endl;
+    const Real gQ1 = arc.A.beta + X[3] + X[4];
     const Real gQ2 = arc.B.beta + X[7] + X[8];
 
     std::cerr << "gQ1=" << gQ1 << std::endl;
@@ -312,5 +321,6 @@ void ArcSolver:: operator()( const Arc &arc )
     
     (Real &)(arc.Q.beta) = (gQ1+gQ2)*0.5;
 }
+#endif
 
 

@@ -34,7 +34,7 @@ public:
     vtk_writer     vtk;
     vector<JPack>  jsend;
     vector<JPack>  jrecv;
-    ArcSolver      arcsol;
+    //ArcSolver      arcsol;
     Real           ftol;           //!< fractional tolerance, default is 1e-5
     Real           right_pressure; //!< right pressure, default is 1
     bool           right_wall;     //!< right is a wall, default is false (set right_pressure)

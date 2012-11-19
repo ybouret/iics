@@ -181,15 +181,20 @@ void Cell:: compute_spot_velocity( Spot *spot )
     // get the tracer location
     //--------------------------------------------------------------------------
     const Tracer *tracer = spot->handle;
-     
+    spot->gn = 0;
+    
+#if 0
     ArcPoint A( jprev->vertex,  jprev->t,  jprev->pressure,  jprev->gt,  jprev->gn);
     ArcPoint Q( tracer->vertex, tracer->t, tracer->pressure, tracer->gt, 0 );
     ArcPoint B( jprev->vertex,  jnext->t,  jnext->pressure,  jnext->gt,  jnext->gn);
 
     Arc arc(A,Q,B);
     arcsol(arc);
+    std::cerr << "gA=" << A.beta << ", gB=" << B.beta << " => gQ=" << Q.beta << std::endl;
+
     
-    spot->gn = 0;
+    spot->gn = Q.beta;
+#endif
     
     //--------------------------------------------------------------------------
     // gradient construction

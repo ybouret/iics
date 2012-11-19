@@ -1,0 +1,35 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 12.01.0 ] */
+
+/* [wxMaxima: input   start ] */
+alpha(mu) := alpha_A + mu * X1 + mu^2 * X2 + mu^3 * X3;
+beta(mu)  := beta_A  + mu * X4 + mu^2 * X5 + mu^3 * X6;
+define(dalpha(mu),diff(alpha(mu),mu));
+define(dbeta(mu),diff(beta(mu),mu));
+var : [X1,X2,X3,X4,X5,X6];
+X : transpose(var);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+I : expand(15*integrate(dalpha(mu)^2+dbeta(mu)^2,mu,0,1));
+dI : transpose(jacobian([I],var));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+M : matrix(
+[30,30,30,0,0,0],
+[30,40,45,0,0,0],
+[30,45,54,0,0,0],
+[0,0,0,30,30,30],
+[0,0,0,30,40,45],
+[0,0,0,30,45,54]
+);
+transpose(M.X-dI);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+J : invert(M);
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$
