@@ -28,6 +28,7 @@ void Tracer:: hash( hashing::function &h ) const
 }
 
 
+#if 0
 void Tracer:: compute_gt()
 {
     assert(next);
@@ -38,6 +39,5 @@ void Tracer:: compute_gt()
     const Real Pm  = prev->pressure - pressure;
     
     gt = ((sm2 * Pp - sp2 * Pm) / dsc) / spd;
-    
-    
 }
+#endif

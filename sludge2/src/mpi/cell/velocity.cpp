@@ -90,7 +90,6 @@ void Cell:: compute_junction_gn( ConstJunctionPtr J )
     //--------------------------------------------------------------------------
     // Least Square Fitting
     //--------------------------------------------------------------------------
-    size_t count = 0;
     Real sum_x   = 0;
     Real sum_y   = 0;
     Real sum_xx  = 0;
@@ -98,6 +97,7 @@ void Cell:: compute_junction_gn( ConstJunctionPtr J )
     Real sum_yy  = 0;
     Real sum_xP  = 0;
     Real sum_yP  = 0;
+    J->num = 0;
     for( unit_t jj=0; jj <=1; ++jj )
     {
         const unit_t     j = klo.y + jj;
@@ -106,10 +106,10 @@ void Cell:: compute_junction_gn( ConstJunctionPtr J )
             const unit_t i = klo.x + ii;
             if(B[j][i] <= 0 )
             {
-                ++count;
-                const Real pressure = P[j][i];
-                const Real x        = X[i] - v0.x;
-                const Real y        = Y[j] - v0.y;
+                JAround &Q = J->reg[J->num++];
+                const Real pressure = ( Q.P = P[j][i]);
+                const Real x        = (Q.X=X[i]) - v0.x;
+                const Real y        = (Q.Y=Y[j]) - v0.y;
                 sum_x  += x;
                 sum_y  += y;
                 sum_xx += x*x;
@@ -120,7 +120,7 @@ void Cell:: compute_junction_gn( ConstJunctionPtr J )
             }
         }
     }
-    assert( count == Bulk[klo] );
+    assert( J->num == Bulk[klo] );
     const Real mA = sum_xx;
     const Real mB = sum_xy;
     const Real mC = sum_xy;
@@ -183,18 +183,6 @@ void Cell:: compute_spot_velocity( Spot *spot )
     const Tracer *tracer = spot->handle;
     spot->gn = 0;
     
-#if 0
-    ArcPoint A( jprev->vertex,  jprev->t,  jprev->pressure,  jprev->gt,  jprev->gn);
-    ArcPoint Q( tracer->vertex, tracer->t, tracer->pressure, tracer->gt, 0 );
-    ArcPoint B( jprev->vertex,  jnext->t,  jnext->pressure,  jnext->gt,  jnext->gn);
-
-    Arc arc(A,Q,B);
-    arcsol(arc);
-    std::cerr << "gA=" << A.beta << ", gB=" << B.beta << " => gQ=" << Q.beta << std::endl;
-
-    
-    spot->gn = Q.beta;
-#endif
     
     //--------------------------------------------------------------------------
     // gradient construction

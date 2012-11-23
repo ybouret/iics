@@ -31,8 +31,23 @@ transpose(M.X - dI);
 K : matrix(
 [1,0,1,0,1,0],
 [0,1,0,1,0,1],
-[lambda,0,lambda^2,0,lambda^3,0]);
+[lambda,0,lambda^2,0,lambda^3,0],
+[I1,J1,I2,J2,I3,J3],
+[I1p,J1p,I2p,J2p,I3p,J3p]
+);
 K.X;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+J : invert(M);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+expand(30*K.J.transpose(K));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+J*30;
 /* [wxMaxima: input   end   ] */
 
 /* Maxima can't load/batch files which end with a comment! */

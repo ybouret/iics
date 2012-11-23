@@ -417,7 +417,12 @@ TRY_GENERATE:
     tracer = root;
     for(size_t i=0; i<size; ++i,tracer=tracer->next)
     {
-        tracer->compute_gt();
+        const Real   sp2 = tracer->s2;
+        const Real   sm2 = tracer->prev->s2;
+        const Real   P0  = tracer->pressure;
+        const Real   dPp = tracer->next->pressure - P0;
+        const Real   dPm = tracer->prev->pressure - P0;
+        tracer->gt       = ( (sm2 * dPp - sp2 *dPm ) / tracer->dsc ) / tracer->spd;
     }
     
     //--------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 #include "arc.hpp"
-
+#if 0
 ////////////////////////////////////////////////////////////////////////////////
 //
 // ArcPoint
@@ -51,6 +51,22 @@ ArcPoint:: ~ArcPoint() throw() {}
 
 Arc:: ~Arc() throw() {}
 
+static inline
+Real compute_lambda( const Vertex &AQ, const Vertex &AB )
+{
+    const Real num = AQ*AB;
+    if( num <= 0 )
+        return 0;
+    else
+    {
+        const Real den = AB*AB;
+        if( num >= den )
+            return 1;
+        else
+            return num/den;
+    }
+}
+
 Arc:: Arc(const ArcPoint &a_A,
           const ArcPoint &a_Q,
           const ArcPoint &a_B ) throw() :
@@ -60,16 +76,17 @@ B( a_B ),
 AQ( A.r, Q.r ),
 QB( Q.r, B.r ),
 AB( A.r, B.r ),
-lambda( clamp<Real>(0,(AQ*AB)/(AB*AB),1) ) ,
+lambda( compute_lambda(AQ, AB) ) ,
 omlam(1-lambda),
 lambda2(lambda*lambda),
 lambda3(lambda2*lambda)
 {
     A.delta = Vertex::angle_of( A.t, Q.t);
     Q.delta = Vertex::angle_of( Q.t, B.t);
-    std::cerr << "lambda=" << lambda << std::endl;
-    //std::cerr << "A.theta=" << A.theta << " -> Q.theta=" << Q.theta <<  ": " << A.delta << std::endl;
-    //std::cerr << "Q.theta=" << Q.theta << " -> B.theta=" << B.theta <<  ": " << Q.delta << std::endl;
+    
+    //std::cerr << "A=" << A.r << ", Q=" << Q.r << ", B=" << B.r << "AQ=" << AQ << ", AB=" << AB << ", lambda=" << lambda << std::endl;
+    std::cerr << "#A.theta=" << A.theta << " -> Q.theta=" << Q.theta <<  ": " << A.delta << std::endl;
+    std::cerr << "#Q.theta=" << Q.theta << " -> B.theta=" << B.theta <<  ": " << Q.delta << std::endl;
 }
 
 Real Arc:: theta_AQ(Real mu) const throw()
@@ -82,7 +99,7 @@ Real Arc:: theta_AQ(Real mu) const throw()
     {
         if(mu>=lambda)
         {
-            return Q.theta;
+            return A.theta+A.delta;
         }
         else
         {
@@ -101,7 +118,7 @@ Real Arc:: theta_QB(Real mu) const throw()
     {
         if(mu>=1)
         {
-            return B.theta;
+            return Q.theta + Q.delta;
         }
         else
         {
@@ -128,7 +145,7 @@ Vertex Arc:: rdot_QB(Real) const throw()
 
 void Arc:: load(matrix<Real> &K, array<Real> &U) const throw()
 {
-    const Real ftol = 1e-5;
+    const Real ftol = 1e-7;
     K.ldz();
     K[1][1] = 1; K[1][3] = 1; K[1][5] = 1;
     K[2][2] = 1; K[2][4] = 1; K[2][6] = 1;
@@ -138,12 +155,14 @@ void Arc:: load(matrix<Real> &K, array<Real> &U) const throw()
     U[2] = B.beta  - A.beta;
     U[3] = Q.alpha - A.alpha;
     
+    if(lambda>0)
     {
         numeric<Real>::function dI( this, & Arc::dI_AQ);
         numeric<Real>::function dJ( this, & Arc::dJ_AQ);
         nu = 0;
         const Real I0 = integrate<Real>(0,lambda, dI, ftol);
         const Real J0 = integrate<Real>(0,lambda, dJ, ftol);
+
         U[4] = (Q.P - A.P) - (I0*A.alpha+J0*A.beta);
         
         nu=1;
@@ -158,28 +177,33 @@ void Arc:: load(matrix<Real> &K, array<Real> &U) const throw()
         K[4][5] = integrate<Real>(0,lambda, dI, ftol);
         K[4][6] = integrate<Real>(0,lambda, dJ, ftol);
     }
+    else U[4] = 0;
     
+    if(lambda<1)
     {
         numeric<Real>::function dI( this, & Arc::dI_QB);
         numeric<Real>::function dJ( this, & Arc::dJ_QB);
         nu = 0;
-        const Real I0 = integrate<Real>(lambda,1, dI, ftol);
-        const Real J0 = integrate<Real>(lambda,1, dJ, ftol);
-        U[5] = (B.P - Q.P) - (I0*Q.alpha+J0*Q.beta);
+        const Real I0 = integrate<Real>(1,lambda, dI, ftol);
+        const Real J0 = integrate<Real>(1,lambda, dJ, ftol);
+       
+        U[5] = (Q.P - B.P) - (I0*B.alpha+J0*B.beta);
         
         nu=1;
-        K[5][1] = integrate<Real>(lambda,1, dI, ftol);
-        K[5][2] = integrate<Real>(lambda,1, dJ, ftol);
+        K[5][1] = integrate<Real>(1,lambda,dI, ftol);
+        K[5][2] = integrate<Real>(1,lambda,dJ, ftol);
         
         nu=2;
-        K[5][3] = integrate<Real>(lambda,1, dI, ftol);
-        K[5][4] = integrate<Real>(lambda,1, dJ, ftol);
+        K[5][3] = integrate<Real>(1,lambda,dI, ftol);
+        K[5][4] = integrate<Real>(1,lambda,dJ, ftol);
         
         nu=3;
-        K[5][5] = integrate<Real>(lambda,1, dI, ftol);
-        K[5][6] = integrate<Real>(lambda,1, dJ, ftol);
+        K[5][5] = integrate<Real>(1,lambda,dI, ftol);
+        K[5][6] = integrate<Real>(1,lambda,dJ, ftol);
     }
-
+    else
+        U[5] = 0;
+    
     
     
     
@@ -228,13 +252,15 @@ ArcSolver:: ~ArcSolver() throw() {}
 
 ArcSolver:: ArcSolver() :
 K(NC,NX),
-J(NX,NX),
-JK(NX,NC),
-H(NC,NC),
-U(NC,0),
+U(NX,NC),
 W(NC,0),
 V(NC,NC),
-Lambda(NC,0),
+Z(NC,0),
+J(NX,NX),
+JU(NX,NC),
+H(NC,NC),
+Y(NC,0),
+solve(NC),
 X(NX,0)
 {
     static const Real __J[] =
@@ -256,26 +282,70 @@ typedef algebra<Real> mkl;
 
 void ArcSolver:: operator()( const Arc &arc )
 {
-    arc.load(K,U);
-       
+    //-- get the matrix/vector
+    arc.load(K,Z);
+    //std::cerr << "K=" << K << std::endl;
+    //std::cerr << "Z=" << Z << std::endl;
     
-    std::cerr << "K=" << K << std::endl;
-    mkl::mul_rtrn(JK, J,K);
-    std::cerr << "JK=" << JK << std::endl;
-    mkl::mul(H,K,JK);
-    std::cerr << "H=" << H << std::endl;
-    std::cerr << "U="<< U << std::endl;
-    if( !svd<Real>::build(H, W, V))
-        throw exception("Invalid Arc");
-    std::cerr << "W=" << W << std::endl;
-    svd<Real>::truncate(W, 1e-9);
-    svd<Real>::solve(H, W, V, U, Lambda);
-    std::cerr << "Lambda=" << Lambda << std::endl;
-    mkl::mul(X,JK,Lambda);
-    std::cerr << "X=" << X << std::endl;
+    //-- build the svd
+    for( size_t i=1; i <= NC; ++i )
+        for(size_t j=1; j <= NX; ++j ) U[j][i] = K[i][j];
+    if( ! svd<Real>::build(U, W, V) )
+        throw exception("Invalid Arc, level-1");
+    //std::cerr << "U=" << U << std::endl;
+    //std::cerr << "W=" << W << std::endl;
+    //std::cerr << "V=" << V << std::endl;
+    
+    //-- JU= J*U
+    mkl::mul(JU, J, U);
+    //std::cerr << "JU=" << JU << std::endl;
+    
+    //-- H = U'*J*U
+    mkl::mul_ltrn(H, U, JU);
+    //std::cerr << "H=" << H << std::endl;
+    if( ! solve.LU(H) )
+        throw exception("Invalid Arc, level-2");
+    
+    svd<Real>::truncate(W, 1e-8);
+    matrix<Real> W0; W0.diag(W);
+    matrix<Real> iW(NC,NC);
+    for( size_t i=1; i <= NC; ++i)
+        if( Fabs(W[i])>0 ) iW[i][i] = 1.0/W[i];
+    //std::cerr << "W0=" << W0 << std::endl;
+    //std::cerr << "iW=" << iW << std::endl;
+    
+    //-- Y1 = inv(W)*V'*Z
+    mkl::mul_trn(Y, V, Z);
+    for( size_t i=NC;i>0;--i)
+    {
+        const Real Wi = W[i];
+        if( Fabs(Wi)>0 )
+            Y[i] /= Wi;
+        else
+            Y[i] = 0;
+    }
+    //std::cerr << "Y1=" << Y << std::endl;
+    
+    //-- Y2 = inv(H) * Y1
+    solve(H,Y);
+    //std::cerr << "Y2=" << Y << std::endl;
+
+    //-- Y3 = W*inv(W) * Y2
+    for( size_t i=NC;i>0;--i)
+    {
+        if( Fabs(W[i]) <= 0 )
+            Y[i] = 0;
+    }
+    //std::cerr << "Y3=" << Y << std::endl;
+
+    mkl::mul(X, JU, Y);
+    //std::cerr << "X=" << X << std::endl;
+
     const Real gQ = arc.A.beta + arc.lambda * X[4] + arc.lambda2 * X[5] + arc.lambda3 * X[6];
-    std::cerr << "gQ=" << gQ << std::endl;
+    //std::cerr << "gQ=" <<  gQ << std::endl;
+    (Real &)(arc.Q.beta) = gQ;
 }
+#endif
 
 
 

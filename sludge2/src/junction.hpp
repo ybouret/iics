@@ -6,6 +6,13 @@
 
 #define JUNCTION_TAG 0
 
+struct JAround
+{
+    Real P;
+    Real X;
+    Real Y;
+};
+
 //! bubble/mesh junctions
 class Junction
 {
@@ -37,8 +44,8 @@ public:
     Real            gt;        //!< tangential gradient
     mutable bool    visited;   //!< for orthonormal gradient
     mutable Real    gn;        //!< local orthonormal gradP, LOCALLY computed, on NORMAL
-    
-    //Real Peff( const Vertex &pos ) const throw(); //! pressure + (pos-vertex) * g
+    mutable size_t  num;       //!< num around
+    mutable JAround reg[4];    //!< around info
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Junction);
