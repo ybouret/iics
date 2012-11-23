@@ -1,6 +1,7 @@
 #ifndef ARC_INCLUDED
 #define ARC_INCLUDED 1
 
+#if 0
 #include "./junction.hpp"
 
 class ArcPoint
@@ -30,6 +31,7 @@ private:
 };
 
 #include "yocto/math/kernel/svd.hpp"
+#include "yocto/math/kernel/linsys.hpp"
 
 
 class Arc
@@ -59,7 +61,7 @@ public:
     Vertex rdot_AQ(Real mu) const throw();
     Vertex rdot_QB(Real mu) const throw();
     
-    void load( matrix<Real> &K, array<Real> &U) const throw();
+    void load( matrix<Real> &K, array<Real> &Z) const throw();
     mutable size_t nu;
     
 private:
@@ -86,13 +88,16 @@ private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(ArcSolver);
     
     matrix<Real> K;
+    matrix<Real> U; //!< K' => SVD_U
+    vector<Real> W; //!< SVD_W
+    matrix<Real> V; //!< SVD_V
+    vector<Real> Z;
     matrix<Real> J;
-    matrix<Real> JK;
+    matrix<Real> JU;
     matrix<Real> H;
-    vector<Real> U;
-    vector<Real> W;
-    matrix<Real> V;
-    vector<Real> Lambda;
+    //vector<Real> iW; //!< approx 1/W
+    vector<Real> Y;  //!< for computation
+    linsys<Real> solve;
     vector<Real> X;
     
     Real dI_AQ(Real) const throw();
@@ -100,6 +105,7 @@ private:
     
 };
 
+#endif
 #endif
 
 

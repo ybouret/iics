@@ -40,7 +40,7 @@ void Segmenter:: save_vtk_n( const string &filename ) const
     }
 }
 
-#if 0
+#if 1
 void Segmenter:: save_vtk_gt( const string &filename ) const
 {
     const unsigned n = num_junctions();
@@ -55,9 +55,8 @@ void Segmenter:: save_vtk_gt( const string &filename ) const
         for( const Junction *p=segments[i]->head;p;p=p->next)
         {
             fp("%.15g %.15g 0\n",p->vertex.x,p->vertex.y);
-            const Real scale = 2*p->bubble->lam;
-            //const Real scale = 1;
-            const Real fac  = scale * (p->g * p->t);
+            const Real scale = 1;
+            const Real fac   = scale * p->gt;
             fp("%.15g %.15g 0\n",p->vertex.x + fac * p->t.x,p->vertex.y+ fac * p->t.y);
         }
     }

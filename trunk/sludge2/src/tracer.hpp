@@ -41,7 +41,7 @@ public:
     void hash( hashing::function &h ) const;
     
     //! evaluate tangential gradient
-    void compute_gt();
+    //void compute_gt();
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Tracer);

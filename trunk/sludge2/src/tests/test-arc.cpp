@@ -3,7 +3,6 @@
 
 #include "yocto/math/kernel/svd.hpp"
 #include "yocto/math/kernel/algebra.hpp"
-#include "yocto/math/kernel/linsys.hpp"
 
 #include "yocto/string/conv.hpp"
 
@@ -147,7 +146,7 @@ YOCTO_UNIT_TEST_IMPL(arc)
     
 #endif
     
-#if 1
+#if 0
     ArcSolver asolv;
     
     {
@@ -165,14 +164,27 @@ YOCTO_UNIT_TEST_IMPL(arc)
     
     {
         // Pressure ramp: beta=1, alpha=0
-        ArcPoint A( Vertex(0,0),   Vertex(1,0), 0.2, 0, 1);
-        ArcPoint Q( Vertex(1.2,0), Vertex(1,0), 1.4, 0, 0);
-        ArcPoint B( Vertex(2.0,0), Vertex(1,0), 2.2, 0, 1);
+        ArcPoint A( Vertex(0,0),   Vertex(1,0), 0.5, 0,  2);
+        ArcPoint Q( Vertex(1.2,0), Vertex(1,0), 0.5, 0, -1);
+        ArcPoint B( Vertex(2.0,0), Vertex(1,0), 0.5, 0,  2);
         
         Arc arc(A,Q,B);
         asolv(arc);
 
     }
+    
+    
+    {
+        // Pressure ramp: alpha=2, beta=0
+        ArcPoint A( Vertex(0,0),   Vertex(1,0), 0.5, 2,  0);
+        ArcPoint Q( Vertex(1.2,0), Vertex(1,0), 2.9, 2, -1);
+        ArcPoint B( Vertex(2.0,0), Vertex(1,0), 4.5, 2,  0);
+        
+        Arc arc(A,Q,B);
+        asolv(arc);
+        
+    }
+
 #endif
     
     
