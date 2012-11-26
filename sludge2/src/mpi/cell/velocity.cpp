@@ -147,6 +147,39 @@ void Cell:: compute_junction_gn( ConstJunctionPtr J )
     
 }
 
+#include "yocto/code/utils.hpp"
+
+struct update_context
+{
+    Real sum_xdP;
+    Real sum_ydP;
+    Real sum_xx;
+    Real sum_yy;
+    Real sum_xy;
+};
+
+void update_eval( const Junction *J, const Tracer *tracer,  update_context &ctx)
+{
+    const Real x0 = tracer->vertex.x;
+    const Real y0 = tracer->vertex.y;
+    const Real P0 = tracer->pressure;
+    
+    for( size_t i=0; i < J->num; ++i )
+    {
+        const JAround & j = J->reg[i];
+        const Real x  = j.X - x0;
+        const Real y  = j.Y - y0;
+        const Real dP = j.P - P0;
+        
+        ctx.sum_xdP += x * dP;
+        ctx.sum_ydP += y * dP;
+        ctx.sum_xx  += x*x;
+        ctx.sum_xy  += x*y;
+        ctx.sum_yy  += y*y;
+    }
+}
+
+
 
 void Cell:: compute_spot_velocity( Spot *spot )
 {
@@ -181,7 +214,60 @@ void Cell:: compute_spot_velocity( Spot *spot )
     // get the tracer location
     //--------------------------------------------------------------------------
     const Tracer *tracer = spot->handle;
-    spot->gn = 0;
+    const Vertex  A  = jprev->vertex;
+    const Vertex  Q  = tracer->vertex;
+    const Vertex  B  = jnext->vertex;
+    const Vertex  AQ(A,Q);
+    const Vertex  QB(Q,B);
+    const Real    aq = AQ.norm();
+    const Real    qb = QB.norm();
+    const Real    ab = aq+qb;
+    const Real    wA = clamp<Real>(0,qb/ab,1);
+    const Real    wB = 1.0  - wA;
+    const Real    wA2 = wA * wA;
+    const Real    wB2 = wB * wB;
+    
+    //std::cerr << "wA=" << wA << ", wB=" << wB << std::endl;
+    
+    update_context ctxA,ctxB;
+    memset( &ctxA, 0, sizeof(update_context));
+    memset( &ctxB, 0, sizeof(update_context));
+    
+    update_eval(jprev, tracer, ctxA);
+    update_eval(jnext, tracer, ctxB);
+    
+    update_context ctx;
+    for( size_t i=0; i < sizeof(ctx)/sizeof(Real); ++i )
+    {
+        *(( (Real *)&ctx ) + i) =
+        *(( (Real *)&ctxA ) + i) * wA2 +
+        *(( (Real *)&ctxB ) + i) * wB2;
+    }
+    
+    
+    const Real mA = ctx.sum_xx;
+    const Real mB = ctx.sum_xy;
+    const Real mC = ctx.sum_xy;
+    const Real mD = ctx.sum_yy;
+    
+    const Real vX = ctx.sum_xdP;
+    const Real vY = ctx.sum_ydP;
+    
+    const Real det = mA * mD - mB * mC;
+    
+    //--------------------------------------------------------------------------
+    // copy local gradient component
+    //--------------------------------------------------------------------------
+    const Vertex g(( mD * vX - mB * vY) / det,
+                   (-mC * vX + mA * vY) / det );
+    
+
+    //--------------------------------------------------------------------------
+    // keep orthonormal projection
+    //--------------------------------------------------------------------------
+    spot->gn = tracer->n * g;
+    
+    
     
     
     //--------------------------------------------------------------------------
