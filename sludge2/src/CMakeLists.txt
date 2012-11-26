@@ -22,7 +22,6 @@ segmenter.hpp  segmenter.cpp
 parameters.hpp parameters.cpp
 marker.hpp     marker.cpp
 jpack.hpp      jpack.cpp
-arc.hpp        arc.cpp
 )
 
 SOURCE_GROUP( core FILES ${SOURCES_SER} )
