@@ -7,7 +7,6 @@ test-spots.cpp
 test-bubble.cpp
 test-seg.cpp
 test-param.cpp
-test-arc.cpp
 test-curv.cpp
 )
 
