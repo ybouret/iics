@@ -12,13 +12,13 @@
 
 static const size_t NC = 2;     /*!< two components */
 const char                *cpntName[] = {"u","v"};  /*Name of the components*/
-static indx_t       Nx = 100;   /*!< 0 -> Nx-1      */
-static indx_t       Ny = 120;   /*!< 0 -> Ny-1      */
-static indx_t       Nz = 128;   /*!< 0 -> Nz-1      */
+static indx_t       Nx = 200;   /*!< 0 -> Nx-1      */
+static indx_t       Ny = 240;   /*!< 0 -> Ny-1      */
+static indx_t       Nz = 256;   /*!< 0 -> Nz-1      */
 static indx_t       NG = 1;     /*!< #ghosts        */
-static real_t       Lx = 100.0;
-static real_t       Ly = 120.0;
-static real_t       Lz = 128.0;
+static real_t       Lx = 200.0;
+static real_t       Ly = 240.0;
+static real_t       Lz = 256.0;
 
 static real_t   ****fields          = NULL;
 static real_t    ***laplacian       = NULL;
@@ -184,7 +184,6 @@ static void exchange_ghosts()
 static void sendRequests(int i)
 {
 	const size_t nitems = items_per_slice * NG;
-    // MPI_Status status;
     const size_t j = i * 4;
     
 	if( !requests )
@@ -340,10 +339,12 @@ static void diffusion2()
 	size_t j;
     
 	for( i=0; i < NC; ++i )
+        sendRequests(i);
+
+    for( i=0; i < NC; ++i )
 	{
 		real_t ***f = fields[i];
         
-        sendRequests(i);
 		compute_laplacian2(f,1); //bulk
         waitRequests(i);
         compute_laplacian2(f,0); //boundaries
@@ -408,8 +409,12 @@ void initSimulation(void)
 	
 	_CHECK(MPI_Comm_size(MPI_COMM_WORLD,&size) );
 	_CHECK(MPI_Comm_rank(MPI_COMM_WORLD,&rank) );
-	above = rank + 1; if( above >= size ) above = 0;
-	below = rank - 1; if( below <  0    ) below = size-1;
+	above = rank + 1;
+    if( above >= size )
+        above = 0;
+	below = rank - 1;
+    if( below <  0    )
+        below = size-1;
 	_BARRIER;
 	fprintf( stderr, "-- ready %d.%d (%d->%d->%d)\n", rank, size, below, rank, above );
 	fflush( stderr );
