@@ -264,7 +264,7 @@ SimGetVariable(int domain, const char *name, void *cbdata)
         // Calculate a zonal variable that moves around. 
         rmesh_zonal = (float*)malloc(sizeof(float)*nTuples);
         zoneptr = rmesh_zonal;
-        
+
         // A RETRAVAILLER
         if((size==2)&&rank==0)      
         {
@@ -283,20 +283,9 @@ SimGetVariable(int domain, const char *name, void *cbdata)
         }
         else
         {
-            for(k=zmin;k<=zmax+NG;k++)
-            {
-                for(j = 0; j < rmesh_dims[1]; ++j)
-                {
-                    for(i = 0; i < rmesh_dims[0]; ++i)
-                    {
-                        
-                        *zoneptr++ = fields[0][k][j][i];
-                    }
-                }
-            }
+            VisIt_VariableData_alloc(&h);
+            VisIt_VariableData_setDataD(h,VISIT_OWNER_SIM,1,nTuples, &fields[0][zmin][ymin][xmin]);
         }
-        VisIt_VariableData_alloc(&h);
-        VisIt_VariableData_setDataF(h,VISIT_OWNER_VISIT,1,nTuples, rmesh_zonal);
     }
     
     return h;
