@@ -1,4 +1,5 @@
 #include "../cell.hpp"
+#include <cstdlib>
 
 Vertex Cell:: gradP_to_U( const Vertex &g ) const
 {
