@@ -21,29 +21,13 @@ IF( "${HOSTNAME}" MATCHES "math5.*" )
      MESSAGE( STATUS "special flags for math5")
 ENDIF()
 
-IF( "${HOSTNAME}" MATCHES "visu*" )
-	FIND_PACKAGE(MPI REQUIRED)
-        MESSAGE( STATUS "flags for cicada-visu")
-        SET(VISIT "/softs/visit/visit_gui_2.6.1/2.6.1/linux-x86_64/")
-ENDIF()
-IF( "${HOSTNAME}" MATCHES "cicada*" )
-	FIND_PACKAGE(MPI REQUIRED)
-        MESSAGE( STATUS "flags for cicada-generic")
-        SET(VISIT "/softs/visit/visit_engine_2.6.1/2.6.1/linux-x86_64")
-ENDIF()
-
-IF( "${HOSTNAME}" MATCHES "node*" )
-	FIND_PACKAGE(MPI REQUIRED)
-        MESSAGE( STATUS "flags for cicada-generic")
-        SET(VISIT "/softs/visit/visit_engine_2.6.1/2.6.1/linux-x86_64")
-ENDIF()
-
 #VisIt, for everyone, relying on environment
 SET(VISIT $ENV{VISIT})
 IF( "${VISIT}" STREQUAL "" )
 	MESSAGE( FATAL_ERROR "No VisIt" )
 ENDIF()
 
+#MPI for everyone but on special architectures
 IF(MUST_FIND_MPI)
 	FIND_PACKAGE(MPI REQUIRED)
 ENDIF()
