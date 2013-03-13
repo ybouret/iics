@@ -1,5 +1,5 @@
-#include "arrays.h"
 #include <mpi.h>
+#include "arrays.h"
 /*** For Silo ***/
 #include <silo.h>
 #include <stdio.h>
@@ -338,15 +338,15 @@ static void diffusion2()
 	size_t i;
 	size_t j;
     
-	for( i=0; i < NC; ++i )
-        sendRequests(i);
+	//for( i=0; i < NC; ++i )
+        //sendRequests(i);
     
     for( i=0; i < NC; ++i )
 	{
 		real_t ***f = fields[i];
         
 		compute_laplacian2(f,1); //bulk
-        waitRequests(i);
+        //waitRequests(i);
         compute_laplacian2(f,0); //boundaries
         
         real_t       *dst = &f[zmin][ymin][xmin];
