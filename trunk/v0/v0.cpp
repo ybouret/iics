@@ -46,14 +46,16 @@ static real_t       dt = 0.0;
 #define _BARRIER _CHECK(MPI_Barrier(MPI_COMM_WORLD))
 static MPI_Request *requests = NULL;
 static size_t       num_reqs = 0;
-static const int    diff_tag = 7;
-
+static const int    diff_tag = 7; 
+real_t paramMu=-1;
 
 int   rmesh_dims[3];
 
 #include "stubs.c"
 #include "ui.cpp"
 #include "writeToSilo.c"
+
+
 
 
 static void create_fields()
@@ -323,7 +325,7 @@ static void diffusion2()
         const real_t *src = &laplacian[zmin][ymin][xmin];
         for( j=0; j < items_per_field; ++j )
         {
-            dst[j] += dt * (src[j]+dst[j]-dst[j]*dst[j]*dst[j]);
+            dst[j] += dt * (src[j]+dst[j]*paramMu-dst[j]*dst[j]*dst[j]);
         }
         
         

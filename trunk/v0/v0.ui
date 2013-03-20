@@ -6,50 +6,79 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>139</width>
-    <height>247</height>
+    <width>198</width>
+    <height>246</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Mon  Interface</string>
+   <string>Steering</string>
   </property>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>50</y>
+     <width>181</width>
+     <height>80</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Parameters</string>
+   </property>
+   <widget class="QSlider" name="MU">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>30</y>
+      <width>91</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>100</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="MUTEXT">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>30</y>
+      <width>51</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+  </widget>
   <widget class="QPushButton" name="RUN">
    <property name="geometry">
     <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>114</width>
+     <x>20</x>
+     <y>10</y>
+     <width>76</width>
      <height>32</height>
     </rect>
    </property>
    <property name="text">
-    <string>run</string>
+    <string>Run</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="DT">
+  <widget class="QPushButton" name="HALT">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>40</y>
-     <width>81</width>
-     <height>22</height>
+     <x>100</x>
+     <y>10</y>
+     <width>76</width>
+     <height>32</height>
     </rect>
    </property>
    <property name="text">
-    <string/>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>40</y>
-     <width>31</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>dt</string>
+    <string>Halt</string>
    </property>
   </widget>
  </widget>
