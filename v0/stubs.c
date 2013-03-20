@@ -56,6 +56,7 @@ typedef struct
     int     saveCounter;
     int     visitIsConnected;
 } simulation_data;
+static void init_fields();
 
 #define SIM_STOPPED       0
 #define SIM_RUNNING       1
@@ -68,15 +69,49 @@ void ui_Mu_changed(int value, void *cbdata)
     paramMu=value/100.0*2 -1.0;
     sprintf(buffer,"%g",paramMu);
     VisItUI_setValueS("MUTEXT",buffer,0);
-   // printf("core:%d\t ui_Mu_changed: %g\n",rank,paramMu);
+    // printf("core:%d\t ui_Mu_changed: %g\n",rank,paramMu);
+}
+
+void ui_A_changed(int value, void *cbdata)
+{
+    // simulation_data *sim = (simulation_data *)cbdata;
+    real_t maxp=0.1;
+    real_t minp=-0.1;
+    char buffer [50];
+    
+    paramA=value/100.0*(maxp-minp)+minp;
+    sprintf(buffer,"%g",paramA);
+    VisItUI_setValueS("ATEXT",buffer,0);
+    //printf("core:%d\t ui_A_changed: %g\n",rank,paramA);
 }
 
 void
-ui_step_clicked(void *cbdata)
+ui_raz_clicked(void *cbdata)
+{
+    init_fields();
+}
+
+void
+ui_halt_clicked(void *cbdata)
 {
     simulation_data *sim = (simulation_data *)cbdata;
-    printf("ui_step_clicked\n");
-    simulate_one_timestep(sim);
+    
+    sim->runMode = SIM_STOPPED;
+    if(rank==0)
+        printf("halt from gui\n");
+
+    VisItTimeStepChanged();
+}
+
+void ui_run_clicked(void *cbdata)
+{
+    simulation_data *sim = (simulation_data *)cbdata;
+    
+    sim->runMode = SIM_RUNNING;
+    if(rank==0)
+        printf("run from gui\n");
+    VisItTimeStepChanged();
+
 }
 /***************************************************************************
  For interactive purposes: buttons interface for visit
@@ -471,6 +506,7 @@ ProcessConsoleCommand(simulation_data *sim)
     
     
     VisItUI_valueChanged("Mu", ui_Mu_changed, &sim);
+    VisItUI_valueChanged("A", ui_A_changed, &sim);
 
     if (sim->par_rank == 0)
     {
@@ -517,6 +553,7 @@ ProcessConsoleCommand(simulation_data *sim)
 void mainloop(simulation_data *sim)
 {
     int blocking, visitstate, err = 0;
+    char buffer[100];
   //  double startTime,endTime;
 
     /* If we're not running by default then simulate once there's something
@@ -527,8 +564,17 @@ void mainloop(simulation_data *sim)
       */
     VisItUI_valueChanged("MU", ui_Mu_changed, sim);
     VisItUI_valueChanged("MUTEXT", ui_Mu_changed, sim);
+    sprintf(buffer,"%g",paramMu);
+    VisItUI_setValueS("MUTEXT",buffer,0);
 
-    VisItUI_clicked("STEP", ui_step_clicked, &sim);
+    
+    
+    VisItUI_valueChanged("A", ui_A_changed, sim);
+    VisItUI_valueChanged("ATEXT", ui_A_changed, sim);
+
+    VisItUI_clicked("RUN",  ui_run_clicked, sim);
+    VisItUI_clicked("HALT", ui_halt_clicked, sim);
+    VisItUI_clicked("RAZ" , ui_raz_clicked, sim);
 
     if (sim->par_rank == 0)
     {
@@ -544,21 +590,10 @@ void mainloop(simulation_data *sim)
         {
             visitstate = VisItDetectInput(blocking, fileno(stdin));
         }
-        /* Broadcast the return value of VisItDetectInput to all procs. */
-        
-        //startTime=MPI_Wtime();
+
         
         MPI_Bcast(&visitstate, 1, MPI_INT, 0, MPI_COMM_WORLD);
-        /* Do different things depending on the output from VisItDetectInput. */
-        
-       
-        /* The broad cast lapses 2 microseconds for 32 cores
-         
-         endTime=MPI_Wtime();
-        if(rank==0)
-            fprintf(stderr,"VisitBroadCast=%g\n",endTime-startTime);
-         
-         */
+
         switch(visitstate)
         {
             case 0:
