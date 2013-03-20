@@ -84,7 +84,7 @@ SimGetMetaData(void *cbdata)
         visit_handle mmd = VISIT_INVALID_HANDLE;
         visit_handle vmd = VISIT_INVALID_HANDLE;
         // visit_handle cmd = VISIT_INVALID_HANDLE;
-        visit_handle emd = VISIT_INVALID_HANDLE;
+       // visit_handle emd = VISIT_INVALID_HANDLE;
         
         /* Set the simulation state. */
         VisIt_SimulationMetaData_setMode(md, (sim->runMode == SIM_STOPPED) ?
@@ -497,13 +497,14 @@ ProcessConsoleCommand(simulation_data *sim)
 void mainloop(simulation_data *sim)
 {
     int blocking, visitstate, err = 0;
-    
+  //  double startTime,endTime;
+
     /* If we're not running by default then simulate once there's something
      * once VisIt connects.
-     */
+   
     if(sim->runMode == SIM_STOPPED)
         simulate_one_timestep(sim);
-    
+      */
     if (sim->par_rank == 0)
     {
         fprintf(stderr, "command> ");
@@ -519,9 +520,20 @@ void mainloop(simulation_data *sim)
             visitstate = VisItDetectInput(blocking, fileno(stdin));
         }
         /* Broadcast the return value of VisItDetectInput to all procs. */
+        
+        //startTime=MPI_Wtime();
+        
         MPI_Bcast(&visitstate, 1, MPI_INT, 0, MPI_COMM_WORLD);
         /* Do different things depending on the output from VisItDetectInput. */
-
+        
+       
+        /* The broad cast lapses 2 microseconds for 32 cores
+         
+         endTime=MPI_Wtime();
+        if(rank==0)
+            fprintf(stderr,"VisitBroadCast=%g\n",endTime-startTime);
+         
+         */
         switch(visitstate)
         {
             case 0:
@@ -547,9 +559,9 @@ void mainloop(simulation_data *sim)
                 else 
                 {
                     /* Print the error message */
-                    char *err = VisItGetLastError();
-                    fprintf(stderr, "VisIt did not connect: %s\n", err);
-                    free(err);
+                    char *errString = VisItGetLastError();
+                    fprintf(stderr, "VisIt did not connect: %s\n", errString);
+                    free(errString);
                 }
                 break;
             case 2:
