@@ -48,8 +48,10 @@ static MPI_Request *requests = NULL;
 static size_t       num_reqs = 0;
 static const int    diff_tag = 7; 
 real_t paramMu=-1;
+real_t paramA=0;
 
 int   rmesh_dims[3];
+
 
 #include "stubs.c"
 #include "ui.cpp"
@@ -147,7 +149,7 @@ static void delete_requests()
 	}
 }
 
-
+/*
 static void exchange_ghosts()
 {
 	const size_t nitems = items_per_slice * NG;
@@ -180,6 +182,7 @@ static void exchange_ghosts()
     for(i=0;i<num_reqs;i++)
         _CHECK(MPI_Wait(&requests[i],&status));
 }
+ */
 /*****************************************************************************************************
  *     Here we start the send/recv requests for variable i
  *****************************************************************************************************/
@@ -325,7 +328,7 @@ static void diffusion2()
         const real_t *src = &laplacian[zmin][ymin][xmin];
         for( j=0; j < items_per_field; ++j )
         {
-            dst[j] += dt * (src[j]+dst[j]*paramMu-dst[j]*dst[j]*dst[j]);
+            dst[j] += dt * (src[j]+dst[j]*paramMu-dst[j]*dst[j]*dst[j]+paramA);
         }
         
         
@@ -571,7 +574,7 @@ int main(int argc, char *argv[] )
     }
 	init_fields();
     if(rank==0) VisItOpenTraceFile("./TraceFileOfLibSim.txt");
-    set_interface(&sim);
+//    set_interface(&sim);
     
     mainloop(&sim);
     if(rank==0) VisItCloseTraceFile();
