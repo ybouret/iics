@@ -10,15 +10,15 @@
 
 
 
-static const size_t NC = 2;     /*!< two components */
+static const size_t NC = 1;     /*!< two components */
 const char                *cpntName[] = {"u","v"};  /*Name of the components*/
-static indx_t       Nx = 200;   /*!< 0 -> Nx-1      */
-static indx_t       Ny = 240;   /*!< 0 -> Ny-1      */
+static indx_t       Nx = 256;   /*!< 0 -> Nx-1      */
+static indx_t       Ny = 256;   /*!< 0 -> Ny-1      */
 static indx_t       Nz = 256;   /*!< 0 -> Nz-1      */
 static indx_t       NG = 1;     /*!< #ghosts        */
-static real_t       Lx = 200.0;
-static real_t       Ly = 240.0;
-static real_t       Lz = 256.0;
+static real_t       Lx = Nx*1.0;
+static real_t       Ly = Ny*1.0;
+static real_t       Lz = Nz*1.0;
 
 static real_t   ****fields          = NULL;
 static real_t    ***laplacian       = NULL;
@@ -193,16 +193,16 @@ static void sendRequests(int i)
 	}
     
     // send information to below
-    _CHECK(MPI_Isend( &fields[i][zmin][ymin][xmin],    nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+0] ));
+    MPI_Isend( &fields[i][zmin][ymin][xmin],    nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+0] );
     
     // send information to above
-    _CHECK(MPI_Isend( &fields[i][zmax-NG][ymin][xmin], nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+1] ));
+    MPI_Isend( &fields[i][zmax+1-NG][ymin][xmin], nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+1] );
     
     // recv information from below
-    _CHECK(MPI_Irecv( &fields[i][zlo][ymin][xmin],     nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+2] ));
+    MPI_Irecv( &fields[i][zlo][ymin][xmin],     nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+2] );
     
     // recv information from above
-    _CHECK(MPI_Irecv( &fields[i][zmax+1][ymin][xmin],  nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+3] ));
+    MPI_Irecv( &fields[i][zmax+1][ymin][xmin],  nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+3] );
 	
 }
 /*****************************************************************************************************
@@ -227,36 +227,6 @@ static void waitRequests(int i)
 
 
 
-static void compute_laplacian( real_t ***f )
-{
-	indx_t i,j,k;
-	for(k=zmax;k>=zmin;--k)
-	{
-		indx_t km=k-1; /* always valid for there are ghosts */
-		indx_t kp=k+1; /* always valid for there are ghosts */
-		for(j=ymax;j>=ymin;--j)
-		{
-			indx_t jm = j-1;
-			indx_t jp = j+1;
-			if( jm < ymin ) jm = ymax;
-			if( jp > ymax ) jp = ymin;
-			for(i=xmax;i>=xmin;--i)
-			{
-				indx_t im = i-1;
-				indx_t ip = i+1;
-				if( im < xmin ) im = xmax;
-				if( ip > xmax ) ip = xmin;
-				
-				const real_t f0  = f[k][j][i];
-				const real_t tf0 = f0 + f0;
-				const real_t lx    = idx2*(f[k][j][im]-tf0+f[k][j][ip]);
-				const real_t ly    = idy2*(f[k][jm][i]-tf0+f[k][jp][i]);
-				const real_t lz    = idz2*(f[km][j][i]-tf0+f[kp][j][i]);
-				laplacian[k][j][i] = lx + ly + lz;
-			}
-		}
-	}
-}
 static void compute_laplacianAtZ( real_t ***f, indx_t k)
 {
     indx_t i,j;
@@ -311,7 +281,7 @@ static void compute_laplacian2( real_t ***f, int bulk)
 
 
 //static void reaction(){}
-
+/*
 static void diffusion()
 {
 	size_t i;
@@ -333,21 +303,21 @@ static void diffusion()
 		}
 	}
 }
+ */
 static void diffusion2()
 {
 	size_t i;
 	size_t j;
-    
-	//for( i=0; i < NC; ++i )
-        //sendRequests(i);
-    
+        
+  
     for( i=0; i < NC; ++i )
 	{
-		real_t ***f = fields[i];
-        
+        real_t ***f = fields[i];
+        sendRequests(i);
 		compute_laplacian2(f,1); //bulk
-        //waitRequests(i);
+        waitRequests(i);
         compute_laplacian2(f,0); //boundaries
+        
         
         real_t       *dst = &f[zmin][ymin][xmin];
         const real_t *src = &laplacian[zmin][ymin][xmin];
@@ -493,11 +463,13 @@ void simulate_one_timestep(simulation_data *sim)
         elapsedTime=MPI_Wtime();
     
     // Diffusion
-    for(i=0;i<10;i++)
+    
+    for(i=0;i<40;i++)
     {
         diffusion2();
     }
-    
+     
+
     if(sim->savingFiles==1)
     {
         writeDomain(sim->cycle);
@@ -510,7 +482,7 @@ void simulate_one_timestep(simulation_data *sim)
         VisItTimeStepChanged();
         VisItUpdatePlots();
     }
-    
+ 
     if(rank==0)
     {
         const double ell = MPI_Wtime() - elapsedTime;
@@ -527,7 +499,6 @@ int main(int argc, char *argv[] )
 	//unsigned count = 0;
     //int toWrite=0;
     //double startTime,endTime;
-    
     
     
 	/***************************************************************************
@@ -548,7 +519,8 @@ int main(int argc, char *argv[] )
 	dt=0.1;
 	srand( time(NULL) );
 	setvbuf( stderr, NULL, 0, _IONBF );
-    
+    fprintf( stderr, "Starting Program\n");
+
     
 	
 	_CHECK(MPI_Init(&argc,&argv));
