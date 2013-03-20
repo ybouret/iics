@@ -61,6 +61,23 @@ typedef struct
 #define SIM_RUNNING       1
 void simulate_one_timestep(simulation_data *sim);
 
+void ui_Mu_changed(int value, void *cbdata)
+{
+    // simulation_data *sim = (simulation_data *)cbdata;
+    char buffer [50];
+    paramMu=value/100.0*2 -1.0;
+    sprintf(buffer,"%g",paramMu);
+    VisItUI_setValueS("MUTEXT",buffer,0);
+   // printf("core:%d\t ui_Mu_changed: %g\n",rank,paramMu);
+}
+
+void
+ui_step_clicked(void *cbdata)
+{
+    simulation_data *sim = (simulation_data *)cbdata;
+    printf("ui_step_clicked\n");
+    simulate_one_timestep(sim);
+}
 /***************************************************************************
  For interactive purposes: buttons interface for visit
  **************************************************************************/
@@ -452,6 +469,9 @@ ProcessConsoleCommand(simulation_data *sim)
     /* Read A Command */
     char cmd[1000];
     
+    
+    VisItUI_valueChanged("Mu", ui_Mu_changed, &sim);
+
     if (sim->par_rank == 0)
     {
         int iseof = (fgets(cmd, 1000, stdin) == NULL);
@@ -501,10 +521,15 @@ void mainloop(simulation_data *sim)
 
     /* If we're not running by default then simulate once there's something
      * once VisIt connects.
-   
+
     if(sim->runMode == SIM_STOPPED)
         simulate_one_timestep(sim);
       */
+    VisItUI_valueChanged("MU", ui_Mu_changed, sim);
+    VisItUI_valueChanged("MUTEXT", ui_Mu_changed, sim);
+
+    VisItUI_clicked("STEP", ui_step_clicked, &sim);
+
     if (sim->par_rank == 0)
     {
         fprintf(stderr, "command> ");
