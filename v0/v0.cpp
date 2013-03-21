@@ -46,7 +46,7 @@ static real_t       dt = 0.0;
 #define _BARRIER _CHECK(MPI_Barrier(MPI_COMM_WORLD))
 static MPI_Request *requests = NULL;
 static size_t       num_reqs = 0;
-static const int    diff_tag = 7; 
+static const int    diff_tag = 7;
 real_t paramMu=-1;
 real_t paramA=0;
 
@@ -150,38 +150,38 @@ static void delete_requests()
 }
 
 /*
-static void exchange_ghosts()
-{
-	const size_t nitems = items_per_slice * NG;
-	size_t       i;
-    MPI_Status status;
-	
-	num_reqs = 4 * NC;
-	requests = (MPI_Request *)calloc(num_reqs,sizeof(MPI_Request));
-	if( !requests )
-	{
-		perror("requests");
-		exit(-1);
-	}
-	
-	for( i=0; i < NC; ++i )
-	{
-		const size_t j = i * 4;
-		// send information to below
-		_CHECK(MPI_Isend( &fields[i][zmin][ymin][xmin],    nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+0] ));
-		
-		// send information to above
-		_CHECK(MPI_Isend( &fields[i][zmax-NG][ymin][xmin], nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+1] ));
-		
-		// recv information from below
-		_CHECK(MPI_Irecv( &fields[i][zlo][ymin][xmin],     nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+2] ));
-		
-		// recv information from above
-		_CHECK(MPI_Irecv( &fields[i][zmax+1][ymin][xmin],  nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+3] ));
-	}
-    for(i=0;i<num_reqs;i++)
-        _CHECK(MPI_Wait(&requests[i],&status));
-}
+ static void exchange_ghosts()
+ {
+ const size_t nitems = items_per_slice * NG;
+ size_t       i;
+ MPI_Status status;
+ 
+ num_reqs = 4 * NC;
+ requests = (MPI_Request *)calloc(num_reqs,sizeof(MPI_Request));
+ if( !requests )
+ {
+ perror("requests");
+ exit(-1);
+ }
+ 
+ for( i=0; i < NC; ++i )
+ {
+ const size_t j = i * 4;
+ // send information to below
+ _CHECK(MPI_Isend( &fields[i][zmin][ymin][xmin],    nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+0] ));
+ 
+ // send information to above
+ _CHECK(MPI_Isend( &fields[i][zmax-NG][ymin][xmin], nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+1] ));
+ 
+ // recv information from below
+ _CHECK(MPI_Irecv( &fields[i][zlo][ymin][xmin],     nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+2] ));
+ 
+ // recv information from above
+ _CHECK(MPI_Irecv( &fields[i][zmax+1][ymin][xmin],  nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+3] ));
+ }
+ for(i=0;i<num_reqs;i++)
+ _CHECK(MPI_Wait(&requests[i],&status));
+ }
  */
 /*****************************************************************************************************
  *     Here we start the send/recv requests for variable i
@@ -287,34 +287,34 @@ static void compute_laplacian2( real_t ***f, int bulk)
 
 //static void reaction(){}
 /*
-static void diffusion()
-{
-	size_t i;
-	size_t j;
-    
-    exchange_ghosts();
-	for( i=0; i < NC; ++i )
-	{
-		real_t ***f = fields[i];
-		compute_laplacian(f);
-		{
-			real_t       *dst = &f[zmin][ymin][xmin];
-			const real_t *src = &laplacian[zmin][ymin][xmin];
-			for( j=0; j < items_per_field; ++j )
-			{
-                
-				dst[j] += dt * (src[j]+dst[j]-dst[j]*dst[j]*dst[j]);
-			}
-		}
-	}
-}
+ static void diffusion()
+ {
+ size_t i;
+ size_t j;
+ 
+ exchange_ghosts();
+ for( i=0; i < NC; ++i )
+ {
+ real_t ***f = fields[i];
+ compute_laplacian(f);
+ {
+ real_t       *dst = &f[zmin][ymin][xmin];
+ const real_t *src = &laplacian[zmin][ymin][xmin];
+ for( j=0; j < items_per_field; ++j )
+ {
+ 
+ dst[j] += dt * (src[j]+dst[j]-dst[j]*dst[j]*dst[j]);
+ }
+ }
+ }
+ }
  */
 static void diffusion2()
 {
 	size_t i;
 	size_t j;
-        
-  
+    
+    
     for( i=0; i < NC; ++i )
 	{
         real_t ***f = fields[i];
@@ -356,6 +356,10 @@ static void init_fields()
 	indx_t i,j,k;
     real_t x,y,z;
     
+    if(!rank)
+    {
+        fprintf( stderr, "\tinit_fields\n");
+    }
     srand(time(NULL)+rank);
 	
     for(k=zmax;k>=zmin;--k)
@@ -374,6 +378,8 @@ static void init_fields()
             }
 		}
 	}
+    sendRequests(0);
+    waitRequests(0);
 }
 
 
@@ -469,12 +475,12 @@ void simulate_one_timestep(simulation_data *sim)
     
     // Diffusion
     
-    for(i=0;i<40;i++)
+    for(i=0;i<1;i++)
     {
         diffusion2();
     }
-     
-
+    
+    
     if(sim->savingFiles==1)
     {
         writeDomain(sim->cycle);
@@ -487,7 +493,7 @@ void simulate_one_timestep(simulation_data *sim)
         VisItTimeStepChanged();
         VisItUpdatePlots();
     }
- 
+    
     if(rank==0)
     {
         const double ell = MPI_Wtime() - elapsedTime;
@@ -499,13 +505,52 @@ void simulate_one_timestep(simulation_data *sim)
     //  sleep(1);
 }
 
+#define MIN_SIZE 2
+
 int main(int argc, char *argv[] )
 {
 	//unsigned count = 0;
     //int toWrite=0;
     //double startTime,endTime;
     char *env = NULL;
-
+    
+    
+    switch( argc )
+    {
+            
+        case 2: //-- same Nx, Ny, Nz
+        {
+            const indx_t user_N = atoi(argv[1]);
+            if(user_N<=MIN_SIZE)
+            {
+                fprintf( stderr, "Invalid Nx=%d\n", int(user_N) );
+                return 1;
+            }
+            Nx = Ny = Nz = user_N;
+        }
+            break;
+            
+        case 4: //-- Nx, Ny, Nz
+        {
+            Nx = atoi( argv[1] );
+            Ny = atoi( argv[2] );
+            Nz = atoi( argv[3] );
+            if( Nx <= MIN_SIZE || Ny <= MIN_SIZE || Nz <= MIN_SIZE )
+            {
+                fprintf( stderr, "Invalid Nx=%d,Ny=%d,Nz=%d\n", int(Nx), int(Ny), int(Nz) );
+                return 1;
+            }
+        }
+            
+            //-- no args
+        case 1:
+            break;
+    }
+    
+    Lx = double(Nx);
+    Ly = double(Ny);
+    Lz = double(Nz);
+    
     
 	/***************************************************************************
 	 * geometry setup
@@ -525,11 +570,18 @@ int main(int argc, char *argv[] )
 	dt=0.1;
 	srand( time(NULL) );
 	setvbuf( stderr, NULL, 0, _IONBF );
-    fprintf( stderr, "Starting Program\n");
-
     
-	
+    
+    
 	_CHECK(MPI_Init(&argc,&argv));
+    /*
+     fprintf( stderr, "\n");
+     fprintf( stderr, "\t----------------\n");
+     fprintf( stderr, "\tStarting Program\n");
+     fprintf( stderr, "\t----------------\n");
+     fprintf( stderr, "\n");
+     */
+    fprintf( stderr, "-- Initializing with Nx=%d, Ny=%d, Nz=%d\n", int(Nx), int(Ny), int(Nz));
 	/***************************************************************************
 	 * init of MPI, slicing of the domains, etc....
 	 **************************************************************************/
@@ -546,7 +598,7 @@ int main(int argc, char *argv[] )
     simulation_data sim;
     simulation_data_ctor(&sim,rank,size);
     //VisItSetupEnvironment();
-
+    
     /***************************************************************************
      * Install callback functions for global communication..
 	 **************************************************************************/
@@ -556,15 +608,15 @@ int main(int argc, char *argv[] )
     /***************************************************************************
      * Tell visit whether the simulation is parallel.
 	 **************************************************************************/
-     VisItSetParallel(sim.par_size > 1);
-     VisItSetParallelRank(sim.par_rank);
+    VisItSetParallel(sim.par_size > 1);
+    VisItSetParallelRank(sim.par_rank);
     
-     if(sim.par_rank == 0)
-         env = VisItGetEnvironment();
+    if(sim.par_rank == 0)
+        env = VisItGetEnvironment();
     VisItSetupEnvironment2(env);
     if(env != NULL)
         free(env);
-
+    
     if(rank==0)
     {
         
@@ -582,7 +634,7 @@ int main(int argc, char *argv[] )
     }
 	init_fields();
     if(rank==0) VisItOpenTraceFile("./TraceFileOfLibSim.txt");
-//    set_interface(&sim);
+    //    set_interface(&sim);
     
     mainloop(&sim);
     if(rank==0) VisItCloseTraceFile();
