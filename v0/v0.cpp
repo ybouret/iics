@@ -504,7 +504,8 @@ int main(int argc, char *argv[] )
 	//unsigned count = 0;
     //int toWrite=0;
     //double startTime,endTime;
-    
+    char *env = NULL;
+
     
 	/***************************************************************************
 	 * geometry setup
@@ -544,8 +545,8 @@ int main(int argc, char *argv[] )
     
     simulation_data sim;
     simulation_data_ctor(&sim,rank,size);
-    VisItSetupEnvironment();
-    
+    //VisItSetupEnvironment();
+
     /***************************************************************************
      * Install callback functions for global communication..
 	 **************************************************************************/
@@ -555,8 +556,15 @@ int main(int argc, char *argv[] )
     /***************************************************************************
      * Tell visit whether the simulation is parallel.
 	 **************************************************************************/
-    VisItSetParallel(sim.par_size > 1);
-    VisItSetParallelRank(sim.par_rank);
+     VisItSetParallel(sim.par_size > 1);
+     VisItSetParallelRank(sim.par_rank);
+    
+     if(sim.par_rank == 0)
+         env = VisItGetEnvironment();
+    VisItSetupEnvironment2(env);
+    if(env != NULL)
+        free(env);
+
     if(rank==0)
     {
         
