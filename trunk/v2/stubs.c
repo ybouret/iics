@@ -1,40 +1,40 @@
 /*****************************************************************************
- *
- * Copyright (c) 2000 - 2010, Lawrence Livermore National Security, LLC
- * Produced at the Lawrence Livermore National Laboratory
- * LLNL-CODE-400142
- * All rights reserved.
- *
- * This file is  part of VisIt. For  details, see https://visit.llnl.gov/.  The
- * full copyright notice is contained in the file COPYRIGHT located at the root
- * of the VisIt distribution or at http://www.llnl.gov/visit/copyright.html.
- *
- * Redistribution  and  use  in  source  and  binary  forms,  with  or  without
- * modification, are permitted provided that the following conditions are met:
- *
- *  - Redistributions of  source code must  retain the above  copyright notice,
- *    this list of conditions and the disclaimer below.
- *  - Redistributions in binary form must reproduce the above copyright notice,
- *    this  list of  conditions  and  the  disclaimer (as noted below)  in  the
- *    documentation and/or other materials provided with the distribution.
- *  - Neither the name of  the LLNS/LLNL nor the names of  its contributors may
- *    be used to endorse or promote products derived from this software without
- *    specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT  HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR  IMPLIED WARRANTIES, INCLUDING,  BUT NOT  LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND  FITNESS FOR A PARTICULAR  PURPOSE
- * ARE  DISCLAIMED. IN  NO EVENT  SHALL LAWRENCE  LIVERMORE NATIONAL  SECURITY,
- * LLC, THE  U.S.  DEPARTMENT OF  ENERGY  OR  CONTRIBUTORS BE  LIABLE  FOR  ANY
- * DIRECT,  INDIRECT,   INCIDENTAL,   SPECIAL,   EXEMPLARY,  OR   CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT  LIMITED TO, PROCUREMENT OF  SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF  USE, DATA, OR PROFITS; OR  BUSINESS INTERRUPTION) HOWEVER
- * CAUSED  AND  ON  ANY  THEORY  OF  LIABILITY,  WHETHER  IN  CONTRACT,  STRICT
- * LIABILITY, OR TORT  (INCLUDING NEGLIGENCE OR OTHERWISE)  ARISING IN ANY  WAY
- * OUT OF THE  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
- *
- *****************************************************************************/
+*
+* Copyright (c) 2000 - 2010, Lawrence Livermore National Security, LLC
+* Produced at the Lawrence Livermore National Laboratory
+* LLNL-CODE-400142
+* All rights reserved.
+*
+* This file is  part of VisIt. For  details, see https://visit.llnl.gov/.  The
+* full copyright notice is contained in the file COPYRIGHT located at the root
+* of the VisIt distribution or at http://www.llnl.gov/visit/copyright.html.
+*
+* Redistribution  and  use  in  source  and  binary  forms,  with  or  without
+* modification, are permitted provided that the following conditions are met:
+*
+*  - Redistributions of  source code must  retain the above  copyright notice,
+*    this list of conditions and the disclaimer below.
+*  - Redistributions in binary form must reproduce the above copyright notice,
+*    this  list of  conditions  and  the  disclaimer (as noted below)  in  the
+*    documentation and/or other materials provided with the distribution.
+*  - Neither the name of  the LLNS/LLNL nor the names of  its contributors may
+*    be used to endorse or promote products derived from this software without
+*    specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT  HOLDERS AND CONTRIBUTORS "AS IS"
+* AND ANY EXPRESS OR  IMPLIED WARRANTIES, INCLUDING,  BUT NOT  LIMITED TO, THE
+* IMPLIED WARRANTIES OF MERCHANTABILITY AND  FITNESS FOR A PARTICULAR  PURPOSE
+* ARE  DISCLAIMED. IN  NO EVENT  SHALL LAWRENCE  LIVERMORE NATIONAL  SECURITY,
+* LLC, THE  U.S.  DEPARTMENT OF  ENERGY  OR  CONTRIBUTORS BE  LIABLE  FOR  ANY
+* DIRECT,  INDIRECT,   INCIDENTAL,   SPECIAL,   EXEMPLARY,  OR   CONSEQUENTIAL
+* DAMAGES (INCLUDING, BUT NOT  LIMITED TO, PROCUREMENT OF  SUBSTITUTE GOODS OR
+* SERVICES; LOSS OF  USE, DATA, OR PROFITS; OR  BUSINESS INTERRUPTION) HOWEVER
+* CAUSED  AND  ON  ANY  THEORY  OF  LIABILITY,  WHETHER  IN  CONTRACT,  STRICT
+* LIABILITY, OR TORT  (INCLUDING NEGLIGENCE OR OTHERWISE)  ARISING IN ANY  WAY
+* OUT OF THE  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+* DAMAGE.
+*
+*****************************************************************************/
 
 /* DUMMY IMPLEMENTATIONS */
 #include <unistd.h>
@@ -67,14 +67,9 @@ void ui_Mu_changed(int value, void *cbdata)
     // simulation_data *sim = (simulation_data *)cbdata;
     char buffer [50];
     paramMu=value/100.0*2 -1.0;
-    if( !rank )
-    {
-        fprintf( stderr, "\tparamMu= %g\n", paramMu); fflush(stderr);
-        sprintf(buffer,"%g",paramMu);
-        VisItUI_setValueS("MUTEXT",buffer,0);
-    }
+    sprintf(buffer,"%g",paramMu);
+    VisItUI_setValueS("MUTEXT",buffer,0);
     // printf("core:%d\t ui_Mu_changed: %g\n",rank,paramMu);
-    VisItTimeStepChanged();
 }
 
 void ui_A_changed(int value, void *cbdata)
@@ -88,15 +83,12 @@ void ui_A_changed(int value, void *cbdata)
     sprintf(buffer,"%g",paramA);
     VisItUI_setValueS("ATEXT",buffer,0);
     //printf("core:%d\t ui_A_changed: %g\n",rank,paramA);
-    VisItTimeStepChanged();
 }
 
 void
 ui_raz_clicked(void *cbdata)
 {
     init_fields();
-    VisItTimeStepChanged();
-    VisItUpdatePlots();
 }
 
 void
@@ -107,7 +99,7 @@ ui_halt_clicked(void *cbdata)
     sim->runMode = SIM_STOPPED;
     if(rank==0)
         printf("halt from gui\n");
-    
+
     VisItTimeStepChanged();
 }
 
@@ -119,12 +111,12 @@ void ui_run_clicked(void *cbdata)
     if(rank==0)
         printf("run from gui\n");
     VisItTimeStepChanged();
-    
+
 }
 /***************************************************************************
  For interactive purposes: buttons interface for visit
  **************************************************************************/
-const char *cmd_names[] = {"halt", "step", "run", "saveon","raz" }; /*For in*/
+const char *cmd_names[] = {"halt", "step", "run", "saveon","raz", "raz"}; /*For in*/
 static void init_fields();
 /******************************************************************************
  *
@@ -144,7 +136,7 @@ SimGetMetaData(void *cbdata)
         visit_handle mmd = VISIT_INVALID_HANDLE;
         visit_handle vmd = VISIT_INVALID_HANDLE;
         // visit_handle cmd = VISIT_INVALID_HANDLE;
-        // visit_handle emd = VISIT_INVALID_HANDLE;
+       // visit_handle emd = VISIT_INVALID_HANDLE;
         
         /* Set the simulation state. */
         VisIt_SimulationMetaData_setMode(md, (sim->runMode == SIM_STOPPED) ?
@@ -189,7 +181,7 @@ SimGetMetaData(void *cbdata)
         }
         
         
-        /* Add an expression.
+        /* Add an expression. 
          if(VisIt_ExpressionMetaData_alloc(&emd) == VISIT_OKAY)
          {
          VisIt_ExpressionMetaData_setName(emd, "zvec");
@@ -228,7 +220,7 @@ SimGetMesh(int domain, const char *name, void *cbdata)
             visit_handle h[3];
             
             // fprintf(stderr,"proc %d\t:simgetmesh: %d\t%d\t%d\n",rank,rmesh_dims[0],rmesh_dims[1],rmesh_dims[2]);
-            // fflush(stderr);
+           // fflush(stderr);
             
             for(i=0;i<3;i++)
             {
@@ -254,8 +246,8 @@ SimGetMesh(int domain, const char *name, void *cbdata)
             }
             VisIt_RectilinearMesh_setCoordsXYZ(res, h[0], h[1],h[2]);
             VisIt_RectilinearMesh_setRealIndices(res, minRealIndex, maxRealIndex);
-            
-            
+       
+             
         }
         else
         {
@@ -266,45 +258,45 @@ SimGetMesh(int domain, const char *name, void *cbdata)
     return res;
 }
 /*
- visit_handle
- SimGetVariableWorking(int domain, const char *name, void *cbdata)
- {
- visit_handle h = VISIT_INVALID_HANDLE;
- //  simulation_data *sim = (simulation_data *)cbdata;
- 
- // fprintf(stderr,"proc %d: SimGetVariable\n",rank);
- 
- if(strcmp(name, "u") == 0)
- {
- float *zoneptr;
- float  *rmesh_zonal;
- int i, j, k, nTuples;
- 
- 
- // Calculate a zonal variable that moves around.
- rmesh_zonal = (float*)malloc(sizeof(float) * (rmesh_dims[0]-1) * (rmesh_dims[1]-1)*(rmesh_dims[2]-1));
- zoneptr = rmesh_zonal;
- 
- for(k=zmin;k<zmax;k++)
- {
- for(j = 0; j < rmesh_dims[1]-1; ++j)
- {
- for(i = 0; i < rmesh_dims[0]-1; ++i)
- {
- 
- *zoneptr++ = fields[0][k][j][i];
- }
- }
- }
- nTuples = (rmesh_dims[0]-1) * (rmesh_dims[1]-1)*(rmesh_dims[2]-1);
- VisIt_VariableData_alloc(&h);
- VisIt_VariableData_setDataF(h, VISIT_OWNER_VISIT, 1,
- nTuples, rmesh_zonal);
- }
- 
- return h;
- }
- */
+visit_handle
+SimGetVariableWorking(int domain, const char *name, void *cbdata)
+{
+    visit_handle h = VISIT_INVALID_HANDLE;
+    //  simulation_data *sim = (simulation_data *)cbdata;
+    
+    // fprintf(stderr,"proc %d: SimGetVariable\n",rank);
+    
+    if(strcmp(name, "u") == 0)
+    {
+        float *zoneptr;
+        float  *rmesh_zonal;
+        int i, j, k, nTuples;
+        
+        
+        // Calculate a zonal variable that moves around. 
+        rmesh_zonal = (float*)malloc(sizeof(float) * (rmesh_dims[0]-1) * (rmesh_dims[1]-1)*(rmesh_dims[2]-1));
+        zoneptr = rmesh_zonal;
+        
+        for(k=zmin;k<zmax;k++)
+        {
+            for(j = 0; j < rmesh_dims[1]-1; ++j)
+            {
+                for(i = 0; i < rmesh_dims[0]-1; ++i)
+                {
+                    
+                    *zoneptr++ = fields[0][k][j][i];
+                }
+            }
+        }
+        nTuples = (rmesh_dims[0]-1) * (rmesh_dims[1]-1)*(rmesh_dims[2]-1);
+        VisIt_VariableData_alloc(&h);
+        VisIt_VariableData_setDataF(h, VISIT_OWNER_VISIT, 1,
+                                    nTuples, rmesh_zonal);
+    }
+    
+    return h;
+}
+*/
 visit_handle
 SimGetVariable(int domain, const char *name, void *cbdata)
 {
@@ -319,17 +311,17 @@ SimGetVariable(int domain, const char *name, void *cbdata)
         float  *rmesh_zonal;
         int i, j, k, nTuples;
         nTuples = (rmesh_dims[0]) * (rmesh_dims[1])*(rmesh_dims[2]);
+
         
-        
-        // Calculate a zonal variable that moves around.
+        // Calculate a zonal variable that moves around. 
         rmesh_zonal = (float*)malloc(sizeof(float)*nTuples);
         zoneptr = rmesh_zonal;
-        
+
         // A RETRAVAILLER
-        if((size==2)&&rank==0)
+        if((size==2)&&rank==0)      
         {
-            // for(k=zmin;k<=zmax;k++)
-            for(k=zmax+NG;k>=zmin;--k)
+           // for(k=zmin;k<=zmax;k++)
+                for(k=zmax+NG;k>=zmin;--k)
             {
                 for(j = 0; j < rmesh_dims[1]; ++j)
                 {
@@ -434,13 +426,13 @@ void write_vis_dump(simulation_data *sim)
     /* Write visualization dump. */
 }
 /******************************************************************************
- * Purpose: Process commands from viewer on all processors.
+ * Purpose: Process commands from viewer on all processors. 
  *****************************************************************************/
 int ProcessVisItCommand(simulation_data *sim)
 {
     int command;
     if (sim->par_rank==0)
-    {
+    {  
         int success = VisItProcessEngineCommand();
         
         if (success)
@@ -480,10 +472,10 @@ int ProcessVisItCommand(simulation_data *sim)
 }
 
 /**************************************************************************
- *Callback function for control commands, which are the buttons in the
+ *Callback function for control commands, which are the buttons in the 
  * GUI's Simulation window. This type of command is handled automatically
  * provided that you have registered a command callback such as this.
- **************************************************************************/
+**************************************************************************/
 void ControlCommandCallback(const char *cmd, const char *args, void *cbdata)
 {
     simulation_data *sim = (simulation_data *)cbdata;
@@ -495,10 +487,7 @@ void ControlCommandCallback(const char *cmd, const char *args, void *cbdata)
     else if(strcmp(cmd, "run") == 0)
         sim->runMode = SIM_RUNNING;
     else if(strcmp(cmd, "raz") == 0)
-    {
         init_fields();
-        VisItUpdatePlots();
-    }
     else if(strcmp(cmd, "addplot") == 0)
     {
         VisItExecuteCommand("AddPlot(\"Pseudocolor\", \"zonal\")\n");
@@ -518,7 +507,7 @@ ProcessConsoleCommand(simulation_data *sim)
     
     VisItUI_valueChanged("Mu", ui_Mu_changed, &sim);
     VisItUI_valueChanged("A", ui_A_changed, &sim);
-    
+
     if (sim->par_rank == 0)
     {
         int iseof = (fgets(cmd, 1000, stdin) == NULL);
@@ -561,39 +550,33 @@ ProcessConsoleCommand(simulation_data *sim)
     }
 }
 
-
-static void do_nothing( int, void *)
-{
-    
-}
-
 void mainloop(simulation_data *sim)
 {
     int blocking, visitstate, err = 0;
     //char buffer[100];
-    //  double startTime,endTime;
-    
+  //  double startTime,endTime;
+
     /* If we're not running by default then simulate once there's something
      * once VisIt connects.
-     
-     if(sim->runMode == SIM_STOPPED)
-     simulate_one_timestep(sim);
-     */
-    VisItUI_valueChanged("MU",     ui_Mu_changed, sim);
-    VisItUI_valueChanged("MUTEXT", do_nothing, NULL);
+
+    if(sim->runMode == SIM_STOPPED)
+        simulate_one_timestep(sim);
+      */
+    VisItUI_valueChanged("MU", ui_Mu_changed, sim);
+    VisItUI_valueChanged("MUTEXT", ui_Mu_changed, sim);
     paramMu=1;
 	//sprintf(buffer,"%g",paramMu);
     //VisItUI_setValueS("MUTEXT",buffer,0);
-    
+
     
     
     VisItUI_valueChanged("A", ui_A_changed, sim);
     VisItUI_valueChanged("ATEXT", ui_A_changed, sim);
-    
+
     VisItUI_clicked("RUN",  ui_run_clicked, sim);
     VisItUI_clicked("HALT", ui_halt_clicked, sim);
     VisItUI_clicked("RAZ" , ui_raz_clicked, sim);
-    
+
     if (sim->par_rank == 0)
     {
         fprintf(stderr, "command> ");
@@ -608,10 +591,10 @@ void mainloop(simulation_data *sim)
         {
             visitstate = VisItDetectInput(blocking, fileno(stdin));
         }
-        
+
         
         MPI_Bcast(&visitstate, 1, MPI_INT, 0, MPI_COMM_WORLD);
-        
+
         switch(visitstate)
         {
             case 0:
@@ -628,13 +611,13 @@ void mainloop(simulation_data *sim)
                     
                     VisItSetGetMetaData(SimGetMetaData, (void*)sim);
                     VisItSetGetMesh(SimGetMesh, (void*)sim);
-                    //VisItSetGetCurve(SimGetCurve, (void*)sim);
+                   //VisItSetGetCurve(SimGetCurve, (void*)sim);
                     VisItSetGetVariable(SimGetVariable, (void*)sim);
                     VisItSetGetDomainList(SimGetDomainList, (void*)sim);
                     sim->visitIsConnected=1;
-                    
+                     
                 }
-                else
+                else 
                 {
                     /* Print the error message */
                     char *errString = VisItGetLastError();
@@ -649,7 +632,7 @@ void mainloop(simulation_data *sim)
                     /* Disconnect on an error or closed connection. */
                     VisItDisconnect();
                     sim->visitIsConnected=0;
-                    
+
                     /* Start running again if VisIt closes. */
                     /*sim->runMode = SIM_RUNNING;*/
                 }
