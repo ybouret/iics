@@ -13,7 +13,7 @@ struct mpi_async_t
 };
 
 
-#define DEFAULT_SIZE 320
+#define DEFAULT_SIZE 640 
 
 static const size_t NC = 1;     /*!< two components */
 const char                *cpntName[] = {"u","v"};  /*Name of the components*/
@@ -72,6 +72,8 @@ int   rmesh_dims[3];
 
 static void *comm_proc(void *args)
 {
+  /* if( rank == 0 )
+		fprintf( stderr, "in thread\n"); */
     mpi_async_t *Async = (mpi_async_t *)args;
     MPI_Waitall( Async->count, Async->request, Async->status);
     return NULL;
@@ -79,13 +81,22 @@ static void *comm_proc(void *args)
 
 pthread_t create_comm_thread( mpi_async_t *args )
 {
+
     pthread_t thr;
+    //const double t_ini = MPI_Wtime();
     int err = pthread_create( &thr, 0, comm_proc, args);
     if(err)
     {
         fprintf( stderr, "error in pthread_create\n");
         exit(1);
     }
+    /*
+  if( rank == 0 )
+	{
+		const double t_cr = MPI_Wtime() - t_ini;
+		fprintf( stderr, "ThreadCreate in %.1f ms\n", 1000.0 * t_cr);
+	}
+	*/
     return thr;
 }
 
@@ -234,7 +245,10 @@ static void sendRequests(int i)
  *****************************************************************************************************/
 static void waitRequests(int i)
 {
+    //double ell = - MPI_Wtime();
     pthread_join(thr,NULL);
+    //ell += MPI_Wtime();
+    //if(!rank) fprintf( stderr, "join in %.1f ms\n", ell * 1000.0 );
 }
 
 
