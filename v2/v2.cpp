@@ -54,10 +54,10 @@ static MPI_Status  *status   = NULL;
 
 
 mpi_async_t Async;
-pthread_t thr;
+pthread_t   thr;
 
 static size_t       num_reqs = 0;
-static const int    diff_tag = 7; 
+static const int    diff_tag = 7;
 real_t paramMu=-1;
 real_t paramA=0;
 
@@ -145,16 +145,16 @@ static void create_requests()
 	
 	num_reqs = 4 * NC;
 	requests = (MPI_Request *)calloc(num_reqs,sizeof(MPI_Request));
-	status = (MPI_Status *)calloc(num_reqs,sizeof(MPI_Status));
+	status   = (MPI_Status *)calloc(num_reqs,sizeof(MPI_Status));
 	if( !requests )
 	{
 		perror("requests");
 		exit(-1);
 	}
 	
-  	Async.request=requests; 
-	Async.status=status; 
-	Async.count=4 * NC; 
+  	Async.request = requests;
+	Async.status  = status;
+	Async.count   = 4 * NC;
 }
 
 static void delete_requests()
@@ -167,38 +167,38 @@ static void delete_requests()
 }
 
 /*
-static void exchange_ghosts()
-{
-	const size_t nitems = items_per_slice * NG;
-	size_t       i;
-    MPI_Status status;
-	
-	num_reqs = 4 * NC;
-	requests = (MPI_Request *)calloc(num_reqs,sizeof(MPI_Request));
-	if( !requests )
-	{
-		perror("requests");
-		exit(-1);
-	}
-	
-	for( i=0; i < NC; ++i )
-	{
-		const size_t j = i * 4;
-		// send information to below
-		_CHECK(MPI_Isend( &fields[i][zmin][ymin][xmin],    nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+0] ));
-		
-		// send information to above
-		_CHECK(MPI_Isend( &fields[i][zmax-NG][ymin][xmin], nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+1] ));
-		
-		// recv information from below
-		_CHECK(MPI_Irecv( &fields[i][zlo][ymin][xmin],     nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+2] ));
-		
-		// recv information from above
-		_CHECK(MPI_Irecv( &fields[i][zmax+1][ymin][xmin],  nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+3] ));
-	}
-    for(i=0;i<num_reqs;i++)
-        _CHECK(MPI_Wait(&requests[i],&status));
-}
+ static void exchange_ghosts()
+ {
+ const size_t nitems = items_per_slice * NG;
+ size_t       i;
+ MPI_Status status;
+ 
+ num_reqs = 4 * NC;
+ requests = (MPI_Request *)calloc(num_reqs,sizeof(MPI_Request));
+ if( !requests )
+ {
+ perror("requests");
+ exit(-1);
+ }
+ 
+ for( i=0; i < NC; ++i )
+ {
+ const size_t j = i * 4;
+ // send information to below
+ _CHECK(MPI_Isend( &fields[i][zmin][ymin][xmin],    nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+0] ));
+ 
+ // send information to above
+ _CHECK(MPI_Isend( &fields[i][zmax-NG][ymin][xmin], nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+1] ));
+ 
+ // recv information from below
+ _CHECK(MPI_Irecv( &fields[i][zlo][ymin][xmin],     nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+2] ));
+ 
+ // recv information from above
+ _CHECK(MPI_Irecv( &fields[i][zmax+1][ymin][xmin],  nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+3] ));
+ }
+ for(i=0;i<num_reqs;i++)
+ _CHECK(MPI_Wait(&requests[i],&status));
+ }
  */
 /*****************************************************************************************************
  *     Here we start the send/recv requests for variable i
@@ -206,7 +206,7 @@ static void exchange_ghosts()
 static void sendRequests(int i)
 {
 	const size_t nitems = items_per_slice * NG;
-   	 const size_t j = i * 4;
+    const size_t j = i * 4;
     
 	if( !requests )
 	{
@@ -225,7 +225,7 @@ static void sendRequests(int i)
     
     // recv information from above
     MPI_Irecv( &fields[i][zmax+1][ymin][xmin],  nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+3] );
-
+    
     thr = create_comm_thread( &Async );
 	
 }
@@ -234,7 +234,7 @@ static void sendRequests(int i)
  *****************************************************************************************************/
 static void waitRequests(int i)
 {
-     pthread_join(thr,NULL);
+    pthread_join(thr,NULL);
 }
 
 
@@ -294,9 +294,9 @@ double  mesureTimeForExchangingGhost()
 	double elapsedTime;
     
     elapsedTime=-MPI_Wtime();
-
+    
 	sendRequests(0);
-
+    
 	waitRequests(0);
     
 	elapsedTime+=MPI_Wtime();
@@ -308,28 +308,29 @@ static void diffusion2()
 {
 	size_t i;
 	size_t j;
-
+    
     for( i=0; i < NC; ++i )
 	{
         real_t ***f = fields[i];
         sendRequests(i);
-
-        compute_laplacian2(f,0); //bulk
+        
+        compute_laplacian2(f,1); //bulk
+        
         waitRequests(i);
-        compute_laplacian2(f,1); //boundaries
+        compute_laplacian2(f,0); //boundaries
         
-         
+        
         /*
-        real_t       *dst = &f[zmin][ymin][xmin];
-        const real_t *src = &laplacian[zmin][ymin][xmin];
-        for( j=0; j < items_per_field; ++j )
-        {
-            dst[j] += dt * (src[j]+dst[j]*paramMu-dst[j]*dst[j]*dst[j]+paramA);
-        }
-        
-       */
+         real_t       *dst = &f[zmin][ymin][xmin];
+         const real_t *src = &laplacian[zmin][ymin][xmin];
+         for( j=0; j < items_per_field; ++j )
+         {
+         dst[j] += dt * (src[j]+dst[j]*paramMu-dst[j]*dst[j]*dst[j]+paramA);
+         }
+         
+         */
 	}
-
+    
 }
 
 
@@ -441,7 +442,7 @@ void initSimulation(void)
 	/***************************************************************************
 	 * initialize fields, initially at 0
 	 **************************************************************************/
-
+    
 	
 }
 void simulate_one_timestep(simulation_data *sim)
@@ -450,22 +451,23 @@ void simulate_one_timestep(simulation_data *sim)
     int i;
     int nbIter=10;
     double elapsedTime=MPI_Wtime();
-   // double times[2];
+    // double times[2];
     ++sim->cycle;
     sim->time += dt;
     /*
-    if(rank==0)
-        elapsedTime=MPI_Wtime();
-    
-    times[0]=mesureTimeForExchangingGhost();
-    */
+     if(rank==0)
+     elapsedTime=MPI_Wtime();
+     
+     times[0]=mesureTimeForExchangingGhost();
+     */
     // Diffusion
     for(i=0;i<nbIter;i++)
     {
         diffusion2();
     }
-     
-
+    const double ell = MPI_Wtime() - elapsedTime;
+    
+    
     if(sim->savingFiles==1)
     {
         writeDomain(sim->cycle);
@@ -479,10 +481,9 @@ void simulate_one_timestep(simulation_data *sim)
         VisItTimeStepChanged();
         VisItUpdatePlots();
     }
- 
+    
     if(rank==0)
     {
-        const double ell = MPI_Wtime() - elapsedTime;
         fprintf(stderr,"%2d cores:cycle=%6d, in %10.5lf s | \n",sim->par_size, sim->cycle, ell);
         fflush(stderr);
     }
@@ -516,7 +517,7 @@ int main(int argc, char *argv[] )
 	srand( time(NULL) );
 	setvbuf( stderr, NULL, 0, _IONBF );
     fprintf( stderr, "Starting Program\n");
-
+    
     
 	
 	_CHECK(MPI_Init(&argc,&argv));
@@ -536,7 +537,7 @@ int main(int argc, char *argv[] )
     simulation_data sim;
     simulation_data_ctor(&sim,rank,size);
     //VisItSetupEnvironment();
-
+    
     /***************************************************************************
      * Install callback functions for global communication..
 	 **************************************************************************/
@@ -546,15 +547,15 @@ int main(int argc, char *argv[] )
     /***************************************************************************
      * Tell visit whether the simulation is parallel.
 	 **************************************************************************/
-     VisItSetParallel(sim.par_size > 1);
-     VisItSetParallelRank(sim.par_rank);
+    VisItSetParallel(sim.par_size > 1);
+    VisItSetParallelRank(sim.par_rank);
     
-     if(sim.par_rank == 0)
-         env = VisItGetEnvironment();
+    if(sim.par_rank == 0)
+        env = VisItGetEnvironment();
     VisItSetupEnvironment2(env);
     if(env != NULL)
         free(env);
-
+    
     if(rank==0)
     {
         
@@ -571,12 +572,12 @@ int main(int argc, char *argv[] )
         }
     }
 	init_fields();
-   // if(rank==0) VisItOpenTraceFile("./TraceFileOfLibSim.txt");
-   
-/*
-   if(!rank)
-        fprintf(stderr,"\nTime needed to exhange ghost is %g\n",mesureTimeForExchangingGhost());
-  */   
+    // if(rank==0) VisItOpenTraceFile("./TraceFileOfLibSim.txt");
+    
+    /*
+     if(!rank)
+     fprintf(stderr,"\nTime needed to exhange ghost is %g\n",mesureTimeForExchangingGhost());
+     */
     mainloop(&sim);
     //if(rank==0) VisItCloseTraceFile();
     /***************************************************************************
