@@ -5,10 +5,15 @@
 #include <stdio.h>
 /* Instrumenting with visit */
 
+struct mpi_async_t
+{
+    MPI_Request *request;
+    MPI_Status  *status;
+    int          count;
+};
 
 
-
-#define DEFAULT_SIZE 960
+#define DEFAULT_SIZE 320
 
 static const size_t NC = 1;     /*!< two components */
 const char                *cpntName[] = {"u","v"};  /*Name of the components*/
@@ -47,6 +52,10 @@ static real_t       dt = 0.0;
 static MPI_Request *requests = NULL;
 static MPI_Status  *status   = NULL;
 
+
+mpi_async_t Async;
+pthread_t thr;
+
 static size_t       num_reqs = 0;
 static const int    diff_tag = 7; 
 real_t paramMu=-1;
@@ -60,6 +69,25 @@ int   rmesh_dims[3];
 #include "writeToSilo.c"
 
 
+
+static void *comm_proc(void *args)
+{
+    mpi_async_t *Async = (mpi_async_t *)args;
+    MPI_Waitall( Async->count, Async->request, Async->status);
+    return NULL;
+}
+
+pthread_t create_comm_thread( mpi_async_t *args )
+{
+    pthread_t thr;
+    int err = pthread_create( &thr, 0, comm_proc, args);
+    if(err)
+    {
+        fprintf( stderr, "error in pthread_create\n");
+        exit(1);
+    }
+    return thr;
+}
 
 
 static void create_fields()
@@ -124,23 +152,9 @@ static void create_requests()
 		exit(-1);
 	}
 	
-    /*
-     for( i=0; i < NC; ++i )
-     {
-     const size_t j = i * 4;
-     // send information to below
-     _CHECK(MPI_Send_init( &fields[i][zmin][ymin][xmin],    nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+0] ));
-     
-     // send information to above
-     _CHECK(MPI_Send_init( &fields[i][zmax-NG][ymin][xmin], nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+1] ));
-     
-     // recv information from below
-     _CHECK(MPI_Recv_init( &fields[i][zlo][ymin][xmin],     nitems, ICP_REAL, below, diff_tag, MPI_COMM_WORLD, &requests[j+2] ));
-     
-     // recv information from above
-     _CHECK(MPI_Recv_init( &fields[i][zmax+1][ymin][xmin],  nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+3] ));
-     }
-     */
+  	Async.request=requests; 
+	Async.status=status; 
+	Async.count=4 * NC; 
 }
 
 static void delete_requests()
@@ -192,7 +206,7 @@ static void exchange_ghosts()
 static void sendRequests(int i)
 {
 	const size_t nitems = items_per_slice * NG;
-    const size_t j = i * 4;
+   	 const size_t j = i * 4;
     
 	if( !requests )
 	{
@@ -211,6 +225,8 @@ static void sendRequests(int i)
     
     // recv information from above
     MPI_Irecv( &fields[i][zmax+1][ymin][xmin],  nitems, ICP_REAL, above, diff_tag, MPI_COMM_WORLD, &requests[j+3] );
+
+    thr = create_comm_thread( &Async );
 	
 }
 /*****************************************************************************************************
@@ -218,20 +234,7 @@ static void sendRequests(int i)
  *****************************************************************************************************/
 static void waitRequests(int i)
 {
-    const size_t j = i * 4;
-    int k;
-    
-    
-    if( !requests )
-	{
-		perror("requests in waitRequests");
-		exit(-1);
-	}
-    
-    for(k=0;k<4;k++)
-        _CHECK(MPI_Wait(&requests[j+k],&status[j+k]));
-     
- //   MPI_Waitall(4,requests,&status);
+     pthread_join(thr,NULL);
 }
 
 
@@ -286,33 +289,6 @@ static void compute_laplacian2( real_t ***f, int bulk)
     
 }
 
-
-
-
-//static void reaction(){}
-/*
-static void diffusion()
-{
-	size_t i;
-	size_t j;
-    
-    exchange_ghosts();
-	for( i=0; i < NC; ++i )
-	{
-		real_t ***f = fields[i];
-		compute_laplacian(f);
-		{
-			real_t       *dst = &f[zmin][ymin][xmin];
-			const real_t *src = &laplacian[zmin][ymin][xmin];
-			for( j=0; j < items_per_field; ++j )
-			{
-                
-				dst[j] += dt * (src[j]+dst[j]-dst[j]*dst[j]*dst[j]);
-			}
-		}
-	}
-}
- */
 double  mesureTimeForExchangingGhost()
 {
 	double elapsedTime;
@@ -337,12 +313,13 @@ static void diffusion2()
 	{
         real_t ***f = fields[i];
         sendRequests(i);
-        compute_laplacian2(f,1); //bulk
+
+        compute_laplacian2(f,0); //bulk
         waitRequests(i);
-        compute_laplacian2(f,0); //boundaries
+        compute_laplacian2(f,1); //boundaries
         
          
-        
+        /*
         real_t       *dst = &f[zmin][ymin][xmin];
         const real_t *src = &laplacian[zmin][ymin][xmin];
         for( j=0; j < items_per_field; ++j )
@@ -350,8 +327,9 @@ static void diffusion2()
             dst[j] += dt * (src[j]+dst[j]*paramMu-dst[j]*dst[j]*dst[j]+paramA);
         }
         
-        
+       */
 	}
+
 }
 
 
@@ -463,6 +441,8 @@ void initSimulation(void)
 	/***************************************************************************
 	 * initialize fields, initially at 0
 	 **************************************************************************/
+
+	
 }
 void simulate_one_timestep(simulation_data *sim)
 {
