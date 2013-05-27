@@ -10,8 +10,10 @@ using namespace math;
 
 typedef double        Real;
 typedef v2d<Real>     Vertex;
-typedef hashing::sha1 HasherType;
+typedef hashing::sha1 HasherType; //!< base class
+#define               REAL_TYPE MPI_DOUBLE
 
+//! mostly used to debug MPI
 class Hasher : public HasherType
 {
 public:

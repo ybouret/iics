@@ -3,13 +3,17 @@
 void Bubble:: init_contour() throw()
 {
     assert(size>=3);
+    G.ldz();
     Tracer *tr = root;
     for( size_t i=size;i>0;--i,tr=tr->next)
     {
+        G += tr->pos;
         tr->edge = tr->next->pos - tr->pos;
         tr->dist = tr->edge.norm();
         std::cerr << "\td=" << tr->dist << std::endl;
     }
+    G.x /= size;
+    G.y /= size;
 }
 
 #include "yocto/math/dat/spline.hpp"
