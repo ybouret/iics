@@ -3,6 +3,7 @@
 
 #include "yocto/math/v2d.hpp"
 #include "yocto/hashing/sha1.hpp"
+#include "yocto/math/types.hpp"
 
 using namespace yocto;
 using namespace math;
