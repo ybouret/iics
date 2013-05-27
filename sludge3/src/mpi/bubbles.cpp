@@ -86,17 +86,21 @@ void Parallel:: BubbleRecv( const mpi &MPI, Bubbles &owner)
     
 }
 
+static const int tag = 7;
+
 void Parallel:: BubblesEmit(const mpi &MPI, const Bubbles &bubbles)
 {
-    std::cerr << "BubblesEmit" << std::endl;
+    MPI.Printf(stderr,"BubblesEmit\n");
+    
     //==========================================================================
     // emit #bubbles (and extra info if needed)
     //==========================================================================
     assert(0==MPI.CommWorldRank);
     for(int dest=1;dest<MPI.CommWorldSize;++dest)
     {
-        MPI.Send(bubbles.size, dest, Bubbles::Tag, MPI_COMM_WORLD);
+        MPI.Send<size_t>(bubbles.size, dest, tag, MPI_COMM_WORLD);
     }
+    return;
     
     //==========================================================================
     // emit the bubbles
@@ -112,11 +116,13 @@ void Parallel:: BubblesRecv(const mpi &MPI, Bubbles &bubbles)
     assert(MPI.CommWorldRank>0);
     bubbles.auto_delete();
     MPI_Status status;
-    std::cerr << "BubblesRecv" << std::endl;
+    MPI.Printf(stderr,"BubblesRecv\n");
     //==========================================================================
     // recv #bubbles (and extra info if needed)
     //==========================================================================
-    const size_t num_bubbles = MPI.Recv<size_t>(0, Bubbles::Tag, MPI_COMM_WORLD, status);
+    const size_t num_bubbles = MPI.Recv<size_t>(0, tag, MPI_COMM_WORLD, status);
+    MPI.Printf(stderr, "num_bubbles=%u\n",unsigned(num_bubbles) );
+    return;
     
     //==========================================================================
     // recv all bubbles
@@ -129,7 +135,7 @@ void Parallel:: BubblesRecv(const mpi &MPI, Bubbles &bubbles)
 
 void Parallel:: BubblesBcast(const mpi &MPI, Bubbles &bubbles)
 {
-    std::cerr << "BubblesBcast" << std::endl;
+    MPI.Printf(stderr, "BubblesBcast\n");
     if( MPI.IsFirst )
     {
         BubblesEmit(MPI,bubbles);
