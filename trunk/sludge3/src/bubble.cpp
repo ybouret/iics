@@ -6,7 +6,8 @@ const int Bubble::Tag = int(YOCTO_FOURCC('B', 'u', 'b', 'l'));
 Bubble:: Bubble( Real &lam ) throw() :
 prev(0),
 next(0),
-lambda( lam )
+lambda( lam ),
+G()
 {
     
 }

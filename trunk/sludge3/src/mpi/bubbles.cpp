@@ -1,5 +1,6 @@
 #include "bubbles.hpp"
 #include "yocto/auto-ptr.hpp"
+
 void Parallel:: TracerSend( const mpi &MPI, const Tracer *tr )
 {
     assert(tr);
@@ -90,7 +91,6 @@ static const int tag = 7;
 
 void Parallel:: BubblesEmit(const mpi &MPI, const Bubbles &bubbles)
 {
-    MPI.Printf(stderr,"BubblesEmit\n");
     
     //==========================================================================
     // emit #bubbles (and extra info if needed)
@@ -100,7 +100,6 @@ void Parallel:: BubblesEmit(const mpi &MPI, const Bubbles &bubbles)
     {
         MPI.Send<size_t>(bubbles.size, dest, tag, MPI_COMM_WORLD);
     }
-    return;
     
     //==========================================================================
     // emit the bubbles
@@ -116,13 +115,10 @@ void Parallel:: BubblesRecv(const mpi &MPI, Bubbles &bubbles)
     assert(MPI.CommWorldRank>0);
     bubbles.auto_delete();
     MPI_Status status;
-    MPI.Printf(stderr,"BubblesRecv\n");
     //==========================================================================
     // recv #bubbles (and extra info if needed)
     //==========================================================================
     const size_t num_bubbles = MPI.Recv<size_t>(0, tag, MPI_COMM_WORLD, status);
-    MPI.Printf(stderr, "num_bubbles=%u\n",unsigned(num_bubbles) );
-    return;
     
     //==========================================================================
     // recv all bubbles
@@ -142,7 +138,7 @@ void Parallel:: BubblesBcast(const mpi &MPI, Bubbles &bubbles)
     }
     else
     {
-        BubbleRecv(MPI,bubbles);
+        BubblesRecv(MPI,bubbles);
     }
 }
 
