@@ -14,6 +14,7 @@ types.hpp   types.cpp
 tracer.hpp  tracer.cpp
 bubble.hpp  bubble.cpp bubble-ios.cpp bubble-ops.cpp
 bubbles.hpp bubbles.cpp
+shape.hpp   shape.cpp
 )
 SOURCE_GROUP( sludge FILES ${SOURCES_SEQ} )
 
