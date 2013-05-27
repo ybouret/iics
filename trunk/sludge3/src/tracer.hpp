@@ -16,6 +16,7 @@ public:
     
     
     explicit Tracer() throw();
+    explicit Tracer( const Vertex v ) throw();
     virtual ~Tracer() throw();
     
     void hash( Hasher &h ) const throw();
