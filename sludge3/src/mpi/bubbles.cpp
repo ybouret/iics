@@ -88,6 +88,7 @@ void Parallel:: BubbleRecv( const mpi &MPI, Bubbles &owner)
 
 void Parallel:: BubblesEmit(const mpi &MPI, const Bubbles &bubbles)
 {
+    std::cerr << "BubblesEmit" << std::endl;
     //==========================================================================
     // emit #bubbles (and extra info if needed)
     //==========================================================================
@@ -111,7 +112,7 @@ void Parallel:: BubblesRecv(const mpi &MPI, Bubbles &bubbles)
     assert(MPI.CommWorldRank>0);
     bubbles.auto_delete();
     MPI_Status status;
-    
+    std::cerr << "BubblesRecv" << std::endl;
     //==========================================================================
     // recv #bubbles (and extra info if needed)
     //==========================================================================
@@ -123,6 +124,19 @@ void Parallel:: BubblesRecv(const mpi &MPI, Bubbles &bubbles)
     for(size_t i=1;i<=num_bubbles;++i)
     {
         BubbleRecv(MPI, bubbles);
+    }
+}
+
+void Parallel:: BubblesBcast(const mpi &MPI, Bubbles &bubbles)
+{
+    std::cerr << "BubblesBcast" << std::endl;
+    if( MPI.IsFirst )
+    {
+        BubblesEmit(MPI,bubbles);
+    }
+    else
+    {
+        BubbleRecv(MPI,bubbles);
     }
 }
 
