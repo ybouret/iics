@@ -10,7 +10,9 @@ LINK_DIRECTORIES(    ${YROOT}/lib     )
 SET(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/../sdk)
 
 SET(SOURCES_SEQ
-types.hpp types.cpp)
+types.hpp  types.cpp
+tracer.hpp tracer.cpp
+)
 SOURCE_GROUP( sludge FILES ${SOURCES_SEQ} )
 
 ADD_LIBRARY(sludge ${SOURCES_SEQ})
