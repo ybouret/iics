@@ -7,6 +7,17 @@ edge(),
 dist(0)
 {}
 
+
+Tracer:: Tracer( const Vertex v ) throw() :
+prev(0),
+next(0),
+pos(v),
+edge(),
+dist()
+{
+    
+}
+
 Tracer:: ~Tracer() throw() {}
 
 void Tracer:: hash( Hasher &h ) const throw()

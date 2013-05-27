@@ -19,6 +19,9 @@ public:
     //! more than three points !
     void init_contour() throw();
     
+    //! once init_contour is ok, respect lambda
+    void auto_contour();
+    
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Bubble);
     
