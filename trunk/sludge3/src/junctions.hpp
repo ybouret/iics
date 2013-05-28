@@ -24,7 +24,7 @@ public:
         virtual ~List() throw();
         
         
-        Junction *append(Real);
+        void append(Real);
         
     private:
         YOCTO_DISABLE_COPY_AND_ASSIGN(List);
@@ -57,6 +57,9 @@ public:
     bool load( const Bubble &bubble );
     const Grid     &grid;
 
+    void clear() throw();
+    void save_dat( const string &fn) const;
+    
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Junctions);
     size_t          jcount;
@@ -65,10 +68,11 @@ private:
     Junction::List *jhorz;   //!< width.y times
     
     unsigned __load( const Bubble &bubble, const Vertex &p, const Vertex &q );
-    unsigned __loadBothInside( const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q, const Coord &Q);
-    unsigned __loadOneOutside( const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q);
+    unsigned __loadJ( const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q, const Coord &Q);
     
-    
+    void __loadHorz(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q);
+    void __loadVert(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q);
+
 };
 
 
