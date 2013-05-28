@@ -32,7 +32,7 @@ void __Grid:: SaveDat( const Grid &grid, const string &fn )
 
 #include "yocto/code/utils.hpp"
 
-Real __Grid:: ComputeLambda( const Grid &grid)
+Real __Grid:: ComputeLambda( const Grid &grid) throw()
 {
     
     const Array1D &X = grid.X();
@@ -53,4 +53,76 @@ Real __Grid:: ComputeLambda( const Grid &grid)
     }
     
     return min_of(dx,dy)/2;
+}
+
+static inline
+unit_t __locate( const Array1D &A, const Real a ) throw()
+{
+    unit_t jlo = A.lower;
+    unit_t jup = A.upper;
+    assert(jup>jlo);
+    assert(a>=A[jlo]);
+    assert(a<=A[jup]);
+    
+    while(jup-jlo>1)
+    {
+        const unit_t mid = (jlo+jup)>>1;
+        if( a < A[mid] )
+        {
+            jup = mid;
+        }
+        else
+        {
+            jlo = mid;
+        }
+    }
+    
+    return jlo;
+}
+
+int __Grid::Locate(const Grid &grid, const Vertex &p, Coord &lo) throw()
+{
+    assert( grid.is_valid() );
+    const Array1D &X = grid.X();
+    const Array1D &Y = grid.Y();
+    int ans = SLUDGE_INSIDE;
+    
+    if( p.x < X[X.lower])
+    {
+        ans |= SLUDGE_LEFT;
+    }
+    else
+    {
+        if(p.x>X[X.upper])
+        {
+            ans |= SLUDGE_RIGHT;
+        }
+        else
+        {
+            //-- effective location
+            lo.x = __locate( X, p.x );
+        }
+    }
+    
+    if( p.y < Y[Y.lower])
+    {
+        ans |= SLUDGE_BOTTOM;
+    }
+    else
+    {
+        if(p.y>Y[Y.upper])
+        {
+            ans |= SLUDGE_TOP;
+        }
+        else
+        {
+            //-- effective location
+            lo.y = __locate( Y, p.y );
+        }
+    }
+
+    
+    
+    
+    return ans;
 }
