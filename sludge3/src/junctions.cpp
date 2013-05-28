@@ -46,7 +46,8 @@ void Junction::List::append( Real a)
 
 Junctions:: Junctions(Grid &g) :
 grid(g),
-jcount( grid.width.x + grid.width.y ),
+num_lists(grid.width.x + grid.width.y), 
+jcount(num_lists),
 jlists( memory::kind<memory::global>::acquire_as<Junction::List>(jcount) ),
 jvert(jlists),
 jhorz(jvert+grid.width.x)
@@ -254,6 +255,30 @@ void Junctions:: __loadVert(const Bubble &bubble, const Vertex &p, const Coord &
     const Real      x0 = J.level;
     const Real      y0 = p.y + (x0-p.x) * (q.y - p.y) / (q.x - p.x);
     J.append(y0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Junctions sorting
+//
+////////////////////////////////////////////////////////////////////////////////
+#include "yocto/core/merge-sort.hpp"
+#include "yocto/comparator.hpp"
+
+static inline
+int __compareJ( const Junction *lhs, const Junction *rhs, void *)
+{
+    assert(lhs);
+    assert(rhs);
+    return __compare<Real>(lhs->value,rhs->value);
+}
+
+void Junctions:: sort()
+{
+    for( size_t i=0; i<num_lists; ++i)
+    {
+        core::merging<Junction>::sort(jlists[i],__compareJ,0);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
