@@ -42,14 +42,14 @@ YOCTO_UNIT_TEST_IMPL(grid)
    
     perform_locate(grid, bubble);
     
-    for(unit_t i=junctions.lower.x; i<= junctions.upper.x; ++i)
+    for(unit_t i=grid.lower.x; i<= grid.upper.x; ++i)
     {
         const Junction::List &J = junctions.Vert(i);
         assert( Junction::Vert == J.type);
         std::cerr << "Vert(" << i << ")@" << J.level << std::endl;
     }
     
-    for(unit_t j=junctions.lower.y; j<= junctions.upper.y; ++j)
+    for(unit_t j=grid.lower.y; j<= grid.upper.y; ++j)
     {
         const Junction::List &J = junctions.Horz(j);
         assert( Junction::Horz == J.type);
