@@ -34,5 +34,15 @@ YOCTO_UNIT_TEST_IMPL(bubble)
     bubble.auto_contour();
     bubble.save_dat("ell2.dat");
     
+    Shape::Blob(&bubble, Vertex(0,0), 10, 0.7);
+    bubble.save_dat("blob1.dat");
+    bubble.auto_contour();
+    bubble.save_dat("blob1a.dat");
+    
+    Shape::Blob(&bubble, Vertex(0,0), 10, 0.7, 0.6);
+    bubble.save_dat("blob2.dat");
+    bubble.auto_contour();
+    bubble.save_dat("blob2a.dat");
+    
 }
 YOCTO_UNIT_TEST_DONE()

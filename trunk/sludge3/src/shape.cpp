@@ -137,3 +137,36 @@ void Shape:: Rotate(Bubble *b, const Real alpha)
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// blob
+//
+////////////////////////////////////////////////////////////////////////////////
+void Shape:: Blob( Bubble *b, const Vertex C, const Real radius,  Real rho,  Real w)
+{
+    assert(b);
+    assert(radius>0);
+    b->auto_delete();
+    rho = clamp<Real>(0,rho,0.95);
+    w   = clamp<Real>(0,w,1);
+    const Real   fac = radius/(1.0 + rho);
+    const Real   L   = 20 * radius;
+    const size_t np = max_of<size_t>(3,L/b->lambda);
+    
+    const Real A = rho * (1-w);
+    const Real B = rho * w;
+    
+    for( size_t i=0; i < np; ++i )
+    {
+        const Real theta = (numeric<Real>::two_pi * i)/np;
+		Tracer *   tr    = new Tracer();
+        b->push_back(tr);
+        const Real rp    = fac * ( 1.0 + A * Cos( 2*theta) + B * Cos(3*theta) );
+		tr->pos.x = rp * Cos( theta ) + C.x;
+		tr->pos.y = rp * Sin( theta ) + C.y;
+    }
+    b->init_contour();
+    
+}
+
+
