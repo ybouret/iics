@@ -1,30 +1,29 @@
 #include "bubbles.hpp"
 #include "yocto/auto-ptr.hpp"
 
-static const int tag = 7;
 
-void Parallel:: TracerSend( const mpi &MPI, const Tracer *tr )
+void ParallelTracer:: Send( const mpi &MPI, const Tracer *tr )
 {
     assert(tr);
     assert(0==MPI.CommWorldRank);
     for(int dest=1; dest < MPI.CommWorldSize; ++dest)
     {
-        MPI.Send(&tr->pos, Tracer::NumReals, REAL_TYPE, dest, tag, MPI_COMM_WORLD);
+        MPI.Send(&tr->pos, Tracer::NumReals, REAL_TYPE, dest, Tracer::Tag, MPI_COMM_WORLD);
     }
 }
 
 
 
-Tracer *Parallel:: TracerRecv(const yocto::mpi &MPI)
+Tracer *ParallelTracer:: Recv(const yocto::mpi &MPI)
 {
     assert(MPI.CommWorldRank>0);
     auto_ptr<Tracer> tr( new Tracer() );
     MPI_Status status;
-    MPI.Recv(& tr->pos, Tracer::NumReals, REAL_TYPE, 0, tag, MPI_COMM_WORLD, status);
+    MPI.Recv(& tr->pos, Tracer::NumReals, REAL_TYPE, 0, Tracer::Tag, MPI_COMM_WORLD, status);
     return tr.yield();
 }
 
-void Parallel:: BubbleSend(const yocto::mpi &MPI, const Bubble *bubble)
+void ParallelBubble:: Send(const yocto::mpi &MPI, const Bubble *bubble)
 {
     assert(bubble);
     assert(0==MPI.CommWorldRank);
@@ -35,8 +34,8 @@ void Parallel:: BubbleSend(const yocto::mpi &MPI, const Bubble *bubble)
     //==========================================================================
     for(int dest=1;dest<MPI.CommWorldSize;++dest)
     {
-        MPI.Send(bubble->size, dest, tag, MPI_COMM_WORLD);
-        MPI.Send(&bubble->G, Bubble::NumReals, REAL_TYPE, dest, tag, MPI_COMM_WORLD);
+        MPI.Send(bubble->size, dest, Bubble::Tag, MPI_COMM_WORLD);
+        MPI.Send(&bubble->G, Bubble::NumReals, REAL_TYPE, dest, Bubble::Tag, MPI_COMM_WORLD);
     }
     
     //==========================================================================
@@ -45,12 +44,12 @@ void Parallel:: BubbleSend(const yocto::mpi &MPI, const Bubble *bubble)
     const Tracer *tr = bubble->root;
     for(size_t i=bubble->size;i>0;--i,tr=tr->next)
     {
-        TracerSend(MPI, tr);
+        ParallelTracer:: Send(MPI, tr);
     }
 }
 
 
-void Parallel:: BubbleRecv( const mpi &MPI, Bubbles &owner)
+void ParallelBubble:: Recv( const mpi &MPI, Bubbles &owner)
 {
     assert(MPI.CommWorldRank>0);
     
@@ -64,21 +63,21 @@ void Parallel:: BubbleRecv( const mpi &MPI, Bubbles &owner)
         //======================================================================
         // receive the #tracers
         //======================================================================
-        const size_t num_tracers = MPI.Recv<size_t>(0, tag, MPI_COMM_WORLD, status);
+        const size_t num_tracers = MPI.Recv<size_t>(0, Bubble::Tag, MPI_COMM_WORLD, status);
         if( num_tracers < 3)
             throw exception("BubbleRecv(#tracers<3)");
         
         //======================================================================
         // receive the extra data
         //======================================================================
-        MPI.Recv(& bubble->G, Bubble::NumReals, REAL_TYPE, 0, tag, MPI_COMM_WORLD, status);
+        MPI.Recv(& bubble->G, Bubble::NumReals, REAL_TYPE, 0, Bubble::Tag, MPI_COMM_WORLD, status);
         
         //======================================================================
         // receive the tracers
         //======================================================================
         for(size_t i=1;i<=num_tracers;++i)
         {
-            bubble->push_back( TracerRecv(MPI) );
+            bubble->push_back( ParallelTracer:: Recv(MPI) );
         }
     }
     catch(...)
@@ -90,7 +89,7 @@ void Parallel:: BubbleRecv( const mpi &MPI, Bubbles &owner)
 }
 
 
-void Parallel:: BubblesEmit(const mpi &MPI, const Bubbles &bubbles)
+void ParallelBubbles:: Send(const mpi &MPI, const Bubbles &bubbles)
 {
     
     //==========================================================================
@@ -99,7 +98,7 @@ void Parallel:: BubblesEmit(const mpi &MPI, const Bubbles &bubbles)
     assert(0==MPI.CommWorldRank);
     for(int dest=1;dest<MPI.CommWorldSize;++dest)
     {
-        MPI.Send<size_t>(bubbles.size, dest, tag, MPI_COMM_WORLD);
+        MPI.Send<size_t>(bubbles.size, dest, Bubbles::Tag, MPI_COMM_WORLD);
     }
     
     //==========================================================================
@@ -107,11 +106,11 @@ void Parallel:: BubblesEmit(const mpi &MPI, const Bubbles &bubbles)
     //==========================================================================
     for(const Bubble *b = bubbles.head;b;b=b->next)
     {
-        BubbleSend(MPI,b);
+        ParallelBubble:: Send(MPI,b);
     }
 }
 
-void Parallel:: BubblesRecv(const mpi &MPI, Bubbles &bubbles)
+void ParallelBubbles:: Recv(const mpi &MPI, Bubbles &bubbles)
 {
     assert(MPI.CommWorldRank>0);
     bubbles.auto_delete();
@@ -119,27 +118,27 @@ void Parallel:: BubblesRecv(const mpi &MPI, Bubbles &bubbles)
     //==========================================================================
     // recv #bubbles (and extra info if needed)
     //==========================================================================
-    const size_t num_bubbles = MPI.Recv<size_t>(0, tag, MPI_COMM_WORLD, status);
+    const size_t num_bubbles = MPI.Recv<size_t>(0, Bubbles::Tag, MPI_COMM_WORLD, status);
     
     //==========================================================================
     // recv all bubbles
     //==========================================================================
     for(size_t i=1;i<=num_bubbles;++i)
     {
-        BubbleRecv(MPI, bubbles);
+        ParallelBubble:: Recv(MPI, bubbles);
     }
 }
 
-void Parallel:: BubblesBcast(const mpi &MPI, Bubbles &bubbles)
+void ParallelBubbles:: Bcast(const mpi &MPI, Bubbles &bubbles)
 {
     MPI.Printf(stderr, "BubblesBcast\n");
     if( MPI.IsFirst )
     {
-        BubblesEmit(MPI,bubbles);
+        ParallelBubbles:: Send(MPI,bubbles);
     }
     else
     {
-        BubblesRecv(MPI,bubbles);
+        ParallelBubbles:: Recv(MPI,bubbles);
     }
 }
 

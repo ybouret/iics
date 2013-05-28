@@ -17,7 +17,7 @@ YOCTO_UNIT_TEST_IMPL(bubbles)
     }
     
     // broadcast
-    Parallel::BubblesBcast(MPI, bubbles);
+    ParallelBubbles:: Bcast(MPI, bubbles);
     
     for( const Bubble *b = bubbles.head; b; b=b->next )
     {
