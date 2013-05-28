@@ -29,7 +29,7 @@ YOCTO_UNIT_TEST_IMPL(curv)
     bubble.save_n("circ_n.dat");
     
     
-    
+    std::cerr << "sizeof(Tracer)=" << sizeof(Tracer) << std::endl;
 
 }
 YOCTO_UNIT_TEST_DONE()
