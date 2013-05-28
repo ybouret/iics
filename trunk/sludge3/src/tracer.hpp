@@ -12,17 +12,23 @@ public:
     Tracer *prev;
     Tracer *next;
     
-    Vertex pos;  //!< current pos +2 Real
-    Vertex edge; //!< to next     +2 Real
-    Real   dist; //!< to next     +1 Real
+    Vertex pos;  //!< current pos   : +2 Real
+    Vertex edge; //!< to next       : +2 Real
+    Real   dist; //!< to next       : +1 Real
+    Vertex t;    //!< tangent vector: +2 Real
+    Vertex n;    //!< normal  vector: +2 real
+    Real   C;    //!< curvature     : +1 real
     
-    static const size_t NumReals = 5;
+    static const size_t NumReals = 10;
     
     explicit Tracer() throw();
     explicit Tracer( const Vertex v ) throw();
     virtual ~Tracer() throw();
     
     void hash_tracer( Hasher &h ) const throw();
+    void compute_curvature();
+    
+    
     
     class Ring : public core::clist_of<Tracer>
     {

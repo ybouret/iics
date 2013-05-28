@@ -16,6 +16,8 @@ public:
     
     void hash( Hasher &h ) const throw();
     
+    
+    
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Bubbles);
 };
