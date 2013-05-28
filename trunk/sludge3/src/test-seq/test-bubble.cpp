@@ -1,6 +1,6 @@
 #include "yocto/utest/run.hpp"
 #include "yocto/code/rand.hpp"
-#include "bubble.hpp"
+#include "shape.hpp"
 
 
 YOCTO_UNIT_TEST_IMPL(bubble)
@@ -27,6 +27,12 @@ YOCTO_UNIT_TEST_IMPL(bubble)
     bubble.init_contour();
     bubble.auto_contour();
     bubble.save_dat( "autob.dat" );
+    
+    Shape::Ellipse(&bubble, Vertex(0,0), Vertex(6,2));
+    Shape::Rotate(&bubble, 0.2);
+    bubble.save_dat("ell.dat");
+    bubble.auto_contour();
+    bubble.save_dat("ell2.dat");
     
 }
 YOCTO_UNIT_TEST_DONE()
