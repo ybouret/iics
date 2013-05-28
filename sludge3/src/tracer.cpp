@@ -9,7 +9,9 @@ edge(),
 dist(0),
 t(),
 n(),
-C(0)
+C(0),
+speed(0),
+hmult(0)
 {}
 
 
@@ -61,8 +63,8 @@ void Tracer:: compute_order1()
     const Real   tp    = next->dist;
     const Vertex Vm    = -prev->edge/tm;
     const Vertex Vp    =  edge/tp;
-    const Real   h     = tm+tp;
-    const Vertex dM    = (1.0/h) * (tm*Vp - tp * Vm);
+    hmult              = 1.0/(tm+tp);
+    const Vertex dM    = hmult * (tm*Vp - tp * Vm);
     speed = dM.norm();
     t = dM / speed;
     
@@ -81,10 +83,9 @@ void Tracer:: compute_order2()
     const Real   tp    = next->dist;
     const Vertex Vm    = (prev->t -t)/tm;
     const Vertex Vp    = (next->t -t)/tp;
-    const Real   h     = tm+tp;
-    const Vertex tmp   = (1.0/h) * (tm*Vp-tp*Vm);
+    const Vertex tmp   = hmult * (tm*Vp-tp*Vm);
     
     C = (tmp*n)/speed;
-    std::cerr << "C=" << C << std::endl;
+    //std::cerr << "C=" << C << std::endl;
 }
 

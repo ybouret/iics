@@ -42,7 +42,8 @@ public:
     };
     
 private:
-    Real   speed;   //!< local
+    Real   speed;   //!< local dM/dt store
+    Real   hmult;   //!< 1/(prev->dist+dist)
     YOCTO_DISABLE_COPY_AND_ASSIGN(Tracer);
 };
 
