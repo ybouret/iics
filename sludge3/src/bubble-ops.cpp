@@ -177,7 +177,13 @@ void Bubble:: compute_curvatures()
     Tracer *tr = root;
     for(size_t i=size;i>0;--i,tr=tr->next)
     {
-        tr->compute_curvature();
+        tr->compute_order1();
+    }
+    
+    assert(root==tr);
+    for(size_t i=size;i>0;--i,tr=tr->next)
+    {
+        tr->compute_order2();
     }
 
 }
