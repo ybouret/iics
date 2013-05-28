@@ -57,20 +57,20 @@ void Tracer:: compute_curvature()
     assert(dist>0);
     assert(prev->dist>0);
     assert(next->dist>0);
-    const Vertex M0Mm = -prev->edge;
-    const Vertex M0Mp =  edge;
-    const Real   tm   = prev->dist;
-    const Real   tp   = next->dist;
-    const Real   h    = tm+tp;
-    const Vertex dM    = (tm/tp * M0Mp - tp/tm * M0Mm) / h;
+    const Real   tm    = prev->dist;
+    const Real   tp    = next->dist;
+    const Vertex Vm    = -prev->edge/tm;
+    const Vertex Vp    =  edge/tp;
+    const Real   h     = tm+tp;
+    const Vertex dM    = (1.0/h) * (tm*Vp - tp * Vm);
     const Real   speed = dM.norm();
     t = dM / speed;
     
     n.x = -t.y;
     n.y =  t.x;
     
-    const Vertex d2M = (M0Mp/tp + M0Mm/tm) / h;
-    
+    const Vertex d2M = (2.0/h)*(Vm+Vp);
     C = Vertex::det(dM,d2M) / (speed*speed*speed);
+    std::cerr << "C=" << C << std::endl;
 }
 

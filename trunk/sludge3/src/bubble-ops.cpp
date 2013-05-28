@@ -14,12 +14,12 @@ void Bubble:: init_contour() throw()
         tr->edge = q - p;
         tr->dist = tr->edge.norm();
         area += p.x * q.y - p.y * q.x;
-        std::cerr << "\td=" << tr->dist << std::endl;
+        //std::cerr << "\td=" << tr->dist << std::endl;
     }
     G.x /= size;
     G.y /= size;
     area = Fabs(area)/2;
-    std::cerr << "\tarea=" << area << std::endl;
+    //std::cerr << "\tarea=" << area << std::endl;
 }
 
 #include "yocto/math/dat/spline.hpp"
@@ -138,7 +138,7 @@ void Bubble:: auto_contour()
     size_t N = max_of<size_t>(3,S.width / lambda);
 GENERATE:
     {
-        std::cerr << "\t\tmapping with " << N << " points" << std::endl;
+        //std::cerr << "\t\tmapping with " << N << " points" << std::endl;
         ring.push_back( new Tracer(org) );
         const Real du = S.width / N;
         for(size_t i=1;i<N;++i)
