@@ -10,12 +10,13 @@ LINK_DIRECTORIES(    ${YROOT}/lib     )
 SET(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/../sdk)
 
 SET(SOURCES_SEQ
-types.hpp   types.cpp
-tracer.hpp  tracer.cpp
-bubble.hpp  bubble.cpp bubble-ios.cpp bubble-ops.cpp
-bubbles.hpp bubbles.cpp
-shape.hpp   shape.cpp
-grid.hpp    grid.cpp
+types.hpp     types.cpp
+tracer.hpp    tracer.cpp
+bubble.hpp    bubble.cpp bubble-ios.cpp bubble-ops.cpp
+bubbles.hpp   bubbles.cpp
+shape.hpp     shape.cpp
+grid.hpp      grid.cpp
+junctions.hpp junctions.cpp
 )
 SOURCE_GROUP( sludge FILES ${SOURCES_SEQ} )
 
