@@ -4,16 +4,22 @@ void Bubble:: init_contour() throw()
 {
     assert(size>=3);
     G.ldz();
+    area = 0;
     Tracer *tr = root;
     for( size_t i=size;i>0;--i,tr=tr->next)
     {
-        G += tr->pos;
-        tr->edge = tr->next->pos - tr->pos;
+        const Vertex &p = tr->pos;
+        G += p;
+        const Vertex &q = tr->next->pos;
+        tr->edge = q - p;
         tr->dist = tr->edge.norm();
+        area += p.x * q.y - p.y * q.x;
         std::cerr << "\td=" << tr->dist << std::endl;
     }
     G.x /= size;
     G.y /= size;
+    area = Fabs(area)/2;
+    std::cerr << "\tarea=" << area << std::endl;
 }
 
 #include "yocto/math/dat/spline.hpp"
@@ -159,7 +165,7 @@ GENERATE:
     // winner
     //--------------------------------------------------------------------------
     ring.swap_with(*this);
-    
+    init_contour();
     
     
 }

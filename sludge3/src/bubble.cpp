@@ -7,7 +7,9 @@ Bubble:: Bubble( Real &lam ) throw() :
 prev(0),
 next(0),
 lambda( lam ),
-G()
+G(),
+area(0),
+pressure(1)
 {
     
 }
@@ -20,4 +22,6 @@ void Bubble::hash_bubble(Hasher &h) const throw()
 {
     hash_ring(h);
     h(G);
+    h(area);
+    h(pressure);
 }
