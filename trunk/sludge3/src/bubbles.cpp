@@ -2,7 +2,7 @@
 #include "yocto/code/fourcc.hpp"
 
 
-const int Bubbles::Tag = int(YOCTO_FOURCC('B', 'U', 'B', 'L'));
+const int Bubbles::Tag = 3;
 
 Bubbles:: ~Bubbles() throw() { auto_delete(); }
 

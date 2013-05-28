@@ -1,7 +1,6 @@
 #include "tracer.hpp"
-#include "yocto/code/fourcc.hpp"
 
-const int Tracer::Tag = int(YOCTO_FOURCC('T','R','A','C'));
+const int Tracer::Tag = 1;
 
 Tracer:: Tracer() throw() :
 prev(0),next(0),

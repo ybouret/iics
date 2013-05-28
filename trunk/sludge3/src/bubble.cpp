@@ -1,7 +1,7 @@
 #include "bubble.hpp"
 #include "yocto/code/fourcc.hpp"
 
-const int Bubble::Tag = int(YOCTO_FOURCC('B', 'u', 'b', 'l'));
+const int Bubble::Tag = 2;
 
 Bubble:: Bubble( Real &lam ) throw() :
 prev(0),
