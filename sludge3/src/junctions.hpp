@@ -45,20 +45,29 @@ private:
 
 
 //! handle Vert/Horz junctions from grid
-class Junctions : public Layout
+class Junctions 
 {
 public:
-    explicit Junctions(const Grid &grid);
+    explicit Junctions(Grid &g);
     virtual ~Junctions() throw();
     
     Junction::List & Vert( unit_t i ) throw();
     Junction::List & Horz( unit_t j ) throw();
 
+    bool load( const Bubble &bubble );
+    const Grid     &grid;
+
 private:
+    YOCTO_DISABLE_COPY_AND_ASSIGN(Junctions);
     size_t          jcount;
     Junction::List *jlists;
     Junction::List *jvert;   //!< width.x times
     Junction::List *jhorz;   //!< width.y times
+    
+    unsigned __load( const Bubble &bubble, const Vertex &p, const Vertex &q );
+    unsigned __loadBothInside( const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q, const Coord &Q);
+    unsigned __loadOneOutside( const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q);
+    
     
 };
 
