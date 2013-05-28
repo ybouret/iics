@@ -15,6 +15,7 @@ tracer.hpp  tracer.cpp
 bubble.hpp  bubble.cpp bubble-ios.cpp bubble-ops.cpp
 bubbles.hpp bubbles.cpp
 shape.hpp   shape.cpp
+grid.hpp    grid.cpp
 )
 SOURCE_GROUP( sludge FILES ${SOURCES_SEQ} )
 

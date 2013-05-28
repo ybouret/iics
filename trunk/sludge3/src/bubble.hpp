@@ -15,16 +15,19 @@ public:
     explicit Bubble( Real &lam ) throw();
     virtual ~Bubble() throw();
     
-    const Real &lambda; //!< maximum length between two vertices
-    Vertex      G;      //!< barycenter : +2 Real
-    
-    
-    static const size_t NumReals = 2;
+    const Real &lambda;   //!< maximum length between two vertices
+    Vertex      G;        //!< barycenter    : +2 Real
+    Real        area;     //!< area          : +1 Real
+    Real        pressure; //!< pressure      : +1 Real, default is 1
+    static const size_t NumReals = 4;
     
     void save_dat( ios::ostream &fp ) const;
     void save_dat( const string &fn ) const;
     
     //! more than three points !
+    /**
+     compute edges and distances, update area.
+     */
     void init_contour() throw();
     
     //! once init_contour is ok, respect lambda and init new contour
