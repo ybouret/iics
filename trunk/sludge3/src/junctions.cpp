@@ -6,10 +6,11 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-Junction:: Junction( List &r) throw() :
+Junction:: Junction( List &r, Real a) throw() :
 prev(0),
 next(0),
-root(r)
+root(r),
+value(a)
 {
 }
 
@@ -38,9 +39,9 @@ level( other.level )
 
 Junction::List:: ~List() throw() { auto_delete(); }
 
-Junction * Junction::List::append()
+Junction * Junction::List::append( Real a)
 {
-    Junction *J = new Junction(*this);
+    Junction *J = new Junction(*this,a);
     push_back(J);
     return J;
 }
@@ -91,3 +92,18 @@ Junctions:: ~Junctions() throw()
     
     memory::kind<memory::global>::release_as(jlists, jcount);
 }
+
+Junction::List & Junctions:: Vert( unit_t i ) throw()
+{
+    assert(i>=lower.x);
+    assert(i<=upper.x);
+    return jvert[i];
+}
+
+Junction::List & Junctions:: Horz( unit_t j ) throw()
+{
+    assert(j>=lower.y);
+    assert(j<=upper.y);
+    return jhorz[j];
+}
+

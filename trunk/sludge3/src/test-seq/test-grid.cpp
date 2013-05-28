@@ -42,6 +42,20 @@ YOCTO_UNIT_TEST_IMPL(grid)
    
     perform_locate(grid, bubble);
     
+    for(unit_t i=junctions.lower.x; i<= junctions.upper.x; ++i)
+    {
+        const Junction::List &J = junctions.Vert(i);
+        assert( Junction::Vert == J.type);
+        std::cerr << "Vert(" << i << ")@" << J.level << std::endl;
+    }
+    
+    for(unit_t j=junctions.lower.y; j<= junctions.upper.y; ++j)
+    {
+        const Junction::List &J = junctions.Horz(j);
+        assert( Junction::Horz == J.type);
+        std::cerr << "Horz(" << j << ")@" << J.level << std::endl;
+    }
+    
 }
 YOCTO_UNIT_TEST_DONE()
 
