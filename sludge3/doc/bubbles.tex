@@ -1,0 +1,65 @@
+\documentclass[aps]{revtex4}
+\usepackage{graphicx}
+\usepackage{amssymb,amsfonts,amsmath,amsthm}
+\usepackage{chemarr}
+\usepackage{bm}
+\usepackage{pslatex}
+\usepackage{mathptmx}
+\usepackage{xfrac}
+
+%% concentration notations
+\newcommand{\mymat}[1]{\boldsymbol{#1}}
+\newcommand{\mytrn}[1]{{#1}^{\mathsf{T}}}
+\newcommand{\myvec}[1]{\overrightarrow{#1}}
+\newcommand{\mygrad}{\vec{\nabla}}
+\newcommand{\myhess}{\mathcal{H}}
+
+
+\begin{document}
+\title{Differential Bubbles}
+\maketitle
+Let us assume that we have three points $\vec{M}_-$, $\vec{M}_0$ and $\vec{M}_+$, with
+$t_-=\left\vert \myvec{M_0M_-}\right\vert$ and $t_+=\left\vert \myvec{M_0M_+}\right\vert$.
+The regular curve approximation is
+\begin{equation}
+	\vec{M}(t) = \vec{M}_0 + t \partial_t \vec{M} + \frac{1}{2} t^2 \partial_{t}^2 \vec{M}
+\end{equation}
+so that
+\begin{equation}
+\left\lbrace
+\begin{array}{rcl}
+	\myvec{M_0M_-} & = & -t_- \partial_t \vec{M} + \frac{1}{2} t_-^2 \partial_{t}^2 \vec{M}\\
+	\myvec{M_0M_-} & = &  t_+ \partial_t \vec{M} + \frac{1}{2} t_+^2 \partial_{t}^2 \vec{M}.\\
+\end{array}
+\right.
+\end{equation}
+Setting
+
+\begin{equation}
+\left\lbrace
+\begin{array}{rcl}
+	\vec{V}_- & = & \frac{1}{t_-} \myvec{M_0M_-}\\
+	\vec{V}_+ & = & \frac{1}{t_+} \myvec{M_0M_+}\\
+\end{array}
+\right.
+\end{equation}
+we shall solve
+\begin{equation}
+	\left\lbrace
+	\begin{array}{rcl}
+	\vec{V}_- & = & -\partial_t \vec{M} + \frac{1}{2} t_- \partial_{t}^2 \vec{M}\\
+	\vec{V}_+ & = & \partial_t \vec{M} + \frac{1}{2} t_+ \partial_{t}^2 \vec{M}.\\
+	\end{array}
+\right.
+\end{equation}
+We find
+\begin{equation}
+	\left\lbrace
+	\begin{array}{rcl}
+	\partial_t \vec{M} & = & \frac{1}{t_-+t_+} \left(t_-\vec{V}_+ - t_+ \vec{V}_-\right)\\
+	\partial_{t}^2 \vec{M} & = & \frac{2}{t_-+t_+} \left(\vec{V}_- + \vec{V}_+\right) \\
+	\end{array}
+	\right.
+\end{equation}
+
+\end{document}

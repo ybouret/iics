@@ -20,6 +20,15 @@ YOCTO_UNIT_TEST_IMPL(curv)
     bubble.save_n("ell_n.dat");
     
     
+    Shape::Circle(&bubble, Vertex(0,0), 5);
+    bubble.auto_contour();
+    bubble.compute_curvatures();
+    
+    bubble.save_dat("circ.dat");
+    bubble.save_t("circ_t.dat");
+    bubble.save_n("circ_n.dat");
+    
+    
     
 
 }
