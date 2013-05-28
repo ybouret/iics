@@ -1,6 +1,6 @@
 #include "yocto/utest/run.hpp"
 #include "yocto/code/rand.hpp"
-#include "grid.hpp"
+#include "junctions.hpp"
 #include "shape.hpp"
 
 static inline
@@ -27,6 +27,7 @@ YOCTO_UNIT_TEST_IMPL(grid)
     Grid           grid(L,adb);
     const Region2D R( Vertex(-5,-6), Vertex(5,6) );
     
+    Junctions junctions(grid);
     grid.regular_map_to(R,L);
     
     __Grid::SaveDat(grid, "grid.dat" );
