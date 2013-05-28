@@ -50,7 +50,7 @@ namespace {
             t[1] = 0;
             X[1] = tr->pos.x;
             Y[1] = tr->pos.y;
-            tr = tr->next;
+            tr   = tr->next;
             
             for(size_t i=ring.size,j=2;i>0;--i,++j,tr=tr->next)
             {
@@ -89,7 +89,6 @@ bool are_valid( const Tracer *p, const Tracer *q, const Real lam)
 void Bubble:: auto_contour()
 {
     assert(size>=3);
-    const size_t ns = size+1;
     
     //==========================================================================
     //
@@ -98,6 +97,8 @@ void Bubble:: auto_contour()
     //==========================================================================
     Spline S(*this);
     
+#if 0
+    const size_t ns = size+1;
     {
         ios::ocstream fp( "poly.dat", false );
         for(size_t i=1; i <= ns; ++i )
@@ -116,7 +117,7 @@ void Bubble:: auto_contour()
             fp("%g %g %g\n", u, v.x, v.y);
         }
     }
-    
+#endif
     
     //==========================================================================
     //
@@ -167,6 +168,16 @@ GENERATE:
     ring.swap_with(*this);
     init_contour();
     
-    
 }
 
+
+void Bubble:: compute_curvatures()
+{
+    assert(size>=3);
+    Tracer *tr = root;
+    for(size_t i=size;i>0;--i,tr=tr->next)
+    {
+        tr->compute_curvature();
+    }
+
+}

@@ -14,6 +14,11 @@ YOCTO_UNIT_TEST_IMPL(bubbles)
     {
         Shape::Circle(bubbles.append(),Vertex(0,0),1.3);
         Shape::Circle(bubbles.append(),Vertex(2,0),1.7);
+        for( Bubble *b = bubbles.head; b; b=b->next )
+        {
+            b->auto_contour();
+            b->compute_curvatures();
+        }
     }
     
     // broadcast

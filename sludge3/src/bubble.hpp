@@ -21,8 +21,9 @@ public:
     Real        pressure; //!< pressure      : +1 Real, default is 1
     static const size_t NumReals = 4;
     
-    void save_dat( ios::ostream &fp ) const;
     void save_dat( const string &fn ) const;
+    void save_t( const string &fn ) const;
+    void save_n( const string &fn ) const;
     
     //! more than three points !
     /**
@@ -33,6 +34,11 @@ public:
     //! once init_contour is ok, respect lambda and init new contour
     void auto_contour();
     
+    //! compute tangent/normal/curvature after an [init|auto]_contour
+    void compute_curvatures();
+
+    
+    //! used for MPI debugging
     void hash_bubble( Hasher &h ) const throw();
     
 private:

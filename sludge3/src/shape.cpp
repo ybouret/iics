@@ -10,9 +10,11 @@ void Shape::Circle( Bubble *b, const Vertex center, Real radius )
 {
 	assert(b);
 	assert(radius>0);
-	const size_t np = max_of<size_t>( 3, numeric<Real>::two_pi * radius / b->lambda );
+    
 	b->auto_delete();
-	for(size_t i=0; i < np; ++i )
+    
+    const size_t np = max_of<size_t>( 3, numeric<Real>::two_pi * radius / b->lambda );
+    for(size_t i=0; i < np; ++i )
 	{
 		const Real theta = (numeric<Real>::two_pi * i)/np;
 		Tracer *   tr    = new Tracer();
@@ -20,6 +22,7 @@ void Shape::Circle( Bubble *b, const Vertex center, Real radius )
 		tr->pos.y = radius * Sin( theta ) + center.y;
 		b->push_back(tr);
 	}
+    
 	b->init_contour();
 }
 
@@ -77,6 +80,7 @@ void Shape:: Ellipse( Bubble *b, const Vertex C, const Vertex R)
     assert(b);
     assert(R.x>0);
     assert(R.y>0);
+    
     b->auto_delete();
 
     //==========================================================================
@@ -135,6 +139,10 @@ void Shape:: Rotate(Bubble *b, const Real alpha)
         Vertex r( ray.x * ca - ray.y * sa, ray.x *sa + ray.y *ca);
         tr->pos = b->G + r;
     }
+    
+    b->init_contour();
+    
+    
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -147,6 +155,7 @@ void Shape:: Blob( Bubble *b, const Vertex C, const Real radius,  Real rho,  Rea
     assert(b);
     assert(radius>0);
     b->auto_delete();
+    
     rho = clamp<Real>(0,rho,0.95);
     w   = clamp<Real>(0,w,1);
     const Real   fac = radius/(1.0 + rho);
