@@ -20,7 +20,8 @@ prev(0),
 next(0),
 pos(v),
 edge(),
-dist()
+dist(0),
+t(),n(),C(0),speed(0),hmult(0)
 {
     
 }

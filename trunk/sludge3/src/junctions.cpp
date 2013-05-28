@@ -277,7 +277,7 @@ void Junctions:: sort()
 {
     for( size_t i=0; i<num_lists; ++i)
     {
-        core::merging<Junction>::sort(jlists[i],__compareJ,0);
+        core::merging<Junction>::sort<core::list_of>(jlists[i],__compareJ,(void*)0);
     }
 }
 
