@@ -50,7 +50,7 @@ void Tracer:: Ring:: hash_ring( Hasher &h ) const throw()
 }
 
 
-void Tracer:: compute_curvature()
+void Tracer:: compute_order1()
 {
     assert(prev);
     assert(next);
@@ -63,14 +63,28 @@ void Tracer:: compute_curvature()
     const Vertex Vp    =  edge/tp;
     const Real   h     = tm+tp;
     const Vertex dM    = (1.0/h) * (tm*Vp - tp * Vm);
-    const Real   speed = dM.norm();
+    speed = dM.norm();
     t = dM / speed;
     
     n.x = -t.y;
     n.y =  t.x;
+}
+
+void Tracer:: compute_order2()
+{
+    assert(prev);
+    assert(next);
+    assert(dist>0);
+    assert(prev->dist>0);
+    assert(next->dist>0);
+    const Real   tm    = prev->dist;
+    const Real   tp    = next->dist;
+    const Vertex Vm    = (prev->t -t)/tm;
+    const Vertex Vp    = (next->t -t)/tp;
+    const Real   h     = tm+tp;
+    const Vertex tmp   = (1.0/h) * (tm*Vp-tp*Vm);
     
-    const Vertex d2M = (2.0/h)*(Vm+Vp);
-    C = Vertex::det(dM,d2M) / (speed*speed*speed);
+    C = (tmp*n)/speed;
     std::cerr << "C=" << C << std::endl;
 }
 

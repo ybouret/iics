@@ -18,7 +18,6 @@ public:
     Vertex t;    //!< tangent vector: +2 Real
     Vertex n;    //!< normal  vector: +2 real
     Real   C;    //!< curvature     : +1 real
-    
     static const size_t NumReals = 10;
     
     explicit Tracer() throw();
@@ -26,7 +25,8 @@ public:
     virtual ~Tracer() throw();
     
     void hash_tracer( Hasher &h ) const throw();
-    void compute_curvature();
+    void compute_order1(); //!< tau and n, keep dM
+    void compute_order2(); //!< evaluate curvature
     
     
     
@@ -42,6 +42,7 @@ public:
     };
     
 private:
+    Real   speed;   //!< local
     YOCTO_DISABLE_COPY_AND_ASSIGN(Tracer);
 };
 
