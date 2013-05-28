@@ -1,7 +1,7 @@
 #include "yocto/utest/run.hpp"
 #include "yocto/code/rand.hpp"
 #include "grid.hpp"
-
+#include "shape.hpp"
 
 YOCTO_UNIT_TEST_IMPL(grid)
 {
@@ -13,6 +13,11 @@ YOCTO_UNIT_TEST_IMPL(grid)
     grid.regular_map_to(R,L);
     
     __Grid::SaveDat(grid, "grid.dat" );
+    
+    Real lam = __Grid::ComputeLambda(grid);
+    std::cerr << "lambda=" << lam << std::endl;
+    
+    Bubble bubble(lam);
     
 }
 YOCTO_UNIT_TEST_DONE()

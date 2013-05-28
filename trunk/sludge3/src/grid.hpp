@@ -18,7 +18,11 @@ typedef region2D<Real>::type Region2D;
 
 struct __Grid
 {
+    //! save to gnuplot format
     static void SaveDat( const Grid &grid, const string &fn );
+    
+    //! Get lambda for bubble resolution
+    static Real ComputeLambda( const Grid &grid);
 };
 
 #endif
