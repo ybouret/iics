@@ -20,8 +20,16 @@ void perform_locate( const Grid &grid, const Bubble &bubble )
     }
 }
 
+#include "yocto/string/conv.hpp"
+
 YOCTO_UNIT_TEST_IMPL(grid)
 {
+    
+    Real radius = 5.1;
+    if( argc > 1 )
+    {
+        radius = strconv::to<Real>( argv[1], "radius" );
+    }
     array_db       adb;
     const Layout   L( Coord(1,1), Coord(10,20) );
     Grid           grid(L,adb);
@@ -36,7 +44,7 @@ YOCTO_UNIT_TEST_IMPL(grid)
     std::cerr << "lambda=" << lam << std::endl;
     
     Bubble bubble(lam);
-    Shape::Circle(&bubble, Vertex(0,0), 5.1);
+    Shape::Circle(&bubble, Vertex(0,0), radius);
     bubble.auto_contour();
     bubble.save_dat("bubble.dat");
    
@@ -55,6 +63,11 @@ YOCTO_UNIT_TEST_IMPL(grid)
         assert( Junction::Horz == J.type);
         std::cerr << "Horz(" << j << ")@" << J.level << std::endl;
     }
+    
+    junctions.clear();
+    junctions.load(bubble);
+    
+    junctions.save_dat( "j.dat" );
     
 }
 YOCTO_UNIT_TEST_DONE()

@@ -31,11 +31,10 @@ level(v)
 
 Junction::List:: ~List() throw() { auto_delete(); }
 
-Junction * Junction::List::append( Real a)
+void Junction::List::append( Real a)
 {
     Junction *J = new Junction(*this,a);
     push_back(J);
-    return J;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -99,6 +98,15 @@ Junction::List & Junctions:: Horz( unit_t j ) throw()
     return jhorz[j];
 }
 
+void Junctions:: clear() throw()
+{
+    for(unit_t i = grid.upper.x; i >= grid.lower.x; --i)
+        jvert[i].auto_delete();
+    for(unit_t j= grid.upper.y; j >= grid.lower.y; --j)
+        jhorz[j].auto_delete();
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Junction Load algorithm
@@ -140,14 +148,14 @@ unsigned Junctions:: __load( const Bubble &bubble, const Vertex &p, const Vertex
             //------------------------------------------------------------------
             //-- p and q are INSIDE
             //------------------------------------------------------------------
-            return __loadBothInside(bubble, p, P, q, Q);
+            return __loadJ(bubble, p, P, q, Q);
         }
         else
         {
             //------------------------------------------------------------------
             //-- p is INSIDE, q is OUTSIDE
             //------------------------------------------------------------------
-            return __loadOneOutside(bubble, p, P, q);
+            return __loadJ(bubble, p, P, q, Q);
         }
     }
     else
@@ -160,7 +168,7 @@ unsigned Junctions:: __load( const Bubble &bubble, const Vertex &p, const Vertex
             //------------------------------------------------------------------
             // p is OUTSIDE, q is INSIDE
             //------------------------------------------------------------------
-            return __loadOneOutside(bubble, q, Q, p);
+            return __loadJ(bubble, q, Q, p, P);
         }
         else
         {
@@ -173,19 +181,111 @@ unsigned Junctions:: __load( const Bubble &bubble, const Vertex &p, const Vertex
     }
 }
 
-unsigned Junctions:: __loadBothInside(const Bubble &bubble,
-                                      const Vertex &p,
-                                      const Coord  &P,
-                                      const Vertex &q,
-                                      const Coord  &Q)
+unsigned Junctions:: __loadJ(const Bubble &bubble,
+                             const Vertex &p,
+                             const Coord  &P,
+                             const Vertex &q,
+                             const Coord  &Q)
 {
-    return 0;
+    if( P.x == Q.x )
+    {
+        //======================================================================
+        // SAME COLUMNS
+        //======================================================================
+        if( P.y == Q.y )
+        {
+            //------------------------------------------------------------------
+            // SAME COLUMNS, SAME LINES => nothing
+            //------------------------------------------------------------------
+            //std::cerr << "same case" << std::endl;
+            return 0;
+        }
+        else
+        {
+            //------------------------------------------------------------------
+            // SAME COLUMNS, DIFFERENT LINES => will cut an horizontal axis
+            //------------------------------------------------------------------
+            //assert(Q.y == P.y-1 || Q.y == P.y+1);
+            __loadHorz(bubble, p,P,q);
+            return 1;
+        }
+    }
+    else
+    {
+        //assert(Q.x==P.x-1||Q.x==P.x+1);
+        //======================================================================
+        // DIFFERENT COLUMNS
+        //======================================================================
+        if( P.y == Q.y )
+        {
+            //------------------------------------------------------------------
+            // DIFFERENT COLUMNS, SAME LINES => will cut a vertical axis
+            //------------------------------------------------------------------
+            __loadVert(bubble, p, P, q);
+            return 1;
+        }
+        else
+        {
+            //------------------------------------------------------------------
+            // DIFFERENT COLUMNS, DIFFERENT LINES => will cut two axis
+            //------------------------------------------------------------------
+            __loadHorz(bubble, p, P, q);
+            __loadVert(bubble, p, P, q);
+            return 2;
+        }
+    }
+    
 }
 
-unsigned Junctions:: __loadOneOutside(const Bubble &bubble,
-                                      const Vertex &p,
-                                      const Coord  &P,
-                                      const Vertex &q)
+
+void Junctions:: __loadHorz(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q)
 {
-    return 0;
+    const unit_t    j  = q.y>p.y ? P.y+1 : P.y;
+    Junction::List &J  = Horz(j);
+    const Real      y0 = J.level;
+    const Real      x0 = p.x + (y0-p.y)*(q.x -p.x) /(q.y-p.y);
+    J.append(x0);
 }
+
+void Junctions:: __loadVert(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q)
+{
+    const unit_t    i  = q.x>p.x ? P.x+1 : P.x;
+    Junction::List &J  = Vert(i);
+    const Real      x0 = J.level;
+    const Real      y0 = p.y + (x0-p.x) * (q.y - p.y) / (q.x - p.x);
+    J.append(y0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Junctions I/O
+//
+////////////////////////////////////////////////////////////////////////////////
+
+#include "yocto/ios/ocstream.hpp"
+
+void Junctions:: save_dat( const string &fn) const
+{
+    ios::ocstream fp( fn, false);
+    
+    for(unit_t i = grid.upper.x; i >= grid.lower.x; --i)
+    {
+        const Junction::List &JL = jvert[i];
+        for( const Junction *J = JL.head; J; J=J->next)
+        {
+            fp("%g %g\n", J->root.level, J->value);
+        }
+    }
+    
+    for(unit_t j= grid.upper.y; j >= grid.lower.y; --j)
+    {
+        const Junction::List &JL = jhorz[j];
+        for( const Junction *J = JL.head; J; J=J->next)
+        {
+            fp("%g %g\n", J->value, J->root.level);
+        }
+        
+    }
+}
+
+
