@@ -30,6 +30,8 @@ YOCTO_UNIT_TEST_IMPL(grid)
     {
         radius = strconv::to<Real>( argv[1], "radius" );
     }
+    
+    std::cerr << "*** Building grid" << std::endl;
     array_db       adb;
     const Layout   L( Coord(1,1), Coord(10,20) );
     Grid           grid(L,adb);
@@ -40,6 +42,7 @@ YOCTO_UNIT_TEST_IMPL(grid)
     
     __Grid::SaveDat(grid, "grid.dat" );
     
+    std::cerr << "*** Building bubble" << std::endl;
     Real lam = __Grid::ComputeLambda(grid);
     std::cerr << "lambda=" << lam << std::endl;
     
@@ -48,6 +51,7 @@ YOCTO_UNIT_TEST_IMPL(grid)
     bubble.auto_contour();
     bubble.save_dat("bubble.dat");
    
+    std::cerr << "*** Testing bubble locations" << std::endl;
     perform_locate(grid, bubble);
     
     for(unit_t i=grid.lower.x; i<= grid.upper.x; ++i)
@@ -64,9 +68,10 @@ YOCTO_UNIT_TEST_IMPL(grid)
         std::cerr << "Horz(" << j << ")@" << J.level << std::endl;
     }
     
+    std::cerr << "*** Segmenting bubble" << std::endl;
     junctions.clear();
     junctions.load(bubble);
-    
+    junctions.sort();
     junctions.save_dat( "j.dat" );
     
 }

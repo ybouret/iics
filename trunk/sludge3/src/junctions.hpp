@@ -2,6 +2,7 @@
 #define SLUDGE_JUNCTIONS_INCLUDED 1
 
 #include "grid.hpp"
+#include "bubbles.hpp"
 
 
 //! A basic junction
@@ -54,12 +55,19 @@ public:
     Junction::List & Vert( unit_t i ) throw();
     Junction::List & Horz( unit_t j ) throw();
 
-    bool load( const Bubble &bubble );
-    const Grid     &grid;
-
-    void clear() throw();
+    bool load( const Bubble &bubble ); //!< append new junctions
+    void clear() throw();              //!< clear all junctions
+    void sort();
+    
+    
+    
     void save_dat( const string &fn) const;
     
+    const Grid     &grid;
+    const size_t    num_lists;
+   
+    
+
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Junctions);
     size_t          jcount;
