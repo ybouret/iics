@@ -113,9 +113,10 @@ void Junctions:: clear() throw()
 // Junction Load algorithm
 //
 ////////////////////////////////////////////////////////////////////////////////
-bool Junctions:: load( const Bubble &bubble )
+size_t Junctions:: load( const Bubble &bubble )
 {
     assert(bubble.size>=3);
+    size_t ans = SLUDGE_INSIDE;
     
     //==========================================================================
     //
@@ -123,12 +124,10 @@ bool Junctions:: load( const Bubble &bubble )
     //
     //==========================================================================
     const Tracer *tr = bubble.root;
-    bool  has_point_inside = false;
     for(size_t k=bubble.size;k>0;--k,tr=tr->next)
     {
         tr->flags = __Grid::Locate(grid, tr->pos, tr->coord);
-        if( SLUDGE_INSIDE == tr->flags)
-            has_point_inside = true;
+        ans |= tr->flags;
     }
     
     //==========================================================================
@@ -137,17 +136,16 @@ bool Junctions:: load( const Bubble &bubble )
     //
     //==========================================================================
     assert(bubble.root == tr);
-    unsigned count = 0;
     for(size_t k=bubble.size;k>0;--k,tr=tr->next)
     {
-        count += __load(bubble,tr);
+         __load(bubble,tr);
     }
     
     
-    return count>0;
+    return ans;
 }
 
-unsigned Junctions:: __load( const Bubble &bubble, const Tracer *u)
+void Junctions:: __load( const Bubble &bubble, const Tracer *u)
 {
     assert(u);
     assert(u->next);
@@ -171,14 +169,16 @@ unsigned Junctions:: __load( const Bubble &bubble, const Tracer *u)
             //------------------------------------------------------------------
             //-- p and q are INSIDE
             //------------------------------------------------------------------
-            return __loadJ(bubble, p, P, q, Q);
+            __loadJ(bubble, p, P, q, Q);
+            return;
         }
         else
         {
             //------------------------------------------------------------------
             //-- p is INSIDE, q is OUTSIDE
             //------------------------------------------------------------------
-            return __loadJ(bubble, p, P, q, Q);
+            __loadJ(bubble, p, P, q, Q);
+            return;
         }
     }
     else
@@ -191,20 +191,21 @@ unsigned Junctions:: __load( const Bubble &bubble, const Tracer *u)
             //------------------------------------------------------------------
             // p is OUTSIDE, q is INSIDE
             //------------------------------------------------------------------
-            return __loadJ(bubble, q, Q, p, P);
+            __loadJ(bubble, q, Q, p, P);
+            return;
         }
         else
         {
             //------------------------------------------------------------------
             // p and q are OUTSIDE
             //------------------------------------------------------------------
-            return 0;
+            return;
         }
         
     }
 }
 
-unsigned Junctions:: __loadJ(const Bubble &bubble,
+void Junctions:: __loadJ(const Bubble &bubble,
                              const Vertex &p,
                              const Coord  &P,
                              const Vertex &q,
@@ -221,7 +222,7 @@ unsigned Junctions:: __loadJ(const Bubble &bubble,
             // SAME COLUMNS, SAME LINES => nothing
             //------------------------------------------------------------------
             //std::cerr << "same case" << std::endl;
-            return 0;
+            return;
         }
         else
         {
@@ -230,7 +231,7 @@ unsigned Junctions:: __loadJ(const Bubble &bubble,
             //------------------------------------------------------------------
             //assert(Q.y == P.y-1 || Q.y == P.y+1);
             __loadHorz(bubble, p,P,q);
-            return 1;
+            return;
         }
     }
     else
@@ -245,7 +246,7 @@ unsigned Junctions:: __loadJ(const Bubble &bubble,
             // DIFFERENT COLUMNS, SAME LINES => will cut a vertical axis
             //------------------------------------------------------------------
             __loadVert(bubble, p, P, q);
-            return 1;
+            return;
         }
         else
         {
@@ -254,7 +255,7 @@ unsigned Junctions:: __loadJ(const Bubble &bubble,
             //------------------------------------------------------------------
             __loadHorz(bubble, p, P, q);
             __loadVert(bubble, p, P, q);
-            return 2;
+            return;
         }
     }
     
