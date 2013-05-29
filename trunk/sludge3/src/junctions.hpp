@@ -55,9 +55,9 @@ public:
     Junction::List & Vert( unit_t i ) throw();
     Junction::List & Horz( unit_t j ) throw();
 
-    bool load( const Bubble &bubble ); //!< append new junctions
-    void clear() throw();              //!< clear all junctions
-    void sort();
+    size_t load( const Bubble &bubble ); //!< append new junctions, return status
+    void   clear() throw();              //!< clear all junctions
+    void   sort();
     
     
     
@@ -75,8 +75,8 @@ private:
     Junction::List *jvert;   //!< width.x times
     Junction::List *jhorz;   //!< width.y times
     
-    unsigned __load( const Bubble &bubble, const Tracer *u);
-    unsigned __loadJ( const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q, const Coord &Q);
+    void __load( const Bubble &bubble, const Tracer *u);
+    void __loadJ( const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q, const Coord &Q);
     
     void __loadHorz(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q);
     void __loadVert(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q);
