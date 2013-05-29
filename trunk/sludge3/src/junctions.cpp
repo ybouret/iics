@@ -46,7 +46,7 @@ void Junction::List::append( Real a)
 
 Junctions:: Junctions(Grid &g) :
 grid(g),
-num_lists(grid.width.x + grid.width.y), 
+num_lists(grid.width.x + grid.width.y),
 jcount(num_lists),
 jlists( memory::kind<memory::global>::acquire_as<Junction::List>(jcount) ),
 jvert(jlists),
@@ -116,28 +116,50 @@ void Junctions:: clear() throw()
 bool Junctions:: load( const Bubble &bubble )
 {
     assert(bubble.size>=3);
+    
+    //==========================================================================
+    //
+    // First pass: detect locations of tracers
+    //
+    //==========================================================================
     const Tracer *tr = bubble.root;
+    bool  has_point_inside = false;
+    for(size_t k=bubble.size;k>0;--k,tr=tr->next)
+    {
+        tr->flags = __Grid::Locate(grid, tr->pos, tr->coord);
+        if( SLUDGE_INSIDE == tr->flags)
+            has_point_inside = true;
+    }
+    
+    //==========================================================================
+    //
+    // Second pass: create and count junctions
+    //
+    //==========================================================================
+    assert(bubble.root == tr);
     unsigned count = 0;
     for(size_t k=bubble.size;k>0;--k,tr=tr->next)
     {
-        const Vertex &p = tr->pos;
-        const Vertex &q = tr->next->pos;
-        count += __load(bubble,p,q);
+        count += __load(bubble,tr);
     }
     
     
     return count>0;
 }
 
-unsigned Junctions:: __load( const Bubble &bubble, const Vertex &p, const Vertex &q )
+unsigned Junctions:: __load( const Bubble &bubble, const Tracer *u)
 {
-    Coord P;
-    const int  ploc = __Grid::Locate(grid, p, P);
-    const bool p_in = ploc == SLUDGE_INSIDE;
+    assert(u);
+    assert(u->next);
+    const Tracer *v = u->next;
     
-    Coord Q;
-    const int  qloc = __Grid::Locate(grid, q, Q);
-    const bool q_in = qloc == SLUDGE_INSIDE;
+    const Vertex &p    = u->pos;
+    const Coord  &P    = u->coord;
+    const bool    p_in = SLUDGE_INSIDE == u->flags ;
+    
+    const Vertex &q    = v->pos;
+    const Coord  &Q    = v->coord;
+    const bool    q_in = SLUDGE_INSIDE == v->flags ;
     
     if( p_in )
     {
