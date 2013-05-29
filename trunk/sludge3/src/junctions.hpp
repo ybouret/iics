@@ -66,7 +66,6 @@ public:
     const Grid     &grid;
     const size_t    num_lists;
    
-    
 
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Junctions);
