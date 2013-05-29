@@ -18,7 +18,11 @@
 \begin{document}
 \title{Differential Bubbles}
 \maketitle
-Let us assume that we have three points $\vec{M}_-$, $\vec{M}_0$ and $\vec{M}_+$, with
+
+\section{Differential Properties}
+
+\subsection{Tangent Field}
+Let us assume that we have three vectors $\vec{M}_-$, $\vec{M}_0$ and $\vec{M}_+$, with
 $t_-=\left\vert \myvec{M_0M_-}\right\vert$ and $t_+=\left\vert \myvec{M_0M_+}\right\vert$.
 The regular curve approximation is
 \begin{equation}
@@ -52,14 +56,52 @@ we shall solve
 	\end{array}
 \right.
 \end{equation}
-We find
+
+The first order approximation of the tangent field is
 \begin{equation}
-	\left\lbrace
-	\begin{array}{rcl}
-	\partial_t \vec{M} & = & \frac{1}{t_-+t_+} \left(t_-\vec{V}_+ - t_+ \vec{V}_-\right)\\
-	\partial_{t}^2 \vec{M} & = & \frac{2}{t_-+t_+} \left(\vec{V}_- + \vec{V}_+\right) \\
-	\end{array}
-	\right.
+	\partial_t \vec{M} =  \frac{1}{t_-+t_+} \left(t_-\vec{V}_+ - t_+ \vec{V}_-\right)
 \end{equation}
+
+\subsection{Differential properties}
+Let us assume that $\vec{M}(t)$ is a local parametric estimation of a contour.
+Then the tangent vector around $\vec{M}_0$ is
+\begin{equation}
+	\partial_t \vec{M} = 
+	 \frac{1}{t_-+t_+} \left\lbrack t_-\left(\frac{1}{t_+}\myvec{M_0M_+}\right) - t_+ \left(\frac{1}{t_-}\myvec{M_0M_-}\right)\right\rbrack
+\end{equation}
+and the tangent vector is
+\begin{equation}
+	\vec{\tau} = \frac{1}{\vert \partial_t \vec{M} \vert} \partial_t \vec{M}
+\end{equation}
+and the normal vector is
+\begin{equation}
+	\vec{n} = \begin{bmatrix}
+		-\tau_y\\
+		\tau_x\\
+	\end{bmatrix}.
+\end{equation}
+If $s$ were a curvilinear abscissa then we would have
+\begin{equation}
+	\partial_s \vec{\tau} = \kappa \vec{n}
+\end{equation}
+so that
+\begin{equation}
+	\kappa = \frac{1}{\vert\partial_t \vec{M}\vert} \vec{n}.\partial_t \vec{\tau}
+\end{equation}
+with
+\begin{equation}
+	\partial_t \vec{\tau} = \frac{1}{t_-+t_+}
+	 \left\lbrack 
+	 t_-\left(\frac{1}{t_+}\left(\vec{\tau}_+ - \vec{\tau}_0\right)\right) 
+	- 
+	t_+ \left(\frac{1}{t_-}\left(\vec{\tau}_- - \vec{\tau}_0\right)\right)
+	\right\rbrack.
+\end{equation}
+
+So that the differential properties can be determined in two passes:
+\begin{enumerate}
+	\item Estimate $\partial_t \vec{M}$, deduce $\vec{\tau}$ and $\vec{n}$, and store $\vert\partial_t \vec{M}\vert$,
+	\item then estimate $\partial_t \vec{\tau}$ and deduce $\kappa$.
+\end{enumerate}
 
 \end{document}

@@ -2,12 +2,17 @@
 #define SLUDGE_TRACER_INCLUDED 1
 
 #include "types.hpp"
+#include "yocto/spade/in2d.hpp"
 #include "yocto/core/clist.hpp"
 
-class Tracer : public object
+using namespace spade;
+
+class Tracer
 {
 public:
     static const int Tag;
+    
+    YOCTO_MAKE_OBJECT;
     
     Tracer *prev;
     Tracer *next;
@@ -22,10 +27,10 @@ public:
     
     explicit Tracer() throw();
     explicit Tracer( const Vertex v ) throw();
-    virtual ~Tracer() throw();
+    ~Tracer() throw();
     
     void hash_tracer( Hasher &h ) const throw();
-    void compute_order1(); //!< tau and n, keep dM
+    void compute_order1(); //!< tau and n, keep |dM| as speed
     void compute_order2(); //!< evaluate curvature
     
     
@@ -40,10 +45,12 @@ public:
     private:
         YOCTO_DISABLE_COPY_AND_ASSIGN(Ring);
     };
+    Real            speed;   //!< local dM/dt store
+    mutable coord2D coord;   //!< on a grid
+    mutable size_t  flags;   //!< position flag
     
 private:
-    Real   speed;   //!< local dM/dt store
-    Real   hmult;   //!< 1/(prev->dist+dist)
+    
     YOCTO_DISABLE_COPY_AND_ASSIGN(Tracer);
 };
 

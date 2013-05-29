@@ -75,7 +75,7 @@ private:
     Junction::List *jvert;   //!< width.x times
     Junction::List *jhorz;   //!< width.y times
     
-    unsigned __load( const Bubble &bubble, const Vertex &p, const Vertex &q );
+    unsigned __load( const Bubble &bubble, const Tracer *u);
     unsigned __loadJ( const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q, const Coord &Q);
     
     void __loadHorz(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q);
