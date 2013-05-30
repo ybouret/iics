@@ -10,8 +10,9 @@ void Junctions:: segment(Array &B) const
     // Ray Casting from left to right, for each line
     //
     //==========================================================================
-    const Real xmin = grid.X()[ grid.lower.x ];
-    const Real xmax = grid.X()[ grid.upper.x ];
+    const Array1D &X    = grid.X();
+    const Real     xmin = X[ grid.lower.x ];
+    const Real     xmax = X[ grid.upper.x ];
     assert(xmin<xmax);
     
     for( unit_t y=B.upper.y; y >= B.lower.y; --y)
@@ -19,16 +20,6 @@ void Junctions:: segment(Array &B) const
         
         const Junction::List &JL = Horz(y);
         std::cerr << "\t@y=" << JL.level << " : " << JL.size << std::endl;
-        if( JL.size <= 1 )
-        {
-            //------------------------------------------------------------------
-            // 0: no intersection
-            // 1: special "tangent" case
-            //------------------------------------------------------------------
-            continue;
-        }
-        assert(JL.size>=2);
-        
         
     }
     
