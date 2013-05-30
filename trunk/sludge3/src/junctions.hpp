@@ -3,7 +3,9 @@
 
 #include "grid.hpp"
 #include "bubbles.hpp"
+#include "yocto/spade/array2d.hpp"
 
+typedef array2D<Real> Array;
 
 //! A basic junction
 class Junction : public object
@@ -39,7 +41,8 @@ public:
     explicit Junction(List &, Real) throw();
     virtual ~Junction() throw();
     
-        
+    Coord operator()(void) const throw();
+    
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Junction);
 };
@@ -55,10 +58,9 @@ public:
     Junction::List & Vert( unit_t i ) throw();
     Junction::List & Horz( unit_t j ) throw();
 
-    size_t load( const Bubble &bubble ); //!< append new junctions, return status
-    size_t inter( const Bubble &bubble);
-    void   clear() throw();              //!< clear all junctions
-    void   sort();
+    void   inter(Bubble &bubble);  //!< create geometrical intersections, set bubble.flags
+    void   clear() throw();        //!< clear all junctions
+    void   sort();                 //!< sort for segmentation
     
     
     
@@ -75,14 +77,10 @@ private:
     Junction::List *jvert;   //!< width.x times
     Junction::List *jhorz;   //!< width.y times
     
-    void __load( const Bubble &bubble, const Tracer *u);
-    void __loadJ( const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q, const Coord &Q);
     
-    void __loadHorz(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q);
-    void __loadVert(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q);
-    
-    void __intersect( const Bubble &bubble, const Tracer *u);
-    
+    void __intersect(const Bubble &bubble, const Tracer *u);
+    void __interHorz(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q);
+    void __interVert(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q);
 
 };
 

@@ -9,7 +9,8 @@ next(0),
 lambda( lam ),
 G(),
 area(0),
-pressure(1)
+pressure(1),
+flags(0)
 {
     
 }
@@ -24,4 +25,12 @@ void Bubble::hash_bubble(Hasher &h) const throw()
     h(G);
     h(area);
     h(pressure);
+}
+
+
+Tracer * Bubble:: append()
+{
+    Tracer *tr = new Tracer();
+    push_back(tr);
+    return tr;
 }

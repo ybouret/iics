@@ -70,13 +70,17 @@ YOCTO_UNIT_TEST_IMPL(grid)
     
     std::cerr << "*** Segmenting bubble" << std::endl;
     junctions.clear();
-    junctions.load(bubble);
+    junctions.inter(bubble);
     junctions.sort();
     junctions.save_dat( "j.dat" );
     
+    Shape::Blob(&bubble, Vertex(0,0), radius, 0.7, 0.6);
+    bubble.auto_contour();
+    bubble.save_dat("b2.dat");
     junctions.clear();
     junctions.inter(bubble);
-    
+    junctions.sort();
+    junctions.save_dat( "j2.dat" );
     
 }
 YOCTO_UNIT_TEST_DONE()
