@@ -14,7 +14,7 @@ lambda(lam)
 
 Bubble * Bubbles:: append()
 {
-    Bubble *b = new Bubble((Real&)lambda,1+size);
+    Bubble *b = new Bubble((Real&)lambda,size);
     push_back(b);
     return b;
 }

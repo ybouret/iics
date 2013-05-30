@@ -13,7 +13,6 @@ pressure(1),
 flags(0),
 UID(uid)
 {
-    assert(uid>0);
 }
 
 Bubble:: ~Bubble() throw()
