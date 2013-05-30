@@ -17,8 +17,7 @@ YOCTO_UNIT_TEST_IMPL(bubbles)
         Shape::Circle(bubbles.append(),Vertex(2,0),1.7);
         for( Bubble *b = bubbles.head; b; b=b->next )
         {
-            b->auto_contour();
-            b->compute_curvatures();
+            b->regularize();
         }
     }
     
@@ -35,6 +34,11 @@ YOCTO_UNIT_TEST_IMPL(bubbles)
     h.set();
     bubbles.hash(h);
     MPI.Printf(stderr, "Key=%d\n", h.getKey());
+    
+    
+    // test collect, meaningless in that case
+    ParallelBubbles::Collect(MPI, bubbles);
+    
 }
 YOCTO_UNIT_TEST_DONE()
 

@@ -185,20 +185,20 @@ void Junctions:: __updateJunction( Junction *J, const Real alpha, const Tracer *
     assert(J);
     assert(u);
     assert(v);
-    const Real U = (1-alpha);
-    const Real V = alpha;
+    const Real U = (1-alpha); // weight for u
+    const Real V = alpha;     // weight for v
     
     //--------------------------------------------------------------------------
     //-- average curvature
     //--------------------------------------------------------------------------
     J->C = U * u->C + V * v->C;
+    J->pressure = J->owner->pressure - J->owner->gamma * J->C;
     
     //--------------------------------------------------------------------------
     //-- compute angle
     //--------------------------------------------------------------------------
     const Real theta = Vertex::angle_of(u->t, v->t);
     J->t = u->t.rotated_by( V * theta );
-    std::cerr << "J->t=" << J->t << std::endl;
     J->t.normalize();
     J->n.x = - J->t.y;
     J->n.y =   J->t.x;

@@ -145,7 +145,7 @@ void Shape:: Rotate(Bubble *b, const Real alpha)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// blob
+// Blob
 //
 ////////////////////////////////////////////////////////////////////////////////
 void Shape:: Blob( Bubble *b, const Vertex C, const Real radius,  Real rho,  Real w)
@@ -170,6 +170,26 @@ void Shape:: Blob( Bubble *b, const Vertex C, const Real radius,  Real rho,  Rea
         const Real rp    = fac * ( 1.0 + A * Cos( 2*theta) + B * Cos(3*theta) );
 		tr->pos.x = rp * Cos( theta ) + C.x;
 		tr->pos.y = rp * Sin( theta ) + C.y;
+    }
+    b->init_contour();
+    
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Grow
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void Shape:: Grow( Bubble *b, const Real factor)
+{
+    assert(b);
+    assert(b->size>=3);
+    Tracer *tr = b->root;
+    for(size_t i=b->size;i>0;--i,tr=tr->next)
+    {
+        const Vertex r(b->G,tr->pos);
+        tr->pos = b->G + factor * r;
     }
     b->init_contour();
     

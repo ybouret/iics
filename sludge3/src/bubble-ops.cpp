@@ -89,6 +89,7 @@ bool are_valid( const Tracer *p, const Tracer *q, const Real lam)
 void Bubble:: auto_contour()
 {
     assert(size>=3);
+    assert(area>0);
     
     //==========================================================================
     //

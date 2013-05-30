@@ -42,7 +42,8 @@ public:
     Real          C;        //!< average curvature
     Vertex        t;        //!< average tangent vector
     Vertex        n;        //!< average normal
-
+    Real          pressure; //!< from curvature + owner->gamma
+    
     bool   inside;
     unit_t lower;
     unit_t upper;
