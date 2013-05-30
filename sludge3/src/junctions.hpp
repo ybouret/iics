@@ -34,12 +34,15 @@ public:
         YOCTO_DISABLE_COPY_AND_ASSIGN(List);
     };
     
-    Junction     *prev;
-    Junction     *next;
-    const List   &root;
-    const Real    value;
-    const Bubble *owner;
-    
+    Junction     *prev;     //!< for list
+    Junction     *next;     //!< for list
+    const List   &root;     //!< for level/grid
+    const Real    value;    //!< location
+    const Bubble *owner;    //!< owning bubble
+    Real          C;        //!< average curvature
+    Vertex        t;        //!< average tangent vector
+    Vertex        n;        //!< average normal
+
     bool   inside;
     unit_t lower;
     unit_t upper;
@@ -47,7 +50,7 @@ public:
     Junction(List &, Real, const Bubble *) throw();
     ~Junction() throw();
     
-    Coord operator()(void) const throw();
+    Vertex get(void) const throw();
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Junction);
@@ -79,7 +82,8 @@ public:
     
     
     void save_dat( const string &fn) const;
-    
+    void save_t( const string &fn ) const;
+    void save_n( const string &fn ) const;
     
     
     void segment( Array &B ) const; //!< fill array with owner
@@ -96,8 +100,13 @@ private:
     
     
     void __intersect(const Bubble &bubble, const Tracer *u);
-    void __interHorz(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q);
-    void __interVert(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q);
+    
+    // create junction with average pressure
+    Junction *__interHorz(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q, Real &alpha);
+    Junction *__interVert(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q, Real &alpha);
+    
+    void __updateJunction( Junction *J, const Real alpha, const Tracer *u, const Tracer *v);
+    
     
 };
 

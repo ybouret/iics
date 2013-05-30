@@ -6,10 +6,11 @@ YOCTO_UNIT_TEST_IMPL(bubbles)
 {
     YOCTO_MPI;
     MPI.Printf(stderr,"Starting...\n");
-    Real lambda = 0.5;
     
     // create the bubble(s)
-    Bubbles bubbles(lambda);
+    Bubbles bubbles;
+    bubbles.lambda = 0.5;
+    
     if( MPI.IsFirst )
     {
         Shape::Circle(bubbles.append(),Vertex(0,0),1.3);

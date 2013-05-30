@@ -4,6 +4,39 @@
 #include "tracer.hpp"
 #include "yocto/ios/ostream.hpp"
 #include "yocto/string.hpp"
+#include "yocto/core/list.hpp"
+
+class Marker
+{
+public:
+    Marker       *next;
+    Marker       *prev;
+    const Tracer *tracer;
+    const size_t  shift;
+    
+    YOCTO_MAKE_OBJECT;
+    Marker(const Tracer *tr,const size_t s);
+    ~Marker() throw();
+    
+    
+    
+    class List : public core::list_of<Marker>
+    {
+    public:
+        explicit List() throw();
+        virtual ~List() throw();
+        
+        void clear() throw();
+        void append( const Tracer *tracer, const size_t shift);
+        
+        
+    private:
+        YOCTO_DISABLE_COPY_AND_ASSIGN(List);
+    };
+    
+private:
+    YOCTO_DISABLE_COPY_AND_ASSIGN(Marker);
+};
 
 class Bubble : public Tracer::Ring
 {
@@ -12,16 +45,23 @@ public:
     
     Bubble *prev;
     Bubble *next;
-    explicit Bubble( Real &lam, size_t uid) throw();
+    explicit Bubble( Real &lam, Real &gam, size_t uid) throw();
     virtual ~Bubble() throw();
     
     const Real         &lambda;   //!< maximum length between two vertices
+    const Real         &gamma;    //!< surface tension
     Vertex              G;        //!< barycenter    : +2 Real
     Real                area;     //!< area          : +1 Real
     Real                pressure; //!< pressure      : +1 Real, default is 1
     static const size_t NumReals = 4;
+    
     size_t              flags;
     const size_t        UID;      //!< for segmentation
+    Marker::List        markers;  //!< for MPI processing
+    
+    
+    void collect_markers( const Real ymin, const Real ymax);
+    
     
     void save_dat( const string &fn ) const;
     void save_t( const string &fn ) const;

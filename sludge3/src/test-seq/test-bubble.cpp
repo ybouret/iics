@@ -6,7 +6,8 @@
 YOCTO_UNIT_TEST_IMPL(bubble)
 {
     Real   lam = 1;
-    Bubble bubble(lam,1);
+    Real   gam = 1;
+    Bubble bubble(lam,gam,1);
     const size_t N = 3+alea_leq(50);
     for( size_t i=1; i <= N; ++i )
     {

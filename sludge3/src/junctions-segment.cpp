@@ -20,9 +20,9 @@ void Junctions:: segment(Array &B) const
     {
         
         const Junction::List &JL = Horz(y);
-        std::cerr << "\t@y=" << JL.level << " : " << JL.size << std::endl;
+        //std::cerr << "\t@y=" << JL.level << " : " << JL.size << std::endl;
         
-        if(JL.size<=0)
+        if(JL.size<=1)
             continue;
         
         

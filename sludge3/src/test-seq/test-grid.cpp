@@ -44,12 +44,13 @@ YOCTO_UNIT_TEST_IMPL(grid)
     
     std::cerr << "*** Building bubble" << std::endl;
     Real lam = __Grid::ComputeLambda(grid);
+    Real gam = 1;
     std::cerr << "lambda=" << lam << std::endl;
     
-    Bubble bubble(lam,1);
+    Bubble bubble(lam,gam,1);
     Shape::Circle(&bubble, Vertex(0,0), radius);
-    bubble.auto_contour();
-    bubble.save_dat("bubble.dat");
+    bubble.regularize();
+    bubble.save_all("b1");
    
     std::cerr << "*** Testing bubble locations" << std::endl;
     perform_locate(grid, bubble);
@@ -70,18 +71,23 @@ YOCTO_UNIT_TEST_IMPL(grid)
     
     std::cerr << "*** Segmenting bubble" << std::endl;
     junctions.clear();
+    bubble.compute_curvatures();
     junctions.inter(bubble);
     junctions.sort();
-    junctions.save_dat( "j.dat" );
-    
+    junctions.save_dat( "j1.dat" );
+    junctions.save_t( "j1_t.dat");
+    junctions.save_n( "j1_n.dat");
+
     Shape::Blob(&bubble, Vertex(0,0), radius, 0.7, 0.6);
-    bubble.auto_contour();
-    bubble.save_dat("b2.dat");
+    bubble.regularize();
+    bubble.save_all("b2");
     junctions.clear();
     junctions.inter(bubble);
     junctions.sort();
     junctions.save_dat( "j2.dat" );
-    
+    junctions.save_t("j2_t.dat");
+    junctions.save_n("j2_n.dat");
+
 }
 YOCTO_UNIT_TEST_DONE()
 
