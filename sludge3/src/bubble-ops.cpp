@@ -187,3 +187,10 @@ void Bubble:: compute_curvatures()
     }
 
 }
+
+
+void Bubble:: regularize()
+{
+    auto_contour();
+    compute_curvatures();
+}

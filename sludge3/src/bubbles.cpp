@@ -27,3 +27,12 @@ void Bubbles:: hash( Hasher &h ) const throw()
         b->hash_bubble(h);
     }
 }
+
+
+void Bubbles:: regularize()
+{
+    for( Bubble *b = head;b;b=b->next)
+    {
+        b->regularize();
+    }
+}
