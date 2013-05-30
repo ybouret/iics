@@ -1,6 +1,7 @@
 all:
 
 clean:
-	rm -f *.aux *.log *.synctex.gz bubbles.pdf
+	@echo "-- cleaning doc"
+	@rm -f *.aux *.log *.synctex.gz bubbles.pdf *.bak
 
 
