@@ -1,7 +1,11 @@
 #include "bubbles.hpp"
 #include "yocto/auto-ptr.hpp"
 
-
+////////////////////////////////////////////////////////////////////////////////
+//
+// PARALLEL TRACER
+//
+////////////////////////////////////////////////////////////////////////////////
 void ParallelTracer:: Send( const mpi &MPI, const Tracer *tr )
 {
     assert(tr);
@@ -23,6 +27,12 @@ Tracer *ParallelTracer:: Recv(const yocto::mpi &MPI)
     return tr.yield();
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// PARALLEL BUBBLE
+//
+////////////////////////////////////////////////////////////////////////////////
 void ParallelBubble:: Send(const yocto::mpi &MPI, const Bubble *bubble)
 {
     assert(bubble);
@@ -88,7 +98,76 @@ void ParallelBubble:: Recv( const mpi &MPI, Bubbles &owner)
     
 }
 
+void ParallelBubble:: SendMarkers(const yocto::mpi &MPI, const Bubble *bubble)
+{
+    assert(bubble);
+    assert(bubble->size>=3);
+    assert(MPI.CommWorldRank>0);
+    
+    //==========================================================================
+    // send #markers
+    //==========================================================================
+    assert(bubble->markers.size<=bubble->size);
+    MPI.Send<size_t>(bubble->markers.size, 0, Marker::Tag, MPI_COMM_WORLD);
+    
+    //==========================================================================
+    // send all markers
+    //==========================================================================
+    for( const Marker *mk=bubble->markers.head;mk;mk=mk->next)
+    {
+        //----------------------------------------------------------------------
+        // send shift
+        //----------------------------------------------------------------------
+        MPI.Send<size_t>(mk->shift,0,Marker::Tag, MPI_COMM_WORLD);
+        
+        //----------------------------------------------------------------------
+        // send info
+        //----------------------------------------------------------------------
+        MPI.Send(& mk->tracer->pos, 2, REAL_TYPE, 0, Marker::Tag, MPI_COMM_WORLD);
+    }
+    
+}
 
+void ParallelBubble:: RecvMarkers(const yocto::mpi &MPI, Bubble *bubble)
+{
+    //==========================================================================
+    // recv #markers
+    //==========================================================================
+    assert(bubble);
+    assert(bubble->size>0);
+    assert(0==MPI.CommWorldRank);
+    MPI_Status status;
+    for( int source=1; source < MPI.CommWorldSize; ++source )
+    {
+        const size_t m = MPI.Recv<size_t>(source, Marker::Tag, MPI_COMM_WORLD, status);
+        if(m>bubble->size)
+            throw exception("RecvMarkers(TOO MANY)");
+        Tracer *tr = bubble->root;
+        for(size_t i=1; i<=m; ++i )
+        {
+            //------------------------------------------------------------------
+            // recv shift
+            //------------------------------------------------------------------
+            size_t shift = MPI.Recv<size_t>(source, Marker::Tag, MPI_COMM_WORLD, status);
+            while(shift-->0)
+            {
+                tr=tr->next;
+            }
+            
+            //------------------------------------------------------------------
+            // recv info
+            //------------------------------------------------------------------
+            MPI.Recv(& tr->pos, 2, REAL_TYPE, source, Marker::Tag, MPI_COMM_WORLD, status);
+        }
+    }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// PARALLEL BUBBLES
+//
+////////////////////////////////////////////////////////////////////////////////
 void ParallelBubbles:: Send(const mpi &MPI, const Bubbles &bubbles)
 {
     
@@ -131,7 +210,7 @@ void ParallelBubbles:: Recv(const mpi &MPI, Bubbles &bubbles)
 
 void ParallelBubbles:: Bcast(const mpi &MPI, Bubbles &bubbles)
 {
-    MPI.Printf(stderr, "BubblesBcast\n");
+    MPI.Printf(stderr, "ParallelBubbles::Bcast\n");
     if( MPI.IsFirst )
     {
         ParallelBubbles:: Send(MPI,bubbles);
@@ -140,6 +219,29 @@ void ParallelBubbles:: Bcast(const mpi &MPI, Bubbles &bubbles)
     {
         ParallelBubbles:: Recv(MPI,bubbles);
     }
+}
+
+
+void ParallelBubbles:: Collect(const mpi &MPI, Bubbles &bubbles)
+{
+    MPI.Printf(stderr, "ParallelBubbles::Collect\n");
+    
+    if( MPI.IsFirst )
+    {
+        for( Bubble *b = bubbles.head;b;b=b->next)
+        {
+            ParallelBubble::RecvMarkers(MPI,b);
+        }
+       
+    }
+    else
+    {
+        for(const Bubble *b=bubbles.head;b;b=b->next)
+        {
+            ParallelBubble::SendMarkers(MPI,b);
+        }
+    }
+
 }
 
 

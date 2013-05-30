@@ -20,7 +20,6 @@ void Junctions:: segment(Array &B) const
     {
         
         const Junction::List &JL = Horz(y);
-        //std::cerr << "\t@y=" << JL.level << " : " << JL.size << std::endl;
         
         if(JL.size<=1)
             continue;
@@ -40,7 +39,8 @@ void Junctions:: segment(Array &B) const
                 if(end>=ini)
                 {
                     const Real u = J->owner->UID;
-                    for(unit_t i=ini;i<=end;++i) B[y][i] = u;
+                    for(unit_t i=ini;i<=end;++i)
+                        B[y][i] = u;
                 }
             }
             inside = !inside;

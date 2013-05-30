@@ -9,6 +9,7 @@
 class Marker
 {
 public:
+    static const int Tag = 4;
     Marker       *next;
     Marker       *prev;
     const Tracer *tracer;
