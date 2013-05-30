@@ -44,7 +44,7 @@ YOCTO_UNIT_TEST_IMPL(segment)
     {
         Bubble *bubble = bubbles.append();
         Shape::Circle(bubble, Vertex(0,0), radius);
-        Shape::Blob(bubble, Vertex(0,0), radius, 0.7, alea<Real>() );
+        Shape::Blob(bubble, Vertex(0,0), radius, 0.5+0.45*alea<Real>(), alea<Real>() );
         Shape::Rotate(bubble, numeric<Real>::two_pi * alea<Real>() );
     }
     
