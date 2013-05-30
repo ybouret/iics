@@ -34,6 +34,7 @@ size_t Junctions:: inter( const Bubble &bubble)
 }
 
 
+#include "yocto/code/utils.hpp"
 
 void Junctions:: __intersect(const Bubble &bubble, const Tracer *u)
 {
@@ -55,6 +56,13 @@ void Junctions:: __intersect(const Bubble &bubble, const Tracer *u)
     const Coord   Cv = v->coord;
     const size_t  Sv = v->flags;
     
+    if(Sv<Su)
+    {
+        std::cerr << "\tSwap " << Su << ", " << Sv << std::endl;
+        cswap_const(Ru,Rv);
+        cswap_const(Cu,Cv);
+        cswap_const(Su,Sv);
+    }
     
     
     

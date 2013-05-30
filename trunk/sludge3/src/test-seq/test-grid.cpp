@@ -74,6 +74,10 @@ YOCTO_UNIT_TEST_IMPL(grid)
     junctions.sort();
     junctions.save_dat( "j.dat" );
     
+    junctions.clear();
+    junctions.inter(bubble);
+    
+    
 }
 YOCTO_UNIT_TEST_DONE()
 
