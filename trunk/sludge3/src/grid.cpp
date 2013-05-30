@@ -55,8 +55,7 @@ Real __Grid:: ComputeLambda( const Grid &grid) throw()
     return min_of(dx,dy)/2;
 }
 
-static inline
-unit_t __locate( const Array1D &A, const Real a ) throw()
+unit_t __Grid:: FindLower( const Array1D &A, Real a) throw()
 {
     unit_t jlo = A.lower;
     unit_t jup = A.upper;
@@ -105,7 +104,7 @@ int __Grid::Locate(const Grid &grid, const Vertex &p, Coord &lo) throw()
         else
         {
             //-- effective location
-            lo.x = __locate( X, p.x );
+            lo.x = __Grid::FindLower( X, p.x );
         }
     }
     
@@ -125,7 +124,7 @@ int __Grid::Locate(const Grid &grid, const Vertex &p, Coord &lo) throw()
         else
         {
             //-- effective location
-            lo.y = __locate( Y, p.y );
+            lo.y = __Grid::FindLower( Y, p.y );
         }
     }
 

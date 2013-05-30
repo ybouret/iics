@@ -45,6 +45,14 @@ struct __Grid
      \return status
      */
     static int Locate( const Grid &grid, const Vertex &p, Coord &lo) throw();
+    
+    //! locate one value in an array
+    /**
+     \param A an array of increasing values
+     \param a with A[A.lower] <= a <= A[A.upper]
+     */
+    static unit_t FindLower( const Array1D &A, Real a) throw();
+    
 };
 
 #endif

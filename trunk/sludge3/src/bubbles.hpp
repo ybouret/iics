@@ -16,6 +16,7 @@ public:
     
     void hash( Hasher &h ) const throw();
     
+    void regularize();
     
     
 private:

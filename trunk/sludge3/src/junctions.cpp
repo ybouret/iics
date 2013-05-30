@@ -116,6 +116,21 @@ Junction::List & Junctions:: Horz( unit_t j ) throw()
     return jhorz[j];
 }
 
+const Junction::List & Junctions:: Vert( unit_t i ) const throw()
+{
+    assert(i>=grid.lower.x);
+    assert(i<=grid.upper.x);
+    return jvert[i];
+}
+
+const Junction::List & Junctions:: Horz( unit_t j ) const throw()
+{
+    assert(j>=grid.lower.y);
+    assert(j<=grid.upper.y);
+    return jhorz[j];
+}
+
+
 void Junctions:: clear() throw()
 {
     for(unit_t i = grid.upper.x; i >= grid.lower.x; --i)

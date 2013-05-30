@@ -26,6 +26,8 @@ public:
     void save_dat( const string &fn ) const;
     void save_t( const string &fn ) const;
     void save_n( const string &fn ) const;
+    void save_all( const string &pfx ) const;
+    
     
     //! more than three points !
     /**
@@ -39,6 +41,9 @@ public:
     //! compute tangent/normal/curvature after an [init|auto]_contour
     void compute_curvatures();
 
+    
+    //! auto_contour() + compute_curvatures()
+    void regularize();
     
     //! used for MPI debugging
     void hash_bubble( Hasher &h ) const throw();

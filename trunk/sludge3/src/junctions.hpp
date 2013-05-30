@@ -39,6 +39,7 @@ public:
     const Real    value;
     const Bubble *owner;
     
+    
     explicit Junction(List &, Real, const Bubble *) throw();
     virtual ~Junction() throw();
     
@@ -62,6 +63,9 @@ public:
     Junction::List & Vert( unit_t i ) throw();
     Junction::List & Horz( unit_t j ) throw();
 
+    const Junction::List & Vert( unit_t i ) const throw();
+    const Junction::List & Horz( unit_t j ) const throw();
+    
     void   inter(Bubble &bubble);  //!< create geometrical intersections, set bubble.flags
     void   clear() throw();        //!< clear all junctions
     void   sort();                 //!< sort for segmentation

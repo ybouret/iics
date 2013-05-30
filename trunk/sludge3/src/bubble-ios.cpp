@@ -52,3 +52,24 @@ void Bubble:: save_n( const string &fn ) const
         }
     }
 }
+
+
+void Bubble:: save_all(const string &pfx) const
+{
+    {
+        const string fn = pfx + ".dat";
+        save_dat(fn);
+    }
+    
+    {
+        const string fn = pfx + "_t.dat";
+        save_t(fn);
+    }
+    
+    {
+        const string fn = pfx  + "_n.dat";
+        save_n(fn);
+    }
+    
+}
+
