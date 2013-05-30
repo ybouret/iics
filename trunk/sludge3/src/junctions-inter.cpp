@@ -46,13 +46,10 @@ void Junctions:: __intersect(const Bubble &bubble, const Tracer *u)
     // copy coordinates : 81 possibilities
     //
     //==========================================================================
-    const Vertex Ru = u->pos;
-    const Coord  Cu = u->coord;
+    
     const size_t Su = u->flags;
     
     const Tracer *v  = u->next;
-    const Vertex  Rv = v->pos;
-    const Coord   Cv = v->coord;
     const size_t  Sv = v->flags;
     
     //==========================================================================
@@ -62,14 +59,19 @@ void Junctions:: __intersect(const Bubble &bubble, const Tracer *u)
     //==========================================================================
     if(Sv<Su)
     {
-        cswap_const(Ru,Rv);
-        cswap_const(Cu,Cv);
+        cswap(u,v);
         cswap_const(Su,Sv);
     }
+    assert(u->flags<=v->flags);
+    
+    const Vertex  Ru = u->pos;
+    const Coord   Cu = u->coord;
+    const Vertex  Rv = v->pos;
+    const Coord   Cv = v->coord;
     
     //==========================================================================
     //
-    // study possibilities
+    // study possibilities: only a few left !
     //
     //==========================================================================
     
@@ -96,8 +98,9 @@ void Junctions:: __intersect(const Bubble &bubble, const Tracer *u)
                 assert(Cv.y!=SLUDGE_INVALID_COORD);
             }
 #endif
-            
-            __interHorz(bubble, Ru, Cu, Rv);
+            Real      alpha = -1;
+            Junction *J     = __interHorz(bubble, Ru, Cu, Rv, alpha);
+            __updateJunction(J,alpha,u,v);
         }
     }
     
@@ -123,39 +126,49 @@ void Junctions:: __intersect(const Bubble &bubble, const Tracer *u)
                 assert(Cv.x!=SLUDGE_INVALID_COORD);
             }
 #endif
-            __interVert(bubble, Ru, Cu, Rv);
+            Real     alpha =-1;
+            Junction *J    = __interVert(bubble, Ru, Cu, Rv,alpha);
+            __updateJunction(J,alpha,u,v);
         }
     }
     
 }
 
-void Junctions:: __interHorz(const Bubble &bubble,
-                             const Vertex &p,
-                             const Coord  &P,
-                             const Vertex &q)
+Junction *Junctions:: __interHorz(const Bubble &bubble,
+                                  const Vertex &p,
+                                  const Coord  &P,
+                                  const Vertex &q,
+                                  Real         &alpha)
 {
     assert(P.y != SLUDGE_INVALID_COORD);
-    const unit_t    j  = q.y>p.y ? P.y+1 : P.y;
-    Junction::List &JL = Horz(j);
-    const Real      y0 = JL.level;
-    const Real      x0 = p.x + (y0-p.y)*(q.x -p.x) /(q.y-p.y);
-    Junction       *J  = JL.append(x0,&bubble);
-    const Array1D  &X  = grid.X();
+    const unit_t    j     = q.y>p.y ? P.y+1 : P.y;
+    Junction::List &JL    = Horz(j);
+    const Real      y0    = JL.level;
+    alpha                 = clamp<Real>(0,(y0-p.y)/(q.y - p.y ),1);
+    const Real      x0    = p.x + (q.x -p.x)*alpha;
+    Junction       *J     = JL.append(x0,&bubble);
+    const Array1D  &X     = grid.X();
     if(J->value>=X[X.lower]&&J->value<=X[X.upper])
     {
         J->inside = true;
         J->lower  = __Grid::FindLower(X, J->value);
         J->upper  = J->lower+1;
     }
+    return J;
 }
 
-void Junctions:: __interVert(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q)
+Junction * Junctions:: __interVert(const Bubble &bubble,
+                                   const Vertex &p,
+                                   const Coord  &P,
+                                   const Vertex &q,
+                                   Real         &alpha)
 {
     assert(P.x != SLUDGE_INVALID_COORD);
     const unit_t    i  = q.x>p.x ? P.x+1 : P.x;
     Junction::List &JL = Vert(i);
     const Real      x0 = JL.level;
-    const Real      y0 = p.y + (x0-p.x) * (q.y - p.y) / (q.x - p.x);
+    alpha              = clamp<Real>(0, (x0-p.x)/(q.x - p.x), 1);
+    const Real      y0 = p.y +  alpha * (q.y - p.y);
     Junction       *J  = JL.append(y0,&bubble);
     const Array1D  &Y  = grid.Y();
     if(J->value>=Y[Y.lower] && J->value<=Y[Y.upper])
@@ -164,6 +177,31 @@ void Junctions:: __interVert(const Bubble &bubble, const Vertex &p, const Coord 
         J->lower  = __Grid::FindLower(Y,J->value);
         J->upper  = J->upper+1;
     }
+    return J;
+}
+
+void Junctions:: __updateJunction( Junction *J, const Real alpha, const Tracer *u, const Tracer *v)
+{
+    assert(J);
+    assert(u);
+    assert(v);
+    const Real U = (1-alpha);
+    const Real V = alpha;
+    
+    //--------------------------------------------------------------------------
+    //-- average curvature
+    //--------------------------------------------------------------------------
+    J->C = U * u->C + V * v->C;
+    
+    //--------------------------------------------------------------------------
+    //-- compute angle
+    //--------------------------------------------------------------------------
+    const Real theta = Vertex::angle_of(u->t, v->t);
+    J->t = u->t.rotated_by( V * theta );
+    std::cerr << "J->t=" << J->t << std::endl;
+    J->t.normalize();
+    J->n.x = - J->t.y;
+    J->n.y =   J->t.x;
 }
 
 

@@ -7,14 +7,15 @@ const int Bubbles::Tag = 3;
 Bubbles:: ~Bubbles() throw() { auto_delete(); }
 
 
-Bubbles:: Bubbles( Real &lam ) throw() :
-lambda(lam)
+Bubbles:: Bubbles() throw() :
+lambda(1),
+gamma(0)
 {
 }
 
 Bubble * Bubbles:: append()
 {
-    Bubble *b = new Bubble((Real&)lambda,size);
+    Bubble *b = new Bubble(lambda,gamma,size);
     push_back(b);
     return b;
 }
@@ -29,10 +30,20 @@ void Bubbles:: hash( Hasher &h ) const throw()
 }
 
 
-void Bubbles:: regularize()
+void Bubbles:: regularize_all()
 {
     for( Bubble *b = head;b;b=b->next)
     {
         b->regularize();
     }
 }
+
+void Bubbles:: collect_all_markers(Real ymin,Real ymax)
+{
+    for( Bubble *b = head;b;b=b->next)
+    {
+        b->collect_markers(ymin, ymax);
+    }
+}
+
+

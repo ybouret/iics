@@ -37,23 +37,34 @@ YOCTO_UNIT_TEST_IMPL(segment)
     // Create the bubbles
     //
     //==========================================================================
-    Real lam = __Grid::ComputeLambda(grid);
-    std::cerr << "lambda=" << lam << std::endl;
-    Bubbles bubbles(lam);
-    
+    Bubbles bubbles;
+    bubbles.lambda = __Grid::ComputeLambda(grid);
+    std::cerr << "lambda=" << bubbles.lambda << std::endl;
+
     {
+        const Vertex center(-2.5,-2.5);
         Bubble *bubble = bubbles.append();
-        Shape::Circle(bubble, Vertex(0,0), radius);
-        Shape::Blob(bubble, Vertex(0,0), radius, 0.5+0.45*alea<Real>(), alea<Real>() );
+        Shape::Blob(bubble, center, 3, 0.5+0.45*alea<Real>(), alea<Real>() );
         Shape::Rotate(bubble, numeric<Real>::two_pi * alea<Real>() );
     }
     
-    bubbles.regularize();
+    {
+        const Vertex center(2.5,2.5);
+        Bubble *bubble = bubbles.append();
+        Shape::Blob(bubble, center, 3, 0.5+0.45*alea<Real>(), alea<Real>() );
+        Shape::Rotate(bubble, numeric<Real>::two_pi * alea<Real>() );
+    }
+    
+    bubbles.regularize_all();
+    bubbles.collect_all_markers(grid.Y()[grid.lower.y], grid.Y()[grid.upper.y]);
+    
     for(const Bubble *b = bubbles.head; b; b=b->next)
     {
+        std::cerr << "Bubble #" << b->UID << std::endl;
         const string pfx = vformat("b%u", unsigned(b->UID));
         b->save_all(pfx);
     }
+    
     
     //==========================================================================
     //
@@ -62,13 +73,18 @@ YOCTO_UNIT_TEST_IMPL(segment)
     //==========================================================================
     junctions.load(bubbles);
     junctions.save_dat("j.dat");
+    junctions.save_t("j_t.dat");
+    junctions.save_n("j_n.dat");
     
     standalone<Array> B(L);
     
     junctions.segment(B);
     junctions.save_inside(B, "inside.dat");
     
-    std::cerr << "sizeof(Junction)=" << sizeof(Junction) << std::endl;
+    std::cerr << "sizeof(Tracer)   = " << sizeof(Tracer)   << std::endl;
+    std::cerr << "sizeof(Junction) = " << sizeof(Junction) << std::endl;
+    std::cerr << "sizeof(Marker)   = " << sizeof(Marker)   << std::endl;
+    std::cerr << "sizeof(Bubble)   = " << sizeof(Bubble)   << std::endl;
     
 }
 YOCTO_UNIT_TEST_DONE()

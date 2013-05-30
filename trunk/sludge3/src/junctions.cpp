@@ -12,6 +12,7 @@ next(0),
 root(r),
 value(a),
 owner(b),
+C(0),
 inside(false),
 lower( SLUDGE_INVALID_COORD ),
 upper( SLUDGE_INVALID_COORD )
@@ -24,15 +25,15 @@ Junction:: ~Junction() throw()
 }
 
 
-Coord Junction:: operator()(void) const throw()
+Vertex Junction:: get(void) const throw()
 {
     switch(root.type)
     {
         case Horz:
-            return  Coord(value,root.level);
+            return  Vertex(value,root.level);
             
         case Vert:
-            return Coord(root.level,value);
+            return Vertex(root.level,value);
     }
 }
 
@@ -198,6 +199,40 @@ void Junctions:: save_dat( const string &fn) const
             fp("%g %g\n", J->value, J->root.level);
         }
         
+    }
+}
+
+void Junctions:: save_t( const string &fn ) const
+{
+    ios::ocstream fp( fn, false);
+    for(size_t i=0; i < num_lists; ++i )
+    {
+        const Junction::List &JL = jlists[i];
+        for( const Junction *J = JL.head;J;J=J->next)
+        {
+            const Vertex p = J->get();
+            fp("%g %g\n", p.x, p.y);
+            const Vertex q = p + J->owner->lambda * J->t;
+            fp("%g %g\n", q.x, q.y);
+            fp("\n");
+        }
+    }
+}
+
+void Junctions:: save_n( const string &fn ) const
+{
+    ios::ocstream fp( fn, false);
+    for(size_t i=0; i < num_lists; ++i )
+    {
+        const Junction::List &JL = jlists[i];
+        for( const Junction *J = JL.head;J;J=J->next)
+        {
+            const Vertex p = J->get();
+            fp("%g %g\n", p.x, p.y);
+            const Vertex q = p + (J->owner->lambda * J->C ) * J->n;
+            fp("%g %g\n", q.x, q.y);
+            fp("\n");
+        }
     }
 }
 
