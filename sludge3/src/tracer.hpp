@@ -26,7 +26,7 @@ public:
     static const size_t NumReals = 10;
     
     explicit Tracer() throw();
-    explicit Tracer( const Vertex v ) throw();
+    explicit Tracer( const Vertex &v ) throw();
     ~Tracer() throw();
     
     void hash_tracer( Hasher &h ) const throw();

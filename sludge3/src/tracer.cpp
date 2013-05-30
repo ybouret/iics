@@ -2,26 +2,26 @@
 
 const int Tracer::Tag = 1;
 
+#define _TRACER_CTOR(args) \
+prev(0),\
+next(0),\
+pos(args),\
+edge(),\
+dist(0),\
+t(),\
+n(),\
+C(0),\
+speed(0),\
+coord(),\
+flags(0)
+
 Tracer:: Tracer() throw() :
-prev(0),next(0),
-pos(),
-edge(),
-dist(0),
-t(),
-n(),
-C(0),
-speed(0)
+_TRACER_CTOR()
 {}
 
 
-Tracer:: Tracer( const Vertex v ) throw() :
-prev(0),
-next(0),
-pos(v),
-edge(),
-dist(0),
-t(),n(),C(0),
-speed(0)
+Tracer:: Tracer( const Vertex &v ) throw() :
+_TRACER_CTOR(v)
 {
     
 }

@@ -17,10 +17,9 @@ void Shape::Circle( Bubble *b, const Vertex center, Real radius )
     for(size_t i=0; i < np; ++i )
 	{
 		const Real theta = (numeric<Real>::two_pi * i)/np;
-		Tracer *   tr    = new Tracer();
+		Tracer *   tr    = b->append();
 		tr->pos.x = radius * Cos( theta ) + center.x;
 		tr->pos.y = radius * Sin( theta ) + center.y;
-		b->push_back(tr);
 	}
     
 	b->init_contour();
@@ -108,10 +107,9 @@ void Shape:: Ellipse( Bubble *b, const Vertex C, const Vertex R)
     for( size_t i=1; i<ell.np;++i)
     {
         const Real t = ell.theta[i];
-        Tracer *   tr    = new Tracer();
+        Tracer *   tr    = b->append();
 		tr->pos.x = R.x * Cos( t ) + C.x;
 		tr->pos.y = R.y * Sin( t ) + C.y;
-		b->push_back(tr);
     }
     
     b->init_contour();
@@ -168,8 +166,7 @@ void Shape:: Blob( Bubble *b, const Vertex C, const Real radius,  Real rho,  Rea
     for( size_t i=0; i < np; ++i )
     {
         const Real theta = (numeric<Real>::two_pi * i)/np;
-		Tracer *   tr    = new Tracer();
-        b->push_back(tr);
+		Tracer *   tr    = b->append();
         const Real rp    = fac * ( 1.0 + A * Cos( 2*theta) + B * Cos(3*theta) );
 		tr->pos.x = rp * Cos( theta ) + C.x;
 		tr->pos.y = rp * Sin( theta ) + C.y;

@@ -20,6 +20,8 @@ public:
     Real        area;     //!< area          : +1 Real
     Real        pressure; //!< pressure      : +1 Real, default is 1
     static const size_t NumReals = 4;
+    size_t      flags;
+    
     
     void save_dat( const string &fn ) const;
     void save_t( const string &fn ) const;
@@ -40,6 +42,9 @@ public:
     
     //! used for MPI debugging
     void hash_bubble( Hasher &h ) const throw();
+    
+    Tracer *append();
+    void    append( const Vertex v ); //!< use a copy or vertex
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Bubble);

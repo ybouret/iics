@@ -87,6 +87,11 @@ int __Grid::Locate(const Grid &grid, const Vertex &p, Coord &lo) throw()
     const Array1D &Y = grid.Y();
     int ans = SLUDGE_INSIDE;
     
+    lo.x = SLUDGE_INVALID_COORD;
+    lo.y = SLUDGE_INVALID_COORD;
+    //==========================================================================
+    // process X axis
+    //==========================================================================
     if( p.x < X[X.lower])
     {
         ans |= SLUDGE_LEFT;
@@ -104,6 +109,9 @@ int __Grid::Locate(const Grid &grid, const Vertex &p, Coord &lo) throw()
         }
     }
     
+    //==========================================================================
+    // process Y axis
+    //==========================================================================
     if( p.y < Y[Y.lower])
     {
         ans |= SLUDGE_BOTTOM;
