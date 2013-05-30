@@ -56,6 +56,7 @@ public:
     Junction::List & Horz( unit_t j ) throw();
 
     size_t load( const Bubble &bubble ); //!< append new junctions, return status
+    size_t inter( const Bubble &bubble);
     void   clear() throw();              //!< clear all junctions
     void   sort();
     
@@ -79,6 +80,9 @@ private:
     
     void __loadHorz(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q);
     void __loadVert(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q);
+    
+    void __intersect( const Bubble &bubble, const Tracer *u);
+    
 
 };
 
