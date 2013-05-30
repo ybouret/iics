@@ -22,9 +22,9 @@ YOCTO_UNIT_TEST_IMPL(segment)
     //==========================================================================
     std::cerr << "*** Building grid" << std::endl;
     array_db       adb;
-    const Layout   L( Coord(1,1), Coord(20,30) );
+    const Layout   L( Coord(1,1), Coord(21,40) );
     Grid           grid(L,adb);
-    const Region2D R( Vertex(-5,-6), Vertex(5,6) );
+    const Region2D R( Vertex(-5,-5), Vertex(5,5) );
     
     Junctions junctions(grid);
     grid.regular_map_to(R,L);
@@ -44,8 +44,8 @@ YOCTO_UNIT_TEST_IMPL(segment)
     {
         Bubble *bubble = bubbles.append();
         Shape::Circle(bubble, Vertex(0,0), radius);
-        //Shape::Blob(bubble, Vertex(0,0), radius, 0.7, alea<Real>() );
-        //Shape::Rotate(bubble, numeric<Real>::two_pi * alea<Real>() );
+        Shape::Blob(bubble, Vertex(0,0), radius, 0.7, alea<Real>() );
+        Shape::Rotate(bubble, numeric<Real>::two_pi * alea<Real>() );
     }
     
     bubbles.regularize();
@@ -66,6 +66,9 @@ YOCTO_UNIT_TEST_IMPL(segment)
     standalone<Array> B(L);
     
     junctions.segment(B);
+    junctions.save_inside(B, "inside.dat");
+    
+    std::cerr << "sizeof(Junction)=" << sizeof(Junction) << std::endl;
     
 }
 YOCTO_UNIT_TEST_DONE()

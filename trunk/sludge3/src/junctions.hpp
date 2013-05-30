@@ -8,9 +8,10 @@
 typedef array2D<Real> Array;
 
 //! A basic junction
-class Junction : public object
+class Junction
 {
 public:
+    YOCTO_MAKE_OBJECT;
     enum Type
     {
         Horz,
@@ -27,21 +28,24 @@ public:
         virtual ~List() throw();
         
         
-        void append(Real,const Bubble *);
+        Junction *append(Real,const Bubble *);
         
     private:
         YOCTO_DISABLE_COPY_AND_ASSIGN(List);
     };
-
+    
     Junction     *prev;
     Junction     *next;
     const List   &root;
     const Real    value;
     const Bubble *owner;
     
+    bool   inside;
+    unit_t lower;
+    unit_t upper;
     
-    explicit Junction(List &, Real, const Bubble *) throw();
-    virtual ~Junction() throw();
+    Junction(List &, Real, const Bubble *) throw();
+    ~Junction() throw();
     
     Coord operator()(void) const throw();
     
@@ -51,7 +55,7 @@ private:
 
 
 //! handle Vert/Horz junctions from grid
-class Junctions 
+class Junctions
 {
 public:
     const Grid     &grid;
@@ -62,7 +66,7 @@ public:
     
     Junction::List & Vert( unit_t i ) throw();
     Junction::List & Horz( unit_t j ) throw();
-
+    
     const Junction::List & Vert( unit_t i ) const throw();
     const Junction::List & Horz( unit_t j ) const throw();
     
@@ -79,7 +83,10 @@ public:
     
     
     void segment( Array &B ) const; //!< fill array with owner
-
+    
+    void save_inside( const Array &B, const string &fn ) const;
+    
+    
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Junctions);
     size_t          jcount;
@@ -91,7 +98,7 @@ private:
     void __intersect(const Bubble &bubble, const Tracer *u);
     void __interHorz(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q);
     void __interVert(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q);
-
+    
 };
 
 

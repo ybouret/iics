@@ -136,20 +136,34 @@ void Junctions:: __interHorz(const Bubble &bubble,
 {
     assert(P.y != SLUDGE_INVALID_COORD);
     const unit_t    j  = q.y>p.y ? P.y+1 : P.y;
-    Junction::List &J  = Horz(j);
-    const Real      y0 = J.level;
+    Junction::List &JL = Horz(j);
+    const Real      y0 = JL.level;
     const Real      x0 = p.x + (y0-p.y)*(q.x -p.x) /(q.y-p.y);
-    J.append(x0,&bubble);
+    Junction       *J  = JL.append(x0,&bubble);
+    const Array1D  &X  = grid.X();
+    if(J->value>=X[X.lower]&&J->value<=X[X.upper])
+    {
+        J->inside = true;
+        J->lower  = __Grid::FindLower(X, J->value);
+        J->upper  = J->lower+1;
+    }
 }
 
 void Junctions:: __interVert(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q)
 {
     assert(P.x != SLUDGE_INVALID_COORD);
     const unit_t    i  = q.x>p.x ? P.x+1 : P.x;
-    Junction::List &J  = Vert(i);
-    const Real      x0 = J.level;
+    Junction::List &JL = Vert(i);
+    const Real      x0 = JL.level;
     const Real      y0 = p.y + (x0-p.x) * (q.y - p.y) / (q.x - p.x);
-    J.append(y0,&bubble);
+    Junction       *J  = JL.append(y0,&bubble);
+    const Array1D  &Y  = grid.Y();
+    if(J->value>=Y[Y.lower] && J->value<=Y[Y.upper])
+    {
+        J->inside = true;
+        J->lower  = __Grid::FindLower(Y,J->value);
+        J->upper  = J->upper+1;
+    }
 }
 
 
