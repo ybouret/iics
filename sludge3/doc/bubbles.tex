@@ -101,7 +101,17 @@ with
 So that the differential properties can be determined in two passes:
 \begin{enumerate}
 	\item Estimate $\partial_t \vec{M}$, deduce $\vec{\tau}$ and $\vec{n}$, and store $\vert\partial_t \vec{M}\vert$,
-	\item then estimate $\partial_t \vec{\tau}$ and deduce $\kappa$.
+	\item then estimate $\partial_t \vec{\tau}$ and deduce $\kappa = \frac{1}{\vert\partial_t \vec{M}\vert} \vec{n}.\partial_t \vec{\tau}$.
 \end{enumerate}
+
+\section{Segmentation}
+\subsection{Computing Junctions with a Grid}
+
+\begin{center}
+\includegraphics[scale=1]{grid.eps}
+\end{center}
+
+\subsection{Segmentation by Ray Casting}
+
 
 \end{document}
