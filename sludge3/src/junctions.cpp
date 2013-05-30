@@ -11,7 +11,10 @@ prev(0),
 next(0),
 root(r),
 value(a),
-owner(b)
+owner(b),
+inside(false),
+lower( SLUDGE_INVALID_COORD ),
+upper( SLUDGE_INVALID_COORD )
 {
     assert(owner);
 }
@@ -47,11 +50,12 @@ level(v)
 
 Junction::List:: ~List() throw() { auto_delete(); }
 
-void Junction::List::append( Real value, const Bubble *owner)
+Junction *Junction::List::append( Real value, const Bubble *owner)
 {
     assert(owner);
     Junction *J = new Junction(*this,value,owner);
     push_back(J);
+    return J;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

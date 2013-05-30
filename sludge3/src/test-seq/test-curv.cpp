@@ -24,10 +24,7 @@ YOCTO_UNIT_TEST_IMPL(curv)
     bubble.auto_contour();
     bubble.compute_curvatures();
     
-    bubble.save_dat("circ.dat");
-    bubble.save_t("circ_t.dat");
-    bubble.save_n("circ_n.dat");
-    
+    bubble.save_all("circ");    
     
     std::cerr << "sizeof(Tracer)=" << sizeof(Tracer) << std::endl;
 

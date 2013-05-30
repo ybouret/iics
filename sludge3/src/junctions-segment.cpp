@@ -1,4 +1,5 @@
 #include "junctions.hpp"
+#include "yocto/exception.hpp"
 
 void Junctions:: segment(Array &B) const
 {
@@ -21,6 +22,47 @@ void Junctions:: segment(Array &B) const
         const Junction::List &JL = Horz(y);
         std::cerr << "\t@y=" << JL.level << " : " << JL.size << std::endl;
         
+        if(JL.size<=0)
+            continue;
+        
+        
+        bool inside = true;
+        const Junction *J = JL.head; assert(J);
+        const Junction *K = J->next; assert(K);
+        while(K)
+        {
+            if(inside)
+            {
+                if(J->owner!=K->owner)
+                    throw exception("Bubble in Bubble!");
+                const unit_t ini = J->inside ? J->upper : B.lower.x;
+                const unit_t end = K->inside ? K->lower : B.upper.x;
+                if(end>=ini)
+                {
+                    const Real u = J->owner->UID;
+                    for(unit_t i=ini;i<=end;++i) B[y][i] = u;
+                }
+            }
+            inside = !inside;
+            J=K;
+            K=K->next;
+        }
+        
     }
     
+}
+
+
+void Junctions:: save_inside( const Array &B, const string &fn ) const
+{
+    assert(B.is_same_layout_than(grid) );
+    ios::ocstream fp(fn,false);
+    for(unit_t j=B.lower.y;j<=B.upper.y;++j)
+    {
+        for(unit_t i=B.lower.x;i<=B.upper.x;++i)
+        {
+            if(B[j][i]>=0)
+                fp("%g %g\n", grid.X()[i], grid.Y()[j]);
+        }
+    }
 }
