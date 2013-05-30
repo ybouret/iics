@@ -139,7 +139,7 @@ void Junctions:: __interHorz(const Bubble &bubble,
     Junction::List &J  = Horz(j);
     const Real      y0 = J.level;
     const Real      x0 = p.x + (y0-p.y)*(q.x -p.x) /(q.y-p.y);
-    J.append(x0);
+    J.append(x0,&bubble);
 }
 
 void Junctions:: __interVert(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q)
@@ -149,6 +149,17 @@ void Junctions:: __interVert(const Bubble &bubble, const Vertex &p, const Coord 
     Junction::List &J  = Vert(i);
     const Real      x0 = J.level;
     const Real      y0 = p.y + (x0-p.x) * (q.y - p.y) / (q.x - p.x);
-    J.append(y0);
+    J.append(y0,&bubble);
+}
+
+
+void Junctions:: load( Bubbles &bubbles )
+{
+    clear();
+    for( Bubble *b = bubbles.head; b; b=b->next )
+    {
+        inter( *b );
+    }
+    sort();
 }
 

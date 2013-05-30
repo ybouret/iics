@@ -12,16 +12,16 @@ public:
     
     Bubble *prev;
     Bubble *next;
-    explicit Bubble( Real &lam ) throw();
+    explicit Bubble( Real &lam, size_t uid) throw();
     virtual ~Bubble() throw();
     
-    const Real &lambda;   //!< maximum length between two vertices
-    Vertex      G;        //!< barycenter    : +2 Real
-    Real        area;     //!< area          : +1 Real
-    Real        pressure; //!< pressure      : +1 Real, default is 1
+    const Real         &lambda;   //!< maximum length between two vertices
+    Vertex              G;        //!< barycenter    : +2 Real
+    Real                area;     //!< area          : +1 Real
+    Real                pressure; //!< pressure      : +1 Real, default is 1
     static const size_t NumReals = 4;
-    size_t      flags;
-    
+    size_t              flags;
+    const size_t        UID;      //!< for segmentation
     
     void save_dat( const string &fn ) const;
     void save_t( const string &fn ) const;

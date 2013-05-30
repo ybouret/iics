@@ -5,6 +5,7 @@ ADD_EXECUTABLE(test-seq main.cpp
 test-bubble.cpp
 test-grid.cpp
 test-curv.cpp
+test-segment.cpp
 )
 
 INSTALL( TARGETS test-seq RUNTIME DESTINATION bin )

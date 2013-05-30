@@ -27,18 +27,19 @@ public:
         virtual ~List() throw();
         
         
-        void append(Real);
+        void append(Real,const Bubble *);
         
     private:
         YOCTO_DISABLE_COPY_AND_ASSIGN(List);
     };
 
-    Junction   *prev;
-    Junction   *next;
-    const List &root;
-    const Real  value;
+    Junction     *prev;
+    Junction     *next;
+    const List   &root;
+    const Real    value;
+    const Bubble *owner;
     
-    explicit Junction(List &, Real) throw();
+    explicit Junction(List &, Real, const Bubble *) throw();
     virtual ~Junction() throw();
     
     Coord operator()(void) const throw();
@@ -52,6 +53,9 @@ private:
 class Junctions 
 {
 public:
+    const Grid     &grid;
+    const size_t    num_lists;
+    
     explicit Junctions(Grid &g);
     virtual ~Junctions() throw();
     
@@ -63,12 +67,14 @@ public:
     void   sort();                 //!< sort for segmentation
     
     
+    void load( Bubbles &bubbles );
+    
     
     void save_dat( const string &fn) const;
     
-    const Grid     &grid;
-    const size_t    num_lists;
-   
+    
+    
+    void segment( Array &B ) const; //!< fill array with owner
 
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Junctions);

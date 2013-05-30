@@ -3,16 +3,17 @@
 
 const int Bubble::Tag = 2;
 
-Bubble:: Bubble( Real &lam ) throw() :
+Bubble:: Bubble( Real &lam, size_t uid) throw() :
 prev(0),
 next(0),
 lambda( lam ),
 G(),
 area(0),
 pressure(1),
-flags(0)
+flags(0),
+UID(uid)
 {
-    
+    assert(uid>0);
 }
 
 Bubble:: ~Bubble() throw()
@@ -25,6 +26,7 @@ void Bubble::hash_bubble(Hasher &h) const throw()
     h(G);
     h(area);
     h(pressure);
+    h(UID);
 }
 
 
