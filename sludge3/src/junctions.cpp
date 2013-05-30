@@ -6,12 +6,14 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-Junction:: Junction( List &r, Real a) throw() :
+Junction:: Junction( List &r, Real a, const Bubble *b) throw() :
 prev(0),
 next(0),
 root(r),
-value(a)
+value(a),
+owner(b)
 {
+    assert(owner);
 }
 
 Junction:: ~Junction() throw()
@@ -45,9 +47,10 @@ level(v)
 
 Junction::List:: ~List() throw() { auto_delete(); }
 
-void Junction::List::append( Real a)
+void Junction::List::append( Real value, const Bubble *owner)
 {
-    Junction *J = new Junction(*this,a);
+    assert(owner);
+    Junction *J = new Junction(*this,value,owner);
     push_back(J);
 }
 

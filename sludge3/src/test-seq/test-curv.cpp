@@ -6,7 +6,7 @@
 YOCTO_UNIT_TEST_IMPL(curv)
 {
     Real   lam = 1;
-    Bubble bubble(lam);
+    Bubble bubble(lam,2);
     
     
     Shape::Ellipse(&bubble, Vertex(0,0), Vertex(6,2));

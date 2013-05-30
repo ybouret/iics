@@ -46,7 +46,7 @@ YOCTO_UNIT_TEST_IMPL(grid)
     Real lam = __Grid::ComputeLambda(grid);
     std::cerr << "lambda=" << lam << std::endl;
     
-    Bubble bubble(lam);
+    Bubble bubble(lam,1);
     Shape::Circle(&bubble, Vertex(0,0), radius);
     bubble.auto_contour();
     bubble.save_dat("bubble.dat");
