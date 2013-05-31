@@ -10,6 +10,7 @@ YOCTO_UNIT_TEST_IMPL(bubbles)
     // create the bubble(s)
     Bubbles bubbles;
     bubbles.lambda = 0.5;
+    bubbles.gamma  = 0.1;
     
     if( MPI.IsFirst )
     {
@@ -38,6 +39,9 @@ YOCTO_UNIT_TEST_IMPL(bubbles)
     
     // test collect, meaningless in that case
     ParallelBubbles::Collect(MPI, bubbles);
+    h.set();
+    bubbles.hash(h);
+    MPI.Printf0(stderr, "Key0=%d\n", h.getKey());
     
 }
 YOCTO_UNIT_TEST_DONE()

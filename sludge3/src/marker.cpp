@@ -1,0 +1,41 @@
+#include "marker.hpp"
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Marker
+//
+////////////////////////////////////////////////////////////////////////////////
+Marker:: Marker( const Tracer *tr, const size_t s) :
+tracer(tr),
+shift(s)
+{
+    assert(tracer);
+}
+
+Marker:: ~Marker() throw()
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Marker List
+//
+////////////////////////////////////////////////////////////////////////////////
+
+Marker:: List:: List() throw() {}
+
+Marker:: List:: ~List() throw()
+{
+    clear();
+}
+
+void Marker::List:: clear() throw()
+{
+    auto_delete();
+}
+
+void Marker:: List:: append( const Tracer *tracer, const size_t shift)
+{
+    Marker *m = new Marker(tracer,shift);
+    push_back(m);
+}

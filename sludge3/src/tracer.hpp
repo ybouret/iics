@@ -7,6 +7,9 @@
 
 using namespace spade;
 
+#define SLUDGE_INVALID_COORD (limit_of<unit_t>::maximum)
+
+
 class Tracer
 {
 public:

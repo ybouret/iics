@@ -3,59 +3,10 @@
 
 #include "grid.hpp"
 #include "bubbles.hpp"
+#include "junction.hpp"
 #include "yocto/spade/array2d.hpp"
 
 typedef array2D<Real> Array;
-
-//! A basic junction
-class Junction
-{
-public:
-    YOCTO_MAKE_OBJECT;
-    enum Type
-    {
-        Horz,
-        Vert
-    };
-    
-    //! using reference from grid !
-    class List : public core::list_of<Junction>
-    {
-    public:
-        const Type  type;
-        const Real &level;
-        explicit List(Type t, const Real &v) throw();
-        virtual ~List() throw();
-        
-        
-        Junction *append(Real,const Bubble *);
-        
-    private:
-        YOCTO_DISABLE_COPY_AND_ASSIGN(List);
-    };
-    
-    Junction     *prev;     //!< for list
-    Junction     *next;     //!< for list
-    const List   &root;     //!< for level/grid
-    const Real    value;    //!< location
-    const Bubble *owner;    //!< owning bubble
-    Real          C;        //!< average curvature
-    Vertex        t;        //!< average tangent vector
-    Vertex        n;        //!< average normal
-    Real          pressure; //!< from curvature + owner->gamma
-    
-    bool   inside;
-    unit_t lower;
-    unit_t upper;
-    
-    Junction(List &, Real, const Bubble *) throw();
-    ~Junction() throw();
-    
-    Vertex get(void) const throw();
-    
-private:
-    YOCTO_DISABLE_COPY_AND_ASSIGN(Junction);
-};
 
 
 //! handle Vert/Horz junctions from grid
@@ -85,11 +36,13 @@ public:
     void save_dat( const string &fn) const;
     void save_t( const string &fn ) const;
     void save_n( const string &fn ) const;
+    void save_all( const string &pfx) const;
+    
     
     
     void segment( Array &B ) const; //!< fill array with owner
     
-    void save_inside( const Array &B, const string &fn ) const;
+    void save_inside_of( const Array &B, const string &fn ) const;
     
     
 private:
