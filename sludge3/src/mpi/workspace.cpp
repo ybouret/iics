@@ -15,7 +15,8 @@ junctions(mesh),
 X( mesh.X() ),
 Y( mesh.Y() ),
 P( (*this)["P"].as<Array>() ),
-B( (*this)["B"].as<Array>() )
+B( (*this)["B"].as<Array>() ),
+gradP( (*this)["gradP"].as<VertexArray>() )
 {
     
     //==========================================================================

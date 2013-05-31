@@ -34,6 +34,10 @@ void Simulation:: get_meta_data(visit_handle &md) const
     //! append B on grid
     VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Real>("B", "grid"));
 
+    //! append gradP on grid
+    VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Vertex>("gradP", "grid"));
+
+    
 }
 
 
@@ -94,6 +98,17 @@ visit_handle Simulation:: get_variable( int domain, const string &name ) const
         if(VisIt_VariableData_alloc(&h) == VISIT_OKAY)
         {
             VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, B.entry);
+        }
+    }
+    
+    if( name == "gradP" )
+    {
+        const int nComponents= 2;
+        const int nTuples    = gradP.items;
+        assert(gradP.entry!=NULL);
+        if(VisIt_VariableData_alloc(&h) == VISIT_OKAY)
+        {
+            VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, (Real *)(gradP.entry));
         }
     }
     

@@ -25,7 +25,7 @@ sim_region( Vertex(0, sim_layout.lower.y * delta.y), Vertex(Q.x,sim_layout.upper
     //==========================================================================
     Y_SPADE_FIELD(F, "P", Array);
     Y_SPADE_FIELD(F, "B", Array);
-    
+    Y_SPADE_FIELD(F, "gradP", VertexArray);
     
     //==========================================================================
     // MPI connectivity
