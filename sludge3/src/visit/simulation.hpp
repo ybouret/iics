@@ -18,6 +18,8 @@ public:
                         );
     virtual ~Simulation() throw();
     
+    virtual void         get_meta_data(visit_handle &md ) const;
+    virtual visit_handle get_mesh( int domain, const string &name ) const;
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Simulation);
