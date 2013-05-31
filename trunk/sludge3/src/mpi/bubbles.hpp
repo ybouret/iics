@@ -10,7 +10,7 @@ public:
     // send bubble to slaves
     static void Bcast(const mpi &MPI, Bubbles &bubbles);
     
-    // gather info from slaves
+    // gather info from slaves using markers
     static void Collect(const mpi &MPI, Bubbles &bubles);
     
 private:

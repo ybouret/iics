@@ -12,10 +12,12 @@ SET(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/../sdk)
 SET(SOURCES_SEQ
 types.hpp     types.cpp
 tracer.hpp    tracer.cpp
+marker.hpp    marker.cpp
 bubble.hpp    bubble.cpp bubble-ios.cpp bubble-ops.cpp
 bubbles.hpp   bubbles.cpp
 shape.hpp     shape.cpp
 grid.hpp      grid.cpp
+junction.hpp  junction.cpp
 junctions.hpp junctions.cpp junctions-inter.cpp junctions-segment.cpp
 )
 SOURCE_GROUP( sludge FILES ${SOURCES_SEQ} )
@@ -28,6 +30,10 @@ IF(MPI_FOUND)
 SET(SOURCES_MPI
 mpi/bubbles.hpp
 mpi/bubbles.cpp
+mpi/parameters.hpp
+mpi/parameters.cpp
+mpi/workspace.hpp
+mpi/workspace.cpp
 )
 SOURCE_GROUP( sludge/mpi FILES ${SOURCES_MPI} )
 

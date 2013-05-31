@@ -53,7 +53,7 @@ void Junctions:: segment(Array &B) const
 }
 
 
-void Junctions:: save_inside( const Array &B, const string &fn ) const
+void Junctions:: save_inside_of( const Array &B, const string &fn ) const
 {
     assert(B.is_same_layout_than(grid) );
     ios::ocstream fp(fn,false);

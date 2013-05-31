@@ -79,7 +79,7 @@ YOCTO_UNIT_TEST_IMPL(segment)
     standalone<Array> B(L);
     
     junctions.segment(B);
-    junctions.save_inside(B, "inside.dat");
+    junctions.save_inside_of(B, "inside.dat");
     
     std::cerr << "sizeof(Tracer)   = " << sizeof(Tracer)   << std::endl;
     std::cerr << "sizeof(Junction) = " << sizeof(Junction) << std::endl;

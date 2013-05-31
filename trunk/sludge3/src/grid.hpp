@@ -25,7 +25,6 @@ typedef region2D<Real>::type Region2D;
 #define SLUDGE_TOP_OR_BOTTOM ( SLUDGE_TOP  | SLUDGE_BOTTOM )
 #define SLUDGE_LEFT_OR_RIGHT ( SLUDGE_LEFT | SLUDGE_RIGHT  )
 
-#define SLUDGE_INVALID_COORD (limit_of<unit_t>::maximum)
 
 struct __Grid
 {
