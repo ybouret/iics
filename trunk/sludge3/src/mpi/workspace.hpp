@@ -22,6 +22,7 @@ public:
     const Array1D &Y;
     Array         &P;
     Array         &B;
+    VertexArray   &gradP;
     
     void broadcast_bubbles(const mpi &MPI);
     void segment();
