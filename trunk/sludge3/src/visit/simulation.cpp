@@ -19,11 +19,21 @@ VisIt::Simulation(MPI)
 
 void Simulation:: get_meta_data(visit_handle &md) const
 {
-    //! append the mesh
-    {
-        VisIt_SimulationMetaData_addMesh(md, mesh_meta_data(mesh, "grid", par_size));
-    }
     
+    //! append an UI generic command
+    add_generic_command("raz1", md);
+    
+    //! append the grid
+    VisIt_SimulationMetaData_addMesh(md, mesh_meta_data(mesh, "grid", par_size));
+    
+    
+    //! append P on grid
+    VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Real>("P", "grid"));
+    
+    
+    //! append B on grid
+    VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Real>("B", "grid"));
+
 }
 
 
@@ -58,4 +68,44 @@ visit_handle Simulation:: get_mesh( int domain, const string &name ) const
     }
     return h;
     
+}
+
+
+visit_handle Simulation:: get_variable( int domain, const string &name ) const
+{
+    visit_handle h = VISIT_INVALID_HANDLE;
+    
+    if( name == "P" )
+    {
+        const int nComponents= 1;
+        const int nTuples    = P.items;
+        assert(P.entry!=NULL);
+        if(VisIt_VariableData_alloc(&h) == VISIT_OKAY)
+        {
+            VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, P.entry);
+        }
+    }
+    
+    if( name == "B" )
+    {
+        const int nComponents= 1;
+        const int nTuples    = B.items;
+        assert(B.entry!=NULL);
+        if(VisIt_VariableData_alloc(&h) == VISIT_OKAY)
+        {
+            VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, B.entry);
+        }
+    }
+    
+    return h;
+
+}
+
+
+void Simulation:: perform( const string &cmd, const array<string> &args)
+{
+    if( cmd == "raz1" )
+    {
+        init_one_bubble();
+    }
 }

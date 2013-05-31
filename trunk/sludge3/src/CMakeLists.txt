@@ -48,6 +48,7 @@ IF(VISIT_FOUND)
 	SET(SOURCES_VIS
 	visit/simulation.hpp
 	visit/simulation.cpp
+	visit/sim-init.cpp
 	)
 SOURCE_GROUP( sludge/visit FILES ${SOURCES_VIS} )
 ENDIF(VISIT_FOUND)
