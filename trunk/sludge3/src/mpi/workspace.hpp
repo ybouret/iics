@@ -26,9 +26,16 @@ public:
     void broadcast_bubbles(const mpi &MPI);
     void segment();
     
+    //! set pressure inside bubbles and compute boundary pressure fields
+    void pressurize();
+    
+    //! set pressure to zero then pressurize
+    void reset_pressure();
+    
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Workspace);
+    vector<Real> bpres; //!< bubble pressures
 };
 
 #endif

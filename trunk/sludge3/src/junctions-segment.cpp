@@ -34,13 +34,16 @@ void Junctions:: segment(Array &B) const
             {
                 if(J->owner!=K->owner)
                     throw exception("Bubble in Bubble!");
-                const unit_t ini = J->inside ? J->upper : B.lower.x;
-                const unit_t end = K->inside ? K->lower : B.upper.x;
-                if(end>=ini)
+                if(J->inside||K->inside)
                 {
-                    const Real u = J->owner->UID;
-                    for(unit_t i=ini;i<=end;++i)
-                        B[y][i] = u;
+                    const unit_t ini = J->inside ? J->upper : B.lower.x;
+                    const unit_t end = K->inside ? K->lower : B.upper.x;
+                    if(end>=ini)
+                    {
+                        const Real u = J->owner->UID;
+                        for(unit_t i=ini;i<=end;++i)
+                            B[y][i] = u;
+                    }
                 }
             }
             inside = !inside;
