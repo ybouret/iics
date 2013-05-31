@@ -1,9 +1,11 @@
 #include "visit/simulation.hpp"
+#include "yocto/code/rand.hpp"
 
 int main( int argc, char *argv[] )
 {
     try
     {
+        _rand.wseed();
         //----------------------------------------------------------------------
         //info for VisIt
         //----------------------------------------------------------------------
@@ -29,6 +31,8 @@ int main( int argc, char *argv[] )
         //----------------------------------------------------------------------
         Simulation sim(MPI, Coord(20,30), Vertex(10,10) );
         
+        __Grid::SaveDat( sim.mesh, "grid" + MPI.CommWorldID + ".dat");
+        sim.init_one_bubble();
         
         //----------------------------------------------------------------------
         // Main Loop
