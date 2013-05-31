@@ -9,6 +9,7 @@ LINK_DIRECTORIES(    ${YROOT}/lib     )
 
 SET(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/../sdk)
 
+## Sequential Sources
 SET(SOURCES_SEQ
 types.hpp     types.cpp
 tracer.hpp    tracer.cpp
@@ -22,6 +23,7 @@ junctions.hpp junctions.cpp junctions-inter.cpp junctions-segment.cpp
 )
 SOURCE_GROUP( sludge FILES ${SOURCES_SEQ} )
 
+## MPI Sources
 SET(SOURCES_MPI)
 FIND_PACKAGE(MPI)
 IF(MPI_FOUND)
@@ -39,9 +41,24 @@ SOURCE_GROUP( sludge/mpi FILES ${SOURCES_MPI} )
 
 ENDIF(MPI_FOUND)
 
-ADD_LIBRARY(sludge ${SOURCES_SEQ} ${SOURCES_MPI})
+##VisIt sources
+SET(SOURCES_VIS)
+INCLUDE(${YROOT}/share/yocto/visit.cmake)
+IF(VISIT_FOUND)
+	SET(SOURCES_VIS
+	visit/simulation.hpp
+	visit/simulation.cpp
+	)
+SOURCE_GROUP( sludge/visit FILES ${SOURCES_VIS} )
+ENDIF(VISIT_FOUND)
+
+ADD_LIBRARY(sludge ${SOURCES_SEQ} ${SOURCES_MPI} ${SOURCES_VIS})
 ADD_SUBDIRECTORY(test-seq)
 
 IF(MPI_FOUND)
 ADD_SUBDIRECTORY(test-mpi)
 ENDIF(MPI_FOUND)
+
+IF(VISIT_FOUND)
+ADD_SUBDIRECTORY(laponite)
+ENDIF(VISIT_FOUND)
