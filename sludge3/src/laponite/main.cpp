@@ -29,7 +29,7 @@ int main( int argc, char *argv[] )
         //----------------------------------------------------------------------
         // Setup simulation
         //----------------------------------------------------------------------
-        Simulation sim(MPI, Coord(20,30), Vertex(10,10) );
+        Simulation sim(MPI, Coord(40,60), Vertex(10,10) );
         
         __Grid::SaveDat( sim.mesh, "grid" + MPI.CommWorldID + ".dat");
         sim.init_one_bubble();
