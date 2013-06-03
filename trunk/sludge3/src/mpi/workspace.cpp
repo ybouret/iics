@@ -59,7 +59,7 @@ void Workspace:: validate_bubbles(const mpi &MPI)
         {
             
         }
-        MPI.Bcast(is_valid, 0, MPI_COMM_WORLD);
+        MPI.Bcast<bool>(is_valid, 0, MPI_COMM_WORLD);
     }
     MPI.Printf(stderr,"Validate= %s\n", is_valid ? "TRUE" : "FALSE");
 }

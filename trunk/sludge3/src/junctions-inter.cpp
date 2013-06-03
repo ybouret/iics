@@ -175,12 +175,15 @@ Junction * Junctions:: __interVert(const Bubble &bubble,
     {
         J->inside = true;
         J->lower  = __Grid::FindLower(Y,J->value);
-        J->upper  = J->upper+1;
+        J->upper  = J->lower+1;
     }
     return J;
 }
 
-void Junctions:: __updateJunction( Junction *J, const Real alpha, const Tracer *u, const Tracer *v)
+void Junctions:: __updateJunction(Junction     *J,
+                                  const Real    alpha,
+                                  const Tracer *u,
+                                  const Tracer *v)
 {
     assert(J);
     assert(u);
@@ -192,7 +195,8 @@ void Junctions:: __updateJunction( Junction *J, const Real alpha, const Tracer *
     //-- average curvature
     //--------------------------------------------------------------------------
     J->C = U * u->C + V * v->C;
-    J->pressure = J->owner->pressure - J->owner->gamma * J->C;
+    const Bubble *bubble = J->owner; assert(J->owner);
+    J->pressure = bubble->pressure - bubble->gamma * J->C;
     
     //--------------------------------------------------------------------------
     //-- compute angle

@@ -24,7 +24,8 @@ public:
     virtual void perform( const string &cmd, const array<string> &args);
     
     void init_one_bubble();
-    
+    virtual void step();
+
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Simulation);
 };
