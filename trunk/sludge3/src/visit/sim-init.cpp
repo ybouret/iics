@@ -29,8 +29,10 @@ void Simulation:: init_one_bubble()
     }
     broadcast_bubbles(MPI);
     segment();
-    reset_pressure();
-    compute_gradient(MPI);
+    P.ldz();
+    pressurize_bubbles();
+    pressurize_contours();
+    compute_gradP(MPI);
     junctions.save_dat( "j" + MPI.CommWorldID + ".dat" );
     junctions.save_inside_of(B, "in" + MPI.CommWorldID + ".dat");
 }

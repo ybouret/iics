@@ -25,12 +25,12 @@ void Junctions:: segment(Array &B) const
             continue;
         
         
-        bool inside = true;
+        bool  in_bubble= true;
         const Junction *J = JL.head; assert(J);
-        const Junction *K = J->next; assert(K);
+        const Junction *K = J->next;
         while(K)
         {
-            if(inside)
+            if(in_bubble)
             {
                 if(J->owner!=K->owner)
                     throw exception("Bubble in Bubble!");
@@ -46,7 +46,7 @@ void Junctions:: segment(Array &B) const
                     }
                 }
             }
-            inside = !inside;
+            in_bubble = !in_bubble;
             J=K;
             K=K->next;
         }
