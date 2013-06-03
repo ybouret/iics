@@ -145,21 +145,21 @@ The pressure gradient can be estimated by
 %	\right\rbrack = \dfrac{P_j^{L} - P_{j-1}}{2\delta_x}
 %$$
 $$
-	\partial_x P_i = \dfrac{P_\phi - P_{i-1}}{\delta x + \phi} = \dfrac{P_i^L - P_{i-1}}{2\delta x}
+	\partial_x P_i = \dfrac{P_\phi - P_{i-1}}{\delta x + \phi} = \dfrac{P_i^R - P_{i-1}}{2\delta x}
 $$
-so that the \textit{Left Effective Pressure} is set by
+so that the \textit{Right Effective Pressure} or \textbf{Horizontal Entering Pressure} is set by
 $$
-	P_i^L = P_{i-1} + \dfrac{2\delta x}{\phi+\delta x} \left( P_\phi - P_{i-1} \right).
+	P_i^R = P_{i-1} + \dfrac{2\delta x}{\phi+\delta x} \left( P_\phi - P_{i-1} \right).
 $$
 \item
 If the intersection is at $x_i-\psi$ with $P_\psi = P_{bubble} - \gamma \kappa_\psi$
 then the pressure gradient can be estimated by
 $$
-	\partial_x P_i = \dfrac{P_{i+1} - P_\psi}{\delta x + \psi} = \dfrac{P_{i+1}-P_i^R}{2\delta x}
+	\partial_x P_i = \dfrac{P_{i+1} - P_\psi}{\delta x + \psi} = \dfrac{P_{i+1}-P_i^L}{2\delta x}
 $$
-with the \textit{Right Effective Pressure} set by
+with the \textit{Left Effective Pressure} or \textbf{Horizonal Leaving Pressure} set by
 $$
-	P_i^R = P_{i+1} - \dfrac{2\delta_x}{\delta x + \psi}\left(P_{i+1} - P_\psi\right)
+	P_i^L = P_{i+1} - \dfrac{2\delta_x}{\delta x + \psi}\left(P_{i+1} - P_\psi\right)
 $$
 \end{itemize}
 For one dimension, we need two auxiliary pressure fields when a bulk/bubble intersection is met.
