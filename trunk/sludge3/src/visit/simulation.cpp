@@ -16,6 +16,11 @@ VisIt::Simulation(MPI)
     
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// Get Meta Data
+//
+////////////////////////////////////////////////////////////////////////////////
 
 void Simulation:: get_meta_data(visit_handle &md) const
 {
@@ -37,9 +42,20 @@ void Simulation:: get_meta_data(visit_handle &md) const
     //! append gradP on grid
     VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Vertex>("gradP", "grid"));
 
+    //! append Enter on grid
+    VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Vertex>("Enter", "grid"));
+
+    //! append Leave on grid
+    VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Vertex>("Leave", "grid"));
+
     
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// Get Mesh
+//
+////////////////////////////////////////////////////////////////////////////////
 
 visit_handle Simulation:: get_mesh( int domain, const string &name ) const
 {
@@ -74,6 +90,12 @@ visit_handle Simulation:: get_mesh( int domain, const string &name ) const
     
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Get Variables
+//
+////////////////////////////////////////////////////////////////////////////////
 
 visit_handle Simulation:: get_variable( int domain, const string &name ) const
 {
@@ -112,11 +134,39 @@ visit_handle Simulation:: get_variable( int domain, const string &name ) const
         }
     }
     
+    if( name == "Enter" )
+    {
+        const int nComponents= 2;
+        const int nTuples    = Enter.items;
+        assert(Enter.entry!=NULL);
+        if(VisIt_VariableData_alloc(&h) == VISIT_OKAY)
+        {
+            VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, (Real *)(Enter.entry));
+        }
+    }
+    
+    if( name == "Leave" )
+    {
+        const int nComponents= 2;
+        const int nTuples    = Leave.items;
+        assert(Leave.entry!=NULL);
+        if(VisIt_VariableData_alloc(&h) == VISIT_OKAY)
+        {
+            VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, (Real *)(Leave.entry));
+        }
+    }
+
+    
+    
     return h;
 
 }
 
-
+////////////////////////////////////////////////////////////////////////////////
+//
+// Specific perform
+//
+////////////////////////////////////////////////////////////////////////////////
 void Simulation:: perform( const string &cmd, const array<string> &args)
 {
     if( cmd == "raz1" )

@@ -3,10 +3,10 @@
 void Workspace:: reset_pressure()
 {
     P.ldz();
-    pressurize();
+    pressurize_bubbles();
 }
 
-void Workspace:: pressurize()
+void Workspace:: pressurize_bubbles()
 {
     //--------------------------------------------------------------------------
     // Fill the bubbles location with bubble pressures
@@ -28,9 +28,10 @@ void Workspace:: pressurize()
                 assert(which<bubbles.size);
                 assert(which<bpres.size());
                 P[j][i] = bpres[ which+1 ];
+                
             }
+            Enter[j][i].x = Enter[j][i].y =
+            Leave[j][i].x = Leave[j][i].y = P[j][i];
         }
-    }
-    
-    
+    }    
 }

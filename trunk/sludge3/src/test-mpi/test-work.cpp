@@ -8,20 +8,8 @@ YOCTO_UNIT_TEST_IMPL(work)
     YOCTO_MPI;
     Workspace W(MPI,Coord(20,30),Vertex(5,5));
     
-#if 0
-    MPI.WaitFor(0.1*MPI.CommWorldRank);
-    std::cerr << "X=";
-    for(unit_t i=W.X.lower; i <= W.X.upper; ++i)
-        std::cerr << " " << W.X[i];
-    std::cerr << std::endl;
     
-    std::cerr << "Y=";
-    for(unit_t i=W.Y.lower; i <= W.Y.upper; ++i)
-        std::cerr << " " << W.Y[i];
-    std::cerr << std::endl;
-#endif
-    
-    __Grid::SaveDat(W.mesh, vformat("g%d.%d.dat", MPI.CommWorldSize, MPI.CommWorldRank) );
+    __Grid::SaveDat(W.mesh, "g" + MPI.CommWorldID + ".dat"  );
     
     const Vertex center = 0.5 * (W.full_region.vmin+W.full_region.vmax);
     
@@ -39,7 +27,7 @@ YOCTO_UNIT_TEST_IMPL(work)
             b->save_all( vformat("b%u", unsigned(b->UID)) );
         }
     }
-    
+    W.is_valid = true;
     W.broadcast_bubbles(MPI);
     W.segment();
     W.junctions.save_all( "j" + MPI.CommWorldID );
