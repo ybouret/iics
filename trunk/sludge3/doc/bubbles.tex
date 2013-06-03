@@ -107,11 +107,61 @@ So that the differential properties can be determined in two passes:
 \section{Segmentation}
 \subsection{Computing Junctions with a Grid}
 
+To be sure that a vector between to consecutive tracers has only ONE intersection with an horizontal or a vertical
+grid, we must ensure that this distance is less than $\lambda=\min(\delta x_i,\delta y_j)/2$.
+
 \begin{center}
 \includegraphics[scale=1]{grid.eps}
 \end{center}
 
-\subsection{Segmentation by Ray Casting}
+There is an intersection with an Horizontal axis if one of the point is Not in TOP and Not in BOTTOM and
+\begin{itemize}
+	\item the other point is in TOP or in BOTTOM
+	\item or the other point is between two different horizontal axis (i.e. directly above or below).
+\end{itemize}
 
+There is an intersection with a Vertical axis if one of the point is Not in LEFT and Not in RIGHT and
+\begin{itemize}
+	\item the other point is in LEFT or in RIGHT
+	\item or the other point is between to different vertical axis (i.e. directly at left or at right). 
+\end{itemize}
+
+\subsection{Segmentation by Ray Casting}
+For non penetrating bubbles, the successive junctions pairs on any axis is the sequence of inside/outside positions.
+When those junctions are within the grid (taking special care of sides), we mark the inner position with the owning bubble ID.
+
+\section{Effective Pressure Field}
+We need to estimate the pressure around any bulk position.
+\begin{itemize}
+\item
+Let us assume that after the point $x_i$, there is an intersection or the bubble at $x_i + \phi$.
+At this intersection, there is a pressure $P_\phi = P_{bubble} - \gamma \kappa_\phi$.
+The pressure gradient can be estimated by
+%$$
+%	\partial_x P_j = \dfrac{1}{\phi+\delta x} 
+%	\left\lbrack
+%	\phi \dfrac{P_j - P_{j-1}} {\delta x} +
+%	\delta x \dfrac{P_\phi - P_j}{\phi}
+%	\right\rbrack = \dfrac{P_j^{L} - P_{j-1}}{2\delta_x}
+%$$
+$$
+	\partial_x P_i = \dfrac{P_\phi - P_{i-1}}{\delta x + \phi} = \dfrac{P_i^L - P_{i-1}}{2\delta x}
+$$
+so that the \textit{Left Effective Pressure} is set by
+$$
+	P_i^L = P_{i-1} + \dfrac{2\delta x}{\phi+\delta x} \left( P_\phi - P_{i-1} \right).
+$$
+\item
+If the intersection is at $x_i-\psi$ with $P_\psi = P_{bubble} - \gamma \kappa_\psi$
+then the pressure gradient can be estimated by
+$$
+	\partial_x P_i = \dfrac{P_{i+1} - P_\psi}{\delta x + \psi} = \dfrac{P_{i+1}-P_i^R}{2\delta x}
+$$
+with the \textit{Right Effective Pressure} set by
+$$
+	P_i^R = P_{i+1} - \dfrac{2\delta_x}{\delta x + \psi}\left(P_{i+1} - P_\psi\right)
+$$
+\end{itemize}
+For one dimension, we need two auxiliary pressure fields when a bulk/bubble intersection is met.
 
 \end{document}
