@@ -14,6 +14,8 @@ void Simulation:: init_one_bubble()
             const Vertex center = full_region.vmin + 0.5 * full_region.length;
             Bubble *b = bubbles.append();
             Shape::Blob(b, center, radius, 0.4 + 0.55 * alea<Real>(), 0.1 + 0.8 * alea<Real>() );
+            //std::cerr << "radius=" << radius << std::endl;
+            //Shape::Circle(b, center, radius);
             Shape::Rotate(b, numeric<Real>::two_pi * alea<Real>() );
         }
     }

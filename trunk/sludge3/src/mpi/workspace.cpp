@@ -42,7 +42,8 @@ Leave( (*this)["Leave"].as<VertexArray>() )
     // final update
     //==========================================================================
     bubbles.lambda = min_of(delta.x,delta.y) / 2;
-    
+    //std::cerr << "delta =" << delta << std::endl;
+    //std::cerr << "lambda=" << bubbles.lambda << std::endl;
     
 }
 
