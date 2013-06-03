@@ -16,11 +16,11 @@ void Simulation:: init_one_bubble()
             Shape::Blob(b, center, radius, 0.4 + 0.55 * alea<Real>(), 0.1 + 0.8 * alea<Real>() );
             Shape::Rotate(b, numeric<Real>::two_pi * alea<Real>() );
         }
-        bubbles.regularize_all();
-        bubbles.head->save_dat("b0.dat");
     }
     
+    // regularize and broadcast is valid
     validate_bubbles(MPI);
+    
     if( !is_valid )
     {
         MPI.Printf(stderr,"Invalid Bubble");

@@ -50,6 +50,7 @@ IF(VISIT_FOUND)
 	visit/simulation.hpp
 	visit/simulation.cpp
 	visit/sim-init.cpp
+	visit/sim-step.cpp
 	)
 SOURCE_GROUP( sludge/visit FILES ${SOURCES_VIS} )
 ENDIF(VISIT_FOUND)
