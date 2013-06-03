@@ -78,10 +78,18 @@ namespace {
 #include "yocto/code/utils.hpp"
 
 static inline
-bool are_valid( const Tracer *p, const Tracer *q, const Real lam)
+Real __distance( const Tracer *p, const Tracer *q ) throw()
 {
-    return Hypotenuse(p->pos.x-q->pos.x,
-                      p->pos.y-q->pos.y) <= lam;
+    assert(p!=q);
+    const Real dx = p->pos.x - q->pos.x;
+    const Real dy = p->pos.y - q->pos.y;
+    return Sqrt(dx*dx+dy*dy);
+}
+
+static inline
+bool __are_valid( const Tracer *p, const Tracer *q, const Real lam)
+{
+    return __distance(p,q) <= lam;
 }
 
 void Bubble:: auto_contour()
@@ -96,7 +104,7 @@ void Bubble:: auto_contour()
     //==========================================================================
     Spline S(*this);
     
-#if 0
+#if 1
     const size_t ns = size+1;
     {
         ios::ocstream fp( "poly.dat", false );
@@ -108,7 +116,7 @@ void Bubble:: auto_contour()
     
     {
         ios::ocstream fp( "spoly.dat", false );
-        const size_t NS = 200;
+        const size_t NS = 2048;
         for( size_t i=0; i < NS; ++i )
         {
             const Real   u = (i*S.width) / NS;
@@ -134,27 +142,49 @@ void Bubble:: auto_contour()
     //--------------------------------------------------------------------------
     // fill with distance control
     //--------------------------------------------------------------------------
+    std::cerr << "Spline width=" << S.width << std::endl;
     size_t N = max_of<size_t>(3,S.width / lambda);
 GENERATE:
     {
-        //std::cerr << "\t\tmapping with " << N << " points" << std::endl;
-        ring.push_back( new Tracer(org) );
+        std::cerr << "\t\tmapping " << lambda << " with " << N << " points" << std::endl;
+        
+        //----------------------------------------------------------------------
+        // sampling rate
+        //----------------------------------------------------------------------
         const Real du = S.width / N;
+        
+        //----------------------------------------------------------------------
+        // first tracer at origin
+        //----------------------------------------------------------------------
+        ring.push_back( new Tracer(org) );
+        
+        //----------------------------------------------------------------------
+        // other tracers on spline
+        //----------------------------------------------------------------------
+        const Tracer *prv = ring.root;
         for(size_t i=1;i<N;++i)
         {
-            Tracer *tr = new Tracer( S(du*i) );
+            const Real   u = du * i;
+            const Vertex v = S(u);
+            Tracer *tr = new Tracer( v );
             ring.push_back(tr);
             assert(0!=tr->prev);
-            if( ! are_valid(tr, tr->prev, lambda) )
+            assert(prv==tr->prev);
+            if( ! __are_valid(tr, tr->prev, lambda) )
             {
+                std::cerr << "core: invalid " << tr->pos << "/" << tr->prev->pos << ": dist=" << __distance(tr,tr->prev) << std::endl;
                 ++N;
                 ring.auto_delete();
                 goto GENERATE;
             }
+            prv = tr;
         }
         assert(ring.size==N);
-        if( ! are_valid(ring.root, ring.root->prev, lambda) )
+        assert(ring.root->prev == prv);
+        if( ! __are_valid(ring.root, ring.root->prev, lambda) )
         {
+            std::cerr << "core: invalid " << ring.root->pos << "/" << ring.root->prev->pos << std::endl;
+
             ++N;
             ring.auto_delete();
             goto GENERATE;
