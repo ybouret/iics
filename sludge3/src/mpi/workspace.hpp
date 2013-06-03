@@ -36,9 +36,14 @@ public:
     //! perform the segmentation in B field
     void segment();
     
-    //! set pressure inside bubbles 
+    //! set pressure inside bubbles (once per step)
     void pressurize_bubbles();
-    void compute_gradient(const mpi &MPI);
+    
+    //! compute effective pressures using junctions topology
+    void pressurize_contours();
+    
+    //! bubbles/contours must be pressurized
+    void compute_gradP(const mpi &MPI);
     
     //! set pressure to zero then pressurize
     void reset_pressure();

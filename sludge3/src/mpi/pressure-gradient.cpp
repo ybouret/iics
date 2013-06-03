@@ -2,7 +2,7 @@
 
 
 
-void Workspace:: compute_gradient(const mpi &MPI)
+void Workspace:: compute_gradP(const mpi &MPI)
 {
 
     gradP.ldz();
@@ -13,7 +13,7 @@ void Workspace:: compute_gradient(const mpi &MPI)
             const Real which = B[j][i];
             if(which>=0)
             {
-                gradP[j][i].x = (P[j][i-1] - P[j][i+1]) * order1fac.x;
+                gradP[j][i].x = (Leave[j][i-1].x - Enter[j][i+1].x) * order1fac.x;
                 gradP[j][i].y = (P[j+1][i] - P[j-1][i]) * order1fac.y;
             }
         }
