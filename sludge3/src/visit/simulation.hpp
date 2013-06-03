@@ -21,6 +21,8 @@ public:
     virtual void         get_meta_data(visit_handle &md ) const;
     virtual visit_handle get_mesh( int domain, const string &name ) const;
     virtual visit_handle get_variable( int domain, const string &name ) const;
+    virtual visit_handle get_curve( const string &name ) const;
+    
     virtual void perform( const string &cmd, const array<string> &args);
     
     void init_one_bubble();

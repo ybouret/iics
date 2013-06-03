@@ -14,12 +14,10 @@ void Bubble:: init_contour() throw()
         tr->edge = q - p;
         tr->dist = tr->edge.norm();
         area += p.x * q.y - p.y * q.x;
-        //std::cerr << "\td=" << tr->dist << std::endl;
     }
     G.x /= size;
     G.y /= size;
     area = Fabs(area)/2;
-    //std::cerr << "\tarea=" << area << std::endl;
 }
 
 #include "yocto/math/dat/spline.hpp"
