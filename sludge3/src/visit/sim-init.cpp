@@ -19,7 +19,16 @@ void Simulation:: init_one_bubble()
         bubbles.regularize_all();
         bubbles.head->save_dat("b0.dat");
     }
+    
+    validate_bubbles(MPI);
+    if( !is_valid )
+    {
+        MPI.Printf(stderr,"Invalid Bubble");
+        done = true;
+        return;
+    }
     broadcast_bubbles(MPI);
+    
     segment();
     reset_pressure();
     junctions.save_dat( "j" + MPI.CommWorldID + ".dat" );
