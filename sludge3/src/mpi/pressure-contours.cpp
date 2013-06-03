@@ -4,8 +4,24 @@ void Workspace:: pressurize_contours()
 {
     Enter.ldz();
     Leave.ldz();
-    
-    
+    //==========================================================================
+    // using horizontal axis => x components of Leave/Enter
+    //==========================================================================
+    for(unit_t j=outline.lower.y;j<=outline.upper.y;++j)
+    {
+        const Junction::List &JL = junctions.Horz(j);
+        
+        if(JL.size>0)
+        {
+            
+            //------------------------------------------------------------------
+            // special case: left side
+            //------------------------------------------------------------------
+            
+            
+        }
+        
+    }
 }
 
 #if 0
