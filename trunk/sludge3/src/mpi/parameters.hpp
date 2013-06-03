@@ -25,8 +25,12 @@ public:
     const Layout   full_layout;
     const Layout   sim_layout;
     const Vertex   delta;
+    const Vertex   inv_delta;
+    const Vertex   order1fac;
     const Region2D full_region;
     const Region2D sim_region;
+    const unit_t   bulk_imin;
+    const unit_t   bulk_imax;
     const unit_t   bulk_jmin;    //!< take care of side
     const unit_t   bulk_jmax;    //!< take care of side
     

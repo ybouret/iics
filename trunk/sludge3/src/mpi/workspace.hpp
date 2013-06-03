@@ -38,6 +38,7 @@ public:
     
     //! set pressure inside bubbles 
     void pressurize_bubbles();
+    void compute_gradient(const mpi &MPI);
     
     //! set pressure to zero then pressurize
     void reset_pressure();

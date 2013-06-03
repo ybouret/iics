@@ -10,8 +10,12 @@ G(),
 full_layout( Coord(0,0), N),
 sim_layout( full_layout.split(MPI.CommWorldRank, MPI.CommWorldSize,1) ),
 delta( Q.x/N.x, Q.y/N.y),
+inv_delta( 1/delta.x, 1/delta.y),
+order1fac( 1/(2*delta.x), 1/(2*delta.y) ),
 full_region( Vertex(0,0), Q ),
 sim_region( Vertex(0, sim_layout.lower.y * delta.y), Vertex(Q.x,sim_layout.upper.y*delta.y) ),
+bulk_imin( sim_layout.lower.x+1),
+bulk_imax( sim_layout.upper.x-1),
 bulk_jmin( sim_layout.lower.y + (MPI.IsFirst ? 1 : 0 ) ),
 bulk_jmax( sim_layout.upper.y - (MPI.IsFinal ? 1 : 0 ) )
 {
