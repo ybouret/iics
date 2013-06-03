@@ -38,7 +38,7 @@ void Simulation:: step()
     MPI.Printf0(stderr, "\t...pressurize\n");
     P.ldz();
     pressurize_bubbles();
-    //pressurize_contours();
+    pressurize_contours();
     compute_gradP(MPI);
     
     

@@ -1,10 +1,5 @@
 #include "workspace.hpp"
 
-void Workspace:: reset_pressure()
-{
-    P.ldz();
-    pressurize_bubbles();
-}
 
 void Workspace:: pressurize_bubbles()
 {
@@ -23,7 +18,7 @@ void Workspace:: pressurize_bubbles()
     //--------------------------------------------------------------------------
     for( unit_t j=outline.lower.y; j <= outline.upper.y; ++j)
     {
-        for(unit_t i=lower.x;i<=upper.x;++i)
+        for(unit_t i=outline.lower.x;i<=outline.upper.x;++i)
         {
             const Real which = B[j][i];
             if( which >= 0 )
@@ -43,8 +38,10 @@ void Workspace:: pressurize_bubbles()
 
 void Workspace:: pressurize_contours()
 {
-    Enter.ldz();
-    Leave.ldz();
+    //Enter.ldz();
+    //Leave.ldz();
+    return;
+    
     //==========================================================================
     // using horizontal axis => x components of Leave/Enter
     //==========================================================================
@@ -52,35 +49,34 @@ void Workspace:: pressurize_contours()
     {
         const Junction::List &JL = junctions.Horz(j);
         
-        if(false)
-            if(JL.size>0)
+        if(JL.size>0)
+        {
+            bool in_bubble = true;
+            const Junction *J = JL.head;
+            const Junction *K = J->next;
+            while(K)
             {
-                bool in_bubble = true;
-                const Junction *J = JL.head;
-                const Junction *K = J->next;
-                while(K)
+                if(in_bubble)
                 {
-                    if(in_bubble)
+                    if(J->owner!=K->owner)
+                        throw exception("Bubble in Bubble!");
+                    if(J->inside||K->inside)
                     {
-                        if(J->owner!=K->owner)
-                            throw exception("Bubble in Bubble!");
-                        if(J->inside||K->inside)
+                        const unit_t ini = J->inside ? J->upper : B.lower.x;
+                        const unit_t end = K->inside ? K->lower : B.upper.x;
+                        if(end>=ini)
                         {
-                            const unit_t ini = J->inside ? J->upper : B.lower.x;
-                            const unit_t end = K->inside ? K->lower : B.upper.x;
-                            if(end>=ini)
-                            {
-                                Enter[j][ini].x = J->pressure;
-                                Leave[j][end].x = K->pressure;
-                            }
+                            Enter[j][ini].x = J->pressure;
+                            Leave[j][end].x = K->pressure;
                         }
-                        
                     }
-                    in_bubble = !in_bubble;
-                    J=K;
-                    K=K->next;
+                    
                 }
+                in_bubble = !in_bubble;
+                J=K;
+                K=K->next;
             }
+        }
     }
     
     

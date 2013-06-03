@@ -11,10 +11,10 @@ void Workspace:: compute_gradP(const mpi &MPI)
         for(unit_t i=bulk_imin;i<=bulk_imax;++i)
         {
             const Real which = B[j][i];
-            if(which>=0)
+            if(which<0)
             {
-                gradP[j][i].x = (Leave[j][i-1].x - Enter[j][i+1].x) * order1fac.x;
-                gradP[j][i].y = (P[j+1][i] - P[j-1][i]) * order1fac.y;
+                gradP[j][i].x = (Enter[j][i+1].x - Leave[j][i-1].x) * order1fac.x;
+                gradP[j][i].y = (Enter[j+1][i].y - Leave[j-1][i].y) * order1fac.y;
             }
         }
     }

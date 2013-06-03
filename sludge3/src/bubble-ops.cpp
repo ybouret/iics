@@ -92,7 +92,7 @@ bool __are_valid( const Tracer *p, const Tracer *q, const Real lam)
     return __distance(p,q) <= lam;
 }
 
-void Bubble:: auto_contour()
+void Bubble:: auto_contour_spline()
 {
     assert(size>=3);
     assert(area>0);
