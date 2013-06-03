@@ -9,7 +9,7 @@ void Workspace:: reset_pressure()
 void Workspace:: pressurize_bubbles()
 {
     //--------------------------------------------------------------------------
-    // Fill the bubbles location with bubble pressures
+    // Collect the pressures
     //--------------------------------------------------------------------------
     bpres.free();
     bpres.reserve(bubbles.size);
@@ -18,6 +18,9 @@ void Workspace:: pressurize_bubbles()
         bpres.push_back( b->pressure );
     }
     
+    //--------------------------------------------------------------------------
+    // Fill the bubbles location with bubble pressures
+    //--------------------------------------------------------------------------
     for( unit_t j=outline.lower.y; j <= outline.upper.y; ++j)
     {
         for(unit_t i=lower.x;i<=upper.x;++i)
@@ -28,10 +31,12 @@ void Workspace:: pressurize_bubbles()
                 assert(which<bubbles.size);
                 assert(which<bpres.size());
                 P[j][i] = bpres[ which+1 ];
-                
             }
             Enter[j][i].x = Enter[j][i].y =
             Leave[j][i].x = Leave[j][i].y = P[j][i];
         }
-    }    
+    }
+    
+    
 }
+
