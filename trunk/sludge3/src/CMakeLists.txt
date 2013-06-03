@@ -14,7 +14,7 @@ SET(SOURCES_SEQ
 types.hpp     types.cpp
 tracer.hpp    tracer.cpp
 marker.hpp    marker.cpp
-bubble.hpp    bubble.cpp bubble-ios.cpp bubble-ops.cpp
+bubble.hpp    bubble.cpp bubble-ios.cpp bubble-ops.cpp bubble-ext.cpp
 bubbles.hpp   bubbles.cpp
 shape.hpp     shape.cpp
 grid.hpp      grid.cpp

@@ -33,6 +33,7 @@ public:
     ~Tracer() throw();
     
     void hash_tracer( Hasher &h ) const throw();
+    
     void compute_order1(); //!< tau and n, keep |dM| as speed
     void compute_order2(); //!< evaluate curvature
     

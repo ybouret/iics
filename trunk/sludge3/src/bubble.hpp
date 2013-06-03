@@ -44,6 +44,9 @@ public:
     void init_contour() throw();
     
     //! once init_contour is ok, respect lambda and init new contour
+    void auto_contour_spline();
+    
+    //! once init contour is ok, respect lambda by subdivision
     void auto_contour();
     
     //! compute tangent/normal/curvature after an [init|auto]_contour
