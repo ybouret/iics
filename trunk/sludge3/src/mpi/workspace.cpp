@@ -50,7 +50,7 @@ Leave( (*this)["Leave"].as<VertexArray>() )
 
 void Workspace:: validate_bubbles(const mpi &MPI)
 {
-    
+    MPI.Printf0(stderr,"\t\t...validating\n");
     is_valid = false;
     if( MPI.IsFirst)
     {
@@ -67,6 +67,7 @@ void Workspace:: validate_bubbles(const mpi &MPI)
 
 void Workspace:: broadcast_bubbles(const mpi &MPI)
 {
+    MPI.Printf0(stderr, "\t\t...brodcasting\n");
     assert(is_valid);
     ParallelBubbles::Bcast(MPI, bubbles);
 }
