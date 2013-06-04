@@ -16,7 +16,8 @@ void Simulation:: init_one_bubble()
             Shape::Blob(b, center, radius, 0.4 + 0.55 * alea<Real>(), 0.1 + 0.8 * alea<Real>() );
             //std::cerr << "radius=" << radius << std::endl;
             Shape::Circle(b, center, radius);
-            Shape::Rotate(b, numeric<Real>::two_pi * alea<Real>() );
+            Shape::Square(b, center, radius);
+            //Shape::Rotate(b, numeric<Real>::two_pi * alea<Real>() );
         }
     }
     
@@ -35,7 +36,7 @@ void Simulation:: init_one_bubble()
     junctions.save_dat( "j" + MPI.CommWorldID + ".dat" );
     junctions.save_inside_of(B, "in" + MPI.CommWorldID + ".dat");
     if(MPI.IsFirst)
-        bubbles.head->save_dat("b0.dat");
+        bubbles.head->save_all("b0");
     P.ldz();
     pressurize_bubbles();
     pressurize_contours();

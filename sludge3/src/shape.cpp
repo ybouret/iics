@@ -195,4 +195,65 @@ void Shape:: Grow( Bubble *b, const Real factor)
     
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// Square
+//
+////////////////////////////////////////////////////////////////////////////////
+void Shape:: Square( Bubble *b, const Vertex C, Real a)
+{
+    assert(b);
+    assert(a>0);
+    b->auto_delete();
+    
+    const size_t nextra = size_t(ceil(a/b->lambda));
+
+    const Real h = a/2;
+    const Real step = a/(nextra+1);
+    
+    // bottom|left -> bottom|right
+    Vertex org(-h,-h);
+    org += C;
+    b->append(org);
+    for(size_t i=1; i <= nextra; ++i)
+    {
+        const Vertex dv(step*i,0);
+        b->append( org + dv );
+    }
+    
+    // bottom|right -> top/right
+    org = Vertex(h,-h);
+    org += C;
+    b->append(org);
+    for(size_t i=1; i <= nextra; ++i)
+    {
+        const Vertex dv(0,step*i);
+        b->append( org + dv );
+    }
+    
+    // top|right -> top|left
+    org = Vertex(h,h);
+    org += C;
+    b->append(org);
+    for(size_t i=1; i <= nextra; ++i)
+    {
+        const Vertex dv(step*i,0);
+        b->append( org - dv );
+    }
+
+    // top|left -> bottom|left
+    org = Vertex(-h,h);
+    org += C;
+    b->append(org);
+    for(size_t i=1; i <= nextra; ++i)
+    {
+        const Vertex dv(0,step*i);
+        b->append( org - dv );
+    }
+    
+    b->init_contour();
+    
+}
+
+
 

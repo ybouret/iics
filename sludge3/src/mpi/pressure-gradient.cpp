@@ -4,7 +4,7 @@
 
 void Workspace:: compute_gradP(const mpi &MPI)
 {
-
+    
     gradP.ldz();
     for(unit_t j=bulk_jmin;j<=bulk_jmax;++j)
     {
@@ -13,8 +13,9 @@ void Workspace:: compute_gradP(const mpi &MPI)
             const Real which = B[j][i];
             if(which<0)
             {
-                gradP[j][i].x = (Enter[j][i+1].x - Leave[j][i-1].x) * order1fac.x;
-                gradP[j][i].y = (Enter[j+1][i].y - Leave[j-1][i].y) * order1fac.y;
+                Vertex &g = gradP[j][i];
+                g.x = (Enter[j][i+1].x - Leave[j][i-1].x) * order1fac.x;
+                g.y = (Enter[j+1][i].y - Leave[j-1][i].y) * order1fac.y;
             }
         }
     }

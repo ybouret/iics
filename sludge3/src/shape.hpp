@@ -9,6 +9,7 @@ struct Shape
     static void Ellipse( Bubble *b, const Vertex C, const Vertex R);
     static void Rotate( Bubble *b, const Real alpha);
     static void Blob( Bubble *b, const Vertex C, Real radius, Real rho, Real w=0);
+    static void Square( Bubble *b, const Vertex C, Real a);
     static void Grow( Bubble *b, const Real factor);
     
 };

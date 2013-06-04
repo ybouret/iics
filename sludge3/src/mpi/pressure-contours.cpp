@@ -47,6 +47,7 @@ void Workspace:: pressurize_horz()
                         if(!before)
                             throw exception("@y=%g: no junction before x=%g", Y[j], Xi);
                         psi = Xi - before->value;
+                        assert(psi>=0);
                     }
                     
                     if(B[j][i+1]>=0)
@@ -56,6 +57,7 @@ void Workspace:: pressurize_horz()
                         if(!after)
                             throw exception("@y=%g: no junction after x=%g", Y[j], Xi);
                         phi = after->value - Xi;
+                        assert(phi>=0);
                     }
                     
                     //----------------------------------------------------------
@@ -65,9 +67,9 @@ void Workspace:: pressurize_horz()
                     {
                         case BUBBLE_BEFORE:
                         {
-                            const Real Pp = P[j][i+1];
-                            const Real Pb = before->pressure;
-                            Leave[j][i-1].x = Pp - (2*delta.x) * (Pp - Pb)/(delta.x+psi);
+                            const Real Pp   = P[j][i+1];
+                            const Real Pb   = before->pressure;
+                            Leave[j][i-1].x = Pp - (two_delta.x) * (Pp - Pb)/(delta.x+psi);
                         }
                             break;
                             
@@ -75,13 +77,13 @@ void Workspace:: pressurize_horz()
                         {
                             const Real Pm   = P[j][i-1];
                             const Real Pb   = after->pressure;
-                            Enter[j][i+1].x = Pm + (2*delta.x) * (Pb - Pm) / (delta.x + phi);
+                            Enter[j][i+1].x = Pm + (two_delta.x) * (Pb - Pm) / (delta.x + phi);
                         }
                             break;
                             
                         case BUBBLE_BOTH:
                         {
-                            const Real fac = (2*delta.x)/(phi+psi);
+                            const Real  fac = two_delta.x/(phi+psi);
                             Enter[j][i+1].x = after->pressure  * fac;
                             Leave[j][i-1].x = before->pressure * fac;
                             
@@ -166,9 +168,9 @@ void Workspace:: pressurize_vert()
                     {
                         case BUBBLE_BEFORE:
                         {
-                            const Real Pp = P[j+1][i];
-                            const Real Pb = before->pressure;
-                            Leave[j-1][i].y = Pp - (2*delta.y) * (Pp - Pb)/(delta.x+psi);
+                            const Real Pp   = P[j+1][i];
+                            const Real Pb   = before->pressure;
+                            Leave[j-1][i].y = Pp - (two_delta.y) * (Pp - Pb)/(delta.y+psi);
                         }
                             break;
                             
@@ -176,13 +178,13 @@ void Workspace:: pressurize_vert()
                         {
                             const Real Pm   = P[j-1][i];
                             const Real Pb   = after->pressure;
-                            Enter[j+1][i].y = Pm + (2*delta.y) * (Pb - Pm) / (delta.x + phi);
+                            Enter[j+1][i].y = Pm + (two_delta.y) * (Pb - Pm)/(delta.y+phi);
                         }
                             break;
                             
                         case BUBBLE_BOTH:
                         {
-                            const Real fac = (2*delta.y)/(phi+psi);
+                            const Real fac = (two_delta.y)/(phi+psi);
                             Enter[j+1][i].y = after->pressure  * fac;
                             Leave[j-1][i].y = before->pressure * fac;
                             

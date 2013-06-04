@@ -9,9 +9,10 @@ F( 32 ),
 G(),
 full_layout( Coord(0,0), N),
 sim_layout( full_layout.split(MPI.CommWorldRank, MPI.CommWorldSize,1) ),
-delta( Q.x/N.x, Q.y/N.y),
-inv_delta( 1/delta.x, 1/delta.y),
-order1fac( 1/(2*delta.x), 1/(2*delta.y) ),
+delta(     Q.x/N.x,         Q.y/N.y        ),
+two_delta( delta.x+delta.x, delta.y+delta.y),
+inv_delta( 1/delta.x,       1/delta.y      ),
+order1fac( 1/two_delta.x,   1/two_delta.y  ),
 full_region( Vertex(0,0), Q ),
 sim_region( Vertex(0, sim_layout.lower.y * delta.y), Vertex(Q.x,sim_layout.upper.y*delta.y) ),
 bulk_imin( sim_layout.lower.x+1),
@@ -21,9 +22,7 @@ bulk_jmax( sim_layout.upper.y - (MPI.IsFinal ? 1 : 0 ) )
 {
     
     MPI.Printf(stderr, "Full Layout: (%ld,%ld) -> (%ld,%ld)\n", full_layout.lower.x, full_layout.lower.y, full_layout.upper.x, full_layout.upper.y);
-    MPI.Printf0(stderr, "\n");
     MPI.Printf(stderr, "Sim  Layout: (%ld,%ld) -> (%ld,%ld)\n", sim_layout.lower.x, sim_layout.lower.y, sim_layout.upper.x, sim_layout.upper.y);
-    MPI.Printf0(stderr, "\n");
     MPI.Printf(stderr, "Sim  Region: [%g %g]' --> [%g %g]'\n", sim_region.vmin.x, sim_region.vmin.y, sim_region.vmax.x, sim_region.vmax.y);
     
     //==========================================================================
