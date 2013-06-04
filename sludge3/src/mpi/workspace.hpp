@@ -25,16 +25,16 @@ public:
     Array         &B;
     VertexArray   &gradP;
     VertexArray   &Enter; //!< pressure when entering a bubble along x or y
-    VertexArray  &Leave; //!< pressure when leaving  a bubble along x or y
+    VertexArray   &Leave; //!< pressure when leaving  a bubble along x or y
     
     //! regularize bubbles, check boundaries, broadcast is_valid
     void validate_bubbles(const mpi &MPI);
     void broadcast_bubbles(const mpi &MPI);
     
-    
-    
     //! perform the segmentation in B field
     void segment();
+    
+    
     
     //! set pressure inside bubbles (once per step)
     void pressurize_bubbles();

@@ -93,6 +93,35 @@ void Junctions:: clear() throw()
 }
 
 
+size_t Junctions:: count_all() const throw()
+{
+    size_t ans = 0;
+    for( size_t i=0; i<num_lists; ++i)
+    {
+        ans += jlists[i].size;
+    }
+    return ans;
+}
+
+void  Junctions:: to_curve( array<Real> &cx, array<Real> &cy ) const throw()
+{
+    const size_t nj = count_all();
+    assert(cx.size()==nj);
+    assert(cy.size()==nj);
+    size_t k = 0;
+    
+    for( size_t i=0; i<num_lists; ++i)
+    {
+        for( const Junction *J = jlists[i].head;J;J=J->next)
+        {
+            const Vertex v = J->get();
+            ++k;
+            cx[k] = v.x;
+            cy[k] = v.y;
+        }
+    }
+    assert(nj==k);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

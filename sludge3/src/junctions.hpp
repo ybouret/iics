@@ -44,6 +44,9 @@ public:
     
     void save_inside_of( const Array &B, const string &fn ) const;
     
+    size_t count_all() const throw();
+    void   to_curve( array<Real> &cx, array<Real> &cy ) const throw();
+    
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Junctions);
