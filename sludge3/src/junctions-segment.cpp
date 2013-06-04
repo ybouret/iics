@@ -32,6 +32,8 @@ void Junctions:: segment(Array &B) const
         {
             if(in_bubble)
             {
+                (Bubble::Position &)(J->b_pos) = Bubble::IsAfter;
+                (Bubble::Position &)(K->b_pos) = Bubble::IsBefore;
                 if(J->owner!=K->owner)
                     throw exception("Bubble in Bubble!");
                 if(J->inside||K->inside)

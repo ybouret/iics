@@ -15,7 +15,8 @@ owner(b),
 C(0),
 inside(false),
 lower( SLUDGE_INVALID_COORD ),
-upper( SLUDGE_INVALID_COORD )
+upper( SLUDGE_INVALID_COORD ),
+b_pos( Bubble::IsInvalid )
 {
     assert(owner);
 }
