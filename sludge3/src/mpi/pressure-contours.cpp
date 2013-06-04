@@ -191,7 +191,6 @@ void Workspace:: LeaveY(const Junction *K, unit_t i)
 
 void Workspace:: AloneY(const Junction *J, const Junction *K, unit_t i)
 {
-    std::cerr << "DETECTED ALONE Y" << std::endl;
     
     assert(J);
     assert(Bubble::IsBefore == J->b_pos);
@@ -307,7 +306,7 @@ void Workspace:: pressurize_contours()
     Enter.ldz();
     Leave.ldz();
     
-    //pressurize_horz();
+    pressurize_horz();
     pressurize_vert();
     
 }
