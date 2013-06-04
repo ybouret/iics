@@ -1,5 +1,6 @@
 #include "workspace.hpp"
 
+#if 0
 #define BUBBLE_NONE    (0)
 #define BUBBLE_BEFORE  (1)
 #define BUBBLE_AFTER   (2)
@@ -208,11 +209,122 @@ void Workspace:: pressurize_vert()
     }
     
 }
+#endif
+
+
+
+static inline
+bool __has_prev_inside_points( const Junction *curr )
+{
+    assert(curr);
+    const Junction *prev = curr->prev;
+    return prev && curr->inside && ( !prev->inside || prev->upper<=curr->lower);
+}
+
+static inline
+bool __has_next_inside_points( const Junction *curr)
+{
+    assert(curr);
+    const Junction *next = curr->next;
+    return next && curr->inside && ( !next->inside || next->lower>=curr->upper);
+}
+
+void Workspace:: pressurize_horz()
+{
+    //==========================================================================
+    //
+    // using horizontal axis => x components of Leave/Enter
+    //
+    //==========================================================================
+    for(unit_t j=outline.lower.y;j<=outline.upper.y;++j)
+    {
+        const Junction::List &JL = junctions.Horz(j);
+        if(JL.size>1)
+        {
+            bool            in_bubble = true;
+            const Junction *J = JL.head; assert(J);
+            const Junction *K = J->next; assert(K);
+            
+            //------------------------------------------------------------------
+            //
+            // first outside junctions
+            //
+            //------------------------------------------------------------------
+            if(__has_next_inside_points(J))
+            {
+                const unit_t i  = J->lower;
+                const unit_t ip = J->upper;
+                if(i>=bulk_imin)
+                {
+                    const Real   Xi  = X[i];
+                    const Real   phi = J->value - Xi;
+                    const Real   Pb  = J->pressure;
+                    const Real   Pm  = P[j][i-1];
+                    Enter[j][ip].x   = Pm + two_delta.x * (Pb - Pm)/(delta.x+phi);
+                }
+                
+            }
+            
+            while(K)
+            {
+                
+                if( !in_bubble )
+                {
+                    //----------------------------------------------------------
+                    //
+                    //----------------------------------------------------------
+                    if(J->inside)
+                    {
+                        
+                    }
+                }
+                
+                in_bubble = !in_bubble;
+                J=K;
+                K=K->next;
+            }
+            
+            assert(!in_bubble);
+            
+            //------------------------------------------------------------------
+            //
+            // last outside junctions
+            //
+            //------------------------------------------------------------------
+            K=JL.tail;
+            if( __has_prev_inside_points(K) )
+            {
+                
+                const unit_t i  = K->upper;
+                const unit_t im = K->lower;
+                if(i<=bulk_imax)
+                {
+                    const Real Xi  = X[i];
+                    const Real psi = Xi - K->value;
+                    const Real Pb  = K->pressure;
+                    const Real Pp  = P[j][i+1];
+                    Leave[j][im].x = Pp - two_delta.x * (Pp - Pb ) / (delta.x+psi);
+                }
+                
+            }
+            
+            
+        }
+        
+    }
+    
+}
+
+void Workspace:: pressurize_vert()
+{
+    
+}
+
 
 void Workspace:: pressurize_contours()
 {
-    //Enter.ldz();
-    //Leave.ldz();
+    Enter.ldz();
+    Leave.ldz();
     
     pressurize_horz();
     pressurize_vert();
