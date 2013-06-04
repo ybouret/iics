@@ -3,6 +3,7 @@
 
 #include "bubble.hpp"
 
+
 //! A basic junction
 class Junction
 {
@@ -13,6 +14,7 @@ public:
         Horz,
         Vert
     };
+    
     
     //! using reference from grid !
     class List : public core::list_of<Junction>
@@ -43,9 +45,10 @@ public:
     Vertex        n;        //!< average normal
     Real          pressure; //!< from curvature + owner->gamma
     
-    bool   inside;
-    unit_t lower;
-    unit_t upper;
+    bool              inside;     //!< true junction within grid
+    unit_t            lower;      //!< lower logical index on axis or INVALID
+    unit_t            upper;      //!< upper logical index on axis or INVALID
+    Bubble::Position  b_pos;      //!< default Bubble::IsInvalid, set by segmentation
     
     Junction(List &, Real, const Bubble *) throw();
     ~Junction() throw();

@@ -11,6 +11,14 @@ class Bubble : public Tracer::Ring
 public:
     static const int Tag;
     
+    enum Position
+    {
+        IsInvalid,
+        IsBefore,
+        IsAfter
+    };
+    
+    
     Bubble *prev;
     Bubble *next;
     explicit Bubble( Real &lam, Real &gam, size_t uid) throw();
