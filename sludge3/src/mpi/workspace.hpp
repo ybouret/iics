@@ -45,6 +45,7 @@ public:
     //! bubbles/contours must be pressurized
     void compute_gradP(const mpi &MPI);
     
+    void compute_pressure(const mpi &MPI);
     
     
 private:
