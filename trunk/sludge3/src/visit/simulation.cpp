@@ -245,11 +245,33 @@ visit_handle Simulation:: get_curve( const string &name ) const
 }
 
 
+
+void Simulation:: fast_update()
+{
+    validate_bubbles(MPI);
+    if(!is_valid)
+    {
+        done = true;
+        return;
+    }
+    broadcast_bubbles(MPI);
+    segment();
+    P.ldz();
+    pressurize_bubbles();
+    pressurize_contours();
+    compute_gradP(MPI);
+    
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Specific perform
 //
 ////////////////////////////////////////////////////////////////////////////////
+#include "yocto/string/conv.hpp"
+#include "../shape.hpp"
+
+
 void Simulation:: perform( const string &cmd, const array<string> &args)
 {
     if( cmd == "raz" )
@@ -259,4 +281,58 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
             kind = args[1].c_str();
         init_one_bubble(kind);
     }
+    
+    if(cmd == "dx")
+    {
+        if( args.size() >= 1 )
+        {
+            if(MPI.IsFirst)
+            {
+                const Real dx = strconv::to<Real>(args[1],"dx");
+                const Vertex v(dx,0);
+                for(Bubble *b=bubbles.head;b;b=b->next)
+                {
+                    Shape::Move(b,v);
+                }
+            }
+            fast_update();
+        }
+    }
+    
+    if(cmd == "dy")
+    {
+        if( args.size() >= 1 )
+        {
+            if(MPI.IsFirst)
+            {
+                const Real dy = strconv::to<Real>(args[1],"dy");
+                const Vertex v(0,dy);
+                for(Bubble *b=bubbles.head;b;b=b->next)
+                {
+                    Shape::Move(b,v);
+                }
+            }
+            fast_update();
+        }
+    }
+    
+    if(cmd == "grow" )
+    {
+        if( args.size() >= 1 )
+        {
+            
+            if(MPI.IsFirst)
+            {
+                const Real factor = strconv::to<Real>(args[1],"factor");
+                for(Bubble *b=bubbles.head;b;b=b->next)
+                {
+                    Shape::Grow(b, factor);
+                }
+            }
+            fast_update();
+        }
+    }
+    
+    
+    
 }

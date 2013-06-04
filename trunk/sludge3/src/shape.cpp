@@ -255,5 +255,15 @@ void Shape:: Square( Bubble *b, const Vertex C, Real a)
     
 }
 
+void Shape:: Move( Bubble *b, const Vertex v)
+{
+    assert(b);
+    Tracer *tr = b->root;
+    for(size_t i=b->size;i>0;--i,tr=tr->next)
+    {
+        tr->pos += v;
+    }
+    b->init_contour();
+}
 
 

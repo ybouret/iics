@@ -33,8 +33,8 @@ int main( int argc, char *argv[] )
         
         __Grid::SaveDat( sim.mesh, "grid" + MPI.CommWorldID + ".dat");
         
-        sim.init_one_bubble(NULL);
-        sim.bubbles.gamma = 0.1;
+        sim.init_one_bubble("sq");
+        sim.bubbles.gamma = 0.0;
         
         //----------------------------------------------------------------------
         // Main Loop

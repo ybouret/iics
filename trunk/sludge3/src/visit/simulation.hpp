@@ -28,6 +28,8 @@ public:
     void init_one_bubble(const char *kind);
     virtual void step();
 
+    void fast_update(); //!< to debug
+    
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Simulation);
 };
