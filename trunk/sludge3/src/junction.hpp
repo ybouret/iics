@@ -23,6 +23,9 @@ public:
         explicit List(Type t, const Real &v) throw();
         virtual ~List() throw();
         
+        const Junction * after(  const Real value ) const throw();
+        const Junction * before( const Real value ) const throw();
+        
         
         Junction *append(Real,const Bubble *);
         

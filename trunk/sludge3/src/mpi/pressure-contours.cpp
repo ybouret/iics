@@ -1,10 +1,93 @@
 #include "workspace.hpp"
 
+#define BUBBLE_NONE    (0)
+#define BUBBLE_BEFORE  (1)
+#define BUBBLE_AFTER   (2)
+#define BUBBLE_BOTH   ( BUBBLE_BEFORE | BUBBLE_AFTER )
 
 void Workspace:: pressurize_contours()
 {
     Enter.ldz();
     Leave.ldz();
+    
+    //==========================================================================
+    //
+    // using horizontal axis => x components of Leave/Enter
+    //
+    //==========================================================================
+    for(unit_t j=outline.lower.y;j<=outline.upper.y;++j)
+    {
+        const Junction::List &JL = junctions.Horz(j);
+        if(JL.size>0)
+        {
+            //==================================================================
+            // There are some bubbles on the line
+            //==================================================================
+            
+            //------------------------------------------------------------------
+            //
+            // in bulk
+            //
+            //------------------------------------------------------------------
+            for(unit_t i=bulk_imin;i<=bulk_imax;++i)
+            {
+                if(B[j][i]<0)
+                {
+                    
+                    //----------------------------------------------------------
+                    // detect topology
+                    //----------------------------------------------------------
+                    const Real      Xi     = X[i];
+                    int             status = BUBBLE_NONE;
+                    const Junction *before = 0;
+                    const Junction *after  = 0;
+                    
+                    if(B[j][i-1]>=0)
+                    {
+                        status |= BUBBLE_BEFORE;
+                        before  = JL.before(Xi);
+                        if(!before)
+                            throw exception("@y=%g: no junction before x=%g", Y[j], Xi);
+                    }
+                    
+                    if(B[j][i+1]>=0)
+                    {
+                        status |= BUBBLE_AFTER;
+                        after   = JL.after(Xi);
+                        if(!after)
+                            throw exception("@y=%g: no junction after x=%g", Y[j], Xi);
+                    }
+                    
+                    switch(status)
+                    {
+                        case BUBBLE_BEFORE:
+                            
+                            break;
+                            
+                        case BUBBLE_AFTER:
+                            
+                            break;
+                            
+                        case BUBBLE_BOTH:
+                            
+                            break;
+                            
+                        default:
+                            break;
+                    }
+                }
+            }
+            
+            
+            //------------------------------------------------------------------
+            //
+            // on side(s)
+            //
+            //------------------------------------------------------------------
+        }
+        
+    }
+    
 }
 
 
