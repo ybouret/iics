@@ -165,7 +165,7 @@ void Workspace:: EnterY(const Junction *J, unit_t i)
         const Real Yj  = Y[j];
         const Real phi = J->value - Yj; assert(phi>=0);
         const Real Pb  = J->pressure;
-        Enter[J->upper][i].x = Pm + two_delta.y * (Pb - Pm) / (delta.y + phi);
+        Enter[J->upper][i].y = Pm + two_delta.y * (Pb - Pm) / (delta.y + phi);
     }
 }
 
@@ -184,7 +184,7 @@ void Workspace:: LeaveY(const Junction *K, unit_t i)
         const Real Yj  = Y[j];
         const Real psi = Yj - K->value; assert(psi>=0);
         const Real Pb  = K->pressure;
-        Leave[K->lower][i].x = Pp + two_delta.y * (Pb - Pp) / (delta.y + psi );
+        Leave[K->lower][i].y = Pp + two_delta.y * (Pb - Pp) / (delta.y + psi );
     }
 }
 
@@ -208,7 +208,7 @@ void Workspace:: AloneY(const Junction *J, const Junction *K, unit_t i)
     
     const Real fac= two_delta.y / (K->value - J->value);
     Leave[J->lower][i].y = J->pressure * fac;
-    Enter[K->upper][i].x = K->pressure * fac;
+    Enter[K->upper][i].y = K->pressure * fac;
     
 }
 
