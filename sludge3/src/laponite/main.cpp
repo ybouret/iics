@@ -32,7 +32,8 @@ int main( int argc, char *argv[] )
         Simulation sim(MPI, Coord(40,60), Vertex(10,10) );
         
         __Grid::SaveDat( sim.mesh, "grid" + MPI.CommWorldID + ".dat");
-        sim.init_one_bubble();
+        
+        sim.init_one_bubble(NULL);
         sim.bubbles.gamma = 0.1;
         
         //----------------------------------------------------------------------

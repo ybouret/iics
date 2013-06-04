@@ -150,9 +150,155 @@ void Workspace:: pressurize_horz()
     
 }
 
+
+void Workspace:: EnterY(const Junction *J, unit_t i)
+{
+    assert(J);
+    assert(J->active);
+    assert(Bubble::IsAfter == J->b_pos);
+    
+    const unit_t j = J->lower;
+    assert(B[J->upper][i]>=0); // in bubble since J->active
+    if(j>=bulk_jmin)
+    {
+        const Real Pm  = P[j-1][i];
+        const Real Yj  = Y[j];
+        const Real phi = J->value - Yj; assert(phi>=0);
+        const Real Pb  = J->pressure;
+        Enter[J->upper][i].x = Pm + two_delta.y * (Pb - Pm) / (delta.y + phi);
+    }
+}
+
+
+void Workspace:: LeaveY(const Junction *K, unit_t i)
+{
+    assert(K);
+    assert(K->active);
+    assert(Bubble::IsBefore == K->b_pos);
+    assert(B[K->lower][i]>=0); //since K->active
+
+    const unit_t j = K->upper;
+    if(j<=bulk_jmax)
+    {
+        const Real Pp  = P[j+1][i];
+        const Real Yj  = Y[j];
+        const Real psi = Yj - K->value; assert(psi>=0);
+        const Real Pb  = K->pressure;
+        Leave[K->lower][i].x = Pp + two_delta.y * (Pb - Pp) / (delta.y + psi );
+    }
+}
+
+
+void Workspace:: AloneY(const Junction *J, const Junction *K, unit_t i)
+{
+    std::cerr << "DETECTED ALONE Y" << std::endl;
+    
+    assert(J);
+    assert(Bubble::IsBefore == J->b_pos);
+    assert(J->active);
+    
+    assert(K);
+    assert(K==J->next);
+    assert(Bubble::IsAfter == K->b_pos);
+    assert(K->active);
+    assert(J->upper == K->lower);
+    
+    assert(B[K->upper][i]>=0); // since K is active
+    assert(B[J->lower][i]>=0); // since J is active
+    
+    const Real fac= two_delta.y / (K->value - J->value);
+    Leave[J->lower][i].y = J->pressure * fac;
+    Enter[K->upper][i].x = K->pressure * fac;
+    
+}
+
+
 void Workspace:: pressurize_vert()
 {
-    
+    for( unit_t i=outline.lower.x; i<=outline.upper.x; ++i)
+    {
+        const Junction::List &JL = junctions.Vert(i);
+        if(JL.size<=1) continue;
+        
+        //----------------------------------------------------------------------
+        // before crossing left-most bubble.
+        //----------------------------------------------------------------------
+        const Junction *J = JL.head;
+        assert(Bubble::IsAfter == J->b_pos);
+        if(J->active)
+        {
+            EnterY(J,i);
+        }
+        
+        //----------------------------------------------------------------------
+        // between bubbles
+        //----------------------------------------------------------------------
+        bool  in_bubble   = true;
+        const Junction *K = J->next;
+        while(K)
+        {
+            
+            if(!in_bubble)
+            {
+                assert(Bubble::IsBefore == J->b_pos);
+                assert(Bubble::IsAfter  == K->b_pos);
+                if(J->active)
+                {
+                    if(K->active)
+                    {
+                        const unit_t ini = J->upper;
+                        const unit_t end = K->lower;
+                        if(end>=ini)
+                        {
+                            if(end>ini)
+                            {
+                                LeaveY(J, i);
+                                EnterY(K, i);
+                            }
+                            else
+                            {
+                                assert(ini==end);
+                                AloneY(J,K,i);
+                            }
+                        }
+                        // else pass-through...
+                    }
+                    else
+                    {
+                        LeaveY(J, i);
+                    }
+                }
+                else
+                {
+                    if(K->active)
+                    {
+                        EnterY(K, i);
+                    }
+                    else
+                    {
+                        // do nothing
+                    }
+                }
+            }
+            
+            in_bubble = !in_bubble;
+            J = K;
+            K = K->next;
+        }
+        
+        //----------------------------------------------------------------------
+        // after crossing last bubble
+        //----------------------------------------------------------------------
+        assert(!in_bubble);
+        assert(J!=0);
+        if(J->active)
+        {
+            LeaveY(J,i);
+        }
+        
+        
+    }
+
 }
 
 
@@ -161,7 +307,7 @@ void Workspace:: pressurize_contours()
     Enter.ldz();
     Leave.ldz();
     
-    pressurize_horz();
+    //pressurize_horz();
     pressurize_vert();
     
 }

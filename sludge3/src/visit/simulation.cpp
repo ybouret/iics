@@ -26,7 +26,7 @@ void Simulation:: get_meta_data(visit_handle &md) const
 {
     
     //! append an UI generic command
-    add_generic_command("raz1", md);
+    add_generic_command("raz", md);
     
     //! append the grid
     VisIt_SimulationMetaData_addMesh(md, mesh_meta_data(mesh, "grid", par_size));
@@ -252,8 +252,11 @@ visit_handle Simulation:: get_curve( const string &name ) const
 ////////////////////////////////////////////////////////////////////////////////
 void Simulation:: perform( const string &cmd, const array<string> &args)
 {
-    if( cmd == "raz1" )
+    if( cmd == "raz" )
     {
-        init_one_bubble();
+        const char *kind = 0;
+        if( args.size() > 0 )
+            kind = args[1].c_str();
+        init_one_bubble(kind);
     }
 }
