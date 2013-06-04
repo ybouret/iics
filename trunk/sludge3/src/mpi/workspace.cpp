@@ -58,7 +58,7 @@ void Workspace:: validate_bubbles(const mpi &MPI)
         is_valid = true;
         for(const Bubble *b = bubbles.head;b;b=b->next)
         {
-            
+            // check coordinates
         }
         MPI.Bcast<bool>(is_valid, 0, MPI_COMM_WORLD);
     }
