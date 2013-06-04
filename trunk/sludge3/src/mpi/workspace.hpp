@@ -57,6 +57,9 @@ private:
     void LeaveX( const Junction *J, unit_t j);
     void AloneX( const Junction *J, const Junction *K, unit_t j);
     
+    void EnterY( const Junction *J, unit_t i);
+    void LeaveY( const Junction *J, unit_t i);
+    void AloneY( const Junction *J, const Junction *K, unit_t i);
     
 };
 

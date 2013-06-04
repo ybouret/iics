@@ -25,7 +25,7 @@ public:
     
     virtual void perform( const string &cmd, const array<string> &args);
     
-    void init_one_bubble();
+    void init_one_bubble(const char *kind);
     virtual void step();
 
 private:
