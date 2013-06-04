@@ -50,6 +50,9 @@ public:
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Workspace);
     vector<Real> bpres; //!< bubble pressures
+    void pressurize_horz();
+    void pressurize_vert();
+    
 };
 
 #endif
