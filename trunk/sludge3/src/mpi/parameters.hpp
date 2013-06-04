@@ -25,8 +25,9 @@ public:
     const Layout   full_layout;
     const Layout   sim_layout;
     const Vertex   delta;
-    const Vertex   inv_delta;
-    const Vertex   order1fac;
+    const Vertex   two_delta; //!< 2*detla
+    const Vertex   inv_delta; //!< 1/delta
+    const Vertex   order1fac; //!< 1/two_delta
     const Region2D full_region;
     const Region2D sim_region;
     const unit_t   bulk_imin;

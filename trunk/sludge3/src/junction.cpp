@@ -63,7 +63,7 @@ const Junction * Junction:: List::after(const Real value) const throw()
 {
     for(const Junction *J=head;J;J=J->next)
     {
-        if(J->value>value)
+        if(J->value>=value)
             return J;
     }
     return 0;
@@ -74,7 +74,7 @@ const Junction * Junction:: List::before(const Real value) const throw()
 {
     for(const Junction *J=tail;J;J=J->prev)
     {
-        if(J->value<value)
+        if(J->value<=value)
             return J;
     }
     return 0;

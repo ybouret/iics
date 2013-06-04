@@ -42,6 +42,11 @@ Tracer * Bubble:: append()
     return tr;
 }
 
+void Bubble:: append( const Vertex v)
+{
+    append()->pos = v;
+}
+
 void Bubble:: collect_markers( const Real ymin, const Real ymax)
 {
     markers.clear();
