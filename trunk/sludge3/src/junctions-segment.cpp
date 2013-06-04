@@ -1,6 +1,20 @@
 #include "junctions.hpp"
 #include "yocto/exception.hpp"
 
+
+static inline
+void __check_active( const Junction *J, const Junction *K ) throw()
+{
+    assert(J);
+    assert(K);
+    assert(K==J->next);
+    assert(Bubble::IsAfter  == J->b_pos);
+    assert(Bubble::IsBefore == K->b_pos);
+    
+    if(J->inside && (!K->inside || K->lower>=J->upper) ) J->set_active();
+    if(K->inside && (!J->inside || K->lower>=J->upper) ) K->set_active();
+}
+
 void Junctions:: segment(Array &B) const
 {
     assert( grid.is_same_layout_than(B) );
@@ -27,10 +41,12 @@ void Junctions:: segment(Array &B) const
         {
             if(in_bubble)
             {
+                if(J->owner!=K->owner)
+                    throw exception("Horizontal Bubble in Bubble!");
+
                 J->set_after();
                 K->set_before();
-                if(J->owner!=K->owner)
-                    throw exception("Bubble in Bubble!");
+                __check_active(J,K);
                 if(J->inside||K->inside)
                 {
                     const unit_t ini = J->inside ? J->upper : B.lower.x;
@@ -66,8 +82,11 @@ void Junctions:: segment(Array &B) const
         {
             if(in_bubble)
             {
+                if(J->owner!=K->owner)
+                    throw exception("Vertical Bubble in Bubble!");
                 J->set_after();
                 K->set_before();
+                __check_active(J,K);
             }
             in_bubble = !in_bubble;
             J=K;

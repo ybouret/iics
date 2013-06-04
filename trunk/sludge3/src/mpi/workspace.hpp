@@ -53,6 +53,11 @@ private:
     void pressurize_horz();
     void pressurize_vert();
     
+    void EnterX( const Junction *J, unit_t j);
+    void LeaveX( const Junction *J, unit_t j);
+    void AloneX( const Junction *J, const Junction *K, unit_t j);
+    
+    
 };
 
 #endif
