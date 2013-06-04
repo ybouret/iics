@@ -16,7 +16,8 @@ C(0),
 inside(false),
 lower( SLUDGE_INVALID_COORD ),
 upper( SLUDGE_INVALID_COORD ),
-b_pos( Bubble::IsInvalid )
+b_pos( Bubble::IsInvalid ),
+active(false)
 {
     assert(owner);
 }
@@ -38,6 +39,24 @@ Vertex Junction:: get(void) const throw()
     }
 }
 
+
+void Junction:: set_after()  const
+{
+    assert(Bubble::IsInvalid == b_pos);
+    (Bubble::Position &)b_pos = Bubble::IsAfter;
+}
+
+void Junction:: set_before() const
+{
+    assert(Bubble::IsInvalid == b_pos);
+    (Bubble::Position &)b_pos = Bubble::IsBefore;
+}
+
+void Junction:: set_active() const
+{
+    assert(!active);
+    (bool &)active = true;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

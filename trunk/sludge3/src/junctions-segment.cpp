@@ -11,11 +11,6 @@ void Junctions:: segment(Array &B) const
     // Ray Casting from left to right, for each line
     //
     //==========================================================================
-    const Array1D &X    = grid.X();
-    const Real     xmin = X[ grid.lower.x ];
-    const Real     xmax = X[ grid.upper.x ];
-    assert(xmin<xmax);
-    
     for( unit_t y=B.upper.y; y >= B.lower.y; --y)
     {
         
@@ -32,8 +27,8 @@ void Junctions:: segment(Array &B) const
         {
             if(in_bubble)
             {
-                (Bubble::Position &)(J->b_pos) = Bubble::IsAfter;
-                (Bubble::Position &)(K->b_pos) = Bubble::IsBefore;
+                J->set_after();
+                K->set_before();
                 if(J->owner!=K->owner)
                     throw exception("Bubble in Bubble!");
                 if(J->inside||K->inside)
@@ -47,6 +42,32 @@ void Junctions:: segment(Array &B) const
                             B[y][i] = u;
                     }
                 }
+            }
+            in_bubble = !in_bubble;
+            J=K;
+            K=K->next;
+        }
+    }
+    
+    //==========================================================================
+    //
+    // precompute from bottom to top
+    //
+    //==========================================================================
+    for(unit_t x=B.lower.x; x <= B.upper.x; ++x)
+    {
+        const Junction::List &JL = Vert(x);
+        if(JL.size<=1)
+            continue;
+        bool  in_bubble= true;
+        const Junction *J = JL.head; assert(J);
+        const Junction *K = J->next;
+        while(K)
+        {
+            if(in_bubble)
+            {
+                J->set_after();
+                K->set_before();
             }
             in_bubble = !in_bubble;
             J=K;

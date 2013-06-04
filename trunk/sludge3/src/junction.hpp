@@ -45,15 +45,20 @@ public:
     Vertex        n;        //!< average normal
     Real          pressure; //!< from curvature + owner->gamma
     
-    bool              inside;     //!< true junction within grid
-    unit_t            lower;      //!< lower logical index on axis or INVALID
-    unit_t            upper;      //!< upper logical index on axis or INVALID
-    Bubble::Position  b_pos;      //!< default Bubble::IsInvalid, set by segmentation
+    bool                    inside;     //!< true junction within grid
+    unit_t                  lower;      //!< lower logical index on axis or INVALID
+    unit_t                  upper;      //!< upper logical index on axis or INVALID
+    const Bubble::Position  b_pos;      //!< default Bubble::IsInvalid, set by segmentation
+    const bool              active;     //!< has an active point, depending on b_pos...
     
     Junction(List &, Real, const Bubble *) throw();
     ~Junction() throw();
     
     Vertex get(void) const throw();
+    
+    void set_after()  const;
+    void set_before() const;
+    void set_active() const;
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Junction);
