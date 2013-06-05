@@ -48,10 +48,13 @@ PREPARE:
     broadcast_bubbles(MPI);
     segment();
     
+#if 0
     junctions.save_dat( "j" + MPI.CommWorldID + ".dat" );
     junctions.save_inside_of(B, "in" + MPI.CommWorldID + ".dat");
     if(MPI.IsFirst)
         bubbles.head->save_all("b0");
+#endif
+    
     P.ldz();
     pressurize_bubbles();
     pressurize_contours();
