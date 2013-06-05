@@ -194,7 +194,7 @@ visit_handle Simulation:: get_variable( int domain, const string &name ) const
             VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, DeltaP.entry);
         }
     }
-
+    
     
     return h;
     
@@ -348,10 +348,13 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
     
     if(cmd == "rb" )
     {
+        size_t n = args.size() >= 1 ? strconv::to<size_t>(args[1],"niter") : 1;
         DeltaP.ldz();
-        update_pressure(MPI, Red);
-        update_pressure(MPI, Black);
-        fast_update();
+        while(n-->0)
+        {
+            update_pressure(MPI, Red);
+            update_pressure(MPI, Black);
+        }
     }
     
 }

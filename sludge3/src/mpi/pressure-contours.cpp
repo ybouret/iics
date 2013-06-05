@@ -303,8 +303,8 @@ void Workspace:: pressurize_vert()
 
 void Workspace:: pressurize_contours()
 {
-    Enter.ldz();
-    Leave.ldz();
+    //Enter.ldz();
+    //Leave.ldz();
     
     pressurize_horz();
     pressurize_vert();
