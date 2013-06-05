@@ -48,6 +48,9 @@ void Simulation:: get_meta_data(visit_handle &md) const
     //! append Leave on grid
     VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Vertex>("Leave", "grid"));
     
+    //! append DeltaP on grid
+    VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Real>("DeltaP", "grid"));
+    
     //! append bubbles
     for( const Bubble *b = bubbles.head;b;b=b->next)
     {
@@ -181,7 +184,17 @@ visit_handle Simulation:: get_variable( int domain, const string &name ) const
         }
     }
     
-    
+    if( name == "DeltaP" )
+    {
+        const int nComponents= 1;
+        const int nTuples    = DeltaP.items;
+        assert(DeltaP.entry!=NULL);
+        if(VisIt_VariableData_alloc(&h) == VISIT_OKAY)
+        {
+            VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, DeltaP.entry);
+        }
+    }
+
     
     return h;
     
@@ -333,6 +346,12 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
         }
     }
     
-    
+    if(cmd == "rb" )
+    {
+        DeltaP.ldz();
+        update_pressure(MPI, Red);
+        update_pressure(MPI, Black);
+        fast_update();
+    }
     
 }

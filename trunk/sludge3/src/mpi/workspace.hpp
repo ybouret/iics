@@ -24,8 +24,9 @@ public:
     Array         &P;
     Array         &B;
     VertexArray   &gradP;
-    VertexArray   &Enter; //!< pressure when entering a bubble along x or y
-    VertexArray   &Leave; //!< pressure when leaving  a bubble along x or y
+    VertexArray   &Enter;  //!< pressure when entering a bubble along x or y
+    VertexArray   &Leave;  //!< pressure when leaving  a bubble along x or y
+    Array         &DeltaP; //!< store laplacian pressure to check...
     
     //! regularize bubbles, check boundaries, broadcast is_valid
     void validate_bubbles(const mpi &MPI);
@@ -45,7 +46,16 @@ public:
     //! bubbles/contours must be pressurized
     void compute_gradP(const mpi &MPI);
     
-    void compute_pressure(const mpi &MPI);
+    
+    enum ColorType
+    {
+        Red=0,
+        Black=1
+    };
+    
+    //! assume bubbles are segmented
+    void update_pressure( const mpi &MPI, ColorType c );
+    
     
     
 private:

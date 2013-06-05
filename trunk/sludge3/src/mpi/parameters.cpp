@@ -9,10 +9,13 @@ F( 32 ),
 G(),
 full_layout( Coord(0,0), N),
 sim_layout( full_layout.split(MPI.CommWorldRank, MPI.CommWorldSize,1) ),
-delta(     Q.x/N.x,         Q.y/N.y        ),
-two_delta( delta.x+delta.x, delta.y+delta.y),
-inv_delta( 1/delta.x,       1/delta.y      ),
-order1fac( 1/two_delta.x,   1/two_delta.y  ),
+
+delta(     Q.x/N.x,             Q.y/N.y        ),
+two_delta( delta.x+delta.x,     delta.y+delta.y),
+inv_delta( 1/delta.x,           1/delta.y      ),
+order1fac( 1/two_delta.x,       1/two_delta.y  ),
+order2fac( 1/(delta.x*delta.x), 1/(delta.y*delta.y) ),
+
 full_region( Vertex(0,0), Q ),
 sim_region( Vertex(0, sim_layout.lower.y * delta.y), Vertex(Q.x,sim_layout.upper.y*delta.y) ),
 bulk_imin( sim_layout.lower.x+1),
@@ -33,6 +36,8 @@ bulk_jmax( sim_layout.upper.y - (MPI.IsFinal ? 1 : 0 ) )
     Y_SPADE_FIELD(F, "gradP", VertexArray);
     Y_SPADE_FIELD(F, "Enter", VertexArray);
     Y_SPADE_FIELD(F, "Leave", VertexArray);
+    Y_SPADE_FIELD(F, "DeltaP", Array);
+    
     
     //==========================================================================
     // MPI connectivity

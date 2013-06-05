@@ -19,7 +19,8 @@ P( (*this)["P"].as<Array>() ),
 B( (*this)["B"].as<Array>() ),
 gradP( (*this)["gradP"].as<VertexArray>() ),
 Enter( (*this)["Enter"].as<VertexArray>() ),
-Leave( (*this)["Leave"].as<VertexArray>() )
+Leave( (*this)["Leave"].as<VertexArray>() ),
+DeltaP( (*this)["DeltaP"].as<Array>() )
 {
     
     //==========================================================================
