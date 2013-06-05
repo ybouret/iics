@@ -7,7 +7,7 @@ void Workspace:: update_pressure( const mpi &MPI, ColorType c )
     //--------------------------------------------------------------------------
     // set the boundary conditions
     //--------------------------------------------------------------------------
-    for(unit_t j=outline.lower.x;j<=outline.upper.x;++j)
+    for(unit_t j=outline.lower.y;j<=outline.upper.y;++j)
         P[j][upper.x] = 0.5;
     
     //--------------------------------------------------------------------------
@@ -50,7 +50,23 @@ void Workspace:: update_pressure( const mpi &MPI, ColorType c )
     //--------------------------------------------------------------------------
     // update the boundary conditions
     //--------------------------------------------------------------------------
+    const unit_t i0 = lower.x;
+    const unit_t i1 = i0+1;
+    const unit_t i2 = i1+1;
     
+    for(unit_t j=bulk_jmin;j<=bulk_jmax;++j)
+    {
+        assert(B[j][i0]<0);
+        if(B[j][i1]>=0)
+        {
+            // order 1 setting
+            P[j][i0] = Enter[j][i1].x;
+        }
+        else
+        {
+            P[j][i0] = (4.0 * P[j][i1] - Enter[j][i2].x) / 3.0;
+        }
+    }
     
     
 }
