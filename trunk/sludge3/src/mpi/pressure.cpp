@@ -7,7 +7,7 @@ void Workspace:: compute_pressure( const mpi &MPI, const Real ftol )
     {
         const int cvg = update_pressure(MPI, Red, ftol) & update_pressure(MPI, Black, ftol);
         int       sum = 0;
-        MPI.Allreduce((int*)&cvg, &sum, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+        MPI.Allreduce(&cvg, &sum, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
         if( target == sum )
             break;
     }
