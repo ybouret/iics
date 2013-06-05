@@ -131,42 +131,85 @@ For non penetrating bubbles, the successive junctions pairs on any axis is the s
 When those junctions are within the grid (taking special care of sides), we mark the inner position with the owning bubble ID.
 
 \section{Effective Pressure Field}
-We need to estimate the pressure around any bulk position.
-\begin{itemize}
+We need to estimate the pressure gradient and Laplacian around any bulk position,
+using the \textbf{standard} discretizations.
+
+\subsection{First Order}
+\begin{enumerate}
 \item
-Let us assume that after the point $x_i$, there is an intersection or the bubble at $x_i + \phi$.
+Let us assume that the points $x_{i-1}$ and $x_i$ are in the bulk, and that there is
+an intersection with a bubble at $x_i+\phi$. 
 At this intersection, there is a pressure $P_\phi = P_{bubble} - \gamma \kappa_\phi$.
-The pressure gradient can be estimated by
-%$$
-%	\partial_x P_j = \dfrac{1}{\phi+\delta x} 
-%	\left\lbrack
-%	\phi \dfrac{P_j - P_{j-1}} {\delta x} +
-%	\delta x \dfrac{P_\phi - P_j}{\phi}
-%	\right\rbrack = \dfrac{P_j^{L} - P_{j-1}}{2\delta_x}
-%$$
+The pressure gradient while \textbf{entering} the bubble can be estimated by
 $$
-	\partial_x P_i = \dfrac{P_\phi - P_{i-1}}{\delta x + \phi} = \dfrac{P_i^R - P_{i-1}}{2\delta x}
+	\sigma^E_i = \dfrac{P_\phi - P_{i-1}}{\delta_x+\phi}.
 $$
-so that the \textit{Right Effective Pressure} or \textbf{Horizontal Entering Pressure} is set by
+We can define an \textbf{Order 1 Horizontal Entering Pressure} $P^{E_1}$ by
 $$
-	P_i^R = P_{i-1} + \dfrac{2\delta x}{\phi+\delta x} \left( P_\phi - P_{i-1} \right).
+	\sigma^E_i = \dfrac{P^{E_1}_{i+1}-P_{i-1}}{2\delta_x} 
+$$
+so that
+$$
+	P^{E_1}_{i+1} = P_{i-1} + 2\delta_x\sigma^E_i
 $$
 \item
-If the intersection is at $x_i-\psi$ with $P_\psi = P_{bubble} - \gamma \kappa_\psi$
-then the pressure gradient can be estimated by
+Let us assume that  the points $x_{i}$ and $x_{i+1}$ are in the bulk, and that
+theres is an intersection with a bubble at $x_i-\psi$.
+At this intersection, there is a pressure $P_\psi=P_{bubble} - \gamma \kappa_\psi$.
+The pressure gradient while \textbf{leaving} the bubble can be estimated by
 $$
-	\partial_x P_i = \dfrac{P_{i+1} - P_\psi}{\delta x + \psi} = \dfrac{P_{i+1}-P_i^L}{2\delta x}
+	\sigma^L_i = \dfrac{P_{i+1}-P_\psi}{\delta_x + \psi}.
 $$
-with the \textit{Left Effective Pressure} or \textbf{Horizonal Leaving Pressure} set by
+We can define and \textbf{Order 1 Horizontal Leaving Pressure} $P^{L_1}$ by
 $$
-	P_i^L = P_{i+1} - \dfrac{2\delta_x}{\delta x + \psi}\left(P_{i+1} - P_\psi\right)
+	\sigma^L_i = \dfrac{P_{i+1}-P^{L_1}_{i-1}}{2\delta_x}
+$$
+so that 
+$$
+	P^{L_1}_{i-1} = P_{i+1} - 2\delta_x \sigma^L_i
 $$
 \item
-If $x_i$ is surrounded by two intersections then
+Let us assume that the point $x_i$ is between two bubbles at $x_i+\phi$ and $x_i-\psi$.
+We have
 $$
-	P_i^L = \dfrac{2\delta x}{\phi+\psi} P_\psi \text{ and } P_i^R = \dfrac{2\delta x}{\phi+\psi} P_\phi
+	\sigma_i = \dfrac{P_\phi - P_\psi}{\psi+\phi}
 $$
-\end{itemize}
+so that
+$$
+	P^{L_1}_{i-1} = \dfrac{2\delta_x}{\phi+\psi} P_\psi
+$$
+and
+$$
+	P^{E_1}_{i+1} = \dfrac{2\delta_x}{\phi+\psi} P_\phi
+$$
+\end{enumerate}
+
+By setting those fields initially to the original pressure and modifying them in case of bubble detection,
+we can always compute, in the bulk
+$$
+	\partial_x P_i = \dfrac{P^{E_1}_{i+1} - P^{L_1}_{i-1}}{2\delta_x}
+$$
+
+\subsection{Second order}
+With the respective assumptions of the previous paragraph….
+\begin{enumerate}
+
+\item We can write
+$$
+	P_{i-1} = P_i - \delta_x \sigma^E_i + \dfrac{1}{2} \delta_x^2 \partial_x^2 P_i
+$$
+and
+$$
+	P_\phi = P_i + \phi \sigma^E_i + \dfrac{1}{2} \phi^2 \partial_x^2 P_i
+$$
+
+\item
+
+
+\item
+
+\end{enumerate}
+
 The same method can be applied near the wall for order 1 gradient estimation.\\
 For one dimension, we need two auxiliary pressure fields when a bulk/bubble intersection is met.
 
