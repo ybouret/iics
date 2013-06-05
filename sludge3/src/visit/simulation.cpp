@@ -350,11 +350,17 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
     {
         size_t n = args.size() >= 1 ? strconv::to<size_t>(args[1],"niter") : 1;
         DeltaP.ldz();
+        const Real ftol = 1e-4;
         while(n-->0)
         {
-            update_pressure(MPI, Red);
-            update_pressure(MPI, Black);
+            const int cvg = update_pressure(MPI, Red, ftol) & update_pressure(MPI, Black, ftol);
+            MPI.Printf(stderr, "Converged= %d\n", cvg);
         }
     }
     
+    if(cmd == "solve" )
+    {
+        compute_pressure(MPI, 1e-3);
+        MPI.Printf(stderr, "Pressure OK\n");
+    }
 }

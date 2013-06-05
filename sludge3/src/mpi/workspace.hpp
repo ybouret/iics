@@ -54,8 +54,15 @@ public:
     };
     
     //! assume bubbles are segmented
-    void update_pressure( const mpi &MPI, ColorType c );
+    /**
+     \return 1 if success, 0 otherwise
+     */
+    int update_pressure(const mpi &MPI,
+                        ColorType c,
+                        const Real ftol);
     
+    
+    void compute_pressure( const mpi &MPI, const Real ftol );
     
     
 private:

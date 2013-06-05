@@ -1,7 +1,27 @@
 #include "workspace.hpp"
 
+void Workspace:: compute_pressure( const mpi &MPI, const Real ftol )
+{
+    const int target = MPI.CommWorldSize;
+    for(;;)
+    {
+        const int cvg = update_pressure(MPI, Red, ftol) & update_pressure(MPI, Black, ftol);
+        int       sum = 0;
+        MPI.Allreduce((int*)&cvg, &sum, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+        if( target == sum )
+            break;
+    }
+    
+    pressurize_bubbles();
+    pressurize_contours();
+    compute_gradP(MPI);
+    
+}
 
-void Workspace:: update_pressure( const mpi &MPI, ColorType c )
+
+int Workspace:: update_pressure(const mpi &MPI,
+                                ColorType  c,
+                                const Real ftol)
 {
     
     //--------------------------------------------------------------------------
@@ -27,6 +47,7 @@ void Workspace:: update_pressure( const mpi &MPI, ColorType c )
     const unit_t shift[2] = { c, 1-c };
     assert(shift[0]==0||shift[0]==1);
     assert(shift[1]==0||shift[1]==1);
+    int converged = 1;
     for(unit_t j=bulk_jmin;j<=bulk_jmax;++j)
     {
         for( unit_t i=bulk_imin + shift[j&1]; i <= bulk_imax; i +=2 )
@@ -40,9 +61,18 @@ void Workspace:: update_pressure( const mpi &MPI, ColorType c )
                 const Real P_top     = Enter[j+1][i].y;
                 const Real mid       = -(P_center+P_center);
                 const Real Laplacian = (P_left+mid+P_right) * order2fac.x + (P_bottom+mid+P_top) * order2fac.y;
+                const Real residue   = (Laplacian);
+                const Real dP        = residue * rb_factor;
+                
+                P[j][i] -= dP;
+                
+                if( Fabs(dP) > Fabs(ftol*P[j][i]) )
+                {
+                    converged = 0;
+                }
+                
                 DeltaP[j][i] = Laplacian;
-                const Real residue   = (Laplacian) * rb_factor;
-                P[j][i] -= residue;
+                
             }
         }
     }
@@ -68,5 +98,49 @@ void Workspace:: update_pressure( const mpi &MPI, ColorType c )
         }
     }
     
+	if(MPI.IsFirst)
+	{
+		const unit_t j0 = lower.y;
+		const unit_t j1 = j0+1;
+		const unit_t j2 = j1+1;
+		for(unit_t i=i1;i<upper.x;++i)
+		{
+			assert(B[j0][i]<0);
+			if(B[j1][i]>=0)
+			{
+				// order 1 setting
+				P[j0][i] = Enter[j1][i].y;
+			}
+			else
+			{
+				P[j0][i] = (4.0 * P[j1][i] - Enter[j2][i].y)/3.0;
+			}
+		}
+		P[j0][i0] = (P[j1][i0] + P[j0][i1])/2;
+	}
+	
+	if(MPI.IsFinal)
+	{
+		const unit_t j0 = upper.y;
+		const unit_t j1 = j0-1;
+		const unit_t j2 = j1-1;
+		for(unit_t i=i1;i<upper.x;++i)
+		{
+			assert(B[j0][i]<0);
+			if(B[j1][i]>=0)
+			{
+				// order 1 setting
+				P[j0][i] = Leave[j1][i].y;
+			}
+			else
+			{
+				P[j0][i] = (4.0 * P[j1][i] - Leave[j2][i].y)/3.0;
+			}
+		}
+		P[j0][i0] = (P[j1][i0] + P[j0][i1])/2;
+	}
     
+	sync1(MPI, P);
+	
+    return converged;
 }
