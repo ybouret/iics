@@ -160,7 +160,7 @@ The pressure gradient while \textbf{leaving} the bubble can be estimated by
 $$
 	\sigma^L_i = \dfrac{P_{i+1}-P_\psi}{\delta_x + \psi}.
 $$
-We can define and \textbf{Order 1 Horizontal Leaving Pressure} $P^{L_1}$ by
+We can define an \textbf{Order 1 Horizontal Leaving Pressure} $P^{L_1}$ by
 $$
 	\sigma^L_i = \dfrac{P_{i+1}-P^{L_1}_{i-1}}{2\delta_x}
 $$
@@ -194,17 +194,38 @@ $$
 With the respective assumptions of the previous paragraph….
 \begin{enumerate}
 
-\item We can write
+\item Since we assume that the slope at point $x_i$ is $\sigma_i^E$, the pressure expansion around $x_i$ 
+is
 $$
-	P_{i-1} = P_i - \delta_x \sigma^E_i + \dfrac{1}{2} \delta_x^2 \partial_x^2 P_i
+	P(x) = P_i + \sigma_i^E \left(x-x_i\right) + \frac{1}{2} K_i^E \left(x-x_i\right)^2.
+$$
+A good estimation of $K_i^E$, avoiding all singularities, is to use the least square solution,
+leading to
+$$
+	K_i^E = \dfrac{2}{\delta_x^4+\phi^4}
+	\left\lbrack
+		\delta_x^2\left(P_{i-1}-P_{i} + \delta_x \sigma_i^E\right) + \phi^2\left(P_\phi - Pi - \phi\sigma_i^E\right)
+	\right\rbrack
+$$
+We can define an \textbf{Order 2 Horizontal Entering Pressure} $P^{E_2}$ by
+$$
+	\partial_x^2 P_i = \dfrac{P_{i-1}-2P_i + P^{E_2}_{i+1}}{\delta_x^2} = K_i^E
 $$
 and
 $$
-	P_\phi = P_i + \phi \sigma^E_i + \dfrac{1}{2} \phi^2 \partial_x^2 P_i
+	P^{E_2}_{i+1} = 2P_i - P_{i-1} + \delta_x^2 K_i^E
 $$
-
 \item
-
+Since we assume that the slope at point $x_i$ is $\sigma_i^L$, the pressure expansion around $x_i$ 
+is
+$$
+	P(x) = P_i + \sigma_i^L \left(x-x_i\right) + \frac{1}{2} K_i^L \left(x-x_i\right)^2.
+$$
+A good estimation of $K_i^E$, avoiding all singularities, is to use the least square solution,
+leading to
+$$
+	K_i^L = 
+$$
 
 \item
 

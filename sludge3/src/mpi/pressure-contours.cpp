@@ -15,7 +15,8 @@ void Workspace:: EnterX(const Junction *J, unit_t j)
         const Real Xi  = X[i];
         const Real phi = J->value - Xi; assert(phi>=0);
         const Real Pb  = J->pressure;
-        Enter[j][J->upper].x = Pm + two_delta.x * (Pb - Pm) / (delta.x + phi);
+        const Real sigma_E = (Pb - Pm) / (delta.x + phi);
+        Enter[j][J->upper].x = Pm + two_delta.x * sigma_E;
     }
 }
 
@@ -30,11 +31,12 @@ void Workspace:: LeaveX(const Junction *K, unit_t j)
     const unit_t i = K->upper;
     if(i<=bulk_imax)
     {
-        const Real Pp  = P[j][i+1];
-        const Real Xi  = X[i];
-        const Real psi = Xi - K->value; assert(psi>=0);
-        const Real Pb  = K->pressure;
-        Leave[j][K->lower].x = Pp + two_delta.x * (Pb - Pp) / (delta.x + psi );
+        const Real Pp    = P[j][i+1];
+        const Real Xi    = X[i];
+        const Real psi   = Xi - K->value; assert(psi>=0);
+        const Real Pb    = K->pressure;
+        const Real sigma_L = (Pp - Pb) / (delta.x + psi);
+        Leave[j][K->lower].x = Pp - two_delta.x *sigma_L;
     }
 }
 
