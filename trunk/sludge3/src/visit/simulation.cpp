@@ -43,10 +43,17 @@ void Simulation:: get_meta_data(visit_handle &md) const
     VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Vertex>("gradP", "grid"));
     
     //! append Enter on grid
-    VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Vertex>("Enter", "grid"));
+    VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Vertex>("E1", "grid"));
     
     //! append Leave on grid
-    VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Vertex>("Leave", "grid"));
+    VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Vertex>("L1", "grid"));
+    
+    //! append Enter on grid
+    VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Vertex>("E2", "grid"));
+    
+    //! append Leave on grid
+    VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Vertex>("L2", "grid"));
+
     
     //! append DeltaP on grid
     VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Real>("DeltaP", "grid"));
@@ -183,6 +190,29 @@ visit_handle Simulation:: get_variable( int domain, const string &name ) const
             VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, (Real *)(L1.entry));
         }
     }
+    
+    if( name == "E2" )
+    {
+        const int nComponents= 2;
+        const int nTuples    = E1.items;
+        assert(E1.entry!=NULL);
+        if(VisIt_VariableData_alloc(&h) == VISIT_OKAY)
+        {
+            VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, (Real *)(E2.entry));
+        }
+    }
+    
+    if( name == "L2" )
+    {
+        const int nComponents= 2;
+        const int nTuples    = L1.items;
+        assert(L1.entry!=NULL);
+        if(VisIt_VariableData_alloc(&h) == VISIT_OKAY)
+        {
+            VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, (Real *)(L2.entry));
+        }
+    }
+
     
     if( name == "DeltaP" )
     {

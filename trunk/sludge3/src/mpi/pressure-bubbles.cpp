@@ -28,7 +28,10 @@ void Workspace:: pressurize_bubbles()
                 P[j][i] = bpres[ which+1 ];
             }
             E1[j][i].x = E1[j][i].y =
-            L1[j][i].x = L1[j][i].y = P[j][i];
+            L1[j][i].x = L1[j][i].y =
+            E2[j][i].x = E2[j][i].y =
+            L2[j][i].x = L2[j][i].y = 
+            P[j][i];
         }
     }
 }
