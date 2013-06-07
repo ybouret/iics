@@ -14,35 +14,49 @@ void Simulation:: init_one_bubble( const char *kind )
         Real radius = min_of( full_region.length.x, full_region.length.y)/3;
         {
             const Vertex center = full_region.vmin + 0.5 * full_region.length;
-            Bubble *b = bubbles.append();
             
             
             if(flag == "cc")
             {
-                Shape::Circle(b, center, radius);
+                Shape::Circle(bubbles.append(), center, radius);
                 goto PREPARE;
             }
             
             if(flag == "sq")
             {
-                Shape::Square(b, center, radius);
+                Shape::Square(bubbles.append(), center, radius);
                 goto PREPARE;
             }
             
-            if( flag == "2" )
+            if( flag == "m" )
             {
                 radius /= 2;
-                const Vertex lo = full_region.vmin + 0.25 * full_region.length;
-                Shape::Blob(b, lo, radius, 0.4 + 0.55 * alea<Real>(), 0.1 + 0.8 * alea<Real>() );
+                {
+                    const Vertex C = full_region.vmin + 0.25 * full_region.length;
+                    Shape::Blob(bubbles.append(), C, radius, 0.4 + 0.55 * alea<Real>(), 0.1 + 0.8 * alea<Real>() );
+                }
                 
-                const Vertex up = full_region.vmin + 0.75 * full_region.length;
-                Shape::Blob(bubbles.append(), up, radius, 0.4 + 0.55 * alea<Real>(), 0.1 + 0.8 * alea<Real>() );
+                {
+                    const Vertex C = full_region.vmin + 0.75 * full_region.length;
+                    Shape::Blob(bubbles.append(), C, radius, 0.4 + 0.55 * alea<Real>(), 0.1 + 0.8 * alea<Real>() );
+                }
+                
+                {
+                    const Vertex C = full_region.vmin + Vertex(0.25*full_region.length.x,0.75*full_region.length.y);
+                    Shape::Blob(bubbles.append(), C, radius, 0.4 + 0.55 * alea<Real>(), 0.1 + 0.8 * alea<Real>() );
+                }
+                
+                {
+                    const Vertex C = full_region.vmin + Vertex(0.75*full_region.length.x,0.25*full_region.length.y);
+                    Shape::Blob(bubbles.append(), C, radius, 0.4 + 0.55 * alea<Real>(), 0.1 + 0.8 * alea<Real>() );
+                }
+                
                 goto PREPARE;
             }
             
             // default
-            Shape::Blob(b, center, radius, 0.4 + 0.55 * alea<Real>(), 0.1 + 0.8 * alea<Real>() );
-            Shape::Rotate(b, numeric<Real>::two_pi * alea<Real>() );
+            Shape::Blob(bubbles.append(), center, radius, 0.4 + 0.55 * alea<Real>(), 0.1 + 0.8 * alea<Real>() );
+            Shape::Rotate(bubbles.head, numeric<Real>::two_pi * alea<Real>() );
         }
     }
     
