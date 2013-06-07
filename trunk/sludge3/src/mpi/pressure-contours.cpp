@@ -201,11 +201,24 @@ void Workspace:: EnterY(const Junction *J, unit_t i)
     assert(B[J->upper][i]>=0); // in bubble since J->active
     if(j>=bulk_jmin)
     {
-        const Real Pm  = P[j-1][i];
-        const Real Yj  = Y[j];
-        const Real phi = J->value - Yj; assert(phi>=0);
-        const Real Pb  = J->pressure;
-        E1[J->upper][i].y = Pm + two_delta.y * (Pb - Pm) / (delta.y + phi);
+        const Real jm     = j-1;
+        const Real jp     = j+1;
+        const Real P_jm   = P[jm][i];
+        const Real Yj     = Y[j];
+        const Real phi    = J->value - Yj; assert(phi>=0);
+        const Real P_phi  = J->pressure;
+        const Real dy     = delta.y;
+        const Real sigma  = (P_phi - P_jm) / (phi+dy);
+        
+        E1[jp][i].y       = P_jm + two_delta.y * sigma;
+        
+        const Real P_j  = P[j][i];
+        const Real phi2 = phi * phi;
+        const Real dy2  = dy * dy;
+        const Real num  = dy2 * (P_jm - P_j + dy * sigma ) + phi2 * (P_phi - P_j - phi * sigma );
+        const Real K    = (num+num) / ( phi2*phi2 + dy2*dy2 );
+        
+        E2[jp][i].y     = (P_j+P_j) - P_jm + dy2 * K;
     }
 }
 
@@ -344,10 +357,10 @@ void Workspace:: pressurize_vert()
 void Workspace:: pressurize_contours()
 {
     
-    E2.ldz();
-    L2.ldz();
-    
+    E2.ldz(); L2.ldz();
     pressurize_horz();
+    
+    E2.ldz(); L2.ldz();
     pressurize_vert();
     
 }
