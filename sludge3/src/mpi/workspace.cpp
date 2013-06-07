@@ -22,7 +22,9 @@ E1( (*this)["E1"].as<VertexArray>() ),
 L1( (*this)["L1"].as<VertexArray>() ),
 E2( (*this)["E2"].as<VertexArray>() ),
 L2( (*this)["L2"].as<VertexArray>() ),
-DeltaP( (*this)["DeltaP"].as<Array>() )
+DeltaP( (*this)["DeltaP"].as<Array>() ),
+right_wall(false),
+P_user(0.5)
 {
     
     //==========================================================================

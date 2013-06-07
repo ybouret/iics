@@ -27,8 +27,11 @@ int Workspace:: update_pressure(const mpi &MPI,
     //--------------------------------------------------------------------------
     // set the boundary conditions
     //--------------------------------------------------------------------------
-    for(unit_t j=outline.lower.y;j<=outline.upper.y;++j)
-        P[j][upper.x] = 0.5;
+    if(!right_wall)
+    {
+        for(unit_t j=outline.lower.y;j<=outline.upper.y;++j)
+            P[j][upper.x] = P_user;
+    }
     
     //--------------------------------------------------------------------------
     // prepare the pressure fields
@@ -50,6 +53,8 @@ int Workspace:: update_pressure(const mpi &MPI,
     int converged = 1;
     for(unit_t j=bulk_jmin;j<=bulk_jmax;++j)
     {
+        const unit_t jm = j-1;
+        const unit_t jp = j+1;
         for( unit_t i=bulk_imin + shift[j&1]; i <= bulk_imax; i +=2 )
         {
             if(B[j][i]<0)
@@ -57,8 +62,8 @@ int Workspace:: update_pressure(const mpi &MPI,
                 const Real P_center  = P[j][i];
                 const Real P_left    = L2[j][i-1].x;
                 const Real P_right   = E2[j][i+1].x;
-                const Real P_bottom  = L2[j-1][i].y;
-                const Real P_top     = E2[j+1][i].y;
+                const Real P_bottom  = L2[jm][i].y;
+                const Real P_top     = E2[jp][i].y;
                 const Real mid       = -(P_center+P_center);
                 const Real Laplacian = (P_left+mid+P_right) * order2fac.x + (P_bottom+mid+P_top) * order2fac.y;
                 const Real residue   = (Laplacian);
