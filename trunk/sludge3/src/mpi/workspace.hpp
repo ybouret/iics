@@ -30,6 +30,8 @@ public:
     VertexArray   &L2;  //!< pressure when entering a bubble along x or y, second order
 
     Array         &DeltaP; //!< store laplacian pressure to check...
+    bool           right_wall; //!< default: false
+    Real           P_user;     //!< default: 0.5
     
     //! regularize bubbles, check boundaries, broadcast is_valid
     void validate_bubbles(const mpi &MPI);

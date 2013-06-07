@@ -53,7 +53,7 @@ void Simulation:: get_meta_data(visit_handle &md) const
     
     //! append Leave on grid
     VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Vertex>("L2", "grid"));
-
+    
     
     //! append DeltaP on grid
     VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Real>("DeltaP", "grid"));
@@ -212,7 +212,7 @@ visit_handle Simulation:: get_variable( int domain, const string &name ) const
             VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, (Real *)(L2.entry));
         }
     }
-
+    
     
     if( name == "DeltaP" )
     {
@@ -376,11 +376,12 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
         }
     }
     
+    
+    const Real ftol = 1e-5;
     if(cmd == "rb" )
     {
         size_t n = args.size() >= 1 ? strconv::to<size_t>(args[1],"niter") : 1;
         DeltaP.ldz();
-        const Real ftol = 1e-4;
         while(n-->0)
         {
             const int cvg = update_pressure(MPI, Red, ftol) & update_pressure(MPI, Black, ftol);
@@ -388,9 +389,31 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
         }
     }
     
+    if(cmd == "gamma" )
+    {
+        
+        bubbles.gamma = args.size() >= 1 ? strconv::to<Real>(args[1],"gamma") : 0;
+        segment();
+        compute_pressure(MPI, ftol);
+        MPI.Printf(stderr, "Pressure OK\n");
+    }
+    
     if(cmd == "solve" )
     {
-        compute_pressure(MPI, 1e-3);
+        compute_pressure(MPI, ftol);
         MPI.Printf(stderr, "Pressure OK\n");
+    }
+    
+    if(cmd == "save" )
+    {
+        if(MPI.IsFirst )
+        {
+            for( const Bubble *b = bubbles.head;b;b=b->next)
+            {
+                const string pfx = vformat("b%u", unsigned(b->UID) );
+                b->save_all(pfx);
+            }
+            junctions.save_all( "j" + MPI.CommWorldID);
+        }
     }
 }
