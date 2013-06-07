@@ -24,8 +24,11 @@ public:
     Array         &P;
     Array         &B;
     VertexArray   &gradP;
-    VertexArray   &Enter;  //!< pressure when entering a bubble along x or y
-    VertexArray   &Leave;  //!< pressure when leaving  a bubble along x or y
+    VertexArray   &E1;  //!< pressure when entering a bubble along x or y, first order
+    VertexArray   &L1;  //!< pressure when leaving  a bubble along x or y, first order
+    VertexArray   &E2;  //!< pressure when entering a bubble along x or y, second order
+    VertexArray   &L2;  //!< pressure when entering a bubble along x or y, second order
+
     Array         &DeltaP; //!< store laplacian pressure to check...
     
     //! regularize bubbles, check boundaries, broadcast is_valid

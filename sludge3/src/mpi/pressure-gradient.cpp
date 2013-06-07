@@ -14,8 +14,8 @@ void Workspace:: compute_gradP(const mpi &MPI)
             if(which<0)
             {
                 Vertex &g = gradP[j][i];
-                g.x = (Enter[j][i+1].x - Leave[j][i-1].x) * order1fac.x;
-                g.y = (Enter[j+1][i].y - Leave[j-1][i].y) * order1fac.y;
+                g.x = (E1[j][i+1].x - L1[j][i-1].x) * order1fac.x;
+                g.y = (E1[j+1][i].y - L1[j-1][i].y) * order1fac.y;
             }
         }
     }

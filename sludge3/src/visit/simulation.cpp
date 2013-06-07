@@ -162,25 +162,25 @@ visit_handle Simulation:: get_variable( int domain, const string &name ) const
         }
     }
     
-    if( name == "Enter" )
+    if( name == "E1" )
     {
         const int nComponents= 2;
-        const int nTuples    = Enter.items;
-        assert(Enter.entry!=NULL);
+        const int nTuples    = E1.items;
+        assert(E1.entry!=NULL);
         if(VisIt_VariableData_alloc(&h) == VISIT_OKAY)
         {
-            VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, (Real *)(Enter.entry));
+            VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, (Real *)(E1.entry));
         }
     }
     
-    if( name == "Leave" )
+    if( name == "L1" )
     {
         const int nComponents= 2;
-        const int nTuples    = Leave.items;
-        assert(Leave.entry!=NULL);
+        const int nTuples    = L1.items;
+        assert(L1.entry!=NULL);
         if(VisIt_VariableData_alloc(&h) == VISIT_OKAY)
         {
-            VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, (Real *)(Leave.entry));
+            VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, (Real *)(L1.entry));
         }
     }
     

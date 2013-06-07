@@ -16,7 +16,7 @@ void Workspace:: EnterX(const Junction *J, unit_t j)
         const Real phi = J->value - Xi; assert(phi>=0);
         const Real Pb  = J->pressure;
         const Real sigma_E = (Pb - Pm) / (delta.x + phi);
-        Enter[j][J->upper].x = Pm + two_delta.x * sigma_E;
+        E1[j][J->upper].x = Pm + two_delta.x * sigma_E;
     }
 }
 
@@ -36,7 +36,7 @@ void Workspace:: LeaveX(const Junction *K, unit_t j)
         const Real psi   = Xi - K->value; assert(psi>=0);
         const Real Pb    = K->pressure;
         const Real sigma_L = (Pp - Pb) / (delta.x + psi);
-        Leave[j][K->lower].x = Pp - two_delta.x *sigma_L;
+        L1[j][K->lower].x = Pp - two_delta.x *sigma_L;
     }
 }
 
@@ -56,8 +56,8 @@ void Workspace:: AloneX(const Junction *J, const Junction *K, unit_t j)
     assert(J->upper == K->lower);
     
     const Real fac= two_delta.x / (K->value - J->value);
-    Leave[j][J->lower].x = J->pressure * fac;
-    Enter[j][K->upper].x = K->pressure * fac;
+    L1[j][J->lower].x = J->pressure * fac;
+    E1[j][K->upper].x = K->pressure * fac;
     
     
 }
@@ -167,7 +167,7 @@ void Workspace:: EnterY(const Junction *J, unit_t i)
         const Real Yj  = Y[j];
         const Real phi = J->value - Yj; assert(phi>=0);
         const Real Pb  = J->pressure;
-        Enter[J->upper][i].y = Pm + two_delta.y * (Pb - Pm) / (delta.y + phi);
+        E1[J->upper][i].y = Pm + two_delta.y * (Pb - Pm) / (delta.y + phi);
     }
 }
 
@@ -186,7 +186,7 @@ void Workspace:: LeaveY(const Junction *K, unit_t i)
         const Real Yj  = Y[j];
         const Real psi = Yj - K->value; assert(psi>=0);
         const Real Pb  = K->pressure;
-        Leave[K->lower][i].y = Pp + two_delta.y * (Pb - Pp) / (delta.y + psi );
+        L1[K->lower][i].y = Pp + two_delta.y * (Pb - Pp) / (delta.y + psi );
     }
 }
 
@@ -208,9 +208,9 @@ void Workspace:: AloneY(const Junction *J, const Junction *K, unit_t i)
     assert(B[J->lower][i]>=0); // since J is active
     
     const Real fac= two_delta.y / (K->value - J->value);
-    Leave[J->lower][i].y = J->pressure * fac;
-    Enter[K->upper][i].y = K->pressure * fac;
-    
+    E1[K->upper][i].y = K->pressure * fac;
+    L1[J->lower][i].y = J->pressure * fac;
+
 }
 
 

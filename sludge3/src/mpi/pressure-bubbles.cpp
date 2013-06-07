@@ -27,8 +27,8 @@ void Workspace:: pressurize_bubbles()
                 assert(which<bpres.size());
                 P[j][i] = bpres[ which+1 ];
             }
-            Enter[j][i].x = Enter[j][i].y =
-            Leave[j][i].x = Leave[j][i].y = P[j][i];
+            E1[j][i].x = E1[j][i].y =
+            L1[j][i].x = L1[j][i].y = P[j][i];
         }
     }
 }

@@ -55,10 +55,10 @@ int Workspace:: update_pressure(const mpi &MPI,
             if(B[j][i]<0)
             {
                 const Real P_center  = P[j][i];
-                const Real P_left    = Leave[j][i-1].x;
-                const Real P_right   = Enter[j][i+1].x;
-                const Real P_bottom  = Leave[j-1][i].y;
-                const Real P_top     = Enter[j+1][i].y;
+                const Real P_left    = L2[j][i-1].x;
+                const Real P_right   = E2[j][i+1].x;
+                const Real P_bottom  = L2[j-1][i].y;
+                const Real P_top     = E2[j+1][i].y;
                 const Real mid       = -(P_center+P_center);
                 const Real Laplacian = (P_left+mid+P_right) * order2fac.x + (P_bottom+mid+P_top) * order2fac.y;
                 const Real residue   = (Laplacian);
@@ -90,11 +90,11 @@ int Workspace:: update_pressure(const mpi &MPI,
         if(B[j][i1]>=0)
         {
             // order 1 setting
-            P[j][i0] = Enter[j][i1].x;
+            P[j][i0] = E1[j][i1].x;
         }
         else
         {
-            P[j][i0] = (4.0 * P[j][i1] - Enter[j][i2].x) / 3.0;
+            P[j][i0] = (4.0 * P[j][i1] - E1[j][i2].x) / 3.0;
         }
     }
     
@@ -109,11 +109,11 @@ int Workspace:: update_pressure(const mpi &MPI,
 			if(B[j1][i]>=0)
 			{
 				// order 1 setting
-				P[j0][i] = Enter[j1][i].y;
+				P[j0][i] = E1[j1][i].y;
 			}
 			else
 			{
-				P[j0][i] = (4.0 * P[j1][i] - Enter[j2][i].y)/3.0;
+				P[j0][i] = (4.0 * P[j1][i] - E1[j2][i].y)/3.0;
 			}
 		}
 		P[j0][i0] = (P[j1][i0] + P[j0][i1])/2;
@@ -130,11 +130,11 @@ int Workspace:: update_pressure(const mpi &MPI,
 			if(B[j1][i]>=0)
 			{
 				// order 1 setting
-				P[j0][i] = Leave[j1][i].y;
+				P[j0][i] = L1[j1][i].y;
 			}
 			else
 			{
-				P[j0][i] = (4.0 * P[j1][i] - Leave[j2][i].y)/3.0;
+				P[j0][i] = (4.0 * P[j1][i] - L1[j2][i].y)/3.0;
 			}
 		}
 		P[j0][i0] = (P[j1][i0] + P[j0][i1])/2;

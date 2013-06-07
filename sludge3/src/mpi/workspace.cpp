@@ -18,8 +18,10 @@ Y( mesh.Y() ),
 P( (*this)["P"].as<Array>() ),
 B( (*this)["B"].as<Array>() ),
 gradP( (*this)["gradP"].as<VertexArray>() ),
-Enter( (*this)["Enter"].as<VertexArray>() ),
-Leave( (*this)["Leave"].as<VertexArray>() ),
+E1( (*this)["E1"].as<VertexArray>() ),
+L1( (*this)["L1"].as<VertexArray>() ),
+E2( (*this)["E2"].as<VertexArray>() ),
+L2( (*this)["L2"].as<VertexArray>() ),
 DeltaP( (*this)["DeltaP"].as<Array>() )
 {
     
