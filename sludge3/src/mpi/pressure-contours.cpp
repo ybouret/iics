@@ -11,12 +11,22 @@ void Workspace:: EnterX(const Junction *J, unit_t j)
     assert(B[j][J->upper]>=0); // in bubble since J->active
     if(i>=bulk_imin)
     {
-        const Real Pm  = P[j][i-1];
-        const Real Xi  = X[i];
-        const Real phi = J->value - Xi; assert(phi>=0);
-        const Real Pb  = J->pressure;
-        const Real sigma_E = (Pb - Pm) / (delta.x + phi);
-        E1[j][J->upper].x = Pm + two_delta.x * sigma_E;
+        const unit_t im    = i-1;
+        const unit_t ip    = i+1;
+        const Real   P_im  = P[j][im];
+        const Real   Xi    = X[i];
+        const Real   phi   = J->value - Xi; assert(phi>=0);
+        const Real   P_phi = J->pressure;
+        const Real   sigma = (P_phi - P_im) / (delta.x + phi);
+        E1[j][ip].x        = P_im + two_delta.x * sigma;
+        
+        const Real P_i     = P[j][i];
+        const Real phi2    = phi * phi;
+        const Real dx      = delta.x;
+        const Real dx2     = delta.x * delta.x;
+        const Real num     = dx2 * (P_im - P_i + dx * sigma ) + phi2 * ( P_phi - P_i - phi * sigma );
+        const Real K       = (num+num) / ( dx2*dx2 + phi2*phi2);
+        E2[j][ip].x        = (P_i+P_i) - P_im + dx2 * K;
     }
 }
 
@@ -31,12 +41,22 @@ void Workspace:: LeaveX(const Junction *K, unit_t j)
     const unit_t i = K->upper;
     if(i<=bulk_imax)
     {
-        const Real Pp    = P[j][i+1];
-        const Real Xi    = X[i];
-        const Real psi   = Xi - K->value; assert(psi>=0);
-        const Real Pb    = K->pressure;
-        const Real sigma_L = (Pp - Pb) / (delta.x + psi);
-        L1[j][K->lower].x = Pp - two_delta.x *sigma_L;
+        const unit_t ip    = i+1;
+        const unit_t im    = i-1;
+        const Real   P_ip  = P[j][ip];
+        const Real   Xi    = X[i];
+        const Real   psi   = Xi - K->value; assert(psi>=0);
+        const Real   P_psi = K->pressure;
+        const Real   sigma = (P_ip - P_psi) / (delta.x + psi);
+        L1[j][im].x        = P_ip - two_delta.x *sigma;
+        
+        const Real  P_i    = P[j][i];
+        const Real  psi2   = psi * psi;
+        const Real  dx     = delta.x;
+        const Real  dx2    = delta.x * delta.x;
+        const Real  num    = dx2 * ( P_ip - P_i - dx * sigma) + psi2 * (P_psi - P_i + psi * sigma );
+        const Real  K      = (num+num)/(dx2*dx2+psi2*psi2);
+        L2[j][im].x        = (P_i+P_i) - P_ip + dx2 * K;
     }
 }
 
@@ -306,6 +326,8 @@ void Workspace:: pressurize_vert()
 void Workspace:: pressurize_contours()
 {
     
+    E2.ldz();
+    L2.ldz();
     
     pressurize_horz();
     pressurize_vert();
