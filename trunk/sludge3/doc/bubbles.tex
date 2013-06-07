@@ -190,6 +190,8 @@ $$
 	\partial_x P_i = \dfrac{P^{E_1}_{i+1} - P^{L_1}_{i-1}}{2\delta_x}
 $$
 
+For each dimension, we need two extra arrays.
+
 \subsection{Second order}
 With the respective assumptions of the previous paragraph….
 \begin{enumerate}
@@ -221,17 +223,56 @@ is
 $$
 	P(x) = P_i + \sigma_i^L \left(x-x_i\right) + \frac{1}{2} K_i^L \left(x-x_i\right)^2.
 $$
-A good estimation of $K_i^E$, avoiding all singularities, is to use the least square solution,
+A good estimation of $K_i^L$, avoiding all singularities, is to use the least square solution,
 leading to
 $$
-	K_i^L = 
+	K_i^L = \dfrac{2}{\psi^4+\delta_x^4}
+	\left\lbrack
+		\psi^2\left(P_\psi - P_i + \psi \sigma_i^L\right) +
+		\delta_x^2\left(P_{i+1}-P_i - \delta_x \sigma_i^L\right)
+	\right\rbrack
 $$
-
+We can define an \textbf{Order 2 Horizontal Leaving Pressure} $P^{L_2}$ by
+$$
+	\partial_x^2 P_i = \dfrac{ 
+	P^{L_2}_{i-1}
+	-2P_i 
+	+ P_{i+1}
+	}
+	{\delta_x^2}
+	 = K_i^L
+$$
+and
+$$
+	P^{L_2}_{i-1} = \delta_x^2 K_i^L + 2P_i - P_{i+1}
+$$
 \item
-
+Since we assume that $\sigma_i$ is the slope at $x_i$ trapped between two bubbles,
+$$
+	P(x) = P_i + \sigma_i \left(x-x_i\right) + \dfrac{1}{2} K_i  \left(x-x_i\right)^2
+$$
+we find
+$$
+	K_i = \dfrac{2}{\psi^4+\phi^4}
+	\left\lbrack
+	\psi^2\left(P_\psi - P_i + \psi \sigma_i \right) + 
+	\phi^2\left(P_\phi - P_i - \phi \sigma_i \right)
+	\right\rbrack.
+$$
+We need to compute the leaving and entering pressure by
+$$
+	\partial_x^2 P_i = \dfrac{P^{L_2}_{i-1} - 2P_i + P^{E_2}_{i+1}}{\delta_x^2} = K_i.
+$$
+Setting
+$$
+	P^{L_2}_{i-1} = P^{E_2}_{i+1} = P_i + \dfrac{\delta_x^2}{2} K_i
+$$
+solves the problem.
 \end{enumerate}
 
-The same method can be applied near the wall for order 1 gradient estimation.\\
 For one dimension, we need two auxiliary pressure fields when a bulk/bubble intersection is met.
+
+\subsection{Conclusion}
+
 
 \end{document}

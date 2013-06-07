@@ -37,8 +37,10 @@ bulk_jmax( sim_layout.upper.y - (MPI.IsFinal ? 1 : 0 ) )
     Y_SPADE_FIELD(F, "P", Array);
     Y_SPADE_FIELD(F, "B", Array);
     Y_SPADE_FIELD(F, "gradP", VertexArray);
-    Y_SPADE_FIELD(F, "Enter", VertexArray);
-    Y_SPADE_FIELD(F, "Leave", VertexArray);
+    Y_SPADE_FIELD(F, "E1", VertexArray);
+    Y_SPADE_FIELD(F, "L1", VertexArray);
+    Y_SPADE_FIELD(F, "E2", VertexArray);
+    Y_SPADE_FIELD(F, "L2", VertexArray);
     Y_SPADE_FIELD(F, "DeltaP", Array);
     
     
