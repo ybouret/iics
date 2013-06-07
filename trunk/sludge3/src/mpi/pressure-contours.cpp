@@ -75,10 +75,28 @@ void Workspace:: AloneX(const Junction *J, const Junction *K, unit_t j)
     assert(B[j][K->upper]>=0); // since K->active
     assert(J->upper == K->lower);
     
-    const Real fac= two_delta.x / (K->value - J->value);
-    L1[j][J->lower].x = J->pressure * fac;
-    E1[j][K->upper].x = K->pressure * fac;
+    const unit_t i     = J->upper;
+    const unit_t im    = i-1;
+    const unit_t ip    = i+1;
+    const Real   Xi    = X[i];
+    const Real   phi   = K->value - Xi; assert(phi>=0);
+    const Real   psi   = Xi - J->value; assert(psi>=0);
+    const Real   P_phi = K->pressure;
+    const Real   P_psi = J->pressure;
+    const Real   ilen  = 1/(phi+psi);
+    const Real   sigma = (P_phi-P_psi) * ilen;
+    const Real   fac   = two_delta.x   * ilen;
+    L1[j][im].x = P_psi * fac;
+    E1[j][ip].x = P_phi * fac;
     
+    const Real P_i  = P[j][i];
+    const Real phi2 = phi*phi;
+    const Real psi2 = psi*psi;
+    const Real num  = psi2*(P_psi - P_i + psi * sigma) + phi2 *(P_phi - P_i - phi * sigma);
+    const Real Ki   = (num+num)/(phi2*phi2+psi2*psi2);
+    const Real Peff = P_i + 0.5 * delta.x*delta.x * Ki;
+    L2[j][im].x = Peff;
+    E2[j][ip].x = Peff;
     
 }
 
