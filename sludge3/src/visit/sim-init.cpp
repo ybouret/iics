@@ -11,7 +11,7 @@ void Simulation:: init_one_bubble( const char *kind )
         bubbles.auto_delete();
         const string flag(kind);
         
-        const Real radius = min_of( full_region.length.x, full_region.length.y)/3;
+        Real radius = min_of( full_region.length.x, full_region.length.y)/3;
         {
             const Vertex center = full_region.vmin + 0.5 * full_region.length;
             Bubble *b = bubbles.append();
@@ -25,7 +25,18 @@ void Simulation:: init_one_bubble( const char *kind )
             
             if(flag == "sq")
             {
-                 Shape::Square(b, center, radius);
+                Shape::Square(b, center, radius);
+                goto PREPARE;
+            }
+            
+            if( flag == "2" )
+            {
+                radius /= 2;
+                const Vertex lo = full_region.vmin + 0.25 * full_region.length;
+                Shape::Blob(b, lo, radius, 0.4 + 0.55 * alea<Real>(), 0.1 + 0.8 * alea<Real>() );
+                
+                const Vertex up = full_region.vmin + 0.75 * full_region.length;
+                Shape::Blob(bubbles.append(), up, radius, 0.4 + 0.55 * alea<Real>(), 0.1 + 0.8 * alea<Real>() );
                 goto PREPARE;
             }
             
