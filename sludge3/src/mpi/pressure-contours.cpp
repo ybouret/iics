@@ -270,7 +270,7 @@ void Workspace:: AloneY(const Junction *J, const Junction *K, unit_t i)
     assert(B[K->upper][i]>=0); // since K is active
     assert(B[J->lower][i]>=0); // since J is active
     
-    const unit_t j = J->upper;
+    const unit_t j  = J->upper;
     const unit_t jm = j-1;
     const unit_t jp = j+1;
     
@@ -286,12 +286,12 @@ void Workspace:: AloneY(const Junction *J, const Junction *K, unit_t i)
     L1[jm][i].y = P_psi * fac;
     E1[jp][i].y = P_phi * fac;
     
-    const Real P_j  = P[j][i];
+    const Real P_j   = P[j][i];
     const Real psi2  = psi * psi;
     const Real phi2  = phi * phi;
-    const Real num  = psi2*(P_psi - P_j + psi * sigma) + phi2 * (P_phi - P_j -phi *sigma);
-    const Real Kj   = (num+num) / ( phi2*phi2 + psi2*psi2);
-    const Real Peff = P_j + 0.5 * delta.y * delta.y * Kj;
+    const Real num   = psi2*(P_psi - P_j + psi * sigma) + phi2 * (P_phi - P_j -phi *sigma);
+    const Real Kj    = (num+num) / ( phi2*phi2 + psi2*psi2);
+    const Real Peff  = P_j + 0.5 * delta.y * delta.y * Kj;
     
     L2[jm][i].y = Peff;
     E2[jp][i].y = Peff;

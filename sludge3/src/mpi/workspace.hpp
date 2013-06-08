@@ -70,6 +70,9 @@ public:
     void compute_pressure( const mpi &MPI, const Real ftol );
     
     
+    void compute_laplacian();
+    
+    
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Workspace);
     vector<Real> bpres; //!< bubble pressures

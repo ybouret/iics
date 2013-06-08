@@ -342,6 +342,8 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
         }
     }
     
+    
+    
     if(cmd == "dy")
     {
         if( args.size() >= 1 )
@@ -358,6 +360,8 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
             fast_update();
         }
     }
+    
+    
     
     if(cmd == "grow" )
     {
@@ -376,6 +380,25 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
         }
     }
     
+    
+    if(cmd == "rot" )
+    {
+        if( args.size() >= 1 )
+        {
+            
+            if(MPI.IsFirst)
+            {
+                const Real angle = strconv::to<Real>(args[1],"angle");
+                for(Bubble *b=bubbles.head;b;b=b->next)
+                {
+                    Shape::Rotate(b, angle*numeric<Real>::pi/180.0);
+                }
+            }
+            fast_update();
+        }
+    }
+    
+
     
     const Real ftol = 1e-5;
     if(cmd == "rb" )
@@ -416,4 +439,16 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
             junctions.save_all( "j" + MPI.CommWorldID);
         }
     }
+    
+       
+    if( cmd == "zp" )
+    {
+        P.ldz();
+        pressurize_bubbles();
+        pressurize_contours();
+        compute_gradP(MPI);
+        compute_laplacian();
+    }
+    
+    
 }
