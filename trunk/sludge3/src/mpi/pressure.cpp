@@ -1,5 +1,32 @@
 #include "workspace.hpp"
 
+void Workspace:: compute_laplacian( )
+{
+    DeltaP.ldz();
+    for(unit_t j=bulk_jmin;j<=bulk_jmax;++j)
+    {
+        const unit_t jm = j-1;
+        const unit_t jp = j+1;
+        for( unit_t i=bulk_imin; i <= bulk_imax; ++i )
+        {
+            if(B[j][i]<0)
+            {
+                const Real P_center  = P[j][i];
+                const Real P_left    = L2[j][i-1].x;
+                const Real P_right   = E2[j][i+1].x;
+                const Real P_bottom  = L2[jm][i].y;
+                const Real P_top     = E2[jp][i].y;
+                const Real mid       = -(P_center+P_center);
+                const Real Laplacian = (P_left+mid+P_right) * order2fac.x + (P_bottom+mid+P_top) * order2fac.y;
+                DeltaP[j][i] = Laplacian;
+            }
+            
+        }
+        
+    }
+
+}
+
 void Workspace:: compute_pressure( const mpi &MPI, const Real ftol )
 {
     const int target = MPI.CommWorldSize;
