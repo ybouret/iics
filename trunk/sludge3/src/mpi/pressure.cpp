@@ -94,7 +94,7 @@ int Workspace:: update_pressure(const mpi &MPI,
                 const Real mid       = -(P_center+P_center);
                 const Real Laplacian = (P_left+mid+P_right) * order2fac.x + (P_bottom+mid+P_top) * order2fac.y;
                 const Real residue   = (Laplacian);
-                const Real dP        = residue * rb_factor;
+                const Real dP        = residue / W[j][i];
                 
                 P[j][i] -= dP;
                 

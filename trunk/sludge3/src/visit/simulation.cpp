@@ -54,6 +54,11 @@ void Simulation:: get_meta_data(visit_handle &md) const
     //! append Leave on grid
     VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Vertex>("L2", "grid"));
     
+    //! append W on grid
+    VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Real>("W", "grid"));
+
+    VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Real>("Bulk", "grid"));
+
     
     //! append DeltaP on grid
     VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Real>("DeltaP", "grid"));
@@ -224,6 +229,29 @@ visit_handle Simulation:: get_variable( int domain, const string &name ) const
             VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, DeltaP.entry);
         }
     }
+    
+    if( name == "W" )
+    {
+        const int nComponents= 1;
+        const int nTuples    = W.items;
+        assert(W.entry!=NULL);
+        if(VisIt_VariableData_alloc(&h) == VISIT_OKAY)
+        {
+            VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, W.entry);
+        }
+    }
+    
+    if( name == "Bulk" )
+    {
+        const int nComponents= 1;
+        const int nTuples    = Bulk.items;
+        assert(Bulk.entry!=NULL);
+        if(VisIt_VariableData_alloc(&h) == VISIT_OKAY)
+        {
+            VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, Bulk.entry);
+        }
+    }
+
     
     
     return h;

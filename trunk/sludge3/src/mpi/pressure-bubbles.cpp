@@ -21,11 +21,13 @@ void Workspace:: pressurize_bubbles()
         for(unit_t i=outline.lower.x;i<=outline.upper.x;++i)
         {
             const Real which = B[j][i];
+            W[j][i] = rb_weight;
             if( which >= 0 )
             {
                 assert(which<bubbles.size);
                 assert(which<bpres.size());
                 P[j][i] = bpres[ which+1 ];
+                W[j][i] = 1;
             }
             E1[j][i].x = E1[j][i].y =
             L1[j][i].x = L1[j][i].y =

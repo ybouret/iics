@@ -28,7 +28,8 @@ public:
     VertexArray   &L1;  //!< pressure when leaving  a bubble along x or y, first order
     VertexArray   &E2;  //!< pressure when entering a bubble along x or y, second order
     VertexArray   &L2;  //!< pressure when entering a bubble along x or y, second order
-
+    Array         &W;   //!< Weight of the P[j][i] factor in the Poisson equation
+    Array         &Bulk; //!< number of bulk around another bulk
     Array         &DeltaP; //!< store laplacian pressure to check...
     bool           right_wall; //!< default: false
     Real           P_user;     //!< default: 0.5
@@ -37,7 +38,7 @@ public:
     void validate_bubbles(const mpi &MPI);
     void broadcast_bubbles(const mpi &MPI);
     
-    //! perform the segmentation in B field
+    //! perform the segmentation in B field and compute the bulk field
     void segment();
     
     

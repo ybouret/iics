@@ -29,7 +29,7 @@ public:
     const Vertex   inv_delta; //!< 1/delta
     const Vertex   order1fac; //!< 1/two_delta
     const Vertex   order2fac; //!< 1/delta.x^2,1/delta.y^2
-    const Real     rb_factor; //!< factor for Red/Black
+    const Real     rb_weight; //!< (-2/delta.x^2) + (-2/delta.y^2) 
     const Region2D full_region;
     const Region2D sim_region;
     const unit_t   bulk_imin;

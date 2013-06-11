@@ -16,7 +16,7 @@ inv_delta( 1/delta.x,           1/delta.y      ),
 order1fac( 1/two_delta.x,       1/two_delta.y  ),
 order2fac( 1/(delta.x*delta.x), 1/(delta.y*delta.y) ),
 
-rb_factor( 1/( (-2.0*order2fac.x) + (-2.0*order2fac.y) ) ),
+rb_weight( (-2.0*order2fac.x) + (-2.0*order2fac.y) ),
 
 full_region( Vertex(0,0), Q ),
 sim_region( Vertex(0, sim_layout.lower.y * delta.y), Vertex(Q.x,sim_layout.upper.y*delta.y) ),
@@ -29,7 +29,7 @@ bulk_jmax( sim_layout.upper.y - (MPI.IsFinal ? 1 : 0 ) )
     MPI.Printf(stderr, "Full Layout: (%ld,%ld) -> (%ld,%ld)\n", full_layout.lower.x, full_layout.lower.y, full_layout.upper.x, full_layout.upper.y);
     MPI.Printf(stderr, "Sim  Layout: (%ld,%ld) -> (%ld,%ld)\n", sim_layout.lower.x, sim_layout.lower.y, sim_layout.upper.x, sim_layout.upper.y);
     MPI.Printf(stderr, "Sim  Region: [%g %g]' --> [%g %g]'\n", sim_region.vmin.x, sim_region.vmin.y, sim_region.vmax.x, sim_region.vmax.y);
-    MPI.Printf(stderr, "Red/Black Factor= %g\n", rb_factor);
+    MPI.Printf(stderr, "Red/Black Factor= %g\n", 1/rb_weight);
     
     //==========================================================================
     // prepare fields
@@ -42,7 +42,8 @@ bulk_jmax( sim_layout.upper.y - (MPI.IsFinal ? 1 : 0 ) )
     Y_SPADE_FIELD(F, "E2", VertexArray);
     Y_SPADE_FIELD(F, "L2", VertexArray);
     Y_SPADE_FIELD(F, "DeltaP", Array);
-    
+    Y_SPADE_FIELD(F, "W", Array);
+    Y_SPADE_FIELD(F, "Bulk", Array);
     
     //==========================================================================
     // MPI connectivity
