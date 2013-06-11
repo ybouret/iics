@@ -1,10 +1,25 @@
 #include "visit/simulation.hpp"
 #include "yocto/code/rand.hpp"
+#include "yocto/string/conv.hpp"
 
 int main( int argc, char *argv[] )
 {
     try
     {
+        size_t Nx = 40;
+        size_t Ny = 60;
+        
+        if( argc > 1 )
+        {
+            Nx = strconv::to<size_t>( argv[1], "Nx" );
+            if( argc <= 2)
+                Ny = Nx;
+        }
+        
+        if( argc > 2 )
+            Ny = strconv::to<size_t>( argv[2], "Ny" );
+        
+        
         _rand.wseed();
         //----------------------------------------------------------------------
         //info for VisIt
@@ -29,7 +44,7 @@ int main( int argc, char *argv[] )
         //----------------------------------------------------------------------
         // Setup simulation
         //----------------------------------------------------------------------
-        Simulation sim(MPI, Coord(40,60), Vertex(10,10) );
+        Simulation sim(MPI, Coord(Nx,Ny), Vertex(10,10) );
         
         __Grid::SaveDat( sim.mesh, "grid" + MPI.CommWorldID + ".dat");
         

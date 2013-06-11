@@ -22,6 +22,8 @@ E1( (*this)["E1"].as<VertexArray>() ),
 L1( (*this)["L1"].as<VertexArray>() ),
 E2( (*this)["E2"].as<VertexArray>() ),
 L2( (*this)["L2"].as<VertexArray>() ),
+W( (*this)["W"].as<Array>() ),
+Bulk( (*this)["Bulk"].as<Array>() ),
 DeltaP( (*this)["DeltaP"].as<Array>() ),
 right_wall(false),
 P_user(0.5)
@@ -82,4 +84,30 @@ void Workspace:: segment()
 {
     junctions.load(bubbles);
     junctions.segment(B);
+    
+    
+    for( unit_t j=outline.lower.y;j<=outline.upper.y;++j)
+    {
+        const unit_t jm = j-1;
+        const unit_t jp = j+1;
+        for(unit_t i = outline.lower.x; i <= outline.upper.x; ++i)
+        {
+            if( B[j][i] >= 0 )
+            {
+                // in bubble
+                Bulk[j][i]  = -1;
+            }
+            else
+            {
+                Real &bulk = Bulk[j][i];
+                bulk = 0;
+                if(j>outline.lower.y && B[jm][i]  < 0 ) ++bulk;
+                if(j<outline.upper.y && B[jp][i]  < 0 ) ++bulk;
+                if(i>outline.lower.x && B[j][i-1] < 0 ) ++bulk;
+                if(i<outline.upper.x && B[j][i+1] < 0 ) ++bulk;
+            }
+        }
+    }
+    
+    
 }
