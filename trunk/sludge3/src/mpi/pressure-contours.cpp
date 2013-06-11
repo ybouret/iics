@@ -17,16 +17,18 @@ void Workspace:: EnterX(const Junction *J, unit_t j)
         const Real   Xi    = X[i];
         const Real   phi   = J->value - Xi; assert(phi>=0);
         const Real   P_phi = J->pressure;
-        const Real   sigma = (P_phi - P_im) / (delta.x + phi);
+        const Real   L     = delta.x + phi;
+        const Real   sigma = (P_phi - P_im) / L;
         E1[j][ip].x        = P_im + two_delta.x * sigma;
         
+        
         const Real P_i     = P[j][i];
-        const Real phi2    = phi * phi;
+        const Real h       = L/2;
         const Real dx      = delta.x;
-        const Real dx2     = delta.x * delta.x;
-        const Real num     = dx2 * (P_im - P_i + dx * sigma ) + phi2 * ( P_phi - P_i - phi * sigma );
-        const Real K       = (num+num) / ( dx2*dx2 + phi2*phi2);
-        E2[j][ip].x        = (P_i+P_i) - P_im + dx2 * K;
+        const Real Peff    = (h*P_i + (dx-h) * P_im)/dx;
+        const Real d2P     = P_im - (Peff+Peff) + P_phi;
+        const Real fac     = dx/h;
+        E2[j][ip].x        = (P_i+P_i) - P_im + fac*fac * d2P;
     }
 }
 
@@ -47,16 +49,17 @@ void Workspace:: LeaveX(const Junction *K, unit_t j)
         const Real   Xi    = X[i];
         const Real   psi   = Xi - K->value; assert(psi>=0);
         const Real   P_psi = K->pressure;
+        const Real   L     = (delta.x+psi);
         const Real   sigma = (P_ip - P_psi) / (delta.x + psi);
         L1[j][im].x        = P_ip - two_delta.x *sigma;
         
         const Real  P_i    = P[j][i];
-        const Real  psi2   = psi * psi;
+        const Real  h      = L/2;
         const Real  dx     = delta.x;
-        const Real  dx2    = delta.x * delta.x;
-        const Real  num    = dx2 * ( P_ip - P_i - dx * sigma) + psi2 * (P_psi - P_i + psi * sigma );
-        const Real  K      = (num+num)/(dx2*dx2+psi2*psi2);
-        L2[j][im].x        = (P_i+P_i) - P_ip + dx2 * K;
+        const Real  Peff   = (h*P_i + (dx-h) * P_ip)/dx;
+        const Real  d2P    = P_psi - (Peff+Peff) + P_ip;
+        const Real  fac    = dx/h;
+        L2[j][im].x        = (P_i+P_i) - P_ip + fac*fac*d2P;
     }
 }
 
@@ -83,20 +86,29 @@ void Workspace:: AloneX(const Junction *J, const Junction *K, unit_t j)
     const Real   psi   = Xi - J->value; assert(psi>=0);
     const Real   P_phi = K->pressure;
     const Real   P_psi = J->pressure;
-    const Real   ilen  = 1/(phi+psi);
-    const Real   sigma = (P_phi-P_psi) * ilen;
-    const Real   fac   = two_delta.x   * ilen;
-    L1[j][im].x = P_psi * fac;
-    E1[j][ip].x = P_phi * fac;
+    const Real   L     = phi+psi;
+    const Real   scale = two_delta.x/L;
+    L1[j][im].x = P_psi * scale;
+    E1[j][ip].x = P_phi * scale;
     
     const Real P_i  = P[j][i];
-    const Real phi2 = phi*phi;
-    const Real psi2 = psi*psi;
-    const Real num  = psi2*(P_psi - P_i + psi * sigma) + phi2 *(P_phi - P_i - phi * sigma);
-    const Real Ki   = (num+num)/(phi2*phi2+psi2*psi2);
-    const Real Peff = P_i + 0.5 * delta.x*delta.x * Ki;
-    L2[j][im].x = Peff;
-    E2[j][ip].x = Peff;
+    const Real h    = L/2;
+    Real       Peff = P_i;
+    if( phi > psi )
+    {
+        Peff = (h * P_i + (phi - h) * P_phi) / phi;
+    }
+    else
+    {
+        if(psi > phi )
+        {
+            Peff = (h*P_i + (psi-h) * P_psi) / psi;
+        }
+    }
+    const Real fac = delta.x/h;
+    const Real d2P = P_psi - (Peff+Peff) + P_phi;
+    L2[j][im].x = 
+    E2[j][ip].x = P_i + 0.5 * fac * fac * d2P;
     
 }
 
@@ -208,17 +220,17 @@ void Workspace:: EnterY(const Junction *J, unit_t i)
         const Real phi    = J->value - Yj; assert(phi>=0);
         const Real P_phi  = J->pressure;
         const Real dy     = delta.y;
-        const Real sigma  = (P_phi - P_jm) / (phi+dy);
+        const Real L      = dy+phi;
+        const Real sigma  = (P_phi - P_jm) / L;
         
         E1[jp][i].y       = P_jm + two_delta.y * sigma;
         
         const Real P_j  = P[j][i];
-        const Real phi2 = phi * phi;
-        const Real dy2  = dy * dy;
-        const Real num  = dy2 * (P_jm - P_j + dy * sigma ) + phi2 * (P_phi - P_j - phi * sigma );
-        const Real K    = (num+num) / ( phi2*phi2 + dy2*dy2 );
-        
-        E2[jp][i].y     = (P_j+P_j) - P_jm + dy2 * K;
+        const Real h    = L/2;
+        const Real Peff = (h*P_j + (dy-h)*P_jm) / dy;
+        const Real d2P  = P_jm - (Peff+Peff) + P_phi;
+        const Real fac  = dy/h;
+        E2[jp][i].y     = (P_j+P_j) - P_jm + fac*fac * d2P;
     }
 }
 
@@ -229,7 +241,7 @@ void Workspace:: LeaveY(const Junction *K, unit_t i)
     assert(K->active);
     assert(Bubble::IsBefore == K->b_pos);
     assert(B[K->lower][i]>=0); //since K->active
-
+    
     const unit_t j = K->upper;
     if(j<=bulk_jmax)
     {
@@ -240,16 +252,16 @@ void Workspace:: LeaveY(const Junction *K, unit_t i)
         const Real   psi   = Yj - K->value; assert(psi>=0);
         const Real   P_psi = K->pressure;
         const Real   dy    = delta.y;
-        const Real   sigma = (P_jp - P_psi) / (dy+psi);
+        const Real   L     = dy+psi;
+        const Real   sigma = (P_jp - P_psi) /L;
         L1[jm][i].y = P_jp - two_delta.y * sigma;
         
         const Real   P_j  = P[j][i];
-        const Real   dy2  = dy  * dy;
-        const Real   psi2 = psi * psi;
-        const Real   num  = psi2 * ( P_psi - P_j + psi * sigma ) + dy2 * (P_jp - P_j - dy * sigma);
-        const Real   K    = (num+num) / ( psi2*psi2 + dy2*dy2);
-        
-        L2[jm][i].y       = (P_j+P_j) - P_jp + dy2 * K;
+        const Real   h    = L/2;
+        const Real   Peff = (h*P_j + (dy-h) * P_jp)/dy;
+        const Real   d2P  = P_psi - (Peff+Peff) + P_jp;
+        const Real   fac  = dy/h;
+        L2[jm][i].y       = (P_j+P_j) - P_jp + fac*fac*d2P;
     }
 }
 
@@ -279,23 +291,35 @@ void Workspace:: AloneY(const Junction *J, const Junction *K, unit_t i)
     const Real P_phi = K->pressure;
     const Real psi   = Yj - J->value; assert(psi>=0);
     const Real P_psi = J->pressure;
-    const Real ilen  = 1/(phi+psi);
-    const Real sigma = (P_phi-P_psi) * ilen;
+    const Real L     = phi+psi;
     
-    const Real fac= two_delta.y * ilen;
-    L1[jm][i].y = P_psi * fac;
-    E1[jp][i].y = P_phi * fac;
+    const Real scale = two_delta.y/L;
+    L1[jm][i].y = P_psi * scale;
+    E1[jp][i].y = P_phi * scale;
     
     const Real P_j   = P[j][i];
-    const Real psi2  = psi * psi;
-    const Real phi2  = phi * phi;
-    const Real num   = psi2*(P_psi - P_j + psi * sigma) + phi2 * (P_phi - P_j -phi *sigma);
-    const Real Kj    = (num+num) / ( phi2*phi2 + psi2*psi2);
-    const Real Peff  = P_j + 0.5 * delta.y * delta.y * Kj;
+    const Real h     = L/2;
     
-    L2[jm][i].y = Peff;
-    E2[jp][i].y = Peff;
+    
+    Real       Peff = P_j;
+    if( phi > psi )
+    {
+        Peff = (h * P_j + (phi - h) * P_phi) / phi;
+    }
+    else
+    {
+        if(psi > phi )
+        {
+            Peff = (h*P_j + (psi-h) * P_psi) / psi;
+        }
+    }
+    const Real fac = delta.y/h;
+    const Real d2P = P_psi - (Peff+Peff) + P_phi;
 
+    
+    L2[jm][i].y = 
+    E2[jp][i].y = P_j + 0.5 * fac * fac *d2P;
+    
 }
 
 
@@ -384,19 +408,14 @@ void Workspace:: pressurize_vert()
         
         
     }
-
+    
 }
 
 
 void Workspace:: pressurize_contours()
 {
-    
-    //E2.ldz(); L2.ldz();
     pressurize_horz();
-    
-    //E2.ldz(); L2.ldz();
     pressurize_vert();
-    
 }
 
 
