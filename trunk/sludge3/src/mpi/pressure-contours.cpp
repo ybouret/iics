@@ -29,6 +29,9 @@ void Workspace:: EnterX(const Junction *J, unit_t j)
         const Real d2P     = P_im - (Peff+Peff) + P_phi;
         const Real fac     = dx/h;
         E2[j][ip].x        = (P_i+P_i) - P_im + fac*fac * d2P;
+        
+        W[j][i] -= weight.x;
+        W[j][i] += -2/(h*dx);
     }
 }
 
@@ -60,6 +63,10 @@ void Workspace:: LeaveX(const Junction *K, unit_t j)
         const Real  d2P    = P_psi - (Peff+Peff) + P_ip;
         const Real  fac    = dx/h;
         L2[j][im].x        = (P_i+P_i) - P_ip + fac*fac*d2P;
+        
+        
+        W[j][i] -= weight.x;
+        W[j][i] += -2/(h*dx);
     }
 }
 
@@ -94,15 +101,23 @@ void Workspace:: AloneX(const Junction *J, const Junction *K, unit_t j)
     const Real P_i  = P[j][i];
     const Real h    = L/2;
     Real       Peff = P_i;
+    W[j][i] -= weight.x;
+    
     if( phi > psi )
     {
         Peff = (h * P_i + (phi - h) * P_phi) / phi;
+        W[j][i] += -2/(phi*h);
     }
     else
     {
         if(psi > phi )
         {
             Peff = (h*P_i + (psi-h) * P_psi) / psi;
+            W[j][i] += -2/(psi*h);
+        }
+        else
+        {
+            W[j][i] += -2/(h*h);
         }
     }
     const Real fac = delta.x/h;
@@ -231,6 +246,9 @@ void Workspace:: EnterY(const Junction *J, unit_t i)
         const Real d2P  = P_jm - (Peff+Peff) + P_phi;
         const Real fac  = dy/h;
         E2[jp][i].y     = (P_j+P_j) - P_jm + fac*fac * d2P;
+        
+        W[j][i] -= weight.y;
+        W[j][i] += -2 / (dy*h);
     }
 }
 
@@ -262,6 +280,9 @@ void Workspace:: LeaveY(const Junction *K, unit_t i)
         const Real   d2P  = P_psi - (Peff+Peff) + P_jp;
         const Real   fac  = dy/h;
         L2[jm][i].y       = (P_j+P_j) - P_jp + fac*fac*d2P;
+        
+        W[j][i] -= weight.y;
+        W[j][i] += -2 / (dy*h);
     }
 }
 
@@ -302,15 +323,22 @@ void Workspace:: AloneY(const Junction *J, const Junction *K, unit_t i)
     
     
     Real       Peff = P_j;
+    W[j][i] -= weight.y;
     if( phi > psi )
     {
         Peff = (h * P_j + (phi - h) * P_phi) / phi;
+        W[j][i] += -2/(phi*h);
     }
     else
     {
         if(psi > phi )
         {
             Peff = (h*P_j + (psi-h) * P_psi) / psi;
+            W[j][i] += -2/(psi*h);
+        }
+        else
+        {
+            W[j][i] += -2/(h*h);
         }
     }
     const Real fac = delta.y/h;
