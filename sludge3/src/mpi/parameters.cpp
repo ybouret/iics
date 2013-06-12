@@ -16,7 +16,8 @@ inv_delta( 1/delta.x,           1/delta.y      ),
 order1fac( 1/two_delta.x,       1/two_delta.y  ),
 order2fac( 1/(delta.x*delta.x), 1/(delta.y*delta.y) ),
 
-rb_weight( (-2.0*order2fac.x) + (-2.0*order2fac.y) ),
+weight( -2*order2fac.y, -2*order2fac.y),
+rb_weight( weight.x + weight.y ),
 
 full_region( Vertex(0,0), Q ),
 sim_region( Vertex(0, sim_layout.lower.y * delta.y), Vertex(Q.x,sim_layout.upper.y*delta.y) ),

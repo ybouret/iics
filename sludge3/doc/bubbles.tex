@@ -140,37 +140,41 @@ an intersection with a bubble at $x_i+\phi$.
 The length of the segment
 is
 $$
-	L_i = \delta_x + \phi.
+	L = \delta_x + \phi.
 $$ 
 At this intersection, there is a pressure $P_\phi = P_{bubble} - \gamma \kappa_\phi$.
 The pressure gradient while \textbf{entering} the bubble can be estimated by
 $$
-	\sigma^E_i = \dfrac{P_\phi - P_{i-1}}{L_i}.
+	\sigma = \dfrac{P_\phi - P_{i-1}}{L}.
 $$
 We can define an \textbf{Order 1 Entering Pressure} $P^{E_1}$ by
 $$
-	\sigma^E_i = \dfrac{P^{E_1}_{i+1}-P_{i-1}}{2\delta_x} 
+	\sigma = \dfrac{P^{E_1}_{i+1}-P_{i-1}}{2\delta_x} 
 $$
 so that
 $$
-	P^{E_1}_{i+1} = P_{i-1} + 2\delta_x\sigma^E_i.
+	P^{E_1}_{i+1} = P_{i-1} + 2\delta_x\sigma.
 $$
-Using $h_i = \dfrac{L_i}{2}$, the pressure at the middle of the segment can be expressed as
+Using $h= \dfrac{L}{2}$, the pressure at the middle of the segment can be expressed as
 $$
 	P_{i,m}^E = \dfrac{1}{\delta_x} \left\lbrack
-	h_i P_i + \left(\delta_x - h_i\right) P_{i-1}
+	h P_i + \left(\delta_x - h\right) P_{i-1}
 	\right\rbrack
 $$
 We can define an \textbf{Order 2 Entering Pressure} $P^{E_2}$ by
 $$
-	\partial_x^2 P_i = \dfrac{P_{i-1} - 2P_{i,m}^E + P_\phi}{{h_i}^2} = \dfrac{P_{i-1}- 2P_i + P_{i+1}^{{E_2}}}{\delta_x^2}
+	\partial_x^2 P_i = \dfrac{P_{i-1} - 2P_{i,m}^E + P_\phi}{{h}^2} = \dfrac{P_{i-1}- 2P_i + P_{i+1}^{{E_2}}}{\delta_x^2}
 $$
 so that
 $$
-	P_{i+1}^{{E_2}} = 2P_i - P_{i-1} + \left(\dfrac{\delta_x}{h_i}\right)^2
+	P_{i+1}^{{E_2}} = 2P_i - P_{i-1} + \left(\dfrac{\delta_x}{h}\right)^2
 	\left(
 		P_{i-1} - 2P_{i,m}^E + P_\phi
 	\right)
+$$
+The contribution to the Gauss-Seidel Method is
+$$
+	-\dfrac{2}{h\delta_x}
 $$
 
 \subsection{Leaving Pressure Fields}
@@ -179,71 +183,75 @@ theres is an intersection with a bubble at $x_i-\psi$.
 At this intersection, there is a pressure $P_\psi=P_{bubble} - \gamma \kappa_\psi$.
 The length of the segment is
 $$
-	L^L_i = \psi+\delta_x
+	L = \psi+\delta_x
 $$
 The pressure gradient while \textbf{leaving} the bubble can be estimated by
 $$
-	\sigma^L_i = \dfrac{P_{i+1}-P_\psi}{L_i^L}.
+	\sigma = \dfrac{P_{i+1}-P_\psi}{L}.
 $$
 We can define an \textbf{Order 1 Leaving Pressure} $P^{L_1}$ by
 $$
-	\sigma^L_i = \dfrac{P_{i+1}-P^{L_1}_{i-1}}{2\delta_x}
+	\sigma = \dfrac{P_{i+1}-P^{L_1}_{i-1}}{2\delta_x}
 $$
 so that 
 $$
-	P^{L_1}_{i-1} = P_{i+1} - 2\delta_x \sigma^L_i.
+	P^{L_1}_{i-1} = P_{i+1} - 2\delta_x \sigma.
 $$
-Using $h_i = \dfrac{L_i}{2}$, the pressure at the middle of the segment can be estimated
+Using $h = \dfrac{L}{2}$, the pressure at the middle of the segment can be estimated
 by
 $$
 	P_{i,m}^L = \dfrac{1}{\delta_x} \left\lbrack
-	h_i P_i + \left(\delta_x - h_i\right) P_{i+1}
+	h P_i + \left(\delta_x - h\right) P_{i+1}
 	\right\rbrack.
 $$
 As previously, the \textbf{Order 2 Leaving Pressure} $P^{L_2}$ is
 defined by
 $$
-	P_{i-1}^{L_2} = 2P_i - P_{i+1} + \left(\dfrac{\delta_x}{h_i}\right)^2
+	P_{i-1}^{L_2} = 2P_i - P_{i+1} + \left(\dfrac{\delta_x}{h}\right)^2
 	\left(
 		P_\psi - 2P_{i,m}^L + P_{i+1}
 	\right)
+$$
+The contribution to the Gauss-Seidel weight is
+$$
+	-\dfrac{2}{\delta_x h}
 $$
 
 \subsection{Pinched Pressure Fields}
 Let us assume that the point $x_i$ is between two bubbles at $x_i+\phi$ and $x_i-\psi$.
 We have a segment length 
 $$
-	L_i = \phi + \psi 
+	L = \phi + \psi 
 $$
 and a gradient
 $$
-	\sigma_i = \dfrac{P_\phi - P_\psi}{Li}
+	\sigma_i = \dfrac{P_\phi - P_\psi}{L}
 $$
 so that setting
 $$
-	P^{L_1}_{i-1} = \dfrac{2\delta_x}{L_i} P_\psi
+	P^{L_1}_{i-1} = \dfrac{2\delta_x}{L} P_\psi
 $$
 and
 $$
-	P^{E_1}_{i+1} = \dfrac{2\delta_x}{L_i} P_\phi
+	P^{E_1}_{i+1} = \dfrac{2\delta_x}{L} P_\phi
 $$
 solves the order 1 estimation.
 
-We use $h_i=\dfrac{L_i}{2}$.
+We use $h=\frac{L}{2}$.
 The pressure at the center of the pinch can be expressed like this.
 \begin{itemize}
 \item If $\phi>\psi$, 
 $$
 	P_{i,m} = \dfrac{1}{\phi}
 	\left\lbrack
-		h_i P_i + \left(\phi-h_i\right) P_\phi
+		h P_i + \left(\phi-h\right) P_\phi
 	\right\rbrack
 $$
-\item If $\psi>\phi$, 
+\item If $\psi>\phi$,  
 	$$
 		P_{i,m} = \dfrac{1}{\psi}
 	\left\lbrack
-		h_i P_i + \left(\psi-h_i\right) P_\psi
+		h P_i + \left(\psi-h\right) P_\psi
 	\right\rbrack
 $$
 \item Otherwise (numerically), $P_{i,m}=P_i$.
@@ -251,14 +259,28 @@ $$
 
 The the second derivative of the pressure is estimated by
 $$
-	\partial_x^2 P_i = \dfrac{P_\psi - 2P_{i,m} + P_\phi}{h_i^2} =
+	\partial_x^2 P_i = \dfrac{P_\psi - 2P_{i,m} + P_\phi}{h^2} =
 	\dfrac{P^{L_2}_{i-1} - 2P_i + P^{E_2}_{i+1}}{\delta_x^2}.
 $$
 We solve the order 2 problem by setting
 $$
-	P^{L_2}_{i-1} = P^{E_2}_{i+1} = P_i + \dfrac{1}{2}\left(\dfrac{\delta_x}{h_i}\right)^2 \left( P_\psi - 2P_{i,m} + P_\phi \right)
+	P^{L_2}_{i-1} = P^{E_2}_{i+1} = P_i + \dfrac{1}{2}\left(\dfrac{\delta_x}{h}\right)^2 \left( P_\psi - 2P_{i,m} + P_\phi \right)
 $$
-
+The contribution to the Gauss-Seidel algorithm are the following
+\begin{itemize}
+	\item If $\phi>\psi$, it is
+	$$
+		-\dfrac{2}{h\phi}
+	$$
+	\item If $\psi>\phi$, it is
+	$$
+		-\dfrac{2}{h\psi}
+	$$
+	\item Otherwise, it is 
+	$$
+		-\dfrac{2}{h^2}
+	$$
+\end{itemize}
 \subsection{Conclusion}
 
 
