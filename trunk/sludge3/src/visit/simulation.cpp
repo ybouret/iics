@@ -35,6 +35,9 @@ void Simulation:: get_meta_data(visit_handle &md) const
     //! append P on grid
     VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Real>("P", "grid"));
     
+    //! append V on grid
+    VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Vertex>("V", "grid"));
+
     
     //! append B on grid
     VisIt_SimulationMetaData_addVariable(md, variable_meta_data<Real>("B", "grid"));
@@ -254,6 +257,18 @@ visit_handle Simulation:: get_variable( int domain, const string &name ) const
 
     
     
+    if( name == "V" )
+    {
+        const int nComponents= 2;
+        const int nTuples    = V.items;
+        assert(V.entry!=NULL);
+        if(VisIt_VariableData_alloc(&h) == VISIT_OKAY)
+        {
+            VisIt_VariableData_setDataD(h, VISIT_OWNER_SIM, nComponents, nTuples, (Real*)V.entry);
+        }
+    }
+
+    
     return h;
     
 }
@@ -327,10 +342,9 @@ void Simulation:: fast_update()
     }
     broadcast_bubbles(MPI);
     segment();
-    P.ldz();
     pressurize_bubbles();
     pressurize_contours();
-    compute_gradP(MPI);
+    compute_pressure(MPI,1e-5);
     
 }
 
@@ -369,6 +383,7 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
             fast_update();
         }
     }
+
     
     
     
@@ -476,6 +491,24 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
         pressurize_contours();
         compute_gradP(MPI);
         compute_laplacian();
+    }
+    
+    if( cmd == "full" )
+    {
+        if(MPI.IsFirst)
+        {
+            for(Bubble *b=bubbles.head;b;b=b->next)
+            {
+                Shape::Rotate(b, 10*numeric<Real>::pi/180.0);
+            }
+        }
+        validate_bubbles(MPI);
+        if( !is_valid)
+            throw exception("Invalid bubbles");
+        broadcast_bubbles(MPI);
+        segment();
+        compute_pressure(MPI, 1e-4);
+        
     }
     
     

@@ -42,7 +42,7 @@ void Workspace:: compute_pressure( const mpi &MPI, const Real ftol )
     pressurize_bubbles();
     pressurize_contours();
     compute_gradP(MPI);
-    
+    compute_velocities();
 }
 
 

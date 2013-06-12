@@ -25,6 +25,7 @@ L2( (*this)["L2"].as<VertexArray>() ),
 W( (*this)["W"].as<Array>() ),
 Bulk( (*this)["Bulk"].as<Array>() ),
 DeltaP( (*this)["DeltaP"].as<Array>() ),
+V( (*this)["V"].as<VertexArray>() ),
 right_wall(false),
 P_user(0.5)
 {

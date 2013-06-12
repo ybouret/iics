@@ -80,8 +80,5 @@ PREPARE:
         bubbles.head->save_all("b0");
 #endif
     
-    P.ldz();
-    pressurize_bubbles();
-    pressurize_contours();
-    compute_gradP(MPI);
+    compute_pressure(MPI, 1e-5);
 }

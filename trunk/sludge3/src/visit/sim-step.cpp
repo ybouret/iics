@@ -15,6 +15,14 @@ void Simulation:: step()
         }
     }
     
-    fast_update();
+    validate_bubbles(MPI);
+    if(!is_valid)
+        throw exception("Invalid Bubbles");
+    broadcast_bubbles(MPI);
+    segment();
+    compute_pressure(MPI, 1e-5);
+    
+    
+    
     
 }

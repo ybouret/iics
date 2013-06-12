@@ -37,6 +37,7 @@ mpi/parameters.cpp
 mpi/workspace.hpp
 mpi/workspace.cpp
 mpi/pressure.cpp mpi/pressure-gradient.cpp mpi/pressure-contours.cpp mpi/pressure-bubbles.cpp
+mpi/velocities.cpp
 )
 SOURCE_GROUP( sludge/mpi FILES ${SOURCES_MPI} )
 
