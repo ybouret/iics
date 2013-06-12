@@ -39,9 +39,14 @@ public:
     void validate_bubbles(const mpi &MPI);
     void broadcast_bubbles(const mpi &MPI);
     
-    //! perform the segmentation in B field and compute the bulk field
+    //! perform the segmentation
+    /**
+     fill the B field, compute the Bulk field
+     and collect all markers
+     */
     void segment();
     
+    void save_markers() const;
     
     
     //! set pressure inside bubbles (once per step)
@@ -72,7 +77,8 @@ public:
     //! Red-Black Gauss-Seidel until ftol
     /**
      then the gradient is computed and
-     velocities are deduced.
+     velocities are deduced,
+     in the bulk and for each marker
      */
     void compute_pressure( const mpi &MPI, const Real ftol );
     
@@ -80,7 +86,10 @@ public:
     //! to debug
     void compute_laplacian();
     
+    //! move tracers associated to markers
+    void evolution( const mpi &MPI, Real dt );
     
+    Vertex gradP_to_V( const Vertex &g ) const;
     
     
 private:
@@ -98,7 +107,7 @@ private:
     void AloneY( const Junction *J, const Junction *K, unit_t i);
     
     void compute_velocities();
-
+    
 };
 
 #endif

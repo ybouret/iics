@@ -86,6 +86,8 @@ void Workspace:: segment()
     junctions.load(bubbles);
     junctions.segment(B);
     
+    bubbles.collect_all_markers(Y[lower.y], Y[upper.y]);
+    
     
     for( unit_t j=outline.lower.y;j<=outline.upper.y;++j)
     {
@@ -110,5 +112,25 @@ void Workspace:: segment()
         }
     }
     
+    
+}
+
+
+void Workspace:: save_markers() const
+{
+    
+    for( const Bubble *b=bubbles.head;b;b=b->next)
+    {
+        ios::ocstream fp( vformat("m%u.dat", unsigned(b->UID) ) , false);
+        for(const Marker *m=b->markers.head;m;m=m->next)
+        {
+            const Tracer *tr   = m->tracer;
+            const Vertex  &pos = tr->pos;
+            const Vertex   tgt = pos + m->gt * tr->t; //!< tangent
+            fp("%g %g\n", pos.x, pos.y);
+            fp("%g %g\n", tgt.x, tgt.y);
+            fp("\n");
+        }
+    }
     
 }

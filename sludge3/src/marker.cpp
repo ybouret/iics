@@ -5,9 +5,11 @@
 // Marker
 //
 ////////////////////////////////////////////////////////////////////////////////
-Marker:: Marker( const Tracer *tr, const size_t s) :
+Marker:: Marker( Tracer *tr, const size_t s) :
 tracer(tr),
-shift(s)
+shift(s),
+gt(0),
+gn(0)
 {
     assert(tracer);
 }
@@ -34,7 +36,7 @@ void Marker::List:: clear() throw()
     auto_delete();
 }
 
-void Marker:: List:: append( const Tracer *tracer, const size_t shift)
+void Marker:: List:: append( Tracer *tracer, const size_t shift)
 {
     Marker *m = new Marker(tracer,shift);
     push_back(m);

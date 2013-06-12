@@ -50,10 +50,10 @@ void Bubble:: append( const Vertex v)
 void Bubble:: collect_markers( const Real ymin, const Real ymax)
 {
     markers.clear();
-    const Tracer *tracer = root;
+    Tracer *tracer = root;
     size_t        old   = 0;
     
-    for( size_t i=0; i < size; ++i )
+    for( size_t i=0; i < size; ++i, tracer=tracer->next )
     {
         const Vertex &v = tracer->pos;
         if(v.y>=ymin && v.y<=ymax)
@@ -62,6 +62,8 @@ void Bubble:: collect_markers( const Real ymin, const Real ymax)
             old=i;
         }
     }
+    
+    std::cerr << "Bubble #" << UID << " has " << markers.size << " markers" << std::endl;
     
     
 }

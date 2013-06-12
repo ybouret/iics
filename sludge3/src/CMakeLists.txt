@@ -38,6 +38,7 @@ mpi/workspace.hpp
 mpi/workspace.cpp
 mpi/pressure.cpp mpi/pressure-gradient.cpp mpi/pressure-contours.cpp mpi/pressure-bubbles.cpp
 mpi/velocities.cpp
+mpi/evolution.cpp
 )
 SOURCE_GROUP( sludge/mpi FILES ${SOURCES_MPI} )
 
@@ -52,6 +53,10 @@ IF(VISIT_FOUND)
 	visit/simulation.cpp
 	visit/sim-init.cpp
 	visit/sim-step.cpp
+	visit/sim-meta.cpp
+	visit/sim-data.cpp
+	visit/sim-mesh.cpp
+	visit/sim-curv.cpp
 	)
 SOURCE_GROUP( sludge/visit FILES ${SOURCES_VIS} )
 ENDIF(VISIT_FOUND)
