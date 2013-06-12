@@ -60,18 +60,7 @@ void Simulation:: init_one_bubble( const char *kind )
         }
     }
     
-PREPARE:
-    // regularize and broadcast is_valid
-    validate_bubbles(MPI);
-    
-    if( !is_valid )
-    {
-        MPI.Printf(stderr,"Invalid Bubble");
-        done = true;
-        return;
-    }
-    broadcast_bubbles(MPI);
-    segment();
+PREPARE:;
     
 #if 0
     junctions.save_dat( "j" + MPI.CommWorldID + ".dat" );
@@ -80,5 +69,4 @@ PREPARE:
         bubbles.head->save_all("b0");
 #endif
     
-    compute_pressure(MPI, 1e-5);
 }

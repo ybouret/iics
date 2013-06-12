@@ -39,9 +39,16 @@ void Workspace:: compute_pressure( const mpi &MPI, const Real ftol )
             break;
     }
     
+    MPI.Printf0(stderr,"\t\tpressurize bubbles\n");
     pressurize_bubbles();
+    
+    MPI.Printf0(stderr,"\t\tpressurize contours\n");
     pressurize_contours();
+    
+    MPI.Printf0(stderr,"\t\tcompute gradP\n");
     compute_gradP(MPI);
+    
+    MPI.Printf0(stderr,"\t\tcompute velocities\n");
     compute_velocities();
 }
 

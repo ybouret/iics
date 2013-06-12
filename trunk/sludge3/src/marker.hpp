@@ -10,11 +10,14 @@ public:
     static const int Tag = 4;
     Marker       *next;
     Marker       *prev;
-    const Tracer *tracer;
-    const size_t  shift;
+    Tracer       *tracer;
+    const size_t  shift; //!< to reconstruct tracer ID
+    Real          gt;    //!< tangential pressure gradient
+    Real          gn;    //!< normal gradient
+    
     
     YOCTO_MAKE_OBJECT;
-    Marker(const Tracer *tr,const size_t s);
+    Marker(Tracer *tr,const size_t s);
     ~Marker() throw();
     
     
@@ -26,7 +29,7 @@ public:
         virtual ~List() throw();
         
         void clear() throw();
-        void append( const Tracer *tracer, const size_t shift);
+        void append(Tracer *tracer, const size_t shift);
         
         
     private:

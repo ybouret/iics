@@ -12,6 +12,7 @@ public VisIt::Simulation,
 public VisItIO
 {
 public:
+    Real ftol;
     explicit Simulation(const mpi   &ref,
                         const Coord  N,
                         const Vertex Q
@@ -27,8 +28,17 @@ public:
     
     void init_one_bubble(const char *kind);
     virtual void step();
-
-    void fast_update(); //!< to debug
+    
+    //! from bubbles on master
+    /**
+     validate
+     broadcast
+     pressurize
+     compute pressure
+     compute velocities
+     */
+    void initialize();
+    
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Simulation);
