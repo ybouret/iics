@@ -29,8 +29,9 @@ public:
     VertexArray   &E2;  //!< pressure when entering a bubble along x or y, second order
     VertexArray   &L2;  //!< pressure when entering a bubble along x or y, second order
     Array         &W;   //!< Weight of the P[j][i] factor in the Poisson equation
-    Array         &Bulk; //!< number of bulk around another bulk
-    Array         &DeltaP; //!< store laplacian pressure to check...
+    Array         &Bulk;       //!< number of bulk around another bulk
+    Array         &DeltaP;     //!< store laplacian pressure to check...
+    VertexArray   &V;          //!< velocities on the grid
     bool           right_wall; //!< default: false
     Real           P_user;     //!< default: 0.5
     
@@ -68,10 +69,18 @@ public:
                         const Real ftol);
     
     
+    //! Red-Black Gauss-Seidel until ftol
+    /**
+     then the gradient is computed and
+     velocities are deduced.
+     */
     void compute_pressure( const mpi &MPI, const Real ftol );
     
     
+    //! to debug
     void compute_laplacian();
+    
+    
     
     
 private:
@@ -88,6 +97,8 @@ private:
     void LeaveY( const Junction *J, unit_t i);
     void AloneY( const Junction *J, const Junction *K, unit_t i);
     
+    void compute_velocities();
+
 };
 
 #endif
