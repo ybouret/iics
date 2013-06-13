@@ -44,6 +44,7 @@ public:
     void save_n( const string &fn ) const;
     void save_all( const string &pfx ) const;
     
+    Real __area() const throw(); //!< fast area computation, not set
     
     //! more than three points !
     /**
@@ -53,6 +54,9 @@ public:
     
     //! once init_contour is ok, respect lambda and init new contour
     void auto_contour_spline();
+    
+    bool reduce1(const Real mu);
+    void reduce(const Real mu);
     
     //! once init contour is ok, respect lambda by subdivision
     void auto_contour();

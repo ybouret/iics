@@ -1,5 +1,19 @@
 #include "bubble.hpp"
 
+Real Bubble:: __area() const throw()
+{
+    Real ans = 0;
+    Tracer *tr = root;
+    for( size_t i=size;i>0;--i,tr=tr->next)
+    {
+        const Vertex &p = tr->pos;
+        const Vertex &q = tr->next->pos;
+        ans += p.x * q.y - p.y * q.x;
+    }
+    return Fabs(ans)/2;
+}
+
+
 void Bubble:: init_contour() throw()
 {
     assert(size>=3);

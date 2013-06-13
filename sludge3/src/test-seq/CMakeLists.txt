@@ -6,6 +6,7 @@ test-bubble.cpp
 test-grid.cpp
 test-curv.cpp
 test-segment.cpp
+test-ctrl.cpp
 )
 
 INSTALL( TARGETS test-seq RUNTIME DESTINATION bin )
