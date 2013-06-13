@@ -15,6 +15,7 @@
 \newcommand{\myhess}{\mathcal{H}}
 
 
+
 \begin{document}
 \title{Differential Bubbles}
 \maketitle
@@ -282,6 +283,41 @@ The contribution to the Gauss-Seidel algorithm are the following
 	$$
 \end{itemize}
 \subsection{Conclusion}
+…
 
+\section{Adaptive Polygon}
+
+\subsection{Problem}
+On a grid, we want that the distance between two successive vertices of a polygon to be
+never greater than $\lambda$, and never smaller than $\mu$, with $\mu\approx\lambda/2$.
+The problem is to remap the polygon while preserving the area.
+
+\subsection{Reduction with Area Conservation}
+
+Let us assume that we have 4 following points $\vec{M}_{1\cdots4}$, and that the distance $|\myvec{M_2M_3}|$ is smaller that $\mu$.
+The we must replace those two points with  $\vec{Q}$.
+Physically, we expect 
+$$
+	\vec{Q} = \dfrac{1}{2}\left(\vec{M}_2+\vec{M}_3\right) + \alpha \vec{v}
+$$
+where $\vec{v}$ is a unit vector orthogonal to $\myvec{M_2M_3}$.
+The contribution of $\vec{M}_2$ and $\vec{M}_3$ to the total area is measured with
+$$
+	A_0 = \vec{M}_1\wedge\vec{M}_2 + \vec{M_2}\wedge\vec{M}_3 + \vec{M}_3\wedge\vec{M}_4
+$$
+so that we must have
+$$
+	A_0 = \vec{M}_1\wedge\vec{Q} + \vec{Q}\wedge\vec{M}_4 = \vec{Q}\wedge \myvec{M_1M_4} = \dfrac{1}{2}\left(\vec{M}_2+\vec{M}_3\right)\wedge \myvec{M_1M_4} 
+	+ \alpha \vec{v} \wedge \myvec{M_1M_4}
+$$
+
+If $\vec{v}\parallel\myvec{M_1M_4}$ then the polygon is ill-formed, there is a failure.
+Otherwise, we have the relation
+$$
+	\alpha = \dfrac{\left(\vec{M}_1\wedge\vec{M}_2 + \vec{M_2}\wedge\vec{M}_3 + \vec{M}_3\wedge\vec{M}_4\right)
+	+\frac{1}{2} \myvec{M_1M_4} \wedge\left(\vec{M}_2+\vec{M}_3\right)
+	}{\vec{v} \wedge \myvec{M_1M_4}}
+$$
+which should be applied recursively until no reduction occurs, and while the number of vertices is greater than 4.
 
 \end{document}
