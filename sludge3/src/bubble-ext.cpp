@@ -38,62 +38,120 @@ void Bubble:: auto_contour()
 }
 
 
+#include "yocto/sequence/vector.hpp"
+#include "yocto/math/kernel/matrix.hpp"
+#include "yocto/ios/ocstream.hpp"
+#include "yocto/code/utils.hpp"
 
-bool Bubble:: reduce1(const Real mu)
-{
-    if(size>=4)
+namespace {
+    
+    class Adjust
     {
-        Tracer *t1 = root;
-        Tracer *t2 = t1->next;
-        Tracer *t3 = t2->next;
-        Tracer *t4 = t3->next;
+    public:
+        const size_t np; //!< #size+1 points (cyclic)
+        const Real   L;  //!< perimeter
+        vector<Real> t;  //!< 0->L
+        matrix<Real> P;  //!< points
         
-        for(size_t i=size;i>0;--i)
+        
+        explicit Adjust( const Bubble &b ) :
+        np(b.size+1),
+        L(0),
+        t(np,0),
+        P(np,4)
         {
-            const Vertex &M2 = t2->pos;
-            const Vertex &M3 = t3->pos;
-            const Vertex  M2M3(M2,M3);
-            const Real    d23 = M2M3.norm();
-            std::cerr << "d23=" << d23 << "/mu=" << mu << std::endl;
-            if(d23<=mu)
+            Tracer *curr = b.root;
+            t[1] = 0;
+            P[1][1] = curr->pos.x;
+            P[1][2] = curr->pos.y;
+            for( size_t i=2; i <= np; ++i )
             {
-                const Vertex t = M2M3/d23;
-                const Vertex v(-t.y,t.x);
-                const Vertex &M1 = t1->pos;
-                const Vertex &M4 = t4->pos;
-                const Vertex  M1M4(M1,M4);
-                const Real   A0 = Vertex::det(M1,M2) + Vertex::det(M2,M3) + Vertex::det(M3,M4);
-                const Vertex I  = 0.5 * ( M2+M3 );
-                const Real   den = Vertex::det(v,M1M4);
-                if(Fabs(den)<=numeric<Real>::minimum)
-                    throw exception("Ill-Formed Polygon for Reduction");
-                
-                const Real   alpha = (A0 + Vertex::det(M1M4,I))/den;
-                const Vertex Q     = I + alpha * v;
-                std::cerr << "alpha=" << alpha << ", v=" << v << ": " << I << " -> " << Q << std::endl;
-
-                std::cerr << "A0=" << A0 << std::endl;
-                std::cerr << "A1=" << Vertex::det(M1,Q) + Vertex::det(Q,M4) << std::endl;
-                Tracer *tr = new Tracer(Q);
-                std::cerr << "Area0=" << __area() << std::endl;
-                delete unlink(t2);
-                delete unlink(t3);
-                insert_after(t1, tr);
-                std::cerr << "Area1=" << __area() << std::endl;
-                return true;
+                assert(curr->dist>0);
+                t[i] = t[i-1] + curr->dist; //!< distance to next
+                curr = curr->next;
+                P[i][1] = curr->pos.x;
+                P[i][2] = curr->pos.y;
             }
-            t1=t2;
-            t2=t3;
-            t3=t4;
-            t4=t4->next;
+
+            (Real&)L = t[np];
+            
+            ios::ocstream fp("raw.dat",false);
+            for(size_t i=1; i <= np; ++i )
+            {
+                fp("%g %g %g\n", t[i], P[i][1], P[i][2]);
+            }
+
+            std::cerr << "L=" << L << std::endl;
         }
-    }
-    return false;
+        
+        Vertex operator()( Real u )
+        {
+            if(u<=0||u>=L)
+                return Vertex(P[1][1],P[1][2]);
+            
+            size_t jlo = 1;
+            size_t jhi = np;
+            while(jhi-jlo>1)
+            {
+                const size_t mid = (jlo+jhi)>>1;
+                const Real   tmp = t[mid];
+                if( tmp > u )
+                {
+                    jhi = mid;
+                }
+                else
+                {
+                    jlo = mid;
+                }
+            }
+            const Vertex v0( P[jlo][1], P[jlo][2]);
+            const Vertex v1( P[jhi][1], P[jhi][2]);
+            const Real   t0 = t[jlo];
+            const Real   t1 = t[jhi];
+            const Real   h  = (t1-t0);
+            const Vertex v = (t1-u) * v0 + (u-t0) * v1;
+            
+            return v/h;
+        }
+        
+        ~Adjust() throw() {}
+        
+    private:
+        YOCTO_DISABLE_COPY_AND_ASSIGN(Adjust);
+    };
 }
 
-void Bubble:: reduce( const Real mu )
+static inline Real __dist( const Vertex &lhs, const Vertex &rhs )
 {
-    while( reduce1(mu) )
-        ;
-    init_contour();
+    return Hypotenuse(rhs.x-lhs.x, rhs.y-lhs.y);
 }
+
+void Bubble:: adjust_contour()
+{
+    assert(size>=3);
+   
+    Adjust adjust(*this);
+    std::cerr << "Area0=" << area << std::endl;
+    
+    size_t NP = max_of<Real>(3,adjust.L/lambda);
+    {
+        Tracer::Ring ring;
+        ring.push_back( new Tracer( adjust(0) ) );
+        const Real du = adjust.L/NP;
+        Real       dmax = 0;
+        for( size_t i=1; i < NP; ++i )
+        {
+            const Real u  = i * du;
+            Tracer     *tr = new Tracer( adjust(u) );
+            ring.push_back(tr);
+            dmax  = max_of(dmax,__dist(tr->pos,tr->prev->pos));
+        }
+        swap_with(ring);
+    }
+    std::cerr << "Area1=" << __area() << std::endl;
+
+    save_dat( "adj.dat" );
+    init_contour();
+    
+}
+

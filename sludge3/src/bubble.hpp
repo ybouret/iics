@@ -55,11 +55,15 @@ public:
     //! once init_contour is ok, respect lambda and init new contour
     void auto_contour_spline();
     
-    bool reduce1(const Real mu);
-    void reduce(const Real mu);
+    
     
     //! once init contour is ok, respect lambda by subdivision
     void auto_contour();
+    
+    
+    //! must have an init_contour before
+    void adjust_contour();
+    
     
     //! compute tangent/normal/curvature after an [init|auto]_contour
     void compute_curvatures();
