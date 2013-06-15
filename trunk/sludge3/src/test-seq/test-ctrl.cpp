@@ -15,7 +15,7 @@ void check( Bubble *b, const char *pfx )
 
 YOCTO_UNIT_TEST_IMPL(ctrl)
 {
-    Real   lam = 0.2;
+    Real   lam = 0.5;
     //Real   mu  = 0.15;
     Real   gam = 1;
     Bubble bubble(lam,gam,1);

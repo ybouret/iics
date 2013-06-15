@@ -45,6 +45,8 @@ void Bubble:: auto_contour()
 
 namespace {
     
+    
+    
     class Adjust
     {
     public:
@@ -60,6 +62,9 @@ namespace {
         t(np,0),
         P(np,4)
         {
+            //------------------------------------------------------------------
+            // Fill the coordinates
+            //------------------------------------------------------------------
             Tracer *curr = b.root;
             t[1] = 0;
             P[1][1] = curr->pos.x;
@@ -72,17 +77,64 @@ namespace {
                 P[i][1] = curr->pos.x;
                 P[i][2] = curr->pos.y;
             }
-
+            
             (Real&)L = t[np];
             
-            ios::ocstream fp("raw.dat",false);
-            for(size_t i=1; i <= np; ++i )
             {
-                fp("%g %g %g\n", t[i], P[i][1], P[i][2]);
+                ios::ocstream fp("raw.dat",false);
+                for(size_t i=1; i <= np; ++i )
+                {
+                    fp("%g %g %g\n", t[i], P[i][1], P[i][2]);
+                }
+            }
+            
+            std::cerr << "L=" << L << std::endl;
+            
+            //------------------------------------------------------------------
+            // Compute the derivatives
+            //------------------------------------------------------------------
+            for(size_t i=2;i<np;++i)
+            {
+                const Real   tm   = t[i]  -  t[i-1];
+                const Real   tp   = t[i+1] - t[i];
+                const Vertex Mm   = get_pos(i-1);
+                const Vertex Mp   = get_pos(i+1);
+                const Vertex M0   = get_pos(i);
+                const Vertex dMdt = Derivative(M0, tm, Mm, tp, Mp);
+                P[i][3] = dMdt.x;
+                P[i][4] = dMdt.y;
+            }
+            
+            {
+                const Real   tm = t[np] - t[np-1];
+                const Real   tp = t[2]  - t[1];
+                const Vertex Mm = get_pos(np-1);
+                const Vertex M0 = get_pos(1);
+                const Vertex Mp = get_pos(2);
+                const Vertex dMdt = Derivative(M0, tm, Mm, tp, Mp);
+                P[1][3] = P[np][3] = dMdt.x;
+                P[1][4] = P[np][4] = dMdt.y;
+            }
+            
+            {
+                ios::ocstream fp("der.dat",false);
+                for(size_t i=1; i <= np; ++i )
+                {
+                    fp("%g %g %g\n", t[i], P[i][1], P[i][2]);
+                    fp("%g %g %g\n", t[i], P[i][1]+P[i][3], P[i][2]+P[i][4]);
+                    fp("\n");
+                }
             }
 
-            std::cerr << "L=" << L << std::endl;
+            
         }
+        
+        inline
+        Vertex get_pos(size_t i) const throw()
+        {
+            return Vertex(P[i][1],P[i][2]);
+        }
+        
         
         Vertex operator()( Real u )
         {
@@ -116,6 +168,22 @@ namespace {
         
         ~Adjust() throw() {}
         
+        static
+        Vertex Derivative(const Vertex M0,
+                          const Real   tm,
+                          const Vertex Mm,
+                          const Real   tp,
+                          const Vertex Mp
+                          )
+        {
+            const Vertex M0Mm(M0,Mm);
+            const Vertex M0Mp(M0,Mp);
+            const Vertex Vm = M0Mm / tm;
+            const Vertex Vp = M0Mp / tp;
+            const Vertex dV = tm*Vp - tp*Vm;
+            return  dV/(tm+tp);
+        }
+        
     private:
         YOCTO_DISABLE_COPY_AND_ASSIGN(Adjust);
     };
@@ -129,7 +197,7 @@ static inline Real __dist( const Vertex &lhs, const Vertex &rhs )
 void Bubble:: adjust_contour()
 {
     assert(size>=3);
-   
+    
     Adjust adjust(*this);
     std::cerr << "Area0=" << area << std::endl;
     
@@ -149,7 +217,7 @@ void Bubble:: adjust_contour()
         swap_with(ring);
     }
     std::cerr << "Area1=" << __area() << std::endl;
-
+    
     save_dat( "adj.dat" );
     init_contour();
     
