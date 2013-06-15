@@ -23,8 +23,7 @@ YOCTO_UNIT_TEST_IMPL(ctrl)
     std::cerr << "Circle" << std::endl;
     Shape::Circle(&bubble, Vertex(0,0), 4);
     check(&bubble, "c");
-    
-    
+        
     
     Shape::Ellipse(&bubble, Vertex(0,0), Vertex(5,2));
     check(&bubble,"e");

@@ -136,7 +136,7 @@ namespace {
         }
         
         
-        Vertex operator()( Real u )
+        Vertex get1( Real u ) const throw()
         {
             if(u<=0||u>=L)
                 return Vertex(P[1][1],P[1][2]);
@@ -202,18 +202,37 @@ void Bubble:: adjust_contour()
     std::cerr << "Area0=" << area << std::endl;
     
     size_t NP = max_of<Real>(3,adjust.L/lambda);
+BUILD_RING:
     {
         Tracer::Ring ring;
-        ring.push_back( new Tracer( adjust(0) ) );
-        const Real du = adjust.L/NP;
+        ring.push_back( new Tracer( adjust.get1(0) ) );
+        const Real du   = adjust.L/NP;
         Real       dmax = 0;
+        // append points, tracking max distance
         for( size_t i=1; i < NP; ++i )
         {
-            const Real u  = i * du;
-            Tracer     *tr = new Tracer( adjust(u) );
+            const Real  u  = i * du;
+            Tracer     *tr = new Tracer( adjust.get1(u) );
             ring.push_back(tr);
-            dmax  = max_of(dmax,__dist(tr->pos,tr->prev->pos));
+            const Real  d = __dist(tr->pos,tr->prev->pos);
+            if(d>dmax) dmax = d;
+            if(dmax>lambda)
+            {
+                ++NP;
+                goto BUILD_RING;
+            }
+            
         }
+        
+        // check last point vs root
+        const Real  d = __dist(root->pos,root->prev->pos);
+        if(d>dmax) dmax = d;
+        if(dmax>lambda)
+        {
+            ++NP;
+            goto BUILD_RING;
+        }
+
         swap_with(ring);
     }
     std::cerr << "Area1=" << __area() << std::endl;
