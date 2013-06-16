@@ -1,17 +1,5 @@
 #include "bubble.hpp"
 
-Real Bubble:: __area() const throw()
-{
-    Real ans = 0;
-    Tracer *tr = root;
-    for( size_t i=size;i>0;--i,tr=tr->next)
-    {
-        const Vertex &p = tr->pos;
-        const Vertex &q = tr->next->pos;
-        ans += p.x * q.y - p.y * q.x;
-    }
-    return Fabs(ans)/2;
-}
 
 
 void Bubble:: init_contour() throw()
@@ -89,6 +77,7 @@ namespace {
     };
 }
 
+#if 0
 #include "yocto/code/utils.hpp"
 
 static inline
@@ -212,6 +201,7 @@ GENERATE:
     init_contour();
     
 }
+#endif
 
 
 void Bubble:: compute_curvatures()
@@ -234,6 +224,6 @@ void Bubble:: compute_curvatures()
 
 void Bubble:: regularize()
 {
-    auto_contour();
+    adjust_contour();
     compute_curvatures();
 }

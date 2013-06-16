@@ -45,6 +45,7 @@ public:
         explicit Ring() throw();
         virtual ~Ring() throw();
         void hash_ring( Hasher &h) const throw();
+        Real __area() const throw();
         
     private:
         YOCTO_DISABLE_COPY_AND_ASSIGN(Ring);

@@ -26,26 +26,26 @@ YOCTO_UNIT_TEST_IMPL(bubble)
     
     bubble.save_dat( "bubble.dat" );
     bubble.init_contour();
-    bubble.auto_contour();
+    bubble.adjust_contour();
     bubble.compute_curvatures();
     bubble.save_all( "autob" );
 
     Shape::Ellipse(&bubble, Vertex(0,0), Vertex(6,2));
     Shape::Rotate(&bubble, 0.2);
     bubble.save_dat("ell.dat");
-    bubble.auto_contour();
+    bubble.adjust_contour();
     bubble.compute_curvatures();
     bubble.save_all("ell2");
     
     Shape::Blob(&bubble, Vertex(0,0), 10, 0.7);
     bubble.save_dat("blob1.dat");
-    bubble.auto_contour();
+    bubble.adjust_contour();
     bubble.compute_curvatures();
     bubble.save_all("blob1a");
   
     Shape::Blob(&bubble, Vertex(0,0), 10, 0.7, 0.6);
     bubble.save_dat("blob2.dat");
-    bubble.auto_contour();
+    bubble.adjust_contour();
     bubble.compute_curvatures();
     bubble.save_all("blob2a");
    
