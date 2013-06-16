@@ -13,7 +13,7 @@ YOCTO_UNIT_TEST_IMPL(curv)
     Shape::Ellipse(&bubble, Vertex(0,0), Vertex(6,2));
     Shape::Rotate(&bubble, 0.3);
     
-    bubble.auto_contour();
+    bubble.adjust_contour();
     bubble.compute_curvatures();
     
     bubble.save_dat("ell.dat");
@@ -22,7 +22,7 @@ YOCTO_UNIT_TEST_IMPL(curv)
     
     
     Shape::Circle(&bubble, Vertex(0,0), 5);
-    bubble.auto_contour();
+    bubble.adjust_contour();
     bubble.compute_curvatures();
     
     bubble.save_all("circ");    

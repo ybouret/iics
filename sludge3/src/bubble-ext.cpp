@@ -1,6 +1,7 @@
 #include "bubble.hpp"
 #include "yocto/exception.hpp"
 
+#if 0
 void Bubble:: auto_contour()
 {
     assert(size>=3);
@@ -36,12 +37,13 @@ void Bubble:: auto_contour()
     std::cerr << "size after=" << size << std::endl;
     init_contour();
 }
-
+#endif
 
 #include "yocto/sequence/vector.hpp"
 #include "yocto/math/kernel/matrix.hpp"
 #include "yocto/ios/ocstream.hpp"
 #include "yocto/code/utils.hpp"
+#include <cstring>
 
 namespace {
     
@@ -59,12 +61,13 @@ namespace {
         vector<Real> t;  //!< 0->L
         matrix<Real> P;  //!< points,derivative,vectors a and b
         
+        static const size_t COLS = 8;
         
         explicit Adjust( const Bubble &b ) :
         np(b.size+1),
         L(0),
         t(np,0),
-        P(np,8)
+        P(np,COLS)
         {
             //------------------------------------------------------------------
             // Fill the coordinates
@@ -84,6 +87,7 @@ namespace {
             
             (Real&)L = t[np];
             
+#if 0
             {
                 ios::ocstream fp("raw.dat",false);
                 for(size_t i=1; i <= np; ++i )
@@ -91,8 +95,9 @@ namespace {
                     fp("%g %g %g\n", t[i], P[i][1], P[i][2]);
                 }
             }
+#endif
             
-            std::cerr << "L=" << L << std::endl;
+            //std::cerr << "L=" << L << std::endl;
             
             //------------------------------------------------------------------
             // Compute the derivatives
@@ -120,6 +125,7 @@ namespace {
                 P[1][4] = P[np][4] = dMdt.y;
             }
             
+#if 0
             {
                 ios::ocstream fp("der.dat",false);
                 for(size_t i=1; i <= np; ++i )
@@ -129,19 +135,32 @@ namespace {
                     fp("\n");
                 }
             }
-            
+#endif
             //------------------------------------------------------------------
             // Compute the order 2 vectors
             //------------------------------------------------------------------
             for(size_t i=1;i<np;++i)
             {
+                const size_t ip = i+1;
                 const Vertex M0 = get_pos(i);
-                const Vertex M1 = get_pos(i+1);
-                const Real   dt = t[i+1] - t[i];
+                const Vertex M1 = get_pos(ip);
+                const Real   dt = t[ip] - t[i];
                 const Vertex M0M1(M0,M1);
-                
+                const Vertex v0(P[i][3],P[i][4]);      // left  derivative
+                const Vertex v1(P[ip][3],P[ip][4]);  // right derivative
+                const Vertex U = M0M1 - dt * v0;
+                const Vertex V = dt*(v1-v0);
+                const Real   dt2 = dt*dt;
+                const Real   dt3 = dt2*dt;
+                const Vertex a = (3.0*U-V)/dt2;
+                const Vertex b = (V-(U+U))/dt3;
+                P[i][5] = a.x;
+                P[i][6] = a.y;
+                P[i][7] = b.x;
+                P[i][8] = b.y;
             }
             
+            memcpy( &P[np][1], &P[1][1], COLS * sizeof(Real) );
         }
         
         inline
@@ -171,17 +190,50 @@ namespace {
                     jlo = mid;
                 }
             }
-            const Vertex v0( P[jlo][1], P[jlo][2]);
-            const Vertex v1( P[jhi][1], P[jhi][2]);
+            const Vertex M0( P[jlo][1], P[jlo][2]);
+            const Vertex M1( P[jhi][1], P[jhi][2]);
             const Real   t0 = t[jlo];
             const Real   t1 = t[jhi];
             const Real   h  = (t1-t0);
-            const Vertex v = (t1-u) * v0 + (u-t0) * v1;
+            const Vertex M = (t1-u) * M0 + (u-t0) * M1;
             
-            return v/h;
+            return M/h;
         }
         
-        ~Adjust() throw() {}
+        inline
+        Vertex get2( Real u ) const throw()
+        {
+            if(u<=0||u>=L)
+                return Vertex(P[1][1],P[1][2]);
+            
+            size_t jlo = 1;
+            size_t jhi = np;
+            while(jhi-jlo>1)
+            {
+                const size_t mid = (jlo+jhi)>>1;
+                const Real   tmp = t[mid];
+                if( tmp > u )
+                {
+                    jhi = mid;
+                }
+                else
+                {
+                    jlo = mid;
+                }
+            }
+            const Vertex M0( P[jlo][1], P[jlo][2]);
+            const Vertex v0( P[jlo][3], P[jlo][4]);
+            const Vertex a(  P[jlo][5], P[jlo][6]);
+            const Vertex b(  P[jlo][7], P[jlo][8]);
+
+            const Real   t0 = t[jlo];
+            //const Real   t1 = t[jhi];
+            const Real   h  = (u-t0);
+
+            return M0 + h * ( v0 + h* (a + h * b) );
+        }
+        
+        inline ~Adjust() throw() {}
         
         static inline
         Vertex Derivative(const Vertex M0,
@@ -205,7 +257,8 @@ namespace {
         bool build_ring(Tracer::Ring &ring,
                         const size_t  NP,
                         Vertex (Adjust::*get)(Real) const,
-                        const Real lambda
+                        const Real lambda,
+                        Real      &dmax
                         )
         {
             ring.auto_delete();
@@ -215,6 +268,7 @@ namespace {
             //------------------------------------------------------------------
             // append points, tracking max distance
             //------------------------------------------------------------------
+            dmax = 0;
             for( size_t i=1; i < NP; ++i )
             {
                 const Real  u  = i * du;
@@ -225,6 +279,7 @@ namespace {
                 {
                     return false;
                 }
+                if(d>dmax) dmax=d;
                 
             }
             
@@ -236,9 +291,13 @@ namespace {
             {
                 return false;
             }
-            
+            if(d>dmax)
+                dmax=d;
             return true;
         }
+        
+        
+        
         
     private:
         YOCTO_DISABLE_COPY_AND_ASSIGN(Adjust);
@@ -256,22 +315,63 @@ void Bubble:: adjust_contour()
     assert(size>=3);
     
     Adjust adjust(*this);
-    std::cerr << "Area0=" << area << std::endl;
-    
+    const Real A0 = area;    
     {
         size_t NP = max_of<Real>(3,adjust.L/lambda);
-        Tracer::Ring ring1;
+        Tracer::Ring ring;
+        Real         dmax = 0;
+        
+        //======================================================================
+        //
+        // Subdivide
+        //
+        //======================================================================
     GENERATE_RING:
-        if( ! adjust.build_ring(ring1, NP, & Adjust::get1, lambda) )
+        if( !adjust.build_ring(ring, NP, & Adjust::get2, lambda, dmax))
         {
             ++NP;
             goto GENERATE_RING;
         }
-        swap_with(ring1);
+        
+        //======================================================================
+        //
+        // New Area => expansion factopr
+        //
+        //======================================================================
+
+        const Real A1    = ring.__area();       
+        const Real ratio = Sqrt(A0/A1);
+        const Real expanded = ratio * dmax;
+        
+        //======================================================================
+        //
+        // Finalize
+        //
+        //======================================================================
+
+        if( expanded >= lambda )
+        {
+            ++NP;
+            goto GENERATE_RING;
+        }
+        
+        swap_with(ring);
+        ring.auto_delete();
+        assert(size==NP);
+        
+        //======================================================================
+        //
+        // Expand
+        //
+        //======================================================================
+        Tracer *tr = root;
+        for(size_t i=size;i>0;--i,tr=tr->next)
+        {
+            const Vertex dr(G,tr->pos);
+            tr->pos = G + ratio * dr;
+        }
     }
-    std::cerr << "Area1=" << __area() << std::endl;
     
-    save_dat( "adj.dat" );
     init_contour();
     
 }

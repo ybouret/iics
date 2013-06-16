@@ -57,6 +57,7 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
             kind = args[1].c_str();
         init_one_bubble(kind);
         initialize();
+        return;
     }
     
     if(cmd == "gamma" )
@@ -65,6 +66,44 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
         bubbles.gamma = args.size() >= 1 ? strconv::to<Real>(args[1],"gamma") : 0;
         MPI.Printf0(stderr, "Changing gamma to %g\n", bubbles.gamma);
         initialize();
+        return;
+    }
+
+    
+    if(cmd == "rot" )
+    {
+        if( args.size() >= 1 )
+        {
+            
+            if(MPI.IsFirst)
+            {
+                const Real angle = strconv::to<Real>(args[1],"angle");
+                for(Bubble *b=bubbles.head;b;b=b->next)
+                {
+                    Shape::Rotate(b, angle*numeric<Real>::pi/180.0);
+                }
+            }
+            initialize();
+        }
+        return;
+    }
+
+    if(cmd == "grow" )
+    {
+        if( args.size() >= 1 )
+        {
+            
+            if(MPI.IsFirst)
+            {
+                const Real factor = strconv::to<Real>(args[1],"factor");
+                for(Bubble *b=bubbles.head;b;b=b->next)
+                {
+                    Shape::Grow(b, factor);
+                }
+            }
+            initialize();
+        }
+        return;
     }
 
     
@@ -108,23 +147,7 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
     
     
     
-    if(cmd == "grow" )
-    {
-        if( args.size() >= 1 )
-        {
-            
-            if(MPI.IsFirst)
-            {
-                const Real factor = strconv::to<Real>(args[1],"factor");
-                for(Bubble *b=bubbles.head;b;b=b->next)
-                {
-                    Shape::Grow(b, factor);
-                }
-            }
-            fast_update();
-        }
-    }
-    
+       
     
     if(cmd == "rot" )
     {

@@ -91,3 +91,17 @@ void Tracer:: compute_order2()
     //std::cerr << "C=" << C << std::endl;
 }
 
+
+Real Tracer::Ring::  __area() const throw()
+{
+    Real ans = 0;
+    Tracer *tr = root;
+    for( size_t i=size;i>0;--i,tr=tr->next)
+    {
+        const Vertex &p = tr->pos;
+        const Vertex &q = tr->next->pos;
+        ans += p.x * q.y - p.y * q.x;
+    }
+    return Fabs(ans)/2;
+}
+
