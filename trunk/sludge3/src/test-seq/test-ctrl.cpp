@@ -16,14 +16,13 @@ void check( Bubble *b, const char *pfx )
 YOCTO_UNIT_TEST_IMPL(ctrl)
 {
     Real   lam = 0.5;
-    //Real   mu  = 0.15;
     Real   gam = 1;
     Bubble bubble(lam,gam,1);
     
     std::cerr << "Circle" << std::endl;
     Shape::Circle(&bubble, Vertex(0,0), 4);
     check(&bubble, "c");
-        
+    
     
     Shape::Ellipse(&bubble, Vertex(0,0), Vertex(5,2));
     check(&bubble,"e");
