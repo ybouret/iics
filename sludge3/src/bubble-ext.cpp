@@ -46,6 +46,10 @@ void Bubble:: auto_contour()
 namespace {
     
     
+    static inline Real __dist( const Vertex &lhs, const Vertex &rhs )
+    {
+        return Hypotenuse(rhs.x-lhs.x, rhs.y-lhs.y);
+    }
     
     class Adjust
     {
@@ -53,14 +57,14 @@ namespace {
         const size_t np; //!< #size+1 points (cyclic)
         const Real   L;  //!< perimeter
         vector<Real> t;  //!< 0->L
-        matrix<Real> P;  //!< points
+        matrix<Real> P;  //!< points,derivative,vectors a and b
         
         
         explicit Adjust( const Bubble &b ) :
         np(b.size+1),
         L(0),
         t(np,0),
-        P(np,4)
+        P(np,8)
         {
             //------------------------------------------------------------------
             // Fill the coordinates
@@ -95,7 +99,7 @@ namespace {
             //------------------------------------------------------------------
             for(size_t i=2;i<np;++i)
             {
-                const Real   tm   = t[i]  -  t[i-1];
+                const Real   tm   = t[i]   - t[i-1];
                 const Real   tp   = t[i+1] - t[i];
                 const Vertex Mm   = get_pos(i-1);
                 const Vertex Mp   = get_pos(i+1);
@@ -125,7 +129,18 @@ namespace {
                     fp("\n");
                 }
             }
-
+            
+            //------------------------------------------------------------------
+            // Compute the order 2 vectors
+            //------------------------------------------------------------------
+            for(size_t i=1;i<np;++i)
+            {
+                const Vertex M0 = get_pos(i);
+                const Vertex M1 = get_pos(i+1);
+                const Real   dt = t[i+1] - t[i];
+                const Vertex M0M1(M0,M1);
+                
+            }
             
         }
         
@@ -135,7 +150,7 @@ namespace {
             return Vertex(P[i][1],P[i][2]);
         }
         
-        
+        inline
         Vertex get1( Real u ) const throw()
         {
             if(u<=0||u>=L)
@@ -168,13 +183,13 @@ namespace {
         
         ~Adjust() throw() {}
         
-        static
+        static inline
         Vertex Derivative(const Vertex M0,
                           const Real   tm,
                           const Vertex Mm,
                           const Real   tp,
                           const Vertex Mp
-                          )
+                          ) throw()
         {
             const Vertex M0Mm(M0,Mm);
             const Vertex M0Mp(M0,Mp);
@@ -184,15 +199,57 @@ namespace {
             return  dV/(tm+tp);
         }
         
+#define __CALL(object,ptrToMember)  ((object).*(ptrToMember))
+#define __GET(U) ( __CALL(*this,get)(U) )
+        
+        bool build_ring(Tracer::Ring &ring,
+                        const size_t  NP,
+                        Vertex (Adjust::*get)(Real) const,
+                        const Real lambda
+                        )
+        {
+            ring.auto_delete();
+            ring.push_back( new Tracer( __GET(0) ) );
+            const Real du   = L/NP;
+            
+            //------------------------------------------------------------------
+            // append points, tracking max distance
+            //------------------------------------------------------------------
+            for( size_t i=1; i < NP; ++i )
+            {
+                const Real  u  = i * du;
+                Tracer     *tr = new Tracer( __GET(u) );
+                ring.push_back(tr);
+                const Real  d = __dist(tr->pos,tr->prev->pos);
+                if(d>lambda)
+                {
+                    return false;
+                }
+                
+            }
+            
+            //------------------------------------------------------------------
+            // check last point vs root
+            //------------------------------------------------------------------
+            const Real  d = __dist(ring.root->pos,ring.root->prev->pos);
+            if(d>lambda)
+            {
+                return false;
+            }
+            
+            return true;
+        }
+        
     private:
         YOCTO_DISABLE_COPY_AND_ASSIGN(Adjust);
     };
 }
 
-static inline Real __dist( const Vertex &lhs, const Vertex &rhs )
-{
-    return Hypotenuse(rhs.x-lhs.x, rhs.y-lhs.y);
-}
+
+
+
+
+
 
 void Bubble:: adjust_contour()
 {
@@ -201,39 +258,16 @@ void Bubble:: adjust_contour()
     Adjust adjust(*this);
     std::cerr << "Area0=" << area << std::endl;
     
-    size_t NP = max_of<Real>(3,adjust.L/lambda);
-BUILD_RING:
     {
-        Tracer::Ring ring;
-        ring.push_back( new Tracer( adjust.get1(0) ) );
-        const Real du   = adjust.L/NP;
-        Real       dmax = 0;
-        // append points, tracking max distance
-        for( size_t i=1; i < NP; ++i )
-        {
-            const Real  u  = i * du;
-            Tracer     *tr = new Tracer( adjust.get1(u) );
-            ring.push_back(tr);
-            const Real  d = __dist(tr->pos,tr->prev->pos);
-            if(d>dmax) dmax = d;
-            if(dmax>lambda)
-            {
-                ++NP;
-                goto BUILD_RING;
-            }
-            
-        }
-        
-        // check last point vs root
-        const Real  d = __dist(root->pos,root->prev->pos);
-        if(d>dmax) dmax = d;
-        if(dmax>lambda)
+        size_t NP = max_of<Real>(3,adjust.L/lambda);
+        Tracer::Ring ring1;
+    GENERATE_RING:
+        if( ! adjust.build_ring(ring1, NP, & Adjust::get1, lambda) )
         {
             ++NP;
-            goto BUILD_RING;
+            goto GENERATE_RING;
         }
-
-        swap_with(ring);
+        swap_with(ring1);
     }
     std::cerr << "Area1=" << __area() << std::endl;
     

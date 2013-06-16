@@ -33,7 +33,7 @@ void Workspace:: evolution(const mpi &MPI, Real dt)
             const Vertex  dr = dt * v;
             
             // evolve
-            tr->pos += dr;
+            //tr->pos += dr;
         }
     }
     
