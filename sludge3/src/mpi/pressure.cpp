@@ -1,4 +1,5 @@
 #include "workspace.hpp"
+#include "yocto/mpi/ops.hpp"
 
 void Workspace:: compute_laplacian( )
 {
@@ -33,9 +34,9 @@ void Workspace:: compute_pressure( const mpi &MPI, const Real ftol )
     for(;;)
     {
         const int cvg = update_pressure(MPI, Red, ftol) & update_pressure(MPI, Black, ftol);
-        int       sum = 0;
-        MPI.Allreduce(&cvg, &sum, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-        if( target == sum )
+        //int       sum = 0;
+        //MPI.Allreduce(&cvg, &sum, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+        if( target == mpi_ops::sum(MPI, cvg, MPI_COMM_WORLD) )
             break;
     }
     
