@@ -1,5 +1,6 @@
 #include "workspace.hpp"
 
+
 void Workspace:: evolution(const mpi &MPI, Real dt)
 {
     
@@ -31,9 +32,9 @@ void Workspace:: evolution(const mpi &MPI, Real dt)
             
             // deduce the displacement
             const Vertex  dr = dt * v;
-            
+
             // evolve
-            //tr->pos += dr;
+            tr->pos += dr;
         }
     }
     
