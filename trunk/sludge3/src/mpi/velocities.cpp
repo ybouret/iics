@@ -11,7 +11,7 @@ void Workspace:: compute_velocities()
     
     //==========================================================================
     //
-    //
+    // compute velocities in the bulk
     //
     //==========================================================================
     for(unit_t j=outline.lower.y;j<=outline.upper.y;++j)
