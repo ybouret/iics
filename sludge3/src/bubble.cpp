@@ -63,7 +63,7 @@ void Bubble:: collect_markers( const Real ymin, const Real ymax)
         }
     }
     
-    std::cerr << "Bubble #" << UID << " has " << markers.size << " markers" << std::endl;
+    //std::cerr << "Bubble #" << UID << " has " << markers.size << " markers" << std::endl;
     
     
 }

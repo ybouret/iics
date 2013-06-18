@@ -210,7 +210,6 @@ void ParallelBubbles:: Recv(const mpi &MPI, Bubbles &bubbles)
 
 void ParallelBubbles:: Bcast(const mpi &MPI, Bubbles &bubbles)
 {
-    MPI.Printf(stderr, "ParallelBubbles::Bcast\n");
     if( MPI.IsFirst )
     {
         ParallelBubbles:: Send(MPI,bubbles);
@@ -224,7 +223,6 @@ void ParallelBubbles:: Bcast(const mpi &MPI, Bubbles &bubbles)
 
 void ParallelBubbles:: Collect(const mpi &MPI, Bubbles &bubbles)
 {
-    MPI.Printf(stderr, "ParallelBubbles::Collect\n");
     
     if( MPI.IsFirst )
     {
@@ -232,7 +230,6 @@ void ParallelBubbles:: Collect(const mpi &MPI, Bubbles &bubbles)
         {
             ParallelBubble::RecvMarkers(MPI,b);
         }
-       
     }
     else
     {
