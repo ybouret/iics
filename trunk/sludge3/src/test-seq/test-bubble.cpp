@@ -30,7 +30,7 @@ YOCTO_UNIT_TEST_IMPL(bubble)
     bubble.compute_curvatures();
     bubble.save_all( "autob" );
 
-    Shape::Ellipse(&bubble, Vertex(0,0), Vertex(6,2));
+    Shape::Ellipse(&bubble, Vertex(0,0), Vertex(6,4));
     Shape::Rotate(&bubble, 0.2);
     bubble.save_dat("ell.dat");
     bubble.adjust_contour();
