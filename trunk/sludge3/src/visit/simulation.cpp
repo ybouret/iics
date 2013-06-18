@@ -101,6 +101,19 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
         return;
     }
 
+    if(cmd == "save" )
+    {
+        if(MPI.IsFirst )
+        {
+            for( const Bubble *b = bubbles.head;b;b=b->next)
+            {
+                const string pfx = vformat("b%u", unsigned(b->UID) );
+                b->save_all(pfx);
+            }
+            junctions.save_all( "j" + MPI.CommWorldID);
+            save_markers();
+        }
+    }
     
 #if 0
     if(cmd == "dx")
@@ -189,19 +202,7 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
         MPI.Printf(stderr, "Pressure OK\n");
     }
     
-    if(cmd == "save" )
-    {
-        if(MPI.IsFirst )
-        {
-            for( const Bubble *b = bubbles.head;b;b=b->next)
-            {
-                const string pfx = vformat("b%u", unsigned(b->UID) );
-                b->save_all(pfx);
-            }
-            junctions.save_all( "j" + MPI.CommWorldID);
-            save_markers();
-        }
-    }
+   
     
        
     if( cmd == "zp" )

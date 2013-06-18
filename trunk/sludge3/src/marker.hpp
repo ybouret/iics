@@ -3,6 +3,9 @@
 
 #include "tracer.hpp"
 #include "yocto/core/list.hpp"
+#include "yocto/spade/array2d.hpp"
+
+typedef array2D<Real> Array;
 
 class Marker
 {
@@ -20,6 +23,7 @@ public:
     Marker(Tracer *tr,const size_t s);
     ~Marker() throw();
     
+    void find_anchor( const Array &B );
     
     
     class List : public core::list_of<Marker>
