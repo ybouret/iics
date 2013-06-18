@@ -6,7 +6,6 @@
 #include "junction.hpp"
 #include "yocto/spade/array2d.hpp"
 
-typedef array2D<Real> Array;
 
 
 //! handle Vert/Horz junctions from grid

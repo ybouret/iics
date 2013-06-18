@@ -59,6 +59,7 @@ void Workspace:: compute_velocities()
             // normal pressure
             //------------------------------------------------------------------
             m->gn = 0;
+            m->find_anchor(B);
                         
         }
     }

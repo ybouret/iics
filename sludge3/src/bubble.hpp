@@ -40,8 +40,9 @@ public:
     
     
     void save_dat( const string &fn ) const;
-    void save_t( const string &fn ) const;
-    void save_n( const string &fn ) const;
+    void save_t( const string &fn ) const; //!< tangents
+    void save_n( const string &fn ) const; //!< curv + normal
+    void save_p( const string &fn ) const; //!< probing
     void save_all( const string &pfx ) const;
     
     
