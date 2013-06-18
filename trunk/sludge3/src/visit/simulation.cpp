@@ -19,7 +19,6 @@ ftol(1e-4)
 
 void Simulation:: initialize()
 {
-    MPI.Printf0(stderr, "\tvalidating\n");
     validate_bubbles(MPI);
     if(!is_valid)
     {
@@ -27,13 +26,9 @@ void Simulation:: initialize()
         return;
     }
     
-    MPI.Printf0(stderr, "\tbroadcasting\n");
     broadcast_bubbles(MPI);
-    
-    MPI.Printf0(stderr,"\tsegmenting\n");
     segment();
     
-    MPI.Printf0(stderr, "\tcomputing pressure...\n");
     compute_pressure(MPI,ftol);
 }
 

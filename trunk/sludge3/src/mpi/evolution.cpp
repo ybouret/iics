@@ -18,7 +18,7 @@ void Workspace:: evolution(const mpi &MPI, Real dt)
     // Evolution of the markers
     //
     //==========================================================================
-    MPI.Printf0(stderr, "\tevolving markers\n");
+    MPI.Printf0(stderr, "\t\tevolving markers...\n");
     for( Bubble *b = bubbles.head; b; b=b->next )
     {
         for( Marker *m= b->markers.head; m; m=m->next )
@@ -43,7 +43,7 @@ void Workspace:: evolution(const mpi &MPI, Real dt)
     // Send back markers to the master
     //
     //==========================================================================
-    MPI.Printf0(stderr, "\tcollecting markers\n");
+    MPI.Printf0(stderr, "\t\tcollecting markers....\n");
     ParallelBubbles::Collect(MPI, bubbles);
     
 }

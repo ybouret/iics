@@ -58,7 +58,7 @@ P_user(0.5)
 
 void Workspace:: validate_bubbles(const mpi &MPI)
 {
-    MPI.Printf0(stderr,"\t\t...validating\n");
+    MPI.Printf0(stderr,"\t\tvalidating....\n");
     is_valid = false;
     if( MPI.IsFirst)
     {
@@ -70,12 +70,12 @@ void Workspace:: validate_bubbles(const mpi &MPI)
         }
     }
     MPI.Bcast<bool>(is_valid, 0, MPI_COMM_WORLD);
-    MPI.Printf(stderr,"Validate= %s\n", is_valid ? "TRUE" : "FALSE");
+    MPI.Printf(stderr,"\t\tValidate= %s\n", is_valid ? "TRUE" : "FALSE");
 }
 
 void Workspace:: broadcast_bubbles(const mpi &MPI)
 {
-    MPI.Printf0(stderr, "\t\t...brodcasting\n");
+    MPI.Printf0(stderr, "\t\tbrodcasting...\n");
     assert(is_valid);
     ParallelBubbles::Bcast(MPI, bubbles);
 }
