@@ -103,9 +103,11 @@ public:
     
     void    append( const Vertex v ); //!< use a copy or vertex
     
-    void dispatch( const Array &B );
-    
+    void normal_grad( const Marker *m, const Array &B, const Array &P);
+
 private:
+    void bracket( const Marker *m, const Junction **Jprev, const Junction **Jnext) const;
+
     YOCTO_DISABLE_COPY_AND_ASSIGN(Bubble);
     
 };
