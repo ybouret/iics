@@ -6,6 +6,36 @@
 #include "yocto/string.hpp"
 
 
+class Junction;
+class Wrapper
+{
+public:
+    YOCTO_MAKE_OBJECT;
+    const Junction *J;
+    
+    Wrapper( const Junction *j) throw() : J(j), prev(0), next(0) {}
+    ~Wrapper() throw() {}
+    
+    Wrapper *prev;
+    Wrapper *next;
+
+    class List : public core::list_of<Wrapper>
+    {
+    public:
+        List() throw() {}
+        ~List() throw() { auto_delete(); }
+        
+        void append( const Junction *J ) { push_back( new Wrapper(J) ); }
+        
+    private:
+        YOCTO_DISABLE_COPY_AND_ASSIGN(List);
+    };
+    
+private:
+    YOCTO_DISABLE_COPY_AND_ASSIGN(Wrapper);
+};
+
+
 class Bubble : public Tracer::Ring
 {
 public:
@@ -34,7 +64,9 @@ public:
     size_t              flags;
     const size_t        UID;      //!< for segmentation
     Marker::List        markers;  //!< for MPI processing
+    Wrapper::List       wrappers; //!< for points localizing
     
+    void clear() throw();
     
     void collect_markers( const Real ymin, const Real ymax);
     
@@ -52,16 +84,6 @@ public:
      */
     void init_contour() throw();
     
-#if 0
-    //! once init_contour is ok, respect lambda and init new contour
-    void auto_contour_spline();
-    
-    
-    
-    //! once init contour is ok, respect lambda by subdivision
-    void auto_contour();
-    
-#endif
     
     //! must have an init_contour before
     void adjust_contour();
@@ -77,8 +99,11 @@ public:
     //! used for MPI debugging
     void hash_bubble( Hasher &h ) const throw();
     
-    Tracer *append();
+    Tracer *append(); //!< helper
+    
     void    append( const Vertex v ); //!< use a copy or vertex
+    
+    void dispatch( const Array &B );
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Bubble);

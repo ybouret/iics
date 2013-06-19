@@ -17,7 +17,9 @@ inside(false),
 lower( SLUDGE_INVALID_COORD ),
 upper( SLUDGE_INVALID_COORD ),
 b_pos( Bubble::IsInvalid ),
-active(false)
+active(false),
+t_prev(0),
+t_next(0)
 {
     assert(owner);
 }

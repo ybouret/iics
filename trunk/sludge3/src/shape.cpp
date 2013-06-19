@@ -11,7 +11,7 @@ void Shape::Circle( Bubble *b, const Vertex center, Real radius )
 	assert(b);
 	assert(radius>0);
     
-	b->auto_delete();
+	b->clear();
     
     const size_t np = max_of<size_t>( 3, numeric<Real>::two_pi * radius / b->lambda );
     for(size_t i=0; i < np; ++i )
@@ -80,7 +80,7 @@ void Shape:: Ellipse( Bubble *b, const Vertex C, const Vertex R)
     assert(R.x>0);
     assert(R.y>0);
     
-    b->auto_delete();
+    b->clear();
 
     //==========================================================================
     // approx perimeter
@@ -152,7 +152,7 @@ void Shape:: Blob( Bubble *b, const Vertex C, const Real radius,  Real rho,  Rea
 {
     assert(b);
     assert(radius>0);
-    b->auto_delete();
+    b->clear();
     
     rho = clamp<Real>(0,rho,0.95);
     w   = clamp<Real>(0,w,1);
@@ -204,7 +204,7 @@ void Shape:: Square( Bubble *b, const Vertex C, Real a)
 {
     assert(b);
     assert(a>0);
-    b->auto_delete();
+    b->clear();
     
     const size_t nextra = size_t(ceil(a/b->lambda));
 

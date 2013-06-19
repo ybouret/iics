@@ -23,7 +23,6 @@ public:
     Marker(Tracer *tr,const size_t s);
     ~Marker() throw();
     
-    void find_anchor( const Array &B );
     
     
     class List : public core::list_of<Marker>

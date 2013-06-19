@@ -80,12 +80,6 @@ const Junction::List & Junctions:: Horz( unit_t j ) const throw()
 
 void Junctions:: clear() throw()
 {
-    /*
-    for(unit_t i = grid.upper.x; i >= grid.lower.x; --i)
-        jvert[i].auto_delete();
-    for(unit_t j= grid.upper.y; j >= grid.lower.y; --j)
-        jhorz[j].auto_delete();
-     */
     for( size_t i=0; i<num_lists; ++i)
     {
         jlists[i].auto_delete();
