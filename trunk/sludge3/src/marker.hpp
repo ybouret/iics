@@ -7,17 +7,20 @@
 
 typedef array2D<Real> Array;
 
+class Junction;
+
 class Marker
 {
 public:
     static const int Tag = 4;
-    Marker       *next;
-    Marker       *prev;
-    Tracer       *tracer;
-    const size_t  shift; //!< to reconstruct tracer ID
-    Real          gt;    //!< tangential pressure gradient
-    Real          gn;    //!< normal gradient
-    
+    Marker         *next;
+    Marker         *prev;
+    Tracer         *tracer;
+    const size_t    shift; //!< to reconstruct tracer ID
+    Real            gt;    //!< tangential pressure gradient
+    Real            gn;    //!< normal gradient
+    const Junction *jprev;
+    const Junction *jnext;
     
     YOCTO_MAKE_OBJECT;
     Marker(Tracer *tr,const size_t s);
