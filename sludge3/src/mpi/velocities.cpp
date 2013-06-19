@@ -59,7 +59,6 @@ void Workspace:: compute_velocities()
             // normal pressure
             //------------------------------------------------------------------
             m->gn = 0;
-            b->normal_grad(m, B, P);
         }
     }
     
