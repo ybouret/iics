@@ -3,7 +3,6 @@
 
 #include "bubble.hpp"
 
-
 //! A basic junction
 class Junction
 {
@@ -50,6 +49,9 @@ public:
     unit_t                  upper;      //!< upper logical index on axis or INVALID
     const Bubble::Position  b_pos;      //!< default Bubble::IsInvalid, set by segmentation
     const bool              active;     //!< has an active point, depending on b_pos...
+    const Tracer           *t_prev;     //!< according to bubble
+    const Tracer           *t_next;     //!< according to bubble
+    
     
     Junction(List &, Real, const Bubble *) throw();
     ~Junction() throw();
@@ -59,6 +61,9 @@ public:
     void set_after()  const;
     void set_before() const;
     void set_active() const;
+    
+       
+       
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Junction);

@@ -5,6 +5,7 @@ void Junctions:: inter( Bubble &bubble)
 {
     assert(bubble.size>=3);
     bubble.flags = SLUDGE_INSIDE;
+    bubble.wrappers.auto_delete();
     
     //==========================================================================
     //
@@ -35,11 +36,14 @@ void Junctions:: inter( Bubble &bubble)
 
 #include "yocto/code/utils.hpp"
 
-void Junctions:: __intersect(const Bubble &bubble, const Tracer *u)
+void Junctions:: __intersect(Bubble &bubble, const Tracer *u)
 {
     assert(u!=NULL);
     assert(bubble.owns(u));
     assert(u->next);
+    
+    const Tracer *t_prev = u;
+    const Tracer *t_next = u->next;
     
     //==========================================================================
     //
@@ -101,6 +105,9 @@ void Junctions:: __intersect(const Bubble &bubble, const Tracer *u)
             Real      alpha = -1;
             Junction *J     = __interHorz(bubble, Ru, Cu, Rv, alpha);
             __updateJunction(J,alpha,u,v);
+            J->t_prev = t_prev;
+            J->t_next = t_next;
+            bubble.wrappers.append(J);
         }
     }
     
@@ -129,6 +136,9 @@ void Junctions:: __intersect(const Bubble &bubble, const Tracer *u)
             Real     alpha =-1;
             Junction *J    = __interVert(bubble, Ru, Cu, Rv,alpha);
             __updateJunction(J,alpha,u,v);
+            J->t_prev = t_prev;
+            J->t_next = t_next;
+            bubble.wrappers.append(J);
         }
     }
     

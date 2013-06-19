@@ -19,7 +19,7 @@ bubbles.hpp   bubbles.cpp
 shape.hpp     shape.cpp
 grid.hpp      grid.cpp
 junction.hpp  junction.cpp
-junctions.hpp junctions.cpp junctions-inter.cpp junctions-segment.cpp
+junctions.hpp junctions.cpp junctions-inter.cpp junctions-segment.cpp junctions-bracket.cpp
 )
 SOURCE_GROUP( sludge FILES ${SOURCES_SEQ} )
 

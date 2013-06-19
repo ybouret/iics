@@ -18,20 +18,19 @@ Marker:: ~Marker() throw()
 {
 }
 
+#if 0
 void Marker:: find_anchor( const Array &B)
 {
     assert(tracer);
     
     const Vertex ini = tracer->pos;
-    const Vertex dir = - tracer->n;
-    std::cerr << "Anchor for " << ini << " towards " << dir << std::endl;
+    //const Vertex dir = - tracer->n;
+    //std::cerr << "Anchor for " << ini << " towards " << dir << std::endl;
     
     assert(0==tracer->flags);         //!< inside
     assert(B.has(tracer->coord));     //!< logical lower coordinates
-    
-    
-    
 }
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 //

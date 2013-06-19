@@ -47,6 +47,7 @@ public:
     void   to_curve( array<Real> &cx, array<Real> &cy ) const throw();
     
     
+    
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Junctions);
     size_t          jcount;
@@ -54,11 +55,12 @@ private:
     Junction::List *jvert;   //!< width.x times
     Junction::List *jhorz;   //!< width.y times
     
+    void __intersect(Bubble &bubble, const Tracer *u);
     
-    void __intersect(const Bubble &bubble, const Tracer *u);
-    
-    // create junction with average pressure
+    // create junction with average pressure/curvature
     Junction *__interHorz(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q, Real &alpha);
+    
+    // create junction with average pressure/curvature
     Junction *__interVert(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q, Real &alpha);
     
     void __updateJunction( Junction *J, const Real alpha, const Tracer *u, const Tracer *v);
