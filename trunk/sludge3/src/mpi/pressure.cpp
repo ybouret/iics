@@ -25,7 +25,7 @@ void Workspace:: compute_laplacian( )
         }
         
     }
-
+    
 }
 
 void Workspace:: compute_pressure( const mpi &MPI, const Real ftol )
@@ -52,6 +52,8 @@ void Workspace:: compute_pressure( const mpi &MPI, const Real ftol )
     
     //save_markers(MPI);
 }
+
+
 
 
 int Workspace:: update_pressure(const mpi &MPI,

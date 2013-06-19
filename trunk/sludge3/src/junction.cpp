@@ -71,8 +71,9 @@ void Junction:: set_active() const
 // JUNCTION LIST
 //
 ////////////////////////////////////////////////////////////////////////////////
-Junction::List:: List( Type t, const Real &v) throw() :
+Junction::List:: List( Type t, const unit_t idx, const Real &v) throw() :
 type(t),
+indx(idx),
 level(v)
 {
 }

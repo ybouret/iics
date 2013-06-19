@@ -22,13 +22,13 @@ jhorz(jvert+grid.width.x)
     const Array1D &X = grid.X();
     for(unit_t i = grid.lower.x; i <= grid.upper.x; ++i)
     {
-        new (jvert+i) Junction::List( Junction::Vert, X[i] );
+        new (jvert+i) Junction::List( Junction::Vert, i, X[i] );
     }
     
     const Array1D &Y = grid.Y();
     for(unit_t j=grid.lower.y; j<= grid.upper.y; ++j)
     {
-        new (jhorz+j) Junction::List( Junction::Horz, Y[j] );
+        new (jhorz+j) Junction::List( Junction::Horz, j, Y[j] );
     }
     
 }

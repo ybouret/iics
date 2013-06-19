@@ -93,6 +93,20 @@ public:
     
     void save_markers( const mpi &MPI ) const;
     
+   
+    struct LocalPressure
+    {
+        Vertex r;
+        Real   P;
+        static inline
+        int CompareByVertex( const LocalPressure &lhs, const LocalPressure &rhs) throw()
+        {
+            return Vertex::lexicographical_compare(lhs.r, rhs.r);
+        }
+    };
+    
+    void collect_pressure( const Junction *J, LocalPressure lp[], size_t &n) const;
+    
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Workspace);
