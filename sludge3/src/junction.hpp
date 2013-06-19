@@ -20,9 +20,10 @@ public:
     class List : public core::list_of<Junction>
     {
     public:
-        const Type  type;
-        const Real &level;
-        explicit List(Type t, const Real &v) throw();
+        const Type   type;
+        const unit_t indx;
+        const Real  &level;
+        explicit List(Type t, const unit_t idx, const Real &v) throw();
         virtual ~List() throw();
         
         const Junction * after(  const Real value ) const throw();
