@@ -105,11 +105,15 @@ void Workspace:: compute_velocities()
     //
     //==========================================================================
     LocalPressure lp[MAX_LOCAL_PRESSURES];
-    
+    junctions.save_dat( "j.dat" );
+
     for( Bubble *b = bubbles.head;b;b=b->next)
     {
         const Real P_in  = b->pressure;
         const Real gamma = b->gamma;
+        const Real mu    = b->lambda / 2;
+        b->save_dat( vformat("b%u.dat", b->UID) );
+
         for( Marker *m = b->markers.head;m;m=m->next)
         {
             //------------------------------------------------------------------
@@ -140,7 +144,56 @@ void Workspace:: compute_velocities()
             collect_pressure(m->jnext, lp, np);
             np -= unique(lp, np, LocalPressure::CompareByVertex);
             std::cerr << "np=" << np << std::endl;
+            const Vertex pos = tr->pos;
+            if(np<=1)
+                throw exception("Not enough neighbors for tracer @[%g %g]", pos.x, pos.y);
+
+            // get the delta
+            for(size_t i=0;i<np;++i)
+            {
+                lp[i].r -= pos;
+                lp[i].d  = lp[i].r.norm();
+            }
             
+            // order by decreasing distance
+            hsort(lp, np, LocalPressure::CompareByDecreasingDistance);
+            std::cerr << "d="; for(size_t i=0;i<np;++i) std::cerr << " " << lp[i].d; std::cerr << " / lambda=" << b->lambda << std::endl;
+            
+            while(np>0 && lp[np-1].d<mu) --np;
+            if(np<=1)
+                throw exception("Neighbors are too close for tracer @[%g %g]", pos.x, pos.y);
+            
+            // take the least-square approximation
+            const Real Pin    = b->pressure;
+            const Real P0     = Pin - b->gamma * tr->C;
+            Real       sum_xp = 0;
+            Real       sum_yp = 0;
+            Real       sum_x2 = 0;
+            Real       sum_y2 = 0;
+            Real       sum_xy = 0;
+            for(size_t i=0;i<np;++i)
+            {
+                const LocalPressure &l = lp[i];
+                const Real   x = l.r.x;
+                const Real   y = l.r.y;
+                const Real   p = l.P - P0;
+                sum_xp += x*p;
+                sum_yp += y*p;
+                sum_x2 += x*x;
+                sum_y2 += y*y;
+                sum_xy += x*y;
+            }
+            const Real D = sum_x2 * sum_y2 - sum_xy * sum_xy;
+            if( Fabs(D) <= numeric<Real>::minimum )
+                throw exception("Singular Pressure Expression @[%g %g]\n", pos.x, pos.y);
+            
+            const Real alpha = ( sum_y2*sum_xp - sum_xy * sum_yp)/D;
+            const Real beta  = (-sum_xy*sum_xp + sum_x2 * sum_yp)/D;
+            
+            
+            // project onto normal
+            m->gn = alpha * tr->n.x + beta * tr->n.y;
+            std::cerr << "gt=" << m->gt << ", gn=" << m->gn << std::endl;
         }
         
       
