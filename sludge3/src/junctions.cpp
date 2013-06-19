@@ -84,6 +84,8 @@ void Junctions:: clear() throw()
     {
         jlists[i].auto_delete();
     }
+    vertDB.free();
+    horzDB.free();
 }
 
 

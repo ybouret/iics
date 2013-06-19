@@ -2,6 +2,7 @@
 #define SLUDGE_JUNCTION_INCLUDED 1
 
 #include "bubble.hpp"
+#include "yocto/associative/set.hpp"
 
 //! A basic junction
 class Junction
@@ -57,13 +58,61 @@ public:
     ~Junction() throw();
     
     Vertex get(void) const throw();
+    Real   dist2( const Vertex &v ) const throw();
+    
     
     void set_after()  const;
     void set_before() const;
     void set_active() const;
     
-       
-       
+    class Key
+    {
+    public:
+        const Tracer *t_prev;
+        const Tracer *t_next;
+        
+        inline Key(const Tracer *p, const Tracer *n) throw() : t_prev(p), t_next(n) {}
+        inline Key(const Junction *J) throw() : t_prev(J->t_prev), t_next(J->t_next) {}
+        inline Key( const Key &k) throw() : t_prev( k.t_prev ), t_next( k.t_next ) {}
+        inline ~Key() throw() {}
+        inline friend
+        bool operator==( const Key &lhs, const Key &rhs ) throw()
+        {
+            return (lhs.t_prev == rhs.t_prev) && (lhs.t_next == rhs.t_next);
+        }
+        
+    private:
+        YOCTO_DISABLE_ASSIGN(Key);
+    };
+    
+    class Pointer
+    {
+    public:
+        const Junction *J;
+        const Key       K;
+        
+        inline Pointer(const Junction *j) throw() :
+        J(j),
+        K(J)
+        {
+        }
+        
+        inline Pointer( const Pointer &p ) throw() :
+        J(p.J),
+        K(p.K)
+        {
+        }
+        
+        
+        inline ~Pointer() throw() {}
+        
+        const Key & key() const throw() { return K; }
+        
+    private:
+        YOCTO_DISABLE_ASSIGN(Pointer);
+    };
+    
+    typedef set<Key,Pointer> DB;
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Junction);

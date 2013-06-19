@@ -41,6 +41,12 @@ Vertex Junction:: get(void) const throw()
     }
 }
 
+Real Junction:: dist2( const Vertex &v ) const throw()
+{
+    const Vertex me = get();
+    return Vertex::dist2(me, v);
+}
+
 
 void Junction:: set_after()  const
 {

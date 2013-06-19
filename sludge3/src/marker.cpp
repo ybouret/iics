@@ -9,7 +9,7 @@ Marker:: Marker( Tracer *tr, const size_t s) :
 tracer(tr),
 shift(s),
 gt(0),
-gn(0)
+gn(0), jprev(0), jnext(0)
 {
     assert(tracer);
 }

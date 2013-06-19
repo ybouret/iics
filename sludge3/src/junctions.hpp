@@ -46,6 +46,7 @@ public:
     size_t count_all() const throw();
     void   to_curve( array<Real> &cx, array<Real> &cy ) const throw();
     
+    void bracket( const Bubble &b, Marker *m );
     
     
 private:
@@ -54,6 +55,8 @@ private:
     Junction::List *jlists;
     Junction::List *jvert;   //!< width.x times
     Junction::List *jhorz;   //!< width.y times
+    Junction::DB    vertDB;
+    Junction::DB    horzDB;
     
     void __intersect(Bubble &bubble, const Tracer *u);
     
@@ -64,7 +67,7 @@ private:
     Junction *__interVert(const Bubble &bubble, const Vertex &p, const Coord &P, const Vertex &q, Real &alpha);
     
     void __updateJunction( Junction *J, const Real alpha, const Tracer *u, const Tracer *v);
-    
+    void __insertJunction( const Junction *J);
     
 };
 

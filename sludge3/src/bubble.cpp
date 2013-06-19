@@ -29,7 +29,6 @@ void Bubble:: clear() throw()
 {
     auto_delete();
     markers.auto_delete();
-    wrappers.auto_delete();
 }
 
 void Bubble::hash_bubble(Hasher &h) const throw()

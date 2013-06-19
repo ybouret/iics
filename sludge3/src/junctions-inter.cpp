@@ -5,7 +5,6 @@ void Junctions:: inter( Bubble &bubble)
 {
     assert(bubble.size>=3);
     bubble.flags = SLUDGE_INSIDE;
-    bubble.wrappers.auto_delete();
     
     //==========================================================================
     //
@@ -30,6 +29,13 @@ void Junctions:: inter( Bubble &bubble)
         __intersect(bubble,tr);
     }
     
+    
+    //==========================================================================
+    //
+    // Third pass: dispatch junctions
+    //
+    //==========================================================================
+    bubble.dispatch_junctions();
     
 }
 
@@ -107,7 +113,7 @@ void Junctions:: __intersect(Bubble &bubble, const Tracer *u)
             __updateJunction(J,alpha,u,v);
             J->t_prev = t_prev;
             J->t_next = t_next;
-            bubble.wrappers.append(J);
+            __insertJunction(J);
         }
     }
     
@@ -138,7 +144,7 @@ void Junctions:: __intersect(Bubble &bubble, const Tracer *u)
             __updateJunction(J,alpha,u,v);
             J->t_prev = t_prev;
             J->t_next = t_next;
-            bubble.wrappers.append(J);
+            __insertJunction(J);
         }
     }
     
@@ -227,5 +233,91 @@ void Junctions:: load( Bubbles &bubbles )
         inter( *b );
     }
     sort();
+}
+
+#include "yocto/exception.hpp"
+
+void Junctions:: __insertJunction( const Junction *J)
+{
+    assert(J);
+    assert(J->t_prev);
+    assert(J->t_next);
+    Junction::DB &db = *( J->root.type == Junction::Vert ? &vertDB : &horzDB );
+    const Junction::Pointer p(J);
+    if( !db.insert(p) )
+        throw exception("Multiple Junctions With Same Neighbors!");
+}
+
+
+void Junctions:: bracket(const Bubble &b, Marker *m)
+{
+    assert(m);
+    assert(0==m->jprev);
+    assert(0==m->jnext);
+    assert(m->tracer);
+    assert(b.markers.owns(m));
+    
+    const Tracer *tr = m->tracer;
+    const Vertex &pos = tr->pos;
+    
+    //--------------------------------------------------------------------------
+    // find next junction
+    //--------------------------------------------------------------------------
+    {
+        const Junction::Pointer *P    = 0;
+        const Tracer            *curr = tr;
+        for( size_t i=b.size;i>0;--i, curr=curr->next)
+        {
+            const Junction::Key K(curr,curr->next);
+            P = horzDB.search(K);
+            if(P)
+            {
+                const Junction::Pointer *Q = vertDB.search(K);
+                if( (Q!=0) && (Q->J->dist2(pos) < P->J->dist2(pos)) )
+                {
+                    P = Q;
+                }
+                break;
+            }
+            
+            P = vertDB.search(K);
+            if(P)
+                break;
+        }
+        if(!P)
+            throw exception("No Next Junction for [%g,%g]", pos.x, pos.y);
+        m->jnext = P->J;
+    }
+    
+    //--------------------------------------------------------------------------
+    // find previous junction
+    //--------------------------------------------------------------------------
+    {
+        const Junction::Pointer *P    = 0;
+        const Tracer            *curr = tr;
+        for( size_t i=b.size;i>0;--i, curr=curr->prev)
+        {
+            const Junction::Key K(curr->prev,curr);
+            P = horzDB.search(K);
+            if(P)
+            {
+                const Junction::Pointer *Q = vertDB.search(K);
+                if( (Q!=0) && (Q->J->dist2(pos) < P->J->dist2(pos)) )
+                {
+                    P = Q;
+                }
+                break;
+            }
+            
+            P = vertDB.search(K);
+            if(P)
+                break;
+        }
+        if(!P)
+            throw exception("No Prev Junction for [%g,%g]", pos.x, pos.y);
+        m->jprev = P->J;
+    }
+
+    
 }
 

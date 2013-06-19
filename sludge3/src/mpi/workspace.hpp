@@ -91,6 +91,8 @@ public:
     
     Vertex gradP_to_V( const Vertex &g ) const;
     
+    void save_markers( const mpi &MPI ) const;
+    
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Workspace);
