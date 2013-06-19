@@ -3,7 +3,7 @@
 
 #include "./parameters.hpp"
 #include "yocto/spade/mpi/workspace.hpp"
-
+#include "yocto/comparator.hpp"
 
 typedef mpi_workspace<Layout,rmesh,Real> WorkspaceType;
 
@@ -96,13 +96,21 @@ public:
    
     struct LocalPressure
     {
-        Vertex r;
-        Real   P;
+        Vertex r; // position/delta position
+        Real   P; // pressure in field
+        Real   d; // distance to tracer
         static inline
         int CompareByVertex( const LocalPressure &lhs, const LocalPressure &rhs) throw()
         {
             return Vertex::lexicographical_compare(lhs.r, rhs.r);
         }
+        
+        static inline
+        int CompareByDecreasingDistance( const LocalPressure &lhs, const LocalPressure &rhs) throw()
+        {
+            return __compare<Real>(rhs.d,lhs.d);
+        }
+        
     };
     
     void collect_pressure( const Junction *J, LocalPressure lp[], size_t &n) const;

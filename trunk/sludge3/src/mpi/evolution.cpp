@@ -19,14 +19,19 @@ void Workspace:: evolution(const mpi &MPI, Real dt)
     //
     //==========================================================================
     MPI.Printf0(stderr, "\t\tevolving markers...\n");
+    save_markers(MPI);
     for( Bubble *b = bubbles.head; b; b=b->next )
     {
+        ios::ocstream fp( vformat("v%u.dat", b->UID), false);
+        
         for( Marker *m= b->markers.head; m; m=m->next )
         {
             Tracer       *tr = m->tracer;
             // recompose the gradient
             const Vertex  g  = m->gt * tr->t + m->gn * tr->n;
             
+            fp("%g %g\n", tr->pos.x, tr->pos.y);
+            fp("%g %g\n\n", tr->pos.x+g.x, tr->pos.y+g.y);
             // compute the velocity
             const Vertex  v  = gradP_to_V(g);
             
