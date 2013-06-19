@@ -21,7 +21,7 @@ public:
     Real            gn;    //!< normal gradient
     const Junction *jprev;
     const Junction *jnext;
-    
+
     YOCTO_MAKE_OBJECT;
     Marker(Tracer *tr,const size_t s);
     ~Marker() throw();

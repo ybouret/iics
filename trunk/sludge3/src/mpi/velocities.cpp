@@ -59,11 +59,47 @@ void Workspace:: compute_velocities()
             // normal pressure
             //------------------------------------------------------------------
             m->gn = 0;
+            junctions.bracket(*b, m);
         }
+        
+      
     }
     
-    
+       
 }
 
+void Workspace:: save_markers( const mpi &MPI ) const
+{
+    const string &mpi_id = MPI.CommWorldID;
+    for( const Bubble *b = bubbles.head;b;b=b->next)
+    {
+        const string bb_id = vformat("%u", unsigned(b->UID) ) + "-" + mpi_id + ".dat";
+        b->save_dat( "b" + bb_id);
+        
+        {
+            ios::ocstream fp( "jp" + bb_id,false);
+            for( Marker *m = b->markers.head;m;m=m->next)
+            {
+                const Vertex org = m->tracer->pos;
+                fp("%g %g\n", org.x, org.y);
+                const Vertex j  = m->jprev->get();
+                fp("%g %g\n\n", j.x, j.y);
+            }
+        }
+        
+        {
+            ios::ocstream fp( "jn" + bb_id,false);
+            for( Marker *m = b->markers.head;m;m=m->next)
+            {
+                const Vertex org = m->tracer->pos;
+                fp("%g %g\n", org.x, org.y);
+                const Vertex j  = m->jnext->get();
+                fp("%g %g\n\n", j.x, j.y);
+            }
+        }
+
+        
+    }
+}
 
 

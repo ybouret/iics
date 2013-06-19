@@ -49,6 +49,8 @@ void Workspace:: compute_pressure( const mpi &MPI, const Real ftol )
     
     MPI.Printf0(stderr,"\t\tcompute velocities...\n");
     compute_velocities();
+    
+    save_markers(MPI);
 }
 
 
