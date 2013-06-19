@@ -59,8 +59,7 @@ void Workspace:: compute_velocities()
             // normal pressure
             //------------------------------------------------------------------
             m->gn = 0;
-            //m->find_anchor(B);
-            //junctions.find_bracket(b, tr);
+            b->normal_grad(m, B, P);
         }
     }
     

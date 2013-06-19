@@ -14,12 +14,12 @@ SET(SOURCES_SEQ
 types.hpp     types.cpp
 tracer.hpp    tracer.cpp
 marker.hpp    marker.cpp
-bubble.hpp    bubble.cpp bubble-ios.cpp bubble-ops.cpp bubble-ext.cpp
+bubble.hpp    bubble.cpp bubble-ios.cpp bubble-ops.cpp bubble-ext.cpp bubble-grad.cpp
 bubbles.hpp   bubbles.cpp
 shape.hpp     shape.cpp
 grid.hpp      grid.cpp
 junction.hpp  junction.cpp
-junctions.hpp junctions.cpp junctions-inter.cpp junctions-segment.cpp junctions-bracket.cpp
+junctions.hpp junctions.cpp junctions-inter.cpp junctions-segment.cpp
 )
 SOURCE_GROUP( sludge FILES ${SOURCES_SEQ} )
 
