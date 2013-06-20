@@ -54,6 +54,7 @@ void Workspace:: compute_pressure( const mpi &MPI, const Real ftol )
 }
 
 
+#define __CHECK_CVG() do { if( Fabs(newP-oldP) > Fabs(ftol*newP) ) converged=0; } while(false)
 
 
 int Workspace:: update_pressure(const mpi &MPI,
@@ -140,7 +141,9 @@ int Workspace:: update_pressure(const mpi &MPI,
         }
         else
         {
-            P[j][i0] = (4.0 * P[j][i1] - E1[j][i2].x) / 3.0;
+            const Real oldP = P[j][i0];
+            const Real newP = P[j][i0] = (4.0 * P[j][i1] - E1[j][i2].x) / 3.0;
+            __CHECK_CVG();
         }
     }
     
@@ -162,7 +165,9 @@ int Workspace:: update_pressure(const mpi &MPI,
             }
             else
             {
-                P[j][in0] = (4.0 * P[j][in1] - L1[j][in2].x) / 3.0;
+                const Real oldP = P[j][in0];
+                const Real newP = P[j][in0] = (4.0 * P[j][in1] - L1[j][in2].x) / 3.0;
+                __CHECK_CVG();
             }
         }
     }
@@ -187,17 +192,25 @@ int Workspace:: update_pressure(const mpi &MPI,
 			}
 			else
 			{
-				P[j0][i] = (4.0 * P[j1][i] - E1[j2][i].y)/3.0;
+                const Real oldP = P[j0][i];
+				const Real newP = P[j0][i] = (4.0 * P[j1][i] - E1[j2][i].y)/3.0;
+                __CHECK_CVG();
 			}
 		}
         
         // lower left corner
-		P[j0][i0] = (P[j1][i0] + P[j0][i1])/2;
+        {
+            const Real oldP = P[j0][i0];
+            const Real newP = P[j0][i0] = (P[j1][i0] + P[j0][i1])/2;
+            __CHECK_CVG();
+        }
         
         if(right_wall)
         {
             //lower right corner
-            P[j0][in0] = (P[j1][in0]+P[j0][in1])/2;
+            const Real oldP = P[j0][in0];
+            const Real newP = P[j0][in0] = (P[j1][in0]+P[j0][in1])/2;
+            __CHECK_CVG();
         }
 	}
 	
@@ -219,14 +232,23 @@ int Workspace:: update_pressure(const mpi &MPI,
 			}
 			else
 			{
-				P[j0][i] = (4.0 * P[j1][i] - L1[j2][i].y)/3.0;
+                const Real oldP = P[j0][i];
+				const Real newP = P[j0][i] = (4.0 * P[j1][i] - L1[j2][i].y)/3.0;
+                __CHECK_CVG();
 			}
 		}
-		P[j0][i0] = (P[j1][i0] + P[j0][i1])/2;
+        
+        {
+            const Real oldP = P[j0][i0];
+            const Real newP = P[j0][i0] = (P[j1][i0] + P[j0][i1])/2;
+            __CHECK_CVG();
+        }
         
         if( right_wall )
         {
-            P[j0][in0] = (P[j1][in0]+P[j0][in1])/2;
+            const Real oldP = P[j0][in0];
+            const Real newP = P[j0][in0] = (P[j1][in0]+P[j0][in1])/2;
+            __CHECK_CVG();
         }
 	}
     

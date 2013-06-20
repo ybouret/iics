@@ -12,7 +12,7 @@ Simulation:: Simulation(const mpi   &MPI,
                         const Vertex Q) :
 Workspace(MPI,N,Q),
 VisIt::Simulation(MPI),
-ftol(1e-4)
+ftol(1e-5)
 {
     
 }
@@ -58,7 +58,7 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
     if( cmd == "WallOn" )
     {
         right_wall = true;
-        P.ldz();
+        //P.ldz();
         initialize();
         return;
     }
@@ -66,7 +66,7 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
     if( cmd == "WallOff" )
     {
         right_wall = false;
-        P.ldz();
+        //P.ldz();
         initialize();
         return;
     }
