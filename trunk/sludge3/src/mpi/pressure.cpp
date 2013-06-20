@@ -126,32 +126,32 @@ int Workspace:: update_pressure(const mpi &MPI,
     //--------------------------------------------------------------------------
     // update the left boundary conditions
     //--------------------------------------------------------------------------
-        const unit_t i0 = lower.x;
-        const unit_t i1 = i0+1;
-        const unit_t i2 = i1+1;
-        
-        for(unit_t j=bulk_jmin;j<=bulk_jmax;++j)
+    const unit_t i0 = lower.x;
+    const unit_t i1 = i0+1;
+    const unit_t i2 = i1+1;
+    
+    for(unit_t j=bulk_jmin;j<=bulk_jmax;++j)
+    {
+        assert(B[j][i0]<0);
+        if(B[j][i1]>=0)
         {
-            assert(B[j][i0]<0);
-            if(B[j][i1]>=0)
-            {
-                // order 1 setting
-                P[j][i0] = E1[j][i1].x;
-            }
-            else
-            {
-                P[j][i0] = (4.0 * P[j][i1] - E1[j][i2].x) / 3.0;
-            }
+            // order 1 setting
+            P[j][i0] = E1[j][i1].x;
         }
+        else
+        {
+            P[j][i0] = (4.0 * P[j][i1] - E1[j][i2].x) / 3.0;
+        }
+    }
     
     //--------------------------------------------------------------------------
     // update the right boundary condition
     //--------------------------------------------------------------------------
+    const unit_t in0 = upper.x;
+    const unit_t in1 = in0-1;
+    const unit_t in2 = in1-1;
     if( right_wall )
     {
-        const unit_t in0 = upper.x;
-        const unit_t in1 = in0-1;
-        const unit_t in2 = in1-1;
         for(unit_t j=bulk_jmin;j<=bulk_jmax;++j)
         {
             assert(B[j][in0]<0);
@@ -176,7 +176,7 @@ int Workspace:: update_pressure(const mpi &MPI,
 		const unit_t j0 = lower.y;
 		const unit_t j1 = j0+1;
 		const unit_t j2 = j1+1;
-       
+        
 		for(unit_t i=i1;i<upper.x;++i)
 		{
 			assert(B[j0][i]<0);
@@ -190,11 +190,14 @@ int Workspace:: update_pressure(const mpi &MPI,
 				P[j0][i] = (4.0 * P[j1][i] - E1[j2][i].y)/3.0;
 			}
 		}
+        
+        // lower left corner
 		P[j0][i0] = (P[j1][i0] + P[j0][i1])/2;
         
         if(right_wall)
         {
-            P[j0][upper.x] = (P[j1][upper.x]+P[j0][upper.x-1])/2;
+            //lower right corner
+            P[j0][in0] = (P[j1][in0]+P[j0][in1])/2;
         }
 	}
 	
@@ -223,7 +226,7 @@ int Workspace:: update_pressure(const mpi &MPI,
         
         if( right_wall )
         {
-            P[j0][upper.x] = (P[j1][upper.x]+P[j0][upper.x-1])/2;
+            P[j0][in0] = (P[j1][in0]+P[j0][in1])/2;
         }
 	}
     
