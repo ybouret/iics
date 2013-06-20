@@ -45,15 +45,32 @@ void Workspace:: collect_pressure( const Junction *J, LocalPressure lp[], size_t
             const unit_t i   = J->root.indx;
             const unit_t im  = i-1;
             const unit_t ip  = i+1;
-            const unit_t jlo = J->lower;
-            const unit_t jup = J->upper;
+            unit_t ja=0,jb=0;
             
-            COLLECT_P(i, jlo);
-            COLLECT_P(i, jup);
-            COLLECT_P(im,jlo);
-            COLLECT_P(im,jup);
-            COLLECT_P(ip,jlo);
-            COLLECT_P(ip,jup);
+            switch( J->b_pos )
+            {
+                case Bubble::IsAfter:
+                    ja = J->lower;
+                    jb = ja-1;
+                    break;
+                    
+                case Bubble::IsBefore:
+                    ja = J->upper;
+                    jb = ja+1;
+                    break;
+                    
+            default:
+                throw exception("Invalid Vertical Bubble Position");
+            }
+            
+            COLLECT_P(im, ja);
+            COLLECT_P(i,  ja);
+            COLLECT_P(ip, ja);
+            
+            COLLECT_P(im, jb);
+            COLLECT_P(i,  jb);
+            COLLECT_P(ip, jb);
+            
         }
             break;
             
@@ -62,15 +79,33 @@ void Workspace:: collect_pressure( const Junction *J, LocalPressure lp[], size_t
             const unit_t j   = J->root.indx;
             const unit_t jm  = j-1;
             const unit_t jp  = j+1;
-            const unit_t ilo = J->lower;
-            const unit_t iup = J->upper;
+            unit_t ia=0,ib=0;
+            switch( J->b_pos )
+            {
+                    
+                case Bubble::IsAfter:
+                    ia = J->lower;
+                    ib = ia-1;
+                    break;
+                    
+                case Bubble::IsBefore:
+                    ia = J->upper;
+                    ib = ia+1;
+                    break;
+                    
+                default:
+                    throw exception("Invalid Horizontal Bubble Position");
+            }
             
-            COLLECT_P(ilo,j);
-            COLLECT_P(ilo,jm);
-            COLLECT_P(ilo,jp);
-            COLLECT_P(iup,j);
-            COLLECT_P(iup,jm);
-            COLLECT_P(iup,jp);
+            COLLECT_P(ia,jm);
+            COLLECT_P(ia,j);
+            COLLECT_P(ia,jp);
+            
+            COLLECT_P(ib,jm);
+            COLLECT_P(ib,j);
+            COLLECT_P(ib,jp);
+            
+            
         }
             break;
     }
@@ -106,20 +141,20 @@ void Workspace:: compute_velocities()
     //==========================================================================
     LocalPressure lp[MAX_LOCAL_PRESSURES];
     junctions.save_dat( "j.dat" );
-
+    
     for( Bubble *b = bubbles.head;b;b=b->next)
     {
         const Real P_in  = b->pressure;
         const Real gamma = b->gamma;
         const Real mu    = b->lambda / 2;
         b->save_dat( vformat("b%u.dat", unsigned(b->UID) ) );
-
+        
         for( Marker *m = b->markers.head;m;m=m->next)
         {
             //------------------------------------------------------------------
             // Tangential, easy
             //------------------------------------------------------------------
-
+            
             const Tracer *tr    = m->tracer;
             const Real    Pcurr = P_in - gamma * tr->C;
             const Real    Pnext = P_in - gamma * tr->next->C;
@@ -147,7 +182,7 @@ void Workspace:: compute_velocities()
             const Vertex pos = tr->pos;
             if(np<=1)
                 throw exception("Not enough neighbors for tracer @[%g %g]", pos.x, pos.y);
-
+            
             // get the delta
             for(size_t i=0;i<np;++i)
             {
@@ -196,10 +231,10 @@ void Workspace:: compute_velocities()
             std::cerr << "gt=" << m->gt << ", gn=" << m->gn << std::endl;
         }
         
-      
+        
     }
     
-       
+    
 }
 
 void Workspace:: save_markers( const mpi &MPI ) const
@@ -231,7 +266,7 @@ void Workspace:: save_markers( const mpi &MPI ) const
                 fp("%g %g\n\n", j.x, j.y);
             }
         }
-
+        
         
     }
 }
