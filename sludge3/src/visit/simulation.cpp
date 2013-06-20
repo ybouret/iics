@@ -58,6 +58,7 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
     if( cmd == "WallOn" )
     {
         right_wall = true;
+        P.ldz();
         initialize();
         return;
     }
@@ -65,6 +66,7 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
     if( cmd == "WallOff" )
     {
         right_wall = false;
+        P.ldz();
         initialize();
         return;
     }
