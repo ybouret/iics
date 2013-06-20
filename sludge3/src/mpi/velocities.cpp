@@ -112,7 +112,7 @@ void Workspace:: compute_velocities()
         const Real P_in  = b->pressure;
         const Real gamma = b->gamma;
         const Real mu    = b->lambda / 2;
-        b->save_dat( vformat("b%u.dat", b->UID) );
+        b->save_dat( vformat("b%u.dat", unsigned(b->UID) ) );
 
         for( Marker *m = b->markers.head;m;m=m->next)
         {
