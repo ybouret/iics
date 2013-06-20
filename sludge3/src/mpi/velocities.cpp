@@ -142,7 +142,7 @@ void Workspace:: compute_velocities()
             size_t np = 0;
             collect_pressure(m->jprev, lp, np);
             collect_pressure(m->jnext, lp, np);
-            np -= unique(lp, np, LocalPressure::CompareByVertex);
+            np = unique(lp, np, LocalPressure::CompareByVertex);
             std::cerr << "np=" << np << std::endl;
             const Vertex pos = tr->pos;
             if(np<=1)
