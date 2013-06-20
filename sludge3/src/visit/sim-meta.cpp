@@ -4,7 +4,9 @@ void Simulation:: get_meta_data(visit_handle &md) const
 {
     
     //! append an UI generic command
-    add_generic_command("raz", md);
+    add_generic_command("raz",     md);
+    add_generic_command("WallOn",  md);
+    add_generic_command("WallOff", md);
     
     //! append the grid
     VisIt_SimulationMetaData_addMesh(md, mesh_meta_data(mesh, "grid", par_size));

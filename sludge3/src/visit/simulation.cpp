@@ -55,6 +55,20 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
         return;
     }
     
+    if( cmd == "WallOn" )
+    {
+        right_wall = true;
+        initialize();
+        return;
+    }
+    
+    if( cmd == "WallOff" )
+    {
+        right_wall = false;
+        initialize();
+        return;
+    }
+    
     if(cmd == "gamma" )
     {
         

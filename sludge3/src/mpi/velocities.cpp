@@ -190,12 +190,12 @@ void Workspace:: compute_velocities()
             // remove doublons
             //------------------------------------------------------------------
             np = unique(lp, np, LocalPressure::CompareByVertex);
-            
+            /*
             std::cerr << "np=" << np << std::endl;
             for(size_t i=0; i < np; ++i)
             {
                 std::cerr << "\t" << lp[i].r << std::endl;
-            }
+            }*/
             const Vertex pos = tr->pos;
             if(np<=0)
                 throw exception("Not enough neighbors for tracer @[%g %g]", pos.x, pos.y);
@@ -216,11 +216,10 @@ void Workspace:: compute_velocities()
             //std::cerr << "d="; for(size_t i=0;i<np;++i) std::cerr << " " << lp[i].d; std::cerr << " / lambda=" << b->lambda << std::endl;
             
             //------------------------------------------------------------------
-            // remove points that are too close
+            // remove points that are too close, left at least 1 point....
             //------------------------------------------------------------------
-            while(np>0 && lp[np-1].d<mu) --np;
-            if(np<=0)
-                throw exception("Neighbors are too close for tracer @[%g %g]", pos.x, pos.y);
+            while(np>1 && lp[np-1].d<mu) --np;
+            
            
             const Real alpha = m->gt;
             
@@ -238,7 +237,7 @@ void Workspace:: compute_velocities()
                 residue += coef*(l.P - (P0+alpha*(r*t)));
             }
             m->gn = residue / weight;
-            std::cerr << "gt=" << m->gt << ", gn=" << m->gn << std::endl;
+            //std::cerr << "np=" << np << ", gt=" << m->gt << ", gn=" << m->gn << std::endl;
             
         }
         

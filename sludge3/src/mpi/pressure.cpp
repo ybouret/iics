@@ -64,7 +64,11 @@ int Workspace:: update_pressure(const mpi &MPI,
     //--------------------------------------------------------------------------
     // set the boundary conditions
     //--------------------------------------------------------------------------
-    if(!right_wall)
+    if(right_wall)
+    {
+        
+    }
+    else
     {
         for(unit_t j=outline.lower.y;j<=outline.upper.y;++j)
             P[j][upper.x] = P_user;
@@ -120,31 +124,59 @@ int Workspace:: update_pressure(const mpi &MPI,
     }
     
     //--------------------------------------------------------------------------
-    // update the boundary conditions
+    // update the left boundary conditions
     //--------------------------------------------------------------------------
-    const unit_t i0 = lower.x;
-    const unit_t i1 = i0+1;
-    const unit_t i2 = i1+1;
-    
-    for(unit_t j=bulk_jmin;j<=bulk_jmax;++j)
-    {
-        assert(B[j][i0]<0);
-        if(B[j][i1]>=0)
+        const unit_t i0 = lower.x;
+        const unit_t i1 = i0+1;
+        const unit_t i2 = i1+1;
+        
+        for(unit_t j=bulk_jmin;j<=bulk_jmax;++j)
         {
-            // order 1 setting
-            P[j][i0] = E1[j][i1].x;
+            assert(B[j][i0]<0);
+            if(B[j][i1]>=0)
+            {
+                // order 1 setting
+                P[j][i0] = E1[j][i1].x;
+            }
+            else
+            {
+                P[j][i0] = (4.0 * P[j][i1] - E1[j][i2].x) / 3.0;
+            }
         }
-        else
+    
+    //--------------------------------------------------------------------------
+    // update the right boundary condition
+    //--------------------------------------------------------------------------
+    if( right_wall )
+    {
+        const unit_t in0 = upper.x;
+        const unit_t in1 = in0-1;
+        const unit_t in2 = in1-1;
+        for(unit_t j=bulk_jmin;j<=bulk_jmax;++j)
         {
-            P[j][i0] = (4.0 * P[j][i1] - E1[j][i2].x) / 3.0;
+            assert(B[j][in0]<0);
+            if(B[j][in1]>=0)
+            {
+                // order 1 setting
+                P[j][in0] = L1[j][in1].x;
+            }
+            else
+            {
+                P[j][in0] = (4.0 * P[j][in1] - L1[j][in2].x) / 3.0;
+            }
         }
     }
     
+    
+    //--------------------------------------------------------------------------
+    // lower boundary condition
+    //--------------------------------------------------------------------------
 	if(MPI.IsFirst)
 	{
 		const unit_t j0 = lower.y;
 		const unit_t j1 = j0+1;
 		const unit_t j2 = j1+1;
+       
 		for(unit_t i=i1;i<upper.x;++i)
 		{
 			assert(B[j0][i]<0);
@@ -159,8 +191,16 @@ int Workspace:: update_pressure(const mpi &MPI,
 			}
 		}
 		P[j0][i0] = (P[j1][i0] + P[j0][i1])/2;
+        
+        if(right_wall)
+        {
+            P[j0][upper.x] = (P[j1][upper.x]+P[j0][upper.x-1])/2;
+        }
 	}
 	
+    //--------------------------------------------------------------------------
+    // upper boundary condition
+    //--------------------------------------------------------------------------
 	if(MPI.IsFinal)
 	{
 		const unit_t j0 = upper.y;
@@ -180,6 +220,11 @@ int Workspace:: update_pressure(const mpi &MPI,
 			}
 		}
 		P[j0][i0] = (P[j1][i0] + P[j0][i1])/2;
+        
+        if( right_wall )
+        {
+            P[j0][upper.x] = (P[j1][upper.x]+P[j0][upper.x-1])/2;
+        }
 	}
     
 	sync1(MPI, P);
