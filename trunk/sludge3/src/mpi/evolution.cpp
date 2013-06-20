@@ -22,7 +22,7 @@ void Workspace:: evolution(const mpi &MPI, Real dt)
     save_markers(MPI);
     for( Bubble *b = bubbles.head; b; b=b->next )
     {
-        ios::ocstream fp( vformat("v%u.dat", b->UID), false);
+        ios::ocstream fp( vformat("v%u.dat", unsigned(b->UID) ), false);
         
         for( Marker *m= b->markers.head; m; m=m->next )
         {
