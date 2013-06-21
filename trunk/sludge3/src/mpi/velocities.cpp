@@ -256,6 +256,15 @@ void Workspace:: save_markers( const mpi &MPI ) const
         b->save_dat( "b" + bb_id);
         
         {
+            ios::ocstream fp("m" + bb_id, false);
+            for( Marker *m = b->markers.head;m;m=m->next)
+            {
+                const Vertex org = m->tracer->pos;
+                fp("%g %g\n", org.x, org.y);
+            }
+        }
+        
+        {
             ios::ocstream fp( "jp" + bb_id,false);
             for( Marker *m = b->markers.head;m;m=m->next)
             {
