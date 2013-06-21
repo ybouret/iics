@@ -10,7 +10,7 @@ bool Workspace:: evolution(const mpi &MPI, Real dt)
     // assume the velocities/pressure etc.. are computed
     //
     //==========================================================================
-    
+    save_markers(MPI);
     while( dt > 0 )
     {
         Real dt_max = dt;
