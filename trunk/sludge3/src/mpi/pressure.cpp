@@ -28,13 +28,13 @@ void Workspace:: compute_laplacian( )
     
 }
 
-void Workspace:: compute_pressure( const mpi &MPI, const Real ftol )
+void Workspace:: compute_pressure( const mpi &MPI )
 {
     const int target = MPI.CommWorldSize;
     for(;;)
     {
-        const int cvg = update_pressure(MPI, Red, ftol) & update_pressure(MPI, Black, ftol);
-        if( target == mpi_ops::sum(MPI, cvg, MPI_COMM_WORLD) )
+        const int cvg = update_pressure(MPI, Red) & update_pressure(MPI, Black);
+        if( target == mpi_ops::sum_of(MPI, cvg, MPI_COMM_WORLD) )
             break;
     }
     
@@ -49,8 +49,6 @@ void Workspace:: compute_pressure( const mpi &MPI, const Real ftol )
     
     MPI.Printf0(stderr,"\t\tcompute velocities...\n");
     compute_velocities();
-    
-    //save_markers(MPI);
 }
 
 
@@ -58,8 +56,7 @@ void Workspace:: compute_pressure( const mpi &MPI, const Real ftol )
 
 
 int Workspace:: update_pressure(const mpi &MPI,
-                                ColorType  c,
-                                const Real ftol)
+                                ColorType  c)
 {
     
     //--------------------------------------------------------------------------

@@ -1,54 +1,76 @@
 #include "workspace.hpp"
+#include "yocto/code/utils.hpp"
+#include "yocto/mpi/ops.hpp"
 
-
-void Workspace:: evolution(const mpi &MPI, Real dt)
+bool Workspace:: evolution(const mpi &MPI, Real dt)
 {
     
     //==========================================================================
     //
-    // Evolution of all the data fields
+    // assume the velocities/pressure etc.. are computed
     //
     //==========================================================================
     
-    
-    
-    
-    //==========================================================================
-    //
-    // Evolution of the markers
-    //
-    //==========================================================================
-    MPI.Printf0(stderr, "\t\tevolving markers...\n");
-    save_markers(MPI);
-    for( Bubble *b = bubbles.head; b; b=b->next )
+    while( dt > 0 )
     {
-        ios::ocstream fp( vformat("v%u.dat", unsigned(b->UID) ), false);
+        Real dt_max = dt;
         
-        for( Marker *m= b->markers.head; m; m=m->next )
+        //----------------------------------------------------------------------
+        // compute the velocities for each marker, and
+        // deduced max allowed time
+        //----------------------------------------------------------------------
+        for( Bubble *b = bubbles.head; b; b=b->next )
         {
-            Tracer       *tr = m->tracer;
-            // recompose the gradient
-            const Vertex  g  = m->gt * tr->t + m->gn * tr->n;
+            //ios::ocstream fp( vformat("v%u.dat", unsigned(b->UID) ), false);
             
-            fp("%g %g\n", tr->pos.x, tr->pos.y);
-            fp("%g %g\n\n", tr->pos.x+g.x, tr->pos.y+g.y);
-            // compute the velocity
-            const Vertex  v  = gradP_to_V(g);
+            for( Marker *m= b->markers.head; m; m=m->next )
+            {
+                Tracer       *tr = m->tracer;
+                // recompose the gradient
+                const Vertex  g  = m->gt * tr->t + m->gn * tr->n;
+                
+                //fp("%g %g\n", tr->pos.x, tr->pos.y);
+                //fp("%g %g\n\n", tr->pos.x+g.x, tr->pos.y+g.y);
+                
+                // compute the velocity
+                m->v  = gradP_to_V(g);
+                
+                // compute the max allowed time
+                const Real d_max = min_of<Real>( tr->dist, tr->prev->dist)/2;
+                const Real speed = m->v.norm();
+                if( speed * dt_max > d_max )
+                {
+                    dt_max = d_max / speed;
+                }
+            }
             
-            // deduce the displacement
-            const Vertex  dr = dt * v;
-
-            // evolve
-            tr->pos += dr;
+            
         }
+        
+        //----------------------------------------------------------------------
+        // move according to the min of dt_max
+        //----------------------------------------------------------------------
+        MPI.Printf(stderr,"dt_max=%g\n", dt_max);
+        dt_max = mpi_ops::min_of(MPI,dt_max);
+        MPI.Printf0(stderr, "\tdt_max=%g\n", dt_max);
+        
+        for( Bubble *b = bubbles.head; b; b=b->next )
+        {
+            for( Marker *m= b->markers.head; m; m=m->next )
+            {
+                Tracer  *tr = m->tracer;
+                tr->pos += dt_max * m->v;
+            }
+        }
+        dt -= dt_max;
+        
+        MPI.Printf0(stderr, "\t\tcollecting markers....\n");
+        ParallelBubbles::Collect(MPI, bubbles);
+        
+        if(!initialize(MPI))
+            return false;
     }
     
-    //==========================================================================
-    //
-    // Send back markers to the master
-    //
-    //==========================================================================
-    MPI.Printf0(stderr, "\t\tcollecting markers....\n");
-    ParallelBubbles::Collect(MPI, bubbles);
     
+    return true;
 }

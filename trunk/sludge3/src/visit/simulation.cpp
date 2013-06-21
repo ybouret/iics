@@ -11,25 +11,14 @@ Simulation:: Simulation(const mpi   &MPI,
                         const Coord  N,
                         const Vertex Q) :
 Workspace(MPI,N,Q),
-VisIt::Simulation(MPI),
-ftol(1e-5)
+VisIt::Simulation(MPI)
 {
     
 }
 
 void Simulation:: initialize()
 {
-    validate_bubbles(MPI);
-    if(!is_valid)
-    {
-        done = true;
-        return;
-    }
-    
-    broadcast_bubbles(MPI);
-    segment();
-    
-    compute_pressure(MPI,ftol);
+    done = !Workspace::initialize(MPI);
 }
 
 

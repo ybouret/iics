@@ -70,8 +70,7 @@ public:
      \return 1 if success, 0 otherwise
      */
     int update_pressure(const mpi &MPI,
-                        ColorType c,
-                        const Real ftol);
+                        ColorType c);
     
     
     //! Red-Black Gauss-Seidel until ftol
@@ -80,14 +79,27 @@ public:
      velocities are deduced,
      in the bulk and for each marker
      */
-    void compute_pressure( const mpi &MPI, const Real ftol );
+    void compute_pressure( const mpi &MPI );
     
     
     //! to debug
     void compute_laplacian();
     
+    
+       
+    //! validate/compute pressure/velocities
+    /**
+     \return false is invalid bubbles
+     */
+    bool initialize( const mpi &MPI );
+    
+    
     //! move tracers associated to markers
-    void evolution( const mpi &MPI, Real dt );
+    /**
+     \return false if invalid bubbles are created
+     */
+    bool evolution( const mpi &MPI, Real dt );
+
     
     Vertex gradP_to_V( const Vertex &g ) const;
     

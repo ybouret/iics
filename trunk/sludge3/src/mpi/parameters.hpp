@@ -37,6 +37,7 @@ public:
     const unit_t   bulk_imax;
     const unit_t   bulk_jmin;    //!< take care of side
     const unit_t   bulk_jmax;    //!< take care of side
+    Real           ftol;         //!< fractional tolerance
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Parameters);
