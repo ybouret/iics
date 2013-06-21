@@ -12,7 +12,7 @@ public VisIt::Simulation,
 public VisItIO
 {
 public:
-    Real ftol;
+
     explicit Simulation(const mpi   &ref,
                         const Coord  N,
                         const Vertex Q

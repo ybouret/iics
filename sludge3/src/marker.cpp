@@ -9,7 +9,10 @@ Marker:: Marker( Tracer *tr, const size_t s) :
 tracer(tr),
 shift(s),
 gt(0),
-gn(0), jprev(0), jnext(0)
+gn(0),
+jprev(0),
+jnext(0),
+v()
 {
     assert(tracer);
 }
@@ -18,19 +21,6 @@ Marker:: ~Marker() throw()
 {
 }
 
-#if 0
-void Marker:: find_anchor( const Array &B)
-{
-    assert(tracer);
-    
-    const Vertex ini = tracer->pos;
-    //const Vertex dir = - tracer->n;
-    //std::cerr << "Anchor for " << ini << " towards " << dir << std::endl;
-    
-    assert(0==tracer->flags);         //!< inside
-    assert(B.has(tracer->coord));     //!< logical lower coordinates
-}
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 //

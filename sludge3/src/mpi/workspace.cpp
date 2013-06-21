@@ -134,3 +134,19 @@ void Workspace:: save_markers() const
     }
     
 }
+
+
+bool Workspace:: initialize( const mpi &MPI )
+{
+    validate_bubbles(MPI);
+    if(!is_valid)
+    {
+        return false;
+    }
+    
+    broadcast_bubbles(MPI);
+    segment();
+    
+    compute_pressure(MPI);
+    return true;
+}
