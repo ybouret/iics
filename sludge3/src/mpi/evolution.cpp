@@ -36,7 +36,7 @@ bool Workspace:: evolution(const mpi &MPI, Real dt)
                 m->v  = gradP_to_V(g);
                 
                 // compute the max allowed time
-                const Real d_max = min_of<Real>( tr->dist, tr->prev->dist)/2;
+                const Real d_max = min_of<Real>( tr->dist, tr->prev->dist)/3;
                 const Real speed = m->v.norm();
                 if( speed * dt_max > d_max )
                 {
