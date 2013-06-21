@@ -190,12 +190,7 @@ void Workspace:: compute_velocities()
             // remove doublons
             //------------------------------------------------------------------
             np = unique(lp, np, LocalPressure::CompareByVertex);
-            /*
-            std::cerr << "np=" << np << std::endl;
-            for(size_t i=0; i < np; ++i)
-            {
-                std::cerr << "\t" << lp[i].r << std::endl;
-            }*/
+            
             const Vertex pos = tr->pos;
             if(np<=0)
                 throw exception("Not enough neighbors for tracer @[%g %g]", pos.x, pos.y);
