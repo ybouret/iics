@@ -12,7 +12,7 @@ typedef array2D<Vertex>      VertexArray;
 class Parameters
 {
 public:
-    static const size_t NumGhosts = 2;
+    static const size_t NumGhosts = 3;
     
     explicit Parameters(const mpi    &MPI,
                         const Coord  &N,
@@ -38,6 +38,7 @@ public:
     const unit_t   bulk_jmin;    //!< take care of side
     const unit_t   bulk_jmax;    //!< take care of side
     Real           ftol;         //!< fractional tolerance
+  
     
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Parameters);

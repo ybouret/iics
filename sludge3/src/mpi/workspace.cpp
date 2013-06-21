@@ -27,7 +27,9 @@ Bulk( (*this)["Bulk"].as<Array>() ),
 DeltaP( (*this)["DeltaP"].as<Array>() ),
 V( (*this)["V"].as<VertexArray>() ),
 right_wall(false),
-P_user(0.5)
+P_user(0.5),
+jcoll_lo(lower.y),
+jcoll_up(upper.y)
 {
     
     //==========================================================================
@@ -50,9 +52,20 @@ P_user(0.5)
     // final update
     //==========================================================================
     bubbles.lambda = min_of(delta.x,delta.y) / 2;
-    //std::cerr << "delta =" << delta << std::endl;
-    //std::cerr << "lambda=" << bubbles.lambda << std::endl;
+   
     
+    //==========================================================================
+    // adjust collection coordinates
+    //==========================================================================
+    if( !MPI.IsFirst )
+    {
+        --(unit_t&)jcoll_lo;
+    }
+    
+    if( !MPI.IsFinal )
+    {
+        ++(unit_t&)jcoll_up;
+    }
 }
 
 
@@ -86,7 +99,7 @@ void Workspace:: segment()
     junctions.load(bubbles);
     junctions.segment(B);
     
-    bubbles.collect_all_markers(Y[lower.y], Y[upper.y]);
+    bubbles.collect_all_markers(Y[jcoll_lo], Y[jcoll_up]);
     
     
     for( unit_t j=outline.lower.y;j<=outline.upper.y;++j)

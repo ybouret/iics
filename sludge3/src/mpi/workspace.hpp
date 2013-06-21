@@ -34,6 +34,8 @@ public:
     VertexArray   &V;          //!< velocities on the grid
     bool           right_wall; //!< default: false
     Real           P_user;     //!< default: 0.5
+    const unit_t   jcoll_lo;   //!< lower index for marker collection
+    const unit_t   jcoll_up;   //!< upper index for marker collection
     
     //! regularize bubbles, check boundaries, broadcast is_valid
     void validate_bubbles(const mpi &MPI);
