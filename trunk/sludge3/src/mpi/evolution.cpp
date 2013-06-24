@@ -1,6 +1,5 @@
 #include "workspace.hpp"
 #include "yocto/code/utils.hpp"
-#include "yocto/mpi/ops.hpp"
 
 bool Workspace:: evolution(const mpi &MPI, Real dt)
 {
@@ -51,7 +50,7 @@ bool Workspace:: evolution(const mpi &MPI, Real dt)
         // move according to the min of dt_max
         //----------------------------------------------------------------------
         MPI.Printf(stderr,"dt_max=%g\n", dt_max);
-        dt_max = mpi_ops::min_of(MPI,dt_max);
+        dt_max = MPI.Min(dt_max,MPI_COMM_WORLD);
         MPI.Printf0(stderr, "\tdt_max=%g\n", dt_max);
         
         for( Bubble *b = bubbles.head; b; b=b->next )

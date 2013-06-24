@@ -112,6 +112,12 @@ void Workspace:: collect_pressure( const Junction *J, LocalPressure lp[], size_t
 }
 
 
+namespace
+{
+   
+    
+}
+
 void Workspace:: compute_velocities()
 {
     
@@ -140,7 +146,7 @@ void Workspace:: compute_velocities()
     //
     //==========================================================================
     LocalPressure lp[MAX_LOCAL_PRESSURES];
-    junctions.save_dat( "j.dat" );
+    //junctions.save_dat( "j.dat" );
     
     for( Bubble *b = bubbles.head;b;b=b->next)
     {
@@ -148,6 +154,9 @@ void Workspace:: compute_velocities()
         const Real gamma = b->gamma;
         const Real mu    = b->lambda / 2;
         b->save_dat( vformat("b%u.dat", unsigned(b->UID) ) );
+        
+        
+        ios::ocstream fp( vformat("lp%u.dat", unsigned(b->UID)) , false);
         
         for( Marker *m = b->markers.head;m;m=m->next)
         {
@@ -204,6 +213,7 @@ void Workspace:: compute_velocities()
                 lp[i].d  = lp[i].r.norm();
             }
             
+#if 1
             //------------------------------------------------------------------
             // order by decreasing distance
             //------------------------------------------------------------------
@@ -214,8 +224,10 @@ void Workspace:: compute_velocities()
             // remove points that are too close, left at least 1 point....
             //------------------------------------------------------------------
             while(np>1 && lp[np-1].d<mu) --np;
+#endif
             
-           
+            
+            
             const Real alpha = m->gt;
             
             Real         weight  = 0;
@@ -230,6 +242,8 @@ void Workspace:: compute_velocities()
                 const Real           coef = r*n;
                 weight  += coef*coef;
                 residue += coef*(l.P - (P0+alpha*(r*t)));
+                fp("%g %g\n", pos.x, pos.y);
+                fp("%g %g\n\n", pos.x + r.x, pos.y + r.y );
             }
             m->gn = residue / weight;
             //std::cerr << "np=" << np << ", gt=" << m->gt << ", gn=" << m->gn << std::endl;
