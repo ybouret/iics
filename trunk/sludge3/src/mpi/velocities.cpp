@@ -111,10 +111,20 @@ void Workspace:: collect_pressure( const Junction *J, LocalPressure lp[], size_t
     }
 }
 
+#include "yocto/code/remove-if.hpp"
 
 namespace
 {
-   
+    struct InvalidVertex
+    {
+        Vertex out_n;
+        Real   d_min;
+        
+        bool operator()( const Workspace::LocalPressure &lp )
+        {
+            return (lp.r*out_n <= 0) || lp.d < d_min;
+        }
+    };
     
 }
 
@@ -157,7 +167,8 @@ void Workspace:: compute_velocities()
         
         
         ios::ocstream fp( vformat("lp%u.dat", unsigned(b->UID)) , false);
-        
+        ios::ocstream fp2( vformat("gn%u.dat", unsigned(b->UID)) , false);
+
         for( Marker *m = b->markers.head;m;m=m->next)
         {
             //------------------------------------------------------------------
@@ -213,18 +224,14 @@ void Workspace:: compute_velocities()
                 lp[i].d  = lp[i].r.norm();
             }
             
-#if 1
-            //------------------------------------------------------------------
-            // order by decreasing distance
-            //------------------------------------------------------------------
-            hsort(lp, np, LocalPressure::CompareByDecreasingDistance);
-            //std::cerr << "d="; for(size_t i=0;i<np;++i) std::cerr << " " << lp[i].d; std::cerr << " / lambda=" << b->lambda << std::endl;
+            InvalidVertex chk;
+            chk.out_n = -tr->n;
+            chk.d_min = mu;
             
-            //------------------------------------------------------------------
-            // remove points that are too close, left at least 1 point....
-            //------------------------------------------------------------------
-            while(np>1 && lp[np-1].d<mu) --np;
-#endif
+            np = remove_if(lp,np,chk);
+            
+            if(np<=0)
+                throw exception("Not enough valid neighbors for tracer @[%g %g]", pos.x, pos.y);
             
             
             
@@ -247,7 +254,8 @@ void Workspace:: compute_velocities()
             }
             m->gn = residue / weight;
             //std::cerr << "np=" << np << ", gt=" << m->gt << ", gn=" << m->gn << std::endl;
-            
+            fp2("%g %g\n", pos.x, pos.y);
+            fp2("%g %g\n\n", pos.x+m->gn*tr->n.x, pos.y+m->gn*tr->n.y);
         }
         
         
