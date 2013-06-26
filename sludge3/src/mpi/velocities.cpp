@@ -122,7 +122,7 @@ namespace
         Real    d_min;
         bool operator()( const Workspace::LocalPressure &lp ) const throw()
         {
-            return (lp.r*n_out<d_min);
+            return (lp.r*n_out<=d_min);
         }
     };
 }
@@ -258,9 +258,29 @@ void Workspace:: compute_velocities()
             }
             
             
+            switch(np)
+            {
+                case 2:
+                {
+                    const Real dP0 = lp[0].P - Pcurr;
+                    const Real dP1 = lp[1].P - Pcurr;
+                    const Real x0  = lp[0].r.x;
+                    const Real y0  = lp[0].r.y;
+                    const Real x1  = lp[1].r.x;
+                    const Real y1  = lp[1].r.y;
+                    const Real D   = x0*y1-x1*y0;
+                    const Real alpha = (y1*dP0-y0*dP1)/D;
+                    const Real beta  = (x0*dP1-x1*dP0)/D;
+                    m->gn = alpha * tr->n.x + beta * tr->n.y;
+                }
+                    break;
+            }
             
-            fp2("%g %g\n", pos.x, pos.y);
-            fp2("%g %g\n\n", pos.x+m->gn*tr->n.x, pos.y+m->gn*tr->n.y);
+            
+            //fp2("%g %g\n", pos.x, pos.y);
+            //fp2("%g %g\n\n", pos.x+m->gn*tr->n.x, pos.y+m->gn*tr->n.y);
+            fp2("%g %g\n", pos.x+m->gn*tr->n.x, pos.y+m->gn*tr->n.y);
+
         }
         
         
