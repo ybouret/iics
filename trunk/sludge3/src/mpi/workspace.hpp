@@ -125,6 +125,14 @@ public:
             return __compare<Real>(rhs.d,lhs.d);
         }
         
+        static inline
+        int CompareByIncreasingDistance( const LocalPressure &lhs, const LocalPressure &rhs) throw()
+        {
+            return __compare<Real>(lhs.d,rhs.d);
+        }
+        
+        
+        
     };
     
     void collect_pressure( const Junction *J, LocalPressure lp[], size_t &n) const;
