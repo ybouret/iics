@@ -112,6 +112,20 @@ void Workspace:: collect_pressure( const Junction *J, LocalPressure lp[], size_t
 }
 
 #include "yocto/code/utils.hpp"
+#include "yocto/code/remove-if.hpp"
+
+namespace
+{
+    struct InvalidVertex
+    {
+        Vertex  n_out;
+        Real    d_min;
+        bool operator()( const Workspace::LocalPressure &lp ) const throw()
+        {
+            return (lp.r*n_out<d_min);
+        }
+    };
+}
 
 void Workspace:: compute_velocities()
 {
@@ -142,8 +156,8 @@ void Workspace:: compute_velocities()
     //==========================================================================
     LocalPressure lp[MAX_LOCAL_PRESSURES];
     //junctions.save_dat( "j.dat" );
-    const Vertex ex(1,0);
     
+    const Vertex ex(1,0);
     for( Bubble *b = bubbles.head;b;b=b->next)
     {
         const Real P_in  = b->pressure;
@@ -154,7 +168,7 @@ void Workspace:: compute_velocities()
         
         ios::ocstream fp ( vformat("lp%u.dat", unsigned(b->UID)), false);
         ios::ocstream fp2( vformat("gn%u.dat", unsigned(b->UID)), false);
-        ios::ocstream fp3( vformat("pr%u.dat", unsigned(b->UID)), false);
+        //ios::ocstream fp3( vformat("pr%u.dat", unsigned(b->UID)), false);
         
         for( Marker *m = b->markers.head;m;m=m->next)
         {
@@ -203,74 +217,48 @@ void Workspace:: compute_velocities()
                 throw exception("Not enough neighbors for tracer @[%g %g]", pos.x, pos.y);
             
             
-            
             //------------------------------------------------------------------
-            // build probe position
+            // compute minimal distance
             //------------------------------------------------------------------
             const Vertex n_out = -tr->n;
-            const Real   theta = Vertex::angle_of(n_out, ex);
+            const Real   theta = Vertex::angle_of(ex, n_out);
             const Real   dpx   = Cos(theta) * delta.x;
             const Real   dpy   = Sin(theta) * delta.y;
-            const Real   pdist = Sqrt(dpx*dpx+dpy*dpy)/2;
-            const Vertex probe = pos + pdist * n_out;
-            fp3("%g %g\n", pos.x, pos.y);
-            fp3("%g %g\n\n", probe.x, probe.y);
-            
+            const Real   mu    = Hypotenuse(dpx, dpy)/2;
             
             //------------------------------------------------------------------
-            // get the delta to the probe, compute the distance
+            // get the delta to the tracer, compute distance
             //------------------------------------------------------------------
             for(size_t i=0;i<np;++i)
             {
-                lp[i].r -= probe;
+                lp[i].r -= pos;
                 lp[i].d  = lp[i].r.norm();
             }
             
-            hsort(lp,np,LocalPressure::CompareByIncreasingDistance);
-            for(size_t i=1; i <np; ++i )
-            {
-                assert(lp[i-1].d<=lp[i].d);
-            }
+            //------------------------------------------------------------------
+            // remove points that are too close
+            //------------------------------------------------------------------
+            InvalidVertex chk;
+            chk.d_min = mu;
+            chk.n_out = n_out;
+            np = remove_if(lp, np, chk);
             
-          
-        
-            np = min_of<size_t>(np,1);
-            std::cerr << "np=" << np << std::endl;
-           
+            if(np<=0)
+                throw exception("Neighbors are to close for  tracer @[%g %g]", pos.x, pos.y);
+            
+            //------------------------------------------------------------------
+            // Keep at most 2 the two closest points
+            //------------------------------------------------------------------
+            hsort(lp,np,LocalPressure::CompareByIncreasingDistance);
+            np = min_of<size_t>(np,2);
             for( size_t i=0; i < np; ++i )
             {
-                fp("%g %g\n", probe.x, probe.y);
-                fp("%g %g\n\n", probe.x + lp[i].r.x, probe.y + lp[i].r.y );
+                fp("%g %g\n", pos.x, pos.y);
+                fp("%g %g\n\n", pos.x + lp[i].r.x, pos.y + lp[i].r.y );
             }
             
-            //InvalidVertex chk; chk.out_n = -tr->n; chk.d_min = mu;
-            //np = remove_if(lp,np,chk);
-        
             
             
-            /*
-             const Real alpha = m->gt;
-             
-             Real         weight  = 0;
-             Real         residue = 0;
-             const Vertex t = tr->t;
-             const Vertex n = tr->n;
-             const Real   P0 = b->pressure - tr->C * b->gamma;
-             for( size_t i=0; i < np; ++i )
-             {
-             const LocalPressure &l = lp[i];
-             const Vertex        &r = l.r;
-             const Real           coef = r*n;
-             weight  += coef*coef;
-             residue += coef*(l.P - (P0+alpha*(r*t)));
-             fp("%g %g\n", pos.x, pos.y);
-             fp("%g %g\n\n", pos.x + r.x, pos.y + r.y );
-             }
-             m->gn = residue / weight;
-             m->gn = 0;
-             */
-            
-            //std::cerr << "np=" << np << ", gt=" << m->gt << ", gn=" << m->gn << std::endl;
             fp2("%g %g\n", pos.x, pos.y);
             fp2("%g %g\n\n", pos.x+m->gn*tr->n.x, pos.y+m->gn*tr->n.y);
         }
