@@ -183,19 +183,23 @@ void Workspace:: compute_velocities()
     //
     //==========================================================================
     LocalPressure lp[MAX_LOCAL_PRESSURES];
-    //junctions.save_dat( "j.dat" );
+    
+#define SAVE_INFO 0
     
     const Vertex ex(1,0);
     for( Bubble *b = bubbles.head;b;b=b->next)
     {
         const Real P_in  = b->pressure;
         const Real gamma = b->gamma;
+        
+#if defined(SAVE_INFO) && SAVE_INFO == 1
         b->save_dat( vformat("b%u.dat", unsigned(b->UID) ) );
         
         
         ios::ocstream fp ( vformat("lp%u.dat", unsigned(b->UID)), false);
         ios::ocstream fp2( vformat("gn%u.dat", unsigned(b->UID)), false);
         ios::ocstream fp3( vformat("pr%u.dat", unsigned(b->UID)), false);
+#endif
         
         for( Marker *m = b->markers.head;m;m=m->next)
         {
@@ -256,6 +260,23 @@ void Workspace:: compute_velocities()
             
             
             
+            
+            const Real Pfull = __eval_pressure_at(probe, lp, np);
+            
+            /*
+             const Real half  = mu/2;
+             probe = pos + half * n_out;
+             const Real Phalf = __eval_pressure_at(probe, lp, np);
+             
+             
+             m->gn = -(4*Phalf - 3*Pcurr - Pfull)/mu;
+             */
+            
+            m->gn = (Pcurr-Pfull)/mu;
+            
+            
+#if defined(SAVE_INFO) && SAVE_INFO == 1
+            
             for( size_t i=0; i < np; ++i )
             {
                 fp("%g %g\n", probe.x, probe.y);
@@ -265,23 +286,8 @@ void Workspace:: compute_velocities()
                 fp3("%g %g\n\n", probe.x, probe.y);
             }
             
-            const Real Pfull = __eval_pressure_at(probe, lp, np);
-
-            /*
-            const Real half  = mu/2;
-            probe = pos + half * n_out;
-            const Real Phalf = __eval_pressure_at(probe, lp, np);
-            
-            
-            m->gn = -(4*Phalf - 3*Pcurr - Pfull)/mu;
-            */
-            
-            m->gn = (Pcurr-Pfull)/mu;
-            
-            //fp2("%g %g\n", pos.x, pos.y);
-            //fp2("%g %g\n\n", pos.x+m->gn*tr->n.x, pos.y+m->gn*tr->n.y);
             fp2("%g %g\n", pos.x+m->gn*tr->n.x, pos.y+m->gn*tr->n.y);
-            
+#endif
         }
         
         
