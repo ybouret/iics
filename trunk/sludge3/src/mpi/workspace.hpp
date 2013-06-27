@@ -110,9 +110,11 @@ public:
    
     struct LocalPressure
     {
-        Vertex r; // position/delta position
-        Real   P; // pressure in field
-        Real   d; // distance to tracer
+        Vertex r; //!< position/delta position
+        Real   P; //!< pressure in field
+        Real   d; //!< distance to tracer
+        Vertex g; //!< gradient
+        
         static inline
         int CompareByVertex( const LocalPressure &lhs, const LocalPressure &rhs) throw()
         {

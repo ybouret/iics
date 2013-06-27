@@ -11,12 +11,13 @@ Vertex Workspace:: gradP_to_V( const Vertex &g ) const
 
 static inline
 bool __collectPressure(Workspace::LocalPressure &lp,
-                       const unit_t   i,
-                       const unit_t   j,
-                       const Array   &P,
-                       const Array   &B,
-                       const Array1D &X,
-                       const Array1D &Y)
+                       const unit_t         i,
+                       const unit_t         j,
+                       const Array         &P,
+                       const Array         &B,
+                       const Array1D       &X,
+                       const Array1D       &Y,
+                       const VertexArray   &G)
 {
     if((i>=X.lower) &&
        (i<=X.upper) &&
@@ -27,12 +28,13 @@ bool __collectPressure(Workspace::LocalPressure &lp,
         lp.r.x = X[i];
         lp.r.y = Y[j];
         lp.P   = P[j][i];
+        lp.g   = G[j][i];
         return true;
     }
     return false;
 }
 
-#define COLLECT_P(u,v) do { assert(n<MAX_LOCAL_PRESSURES); if( __collectPressure(lp[n], u, v, P, B, X, Y) ) ++n; } while(false)
+#define COLLECT_P(u,v) do { assert(n<MAX_LOCAL_PRESSURES); if( __collectPressure(lp[n], u, v, P, B, X, Y, gradP) ) ++n; } while(false)
 
 void Workspace:: collect_pressure( const Junction *J, LocalPressure lp[], size_t &n) const
 {
@@ -168,7 +170,7 @@ void Workspace:: compute_velocities()
         
         ios::ocstream fp ( vformat("lp%u.dat", unsigned(b->UID)), false);
         ios::ocstream fp2( vformat("gn%u.dat", unsigned(b->UID)), false);
-        //ios::ocstream fp3( vformat("pr%u.dat", unsigned(b->UID)), false);
+        ios::ocstream fp3( vformat("pr%u.dat", unsigned(b->UID)), false);
         
         for( Marker *m = b->markers.head;m;m=m->next)
         {
@@ -218,14 +220,16 @@ void Workspace:: compute_velocities()
             
             
             //------------------------------------------------------------------
-            // compute minimal distance
+            // compute probe
             //------------------------------------------------------------------
             const Vertex n_out = -tr->n;
             const Real   theta = Vertex::angle_of(ex, n_out);
             const Real   dpx   = Cos(theta) * delta.x;
             const Real   dpy   = Sin(theta) * delta.y;
             const Real   mu    = Hypotenuse(dpx, dpy)/2;
+            const Vertex probe = pos + mu * n_out;
             
+#if 0
             //------------------------------------------------------------------
             // get the delta to the tracer, compute distance
             //------------------------------------------------------------------
@@ -234,7 +238,17 @@ void Workspace:: compute_velocities()
                 lp[i].r -= pos;
                 lp[i].d  = lp[i].r.norm();
             }
+#endif
+            //------------------------------------------------------------------
+            // get the delta to the probe, compute distance
+            //------------------------------------------------------------------
+            for(size_t i=0;i<np;++i)
+            {
+                lp[i].r -= probe;
+                lp[i].d  = lp[i].r.norm();
+            }
             
+#if 0
             //------------------------------------------------------------------
             // remove points that are too close
             //------------------------------------------------------------------
@@ -245,6 +259,7 @@ void Workspace:: compute_velocities()
             
             if(np<=0)
                 throw exception("Neighbors are to close for  tracer @[%g %g]", pos.x, pos.y);
+#endif
             
             //------------------------------------------------------------------
             // Keep at most 2 the two closest points
@@ -253,25 +268,33 @@ void Workspace:: compute_velocities()
             np = min_of<size_t>(np,2);
             for( size_t i=0; i < np; ++i )
             {
-                fp("%g %g\n", pos.x, pos.y);
-                fp("%g %g\n\n", pos.x + lp[i].r.x, pos.y + lp[i].r.y );
+                fp("%g %g\n", probe.x, probe.y);
+                fp("%g %g\n\n", probe.x + lp[i].r.x, probe.y + lp[i].r.y );
+                
+                fp3("%g %g\n", pos.x, pos.y);
+                fp3("%g %g\n\n", probe.x, probe.y);
             }
             
             
+            //------------------------------------------------------------------
+            // pressure evaluation at probe
+            //------------------------------------------------------------------
             switch(np)
             {
+                case 1:
+                    
+                    break;
+                    
                 case 2:
                 {
-                    const Real dP0 = lp[0].P - Pcurr;
-                    const Real dP1 = lp[1].P - Pcurr;
-                    const Real x0  = lp[0].r.x;
-                    const Real y0  = lp[0].r.y;
-                    const Real x1  = lp[1].r.x;
-                    const Real y1  = lp[1].r.y;
-                    const Real D   = x0*y1-x1*y0;
-                    const Real alpha = (y1*dP0-y0*dP1)/D;
-                    const Real beta  = (x0*dP1-x1*dP0)/D;
-                    m->gn = alpha * tr->n.x + beta * tr->n.y;
+                    const Real d0 = lp[0].d;
+                    const Real d1 = lp[1].d;
+                    const Real ds = d0+d1;
+                    const Real p0 = lp[0].P - lp[0].r * lp[0].g;
+                    const Real p1 = lp[1].P - lp[1].r * lp[1].g;
+                    
+                    const Real pm = (p0*d1+p1*d0)/ds;
+                    m->gn = (Pcurr-pm)/mu;
                 }
                     break;
             }
@@ -280,7 +303,7 @@ void Workspace:: compute_velocities()
             //fp2("%g %g\n", pos.x, pos.y);
             //fp2("%g %g\n\n", pos.x+m->gn*tr->n.x, pos.y+m->gn*tr->n.y);
             fp2("%g %g\n", pos.x+m->gn*tr->n.x, pos.y+m->gn*tr->n.y);
-
+            
         }
         
         

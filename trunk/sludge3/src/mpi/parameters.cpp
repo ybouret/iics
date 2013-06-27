@@ -30,8 +30,8 @@ ftol(1e-5)
 {
     
     MPI.Printf(stderr, "Full Layout: (%ld,%ld) -> (%ld,%ld)\n", full_layout.lower.x, full_layout.lower.y, full_layout.upper.x, full_layout.upper.y);
-    MPI.Printf(stderr, "Sim  Layout: (%ld,%ld) -> (%ld,%ld)\n", sim_layout.lower.x, sim_layout.lower.y, sim_layout.upper.x, sim_layout.upper.y);
-    MPI.Printf(stderr, "Sim  Region: [%g %g]' --> [%g %g]'\n", sim_region.vmin.x, sim_region.vmin.y, sim_region.vmax.x, sim_region.vmax.y);
+    MPI.Printf(stderr, "Sim  Layout: (%ld,%ld) -> (%ld,%ld)\n", sim_layout.lower.x,  sim_layout.lower.y, sim_layout.upper.x, sim_layout.upper.y);
+    MPI.Printf(stderr, "Sim  Region: [%g %g]' --> [%g %g]'\n",  sim_region.vmin.x,   sim_region.vmin.y, sim_region.vmax.x, sim_region.vmax.y);
     MPI.Printf(stderr, "Red/Black Factor= %g\n", 1/rb_weight);
     
     //==========================================================================
