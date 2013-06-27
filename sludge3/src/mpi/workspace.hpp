@@ -8,6 +8,38 @@
 typedef mpi_workspace<Layout,rmesh,Real> WorkspaceType;
 
 
+
+struct LocalPressure
+{
+    Vertex r; //!< position/delta position
+    Real   P; //!< pressure in field
+    Vertex g; //!< gradient
+    Real   d;
+    Vertex dr; //!< for relative distances
+    
+    static inline
+    int CompareByVertex( const LocalPressure &lhs, const LocalPressure &rhs) throw()
+    {
+        return Vertex::lexicographical_compare(lhs.r, rhs.r);
+    }
+    
+    static inline
+    int CompareByDecreasingDistance( const LocalPressure &lhs, const LocalPressure &rhs) throw()
+    {
+        return __compare<Real>(rhs.d,lhs.d);
+    }
+    
+    static inline
+    int CompareByIncreasingDistance( const LocalPressure &lhs, const LocalPressure &rhs) throw()
+    {
+        return __compare<Real>(lhs.d,rhs.d);
+    }
+    
+};
+
+
+
+
 class Workspace : public Parameters, public WorkspaceType
 {
 public:
@@ -107,36 +139,7 @@ public:
     
     void save_markers( const mpi &MPI ) const;
     
-   
-    struct LocalPressure
-    {
-        Vertex r; //!< position/delta position
-        Real   P; //!< pressure in field
-        Real   d; //!< distance to tracer
-        Vertex g; //!< gradient
-        
-        static inline
-        int CompareByVertex( const LocalPressure &lhs, const LocalPressure &rhs) throw()
-        {
-            return Vertex::lexicographical_compare(lhs.r, rhs.r);
-        }
-        
-        static inline
-        int CompareByDecreasingDistance( const LocalPressure &lhs, const LocalPressure &rhs) throw()
-        {
-            return __compare<Real>(rhs.d,lhs.d);
-        }
-        
-        static inline
-        int CompareByIncreasingDistance( const LocalPressure &lhs, const LocalPressure &rhs) throw()
-        {
-            return __compare<Real>(lhs.d,rhs.d);
-        }
-        
-        
-        
-    };
-    
+      
     void collect_pressure( const Junction *J, LocalPressure lp[], size_t &n) const;
     
     
