@@ -155,6 +155,51 @@ Real __eval_pressure_at( const Vertex &probe, LocalPressure lp[], const size_t n
     return p;
 }
 
+static inline
+Real __eval_gradient_along( const Vertex &u, LocalPressure lp[], const size_t np, const Vertex &pos)
+{
+    assert(lp!=0);
+    assert(np>0);
+
+    //--------------------------------------------------------------------------
+    // first pass: initialize points
+    //--------------------------------------------------------------------------
+    Real D = 0;
+    for(size_t i=0; i < np; ++i )
+    {
+        lp[i].dr = pos - lp[i].r;  //!< displacement to tracer
+        lp[i].d  = lp[i].dr.norm();
+        D += lp[i].d; //!< cumulative length
+    }
+
+    //--------------------------------------------------------------------------
+    //-- second pass: add weighted gradients
+    //--------------------------------------------------------------------------
+    Real g=0;
+    
+    switch(np)
+    {
+        case 0:
+            throw exception("Unexpected np=0");
+            
+        case 1:
+            g += lp[0].g * u;
+            break;
+            
+        default:
+            //-- second pass: add weighted pressure
+            for(size_t i=0;i<np;++i)
+            {
+                const Real w = D - lp[i].d;
+                g += w*(lp[i].g*u);
+            }
+            g /= D*(np-1);
+    }
+
+    return g;
+    
+}
+
 void Workspace:: compute_velocities()
 {
     
@@ -184,7 +229,7 @@ void Workspace:: compute_velocities()
     //==========================================================================
     LocalPressure lp[MAX_LOCAL_PRESSURES];
     
-#define SAVE_INFO 0
+#define SAVE_INFO 1
     
     const Vertex ex(1,0);
     for( Bubble *b = bubbles.head;b;b=b->next)
@@ -198,7 +243,7 @@ void Workspace:: compute_velocities()
         
         ios::ocstream fp ( vformat("lp%u.dat", unsigned(b->UID)), false);
         ios::ocstream fp2( vformat("gn%u.dat", unsigned(b->UID)), false);
-        ios::ocstream fp3( vformat("pr%u.dat", unsigned(b->UID)), false);
+        //ios::ocstream fp3( vformat("pr%u.dat", unsigned(b->UID)), false);
 #endif
         
         for( Marker *m = b->markers.head;m;m=m->next)
@@ -248,6 +293,9 @@ void Workspace:: compute_velocities()
                 throw exception("Not enough neighbors for tracer @[%g %g]", pos.x, pos.y);
             
             
+            m->gn = __eval_gradient_along(tr->n, lp, np, pos);
+            
+#if 0
             //------------------------------------------------------------------
             // compute probe
             //------------------------------------------------------------------
@@ -273,17 +321,19 @@ void Workspace:: compute_velocities()
              */
             
             m->gn = (Pcurr-Pfull)/mu;
+#endif
+        
             
             
 #if defined(SAVE_INFO) && SAVE_INFO == 1
             
             for( size_t i=0; i < np; ++i )
             {
-                fp("%g %g\n", probe.x, probe.y);
+                fp("%g %g\n",   pos.x, pos.y);
                 fp("%g %g\n\n", lp[i].r.x, lp[i].r.y );
                 
-                fp3("%g %g\n", pos.x, pos.y);
-                fp3("%g %g\n\n", probe.x, probe.y);
+                //fp3("%g %g\n", pos.x, pos.y);
+                //fp3("%g %g\n\n", probe.x, probe.y);
             }
             
             fp2("%g %g\n", pos.x+m->gn*tr->n.x, pos.y+m->gn*tr->n.y);
