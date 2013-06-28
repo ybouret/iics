@@ -4,6 +4,7 @@
 #include "./parameters.hpp"
 #include "yocto/spade/mpi/workspace.hpp"
 #include "yocto/comparator.hpp"
+#include "yocto/math/kernel/lu.hpp"
 
 typedef mpi_workspace<Layout,rmesh,Real> WorkspaceType;
 
@@ -68,6 +69,12 @@ public:
     Real           P_user;     //!< default: 0.5
     const unit_t   jcoll_lo;   //!< lower index for marker collection
     const unit_t   jcoll_up;   //!< upper index for marker collection
+    
+    matrix<Real>   MM;
+    lu<Real>       LU;
+    vector<Real>   MR;
+    
+    static const size_t NVAR = 3;
     
     //! regularize bubbles, check boundaries, broadcast is_valid
     void validate_bubbles(const mpi &MPI);

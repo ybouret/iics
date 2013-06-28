@@ -293,6 +293,9 @@ On a grid, we want to remap a polygonized contour with a distance of about $\lam
 
 
 \section{Local Gradient Estimation}
+
+\subsection{First Attempt}
+
 Let us assume that we have $q$ points $\vec{Q}_1,\ldots,\vec{Q}_{q}$ around a point $\vec{A}$, and that we want to
 estimate the pressure gradient along the direction $\vec{u}$, $\vert\vec{u}\vert=1$. 
 We also assume that we know the pressure gradients at each $\vec{Q}_i$.
@@ -330,4 +333,48 @@ $$
 $$
 \end{itemize}
 
+\subsection{Second Attempt}
+Let us assume that we have $q$ points $\vec{Q}_1,\ldots,\vec{Q}_{q}$ around a point $\vec{A}$, and that we want to
+estimate 
+$$
+	\mygrad P_A = \begin{bmatrix}
+	\alpha \\
+	\beta
+	\end{bmatrix}
+$$
+with the constraint
+$$
+	\mygrad P_A . \vec{\tau} = g_t.
+$$
+We want to minimize
+$$
+	\chi^2(\alpha,\beta) = \dfrac{1}{2} \sum_{i=1}^q \left\lbrack P_i - \left(P_A+\alpha x_i + \beta y_i\right) \right\rbrack^2
+$$
+subject to the constraint
+$$
+	\alpha\tau_x + \beta\tau_y = g_t.
+$$
+We define the Lagrange multiplier $\mu$ to minimize
+$$
+	L(\alpha,\beta,\mu) = \chi^2(\alpha,\beta) - \mu \left( \alpha\tau_x + \beta\tau_y - g_t\right).
+$$
+We find
+$$
+	\begin{bmatrix}
+	\sum_i x_i^2 & \sum_i x_i y_i & -\tau_x\\
+	 \sum_i x_i y_i &\sum_i y_i^2 & -\tau_y\\
+	\tau_x & \tau_y & 0\\
+	\end{bmatrix}
+	\begin{bmatrix}
+	\alpha\\
+	\beta\\
+	\mu
+	\end{bmatrix}
+	=
+	\begin{bmatrix}
+	\sum_i x_i\left(P_i-P_A\right)\\
+	\sum_i y_i\left(P_i-P_A\right)\\
+	g_t\\
+	\end{bmatrix}
+$$
 \end{document}
