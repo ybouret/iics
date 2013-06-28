@@ -377,4 +377,26 @@ $$
 	g_t\\
 	\end{bmatrix}
 $$
+
+\subsection{Third Attempt}
+Let us assume that we have $q$ points $\vec{Q}_1,\ldots,\vec{Q}_{q}$ around a point $\vec{A}$, and that we want to
+estimate gradient at $\vec{A}$.
+We have
+$$
+	\mygrad P_A = \alpha \vec{\tau} + \beta \vec{n}
+$$
+so that the pressure at any point $Q_i$ shall be
+$$
+	P\left(\vec{Q}_i\right)= P_A + \left(\alpha \vec{\tau} + \beta \vec{n}\right).\myvec{AQ_i}
+$$
+We define the weighted least square
+$$
+	\chi^2(\beta) = \sum_{i=1}^q w_i \left\lbrack P_i - \left(P_A+\alpha \left(\vec{\tau}.\myvec{AQ_i}\right) + \beta \left(\vec{n}.\myvec{AQ_i}\right) \right)\right\rbrack^2
+$$
+so that
+$$
+	\beta = \dfrac{\displaystyle \sum_i w_i \left(\vec{n}.\myvec{AQ_i}\right)
+	 \left\lbrack P_i - \left(P_A + \alpha \left(\vec{\tau}.\myvec{AQ_i}\right) \right)\right\rbrack}
+	{\displaystyle \sum_i w_i \left(\vec{n}.\myvec{AQ_i}\right)^2}
+$$
 \end{document}

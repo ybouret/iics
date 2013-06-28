@@ -115,6 +115,7 @@ void Workspace:: collect_pressure( const Junction *J, LocalPressure lp[], size_t
 
 #include "yocto/code/utils.hpp"
 
+#if 0
 static inline
 Real __eval_pressure_at( const Vertex &probe, LocalPressure lp[], const size_t np)
 {
@@ -199,6 +200,21 @@ Real __eval_gradient_along( const Vertex &u, LocalPressure lp[], const size_t np
     return g;
     
 }
+#endif
+
+namespace
+{
+    struct BadVertex
+    {
+        Vertex n_out;
+        bool operator()( const LocalPressure &lp )
+        {
+            return (lp.dr * n_out) <= 0;
+        }
+    };
+}
+
+#include "yocto/code/remove-if.hpp"
 
 void Workspace:: compute_velocities()
 {
@@ -229,7 +245,7 @@ void Workspace:: compute_velocities()
     //==========================================================================
     LocalPressure lp[MAX_LOCAL_PRESSURES];
     
-#define SAVE_INFO 1
+#define SAVE_INFO 0
     
     const Vertex ex(1,0);
     for( Bubble *b = bubbles.head;b;b=b->next)
@@ -292,8 +308,46 @@ void Workspace:: compute_velocities()
             if(np<=0)
                 throw exception("Not enough neighbors for tracer @[%g %g]", pos.x, pos.y);
             
+            //------------------------------------------------------------------
+            // remove invalid vertices
+            //------------------------------------------------------------------
+            Real D = 0;
+            for(size_t i=0; i < np; ++i )
+            {
+                lp[i].dr = lp[i].r - pos;
+                lp[i].d  = lp[i].dr.norm();
+                D += lp[i].d;
+            }
             
-            //m->gn = __eval_gradient_along(tr->n, lp, np, pos);
+            BadVertex is_bad;
+            is_bad.n_out = - tr->n;
+            np = remove_if(lp, np, is_bad);
+            if(np<=0)
+                throw exception("Not enough VALID neighbors for tracer @[%g %g]", pos.x, pos.y);
+            
+            
+            const Vertex t = tr->t;
+            const Vertex n = tr->n;
+            
+            Real num = 0;
+            Real den = 0;
+            const Real alpha = m->gt;
+            for(size_t i=0; i < np; ++i )
+            {
+                const Vertex &AQ     = lp[i].dr;
+                const Real    dP     = lp[i].P - (Pcurr+alpha*(t*AQ));
+                const Real    weight = np > 1 ? D - lp[i].d : 1;
+                const Real    fac    =  (n*AQ);
+                const Real    wfac   = weight * fac;
+                num += wfac * dP;
+                den += wfac * fac;
+            }
+            m->gn = num/den;
+
+            
+#if 0
+            hsort(lp, np, LocalPressure::CompareByIncreasingDistance);
+            //np = min_of<size_t>(np,2);
             
             Real x2 = 0;
             Real xy = 0;
@@ -303,7 +357,7 @@ void Workspace:: compute_velocities()
             
             for(size_t i=0; i < np; ++i )
             {
-                const Vertex dr(pos,lp[i].r);
+                const Vertex &dr = lp[i].dr;
                 x2 += dr.x * dr.x;
                 xy += dr.x * dr.y;
                 y2 += dr.y * dr.y;
@@ -318,6 +372,17 @@ void Workspace:: compute_velocities()
             if( !LU.build(MM) )
                 throw exception("Invalid Neigborhood for tracer @[%g %g]", pos.x, pos.y);
             
+            MR[1] = xP;
+            MR[2] = yP;
+            MR[3] = m->gt;
+            
+            
+            LU.solve(MM, MR);
+            
+            const Real alpha = MR[1];
+            const Real beta  = MR[2];
+            m->gn = alpha * tr->n.x + beta * tr->n.y;
+#endif
             
 #if defined(SAVE_INFO) && SAVE_INFO == 1
             
