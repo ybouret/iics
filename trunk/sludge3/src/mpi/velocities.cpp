@@ -229,7 +229,7 @@ void Workspace:: compute_velocities()
     //==========================================================================
     LocalPressure lp[MAX_LOCAL_PRESSURES];
     
-#define SAVE_INFO 1
+#define SAVE_INFO 0
     
     const Vertex ex(1,0);
     for( Bubble *b = bubbles.head;b;b=b->next)
@@ -294,35 +294,6 @@ void Workspace:: compute_velocities()
             
             
             m->gn = __eval_gradient_along(tr->n, lp, np, pos);
-            
-#if 0
-            //------------------------------------------------------------------
-            // compute probe
-            //------------------------------------------------------------------
-            const Vertex n_out = -tr->n;
-            const Real   theta = Vertex::angle_of(ex, n_out);
-            const Real   dpx   = Cos(theta) * delta.x;
-            const Real   dpy   = Sin(theta) * delta.y;
-            const Real   mu    = Hypotenuse(dpx, dpy);
-            Vertex       probe = pos + mu * n_out;
-            
-            
-            
-            
-            const Real Pfull = __eval_pressure_at(probe, lp, np);
-            
-            /*
-             const Real half  = mu/2;
-             probe = pos + half * n_out;
-             const Real Phalf = __eval_pressure_at(probe, lp, np);
-             
-             
-             m->gn = -(4*Phalf - 3*Pcurr - Pfull)/mu;
-             */
-            
-            m->gn = (Pcurr-Pfull)/mu;
-#endif
-        
             
             
 #if defined(SAVE_INFO) && SAVE_INFO == 1
