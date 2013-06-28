@@ -19,6 +19,8 @@ public:
                         );
     virtual ~Simulation() throw();
     
+    Real dt;
+    
     virtual void         get_meta_data(visit_handle &md ) const;
     virtual visit_handle get_mesh( int domain, const string &name ) const;
     virtual visit_handle get_variable( int domain, const string &name ) const;

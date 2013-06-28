@@ -19,6 +19,7 @@ int main( int argc, char *argv[] )
      
         const size_t Nx = size_t(Lua::Config::Get<lua_Number>(L, "Nx"));
         const size_t Ny = size_t(Lua::Config::Get<lua_Number>(L, "Ny"));
+        const Real   dt = Real(  Lua::Config::Get<lua_Number>(L,"dt"));
         
         
         
@@ -52,6 +53,7 @@ int main( int argc, char *argv[] )
         
         sim.init_one_bubble("cc");
         sim.bubbles.gamma = 0.0;
+        sim.dt            = dt;
         
         //----------------------------------------------------------------------
         // Main Loop

@@ -11,7 +11,8 @@ Simulation:: Simulation(const mpi   &MPI,
                         const Coord  N,
                         const Vertex Q) :
 Workspace(MPI,N,Q),
-VisIt::Simulation(MPI)
+VisIt::Simulation(MPI),
+dt(0)
 {
     
 }
