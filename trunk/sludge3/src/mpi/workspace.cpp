@@ -29,7 +29,9 @@ V( (*this)["V"].as<VertexArray>() ),
 right_wall(false),
 P_user(0.5),
 jcoll_lo(lower.y),
-jcoll_up(upper.y)
+jcoll_up(upper.y),
+
+MM(NVAR,NVAR), LU(NVAR), MR(NVAR,0)
 {
     
     //==========================================================================

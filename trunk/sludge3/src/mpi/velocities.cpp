@@ -229,7 +229,7 @@ void Workspace:: compute_velocities()
     //==========================================================================
     LocalPressure lp[MAX_LOCAL_PRESSURES];
     
-#define SAVE_INFO 0
+#define SAVE_INFO 1
     
     const Vertex ex(1,0);
     for( Bubble *b = bubbles.head;b;b=b->next)
@@ -293,7 +293,30 @@ void Workspace:: compute_velocities()
                 throw exception("Not enough neighbors for tracer @[%g %g]", pos.x, pos.y);
             
             
-            m->gn = __eval_gradient_along(tr->n, lp, np, pos);
+            //m->gn = __eval_gradient_along(tr->n, lp, np, pos);
+            
+            Real x2 = 0;
+            Real xy = 0;
+            Real y2 = 0;
+            Real xP = 0;
+            Real yP = 0;
+            
+            for(size_t i=0; i < np; ++i )
+            {
+                const Vertex dr(pos,lp[i].r);
+                x2 += dr.x * dr.x;
+                xy += dr.x * dr.y;
+                y2 += dr.y * dr.y;
+                xP += dr.x * ( lp[i].P - Pcurr);
+                yP += dr.y * ( lp[i].P - Pcurr);
+            }
+            const Vertex t = tr->t;
+            MM[1][1] = x2;  MM[1][2] = xy;  MM[1][3] = -t.x;
+            MM[2][1] = xy;  MM[2][2] = y2;  MM[2][3] = -t.y;
+            MM[3][1] = t.x; MM[3][2] = t.y; MM[3][3] = 0;
+            
+            if( !LU.build(MM) )
+                throw exception("Invalid Neigborhood for tracer @[%g %g]", pos.x, pos.y);
             
             
 #if defined(SAVE_INFO) && SAVE_INFO == 1
