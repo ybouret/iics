@@ -1,23 +1,25 @@
 #include "visit/simulation.hpp"
 #include "yocto/code/rand.hpp"
 #include "yocto/string/conv.hpp"
+#include "yocto/fs/vfs.hpp"
+#include "yocto/lua/lua-state.hpp"
+#include "yocto/lua/lua-config.hpp"
 
 int main( int argc, char *argv[] )
 {
+    const char *progname = vfs::get_base_name(argv[0]);
     try
     {
-        size_t Nx = 40;
-        size_t Ny = 60;
+        if(argc<=1)
+            throw exception("usage: %s config.lua", progname);
         
-        if( argc > 1 )
-        {
-            Nx = strconv::to<size_t>( argv[1], "Nx" );
-            if( argc <= 2)
-                Ny = Nx;
-        }
+        Lua::State VM;
+        lua_State *L = VM();
+        Lua::Config::DoFile(L, argv[1]);
+     
+        const size_t Nx = size_t(Lua::Config::Get<lua_Number>(L, "Nx"));
+        const size_t Ny = size_t(Lua::Config::Get<lua_Number>(L, "Ny"));
         
-        if( argc > 2 )
-            Ny = strconv::to<size_t>( argv[2], "Ny" );
         
         
         _rand.wseed();
