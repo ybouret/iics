@@ -120,6 +120,18 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
         }
     }
     
+    if( cmd == "P")
+    {
+        if( args.size() >= 1 )
+        {
+            const Real p = strconv::to<Real>(args[1],"pressure");
+            P_user = p;
+            initialize();
+        }
+        
+        return;
+    }
+    
 #if 0
     if(cmd == "dx")
     {
