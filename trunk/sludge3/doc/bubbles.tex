@@ -294,7 +294,17 @@ On a grid, we want to remap a polygonized contour with a distance of about $\lam
 
 \section{Local Gradient Estimation}
 
-\subsection{First Attempt}
+\subsection{Tangential Gradient}
+If we have the contour $\vec{M}(t)$ and the corresponding $P(t)$, then
+$$
+	\partial_t P = \mygrad P , \partial_t M = \left(\mygrad P . \vec{\tau}\right) \left|\partial_t \vec{M}\right|.
+$$
+
+Accordingly, we compute $\partial_t P$ and we use the stored $\left|\partial_t \vec{M}\right|$.
+
+\subsection{Normal Gradient}
+
+\subsubsection{First Attempt}
 
 Let us assume that we have $q$ points $\vec{Q}_1,\ldots,\vec{Q}_{q}$ around a point $\vec{A}$, and that we want to
 estimate the pressure gradient along the direction $\vec{u}$, $\vert\vec{u}\vert=1$. 
@@ -333,7 +343,7 @@ $$
 $$
 \end{itemize}
 
-\subsection{Second Attempt}
+\subsubsection{Second Attempt}
 Let us assume that we have $q$ points $\vec{Q}_1,\ldots,\vec{Q}_{q}$ around a point $\vec{A}$, and that we want to
 estimate 
 $$
@@ -378,7 +388,7 @@ $$
 	\end{bmatrix}
 $$
 
-\subsection{Third Attempt}
+\subsubsection{Third Attempt}
 Let us assume that we have $q$ points $\vec{Q}_1,\ldots,\vec{Q}_{q}$ around a point $\vec{A}$, and that we want to
 estimate gradient at $\vec{A}$.
 We have

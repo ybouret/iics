@@ -16,6 +16,7 @@ void Simulation:: step()
     }
 #endif
     
-    done = !evolution(MPI, dt);
+    done = !evolution(MPI, dt
+                      );
     
 }
