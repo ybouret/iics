@@ -270,17 +270,18 @@ void Workspace:: compute_velocities()
             //
             //------------------------------------------------------------------
             
-            const Tracer *tr    = m->tracer;
+            const Tracer *tr    = m->tracer; assert(tr); assert(tr->speed>0);
             const Real    Pcurr = P_in - gamma * tr->C;
             const Real    Pnext = P_in - gamma * tr->next->C;
             const Real    Pprev = P_in - gamma * tr->prev->C;
             const Real    Pp    = Pnext-Pcurr;
             const Real    Pm    = Pprev-Pcurr;
-            const Real    tp    = tr->dist;
-            const Real    tm    = tr->prev->dist;
+            const Real    tp    = tr->dist;       assert(tp>0);
+            const Real    tm    = tr->prev->dist; assert(tm>0);
             const Real    Vp    = Pp/tp;
             const Real    Vm    = Pm/tm;
             m->gt = (tm*Vp - tp*Vm)/(tm+tp);
+            m->gt /= tr->speed;
             
             //------------------------------------------------------------------
             //
