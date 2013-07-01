@@ -244,6 +244,9 @@ void Workspace:: compute_velocities()
     //
     //==========================================================================
     LocalPressure lp[MAX_LOCAL_PRESSURES];
+    Real dP[MAX_LOCAL_PRESSURES];
+    Real  z[MAX_LOCAL_PRESSURES];
+    Real  h[MAX_LOCAL_PRESSURES];
     
 #define SAVE_INFO 0
     
@@ -259,7 +262,7 @@ void Workspace:: compute_velocities()
         
         ios::ocstream fp ( vformat("lp%u.dat", unsigned(b->UID)), false);
         ios::ocstream fp2( vformat("gn%u.dat", unsigned(b->UID)), false);
-        //ios::ocstream fp3( vformat("pr%u.dat", unsigned(b->UID)), false);
+        ios::ocstream fp3( vformat("pr%u.dat", unsigned(b->UID)), false);
 #endif
         
         for( Marker *m = b->markers.head;m;m=m->next)
@@ -310,92 +313,66 @@ void Workspace:: compute_velocities()
                 throw exception("Not enough neighbors for tracer @[%g %g]", pos.x, pos.y);
             
             //------------------------------------------------------------------
-            // remove invalid vertices
+            // remove invalid vertices (backwards)
             //------------------------------------------------------------------
-            Real D = 0;
             for(size_t i=0; i < np; ++i )
             {
                 lp[i].dr = lp[i].r - pos;
                 lp[i].d  = lp[i].dr.norm();
-                D += lp[i].d;
             }
             
-            BadVertex is_bad;
-            is_bad.n_out = - tr->n;
+            const Vertex u = -tr->n;
+            BadVertex    is_bad;
+            is_bad.n_out = u;
             np = remove_if(lp, np, is_bad);
             if(np<=0)
                 throw exception("Not enough VALID neighbors for tracer @[%g %g]", pos.x, pos.y);
+         
+            const Real theta = Vertex::angle_of(ex, u);
+            const Real dpx   = Cos(theta) * delta.x;
+            const Real dpy   = Sin(theta) * delta.y;
+            const Real mu    = Hypotenuse(dpx, dpy);
+
+           
             
+            for(size_t i=0; i < np; ++i )
+            {
+                const Vertex &AQ = lp[i].dr;
+                z[i]             = AQ * u;
+                const Vertex  QH = z[i] * u - AQ;
+                h[i]             = QH.norm()/mu;
+                const Real    Pi = lp[i].P + lp[i].g * QH;
+                dP[i]            = Pi - Pcurr;
+                z[i]/= mu;
+            }
             
-            const Vertex t = tr->t;
-            const Vertex n = tr->n;
+            co_hsort(z, dP, np, __compare<Real> );
             
             Real num = 0;
             Real den = 0;
-            const Real alpha = m->gt;
-            for(size_t i=0; i < np; ++i )
+            
+            for(size_t i=0; i < np; ++i)
             {
-                const Vertex &AQ     = lp[i].dr;
-                const Real    dP     = lp[i].P - (Pcurr+alpha*(t*AQ));
-                const Real    weight = np > 1 ? D - lp[i].d : 1;
-                const Real    fac    =  (n*AQ);
-                const Real    wfac   = weight * fac;
-                num += wfac * dP;
-                den += wfac * fac;
+                const Real weight = exp( -h[i] );
+                num += weight * z[i] * dP[i];
+                den += weight * z[i] * z[i];
             }
-            m->gn = num/den;
-
+            const Real alpha = num/(mu*den);
             
-#if 0
-            hsort(lp, np, LocalPressure::CompareByIncreasingDistance);
-            //np = min_of<size_t>(np,2);
+            m->gn = -alpha;
             
-            Real x2 = 0;
-            Real xy = 0;
-            Real y2 = 0;
-            Real xP = 0;
-            Real yP = 0;
-            
-            for(size_t i=0; i < np; ++i )
-            {
-                const Vertex &dr = lp[i].dr;
-                x2 += dr.x * dr.x;
-                xy += dr.x * dr.y;
-                y2 += dr.y * dr.y;
-                xP += dr.x * ( lp[i].P - Pcurr);
-                yP += dr.y * ( lp[i].P - Pcurr);
-            }
-            const Vertex t = tr->t;
-            MM[1][1] = x2;  MM[1][2] = xy;  MM[1][3] = -t.x;
-            MM[2][1] = xy;  MM[2][2] = y2;  MM[2][3] = -t.y;
-            MM[3][1] = t.x; MM[3][2] = t.y; MM[3][3] = 0;
-            
-            if( !LU.build(MM) )
-                throw exception("Invalid Neigborhood for tracer @[%g %g]", pos.x, pos.y);
-            
-            MR[1] = xP;
-            MR[2] = yP;
-            MR[3] = m->gt;
-            
-            
-            LU.solve(MM, MR);
-            
-            const Real alpha = MR[1];
-            const Real beta  = MR[2];
-            m->gn = alpha * tr->n.x + beta * tr->n.y;
-#endif
-            
+                      
 #if defined(SAVE_INFO) && SAVE_INFO == 1
             
+            fp3("0 0 0 0\n");
             for( size_t i=0; i < np; ++i )
             {
                 fp("%g %g\n",   pos.x, pos.y);
                 fp("%g %g\n\n", lp[i].r.x, lp[i].r.y );
                 
-                //fp3("%g %g\n", pos.x, pos.y);
-                //fp3("%g %g\n\n", probe.x, probe.y);
+                fp3("%g %g %g %g\n", z[i], dP[i], w[i], alpha * mu * z[i] );
             }
-            
+            fp3("\n");
             fp2("%g %g\n", pos.x+m->gn*tr->n.x, pos.y+m->gn*tr->n.y);
 #endif
         }

@@ -304,109 +304,135 @@ Accordingly, we compute $\partial_t P$ and we use the stored $\left|\partial_t \
 
 \subsection{Normal Gradient}
 
-\subsubsection{First Attempt}
-
 Let us assume that we have $q$ points $\vec{Q}_1,\ldots,\vec{Q}_{q}$ around a point $\vec{A}$, and that we want to
 estimate the pressure gradient along the direction $\vec{u}$, $\vert\vec{u}\vert=1$. 
 We also assume that we know the pressure gradients at each $\vec{Q}_i$.
-For each point, the local pressure estimation at $\vec{M} = \vec{A} + \mu \vec{u}$ is
+Therefore, we need to compute the variation of pressure on the $(\vec{A},\vec{u})$ axis.
+We estimate the pressure from a $\vec{Q}_i$ point by
 $$
-	\tilde{P}_i = P_i + \mygrad P_i . \left(\myvec{Q_iA} +\mu \vec{u}\right)
+	\tilde{P}_i(\vec{M}) = P_i + \vec{G}_i.\myvec{Q_iM}
 $$
-so that the gradient estimation along $\vec{u}$ is
+so that on the  $(\vec{A},\vec{u})$ axis, we have the pressure thanks to the orthonormal projection
 $$
-	\dfrac{\partial \tilde{P}_i}{\partial \mu} = \mygrad P_i.\vec{u}.
+	P(\vec{A}+z_i \vec{u}) = P_i + \vec{G}_i.\left\lbrack\myvec{Q_iA} + \underbrace{\left(\myvec{AQ_i}.\vec{u}\right)}_{z_i}\vec{u}\right\rbrack
+	= \hat{P}(z_i)
 $$
-Now, we need to put some weight on those gradients if $q>1$.
-If we define
+We know that
 $$
-	D_A =  \sum_{i=1}^q \left\vert \myvec{AQ_i}\right\vert
+	\hat{P}(0) = P_A
 $$
-the we can use a relative weight
+and we want to estimate
 $$
-	w_i = D_A - \left\vert \myvec{AQ_i}\right\vert \geq 0
-$$
-with
-$$
-	\sum_i w_i = (q-1) D_A.
+	\mygrad P_A . \vec{u} = \partial_z \hat{P}
 $$
 
-Finally
-\begin{itemize}
-\item if $q=1$,
-	$$
-		\mygrad P_A = \mygrad P_1.\vec{u},
-	$$
-\item if $q>1$,
-$$
-	\mygrad P_A.\vec{u} = \dfrac{1}{\left(q-1\right)D_A} \left\lbrack \sum_{i=1}^q \left(D_A - \left\vert \myvec{AQ_i}\right\vert\right) \mygrad P_i.\vec{u} \right\rbrack, \;\; D_A =  \sum_{i=1}^q \left\vert \myvec{AQ_i}\right\vert
-$$
-\end{itemize}
+%\subsubsection{First Attempt}
+%
+%Let us assume that we have $q$ points $\vec{Q}_1,\ldots,\vec{Q}_{q}$ around a point $\vec{A}$, and that we want to
+%estimate the pressure gradient along the direction $\vec{u}$, $\vert\vec{u}\vert=1$. 
+%We also assume that we know the pressure gradients $\vec{G}_i$at each $\vec{Q}_i$.
+%For each point, the local pressure estimation at $\vec{M} = \vec{A} + \mu \vec{u}$ is
+%
+%$$
+%	\tilde{P}_i = P_i + \mygrad P_i . \left(\myvec{Q_iA} +\mu \vec{u}\right)
+%$$
+%so that the gradient estimation along $\vec{u}$ is
+%$$
+%	\dfrac{\partial \tilde{P}_i}{\partial \mu} = \mygrad P_i.\vec{u}.
+%$$
+%Now, we need to put some weight on those gradients if $q>1$.
+%If we define
+%$$
+%	D_A =  \sum_{i=1}^q \left\vert \myvec{AQ_i}\right\vert
+%$$
+%the we can use a relative weight
+%$$
+%	w_i = D_A - \left\vert \myvec{AQ_i}\right\vert \geq 0
+%$$
+%with
+%$$
+%	\sum_i w_i = (q-1) D_A.
+%$$
+%
+%Finally
+%\begin{itemize}
+%\item if $q=1$,
+%	$$
+%		\mygrad P_A = \mygrad P_1.\vec{u},
+%	$$
+%\item if $q>1$,
+%$$
+%	\mygrad P_A.\vec{u} = \dfrac{1}{\left(q-1\right)D_A} \left\lbrack \sum_{i=1}^q \left(D_A - \left\vert \myvec{AQ_i}\right\vert\right) \mygrad P_i.\vec{u} \right\rbrack, \;\; D_A =  \sum_{i=1}^q \left\vert \myvec{AQ_i}\right\vert
+%$$
+%\end{itemize}
+%
+%\subsubsection{Second Attempt}
+%Let us assume that we have $q$ points $\vec{Q}_1,\ldots,\vec{Q}_{q}$ around a point $\vec{A}$, and that we want to
+%estimate 
+%$$
+%	\mygrad P_A = \begin{bmatrix}
+%	\alpha \\
+%	\beta
+%	\end{bmatrix}
+%$$
+%with the constraint
+%$$
+%	\mygrad P_A . \vec{\tau} = g_t.
+%$$
+%We want to minimize
+%$$
+%	\chi^2(\alpha,\beta) = \dfrac{1}{2} \sum_{i=1}^q \left\lbrack P_i - \left(P_A+\alpha x_i + \beta y_i\right) \right\rbrack^2
+%$$
+%subject to the constraint
+%$$
+%	\alpha\tau_x + \beta\tau_y = g_t.
+%$$
+%We define the Lagrange multiplier $\mu$ to minimize
+%$$
+%	L(\alpha,\beta,\mu) = \chi^2(\alpha,\beta) - \mu \left( \alpha\tau_x + \beta\tau_y - g_t\right).
+%$$
+%We find
+%$$
+%	\begin{bmatrix}
+%	\sum_i x_i^2 & \sum_i x_i y_i & -\tau_x\\
+%	 \sum_i x_i y_i &\sum_i y_i^2 & -\tau_y\\
+%	\tau_x & \tau_y & 0\\
+%	\end{bmatrix}
+%	\begin{bmatrix}
+%	\alpha\\
+%	\beta\\
+%	\mu
+%	\end{bmatrix}
+%	=
+%	\begin{bmatrix}
+%	\sum_i x_i\left(P_i-P_A\right)\\
+%	\sum_i y_i\left(P_i-P_A\right)\\
+%	g_t\\
+%	\end{bmatrix}
+%$$
+%
+%\subsubsection{Third Attempt}
+%Let us assume that we have $q$ points $\vec{Q}_1,\ldots,\vec{Q}_{q}$ around a point $\vec{A}$, and that we want to
+%estimate gradient at $\vec{A}$.
+%We have
+%$$
+%	\mygrad P_A = \alpha \vec{\tau} + \beta \vec{n}
+%$$
+%so that the pressure at any point $Q_i$ shall be
+%$$
+%	P\left(\vec{Q}_i\right)= P_A + \left(\alpha \vec{\tau} + \beta \vec{n}\right).\myvec{AQ_i}
+%$$
+%We define the weighted least square
+%$$
+%	\chi^2(\beta) = \sum_{i=1}^q w_i \left\lbrack P_i - \left(P_A+\alpha \left(\vec{\tau}.\myvec{AQ_i}\right) + \beta \left(\vec{n}.\myvec{AQ_i}\right) \right)\right\rbrack^2
+%$$
+%so that
+%$$
+%	\beta = \dfrac{\displaystyle \sum_i w_i \left(\vec{n}.\myvec{AQ_i}\right)
+%	 \left\lbrack P_i - \left(P_A + \alpha \left(\vec{\tau}.\myvec{AQ_i}\right) \right)\right\rbrack}
+%	{\displaystyle \sum_i w_i \left(\vec{n}.\myvec{AQ_i}\right)^2}
+%$$
 
-\subsubsection{Second Attempt}
-Let us assume that we have $q$ points $\vec{Q}_1,\ldots,\vec{Q}_{q}$ around a point $\vec{A}$, and that we want to
-estimate 
-$$
-	\mygrad P_A = \begin{bmatrix}
-	\alpha \\
-	\beta
-	\end{bmatrix}
-$$
-with the constraint
-$$
-	\mygrad P_A . \vec{\tau} = g_t.
-$$
-We want to minimize
-$$
-	\chi^2(\alpha,\beta) = \dfrac{1}{2} \sum_{i=1}^q \left\lbrack P_i - \left(P_A+\alpha x_i + \beta y_i\right) \right\rbrack^2
-$$
-subject to the constraint
-$$
-	\alpha\tau_x + \beta\tau_y = g_t.
-$$
-We define the Lagrange multiplier $\mu$ to minimize
-$$
-	L(\alpha,\beta,\mu) = \chi^2(\alpha,\beta) - \mu \left( \alpha\tau_x + \beta\tau_y - g_t\right).
-$$
-We find
-$$
-	\begin{bmatrix}
-	\sum_i x_i^2 & \sum_i x_i y_i & -\tau_x\\
-	 \sum_i x_i y_i &\sum_i y_i^2 & -\tau_y\\
-	\tau_x & \tau_y & 0\\
-	\end{bmatrix}
-	\begin{bmatrix}
-	\alpha\\
-	\beta\\
-	\mu
-	\end{bmatrix}
-	=
-	\begin{bmatrix}
-	\sum_i x_i\left(P_i-P_A\right)\\
-	\sum_i y_i\left(P_i-P_A\right)\\
-	g_t\\
-	\end{bmatrix}
-$$
 
-\subsubsection{Third Attempt}
-Let us assume that we have $q$ points $\vec{Q}_1,\ldots,\vec{Q}_{q}$ around a point $\vec{A}$, and that we want to
-estimate gradient at $\vec{A}$.
-We have
-$$
-	\mygrad P_A = \alpha \vec{\tau} + \beta \vec{n}
-$$
-so that the pressure at any point $Q_i$ shall be
-$$
-	P\left(\vec{Q}_i\right)= P_A + \left(\alpha \vec{\tau} + \beta \vec{n}\right).\myvec{AQ_i}
-$$
-We define the weighted least square
-$$
-	\chi^2(\beta) = \sum_{i=1}^q w_i \left\lbrack P_i - \left(P_A+\alpha \left(\vec{\tau}.\myvec{AQ_i}\right) + \beta \left(\vec{n}.\myvec{AQ_i}\right) \right)\right\rbrack^2
-$$
-so that
-$$
-	\beta = \dfrac{\displaystyle \sum_i w_i \left(\vec{n}.\myvec{AQ_i}\right)
-	 \left\lbrack P_i - \left(P_A + \alpha \left(\vec{\tau}.\myvec{AQ_i}\right) \right)\right\rbrack}
-	{\displaystyle \sum_i w_i \left(\vec{n}.\myvec{AQ_i}\right)^2}
-$$
+
 \end{document}
