@@ -20,13 +20,17 @@ public:
     Tracer *prev;
     Tracer *next;
     
-    Vertex pos;  //!< current pos   : +2 Real
-    Vertex edge; //!< to next       : +2 Real
-    Real   dist; //!< to next       : +1 Real
-    Vertex t;    //!< tangent vector: +2 Real
-    Vertex n;    //!< normal  vector: +2 real
-    Real   C;    //!< curvature     : +1 real
-    static const size_t NumReals = 10;
+    Vertex          pos;   //!< current pos   : +2 Real
+    Vertex          edge;  //!< to next       : +2 Real
+    Real            dist;  //!< to next       : +1 Real
+    Vertex          t;     //!< tangent vector: +2 Real
+    Vertex          n;     //!< normal  vector: +2 real
+    Real            C;     //!< curvature     : +1 real
+    Real            speed; //!< local dM/dt store: +1 real
+    
+    mutable coord2D coord;   //!< on a grid
+    mutable size_t  flags;   //!< position flag
+    static const size_t NumReals = 11;
     
     explicit Tracer() throw();
     explicit Tracer( const Vertex &v ) throw();
@@ -50,9 +54,7 @@ public:
     private:
         YOCTO_DISABLE_COPY_AND_ASSIGN(Ring);
     };
-    Real            speed;   //!< local dM/dt store
-    mutable coord2D coord;   //!< on a grid
-    mutable size_t  flags;   //!< position flag
+  
     
 private:
     
