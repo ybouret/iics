@@ -247,7 +247,8 @@ void Workspace:: compute_velocities()
     Real dP[MAX_LOCAL_PRESSURES];
     Real  z[MAX_LOCAL_PRESSURES];
     Real  h[MAX_LOCAL_PRESSURES];
-    
+    Real  w[MAX_LOCAL_PRESSURES];
+
 #define SAVE_INFO 0
     
     const Vertex ex(1,0);
@@ -340,10 +341,9 @@ void Workspace:: compute_velocities()
                 const Vertex &AQ = lp[i].dr;
                 z[i]             = AQ * u;
                 const Vertex  QH = z[i] * u - AQ;
-                h[i]             = QH.norm()/mu;
+                h[i]             = QH.norm();
                 const Real    Pi = lp[i].P + lp[i].g * QH;
                 dP[i]            = Pi - Pcurr;
-                z[i]/= mu;
             }
             
             co_hsort(z, dP, np, __compare<Real> );
@@ -353,11 +353,17 @@ void Workspace:: compute_velocities()
             
             for(size_t i=0; i < np; ++i)
             {
-                const Real weight = exp( -h[i] );
+                const Real w_h    = exp( -h[i]/mu );
+                const Real Z      = z[i]/mu;
+                const Real Z2     = Z*Z;
+                const Real w_z    = Z <= 1 ? Z2 : 1/Z2;
+                const Real weight = w_h * w_z;
+                
+                w[i] = weight;
                 num += weight * z[i] * dP[i];
                 den += weight * z[i] * z[i];
             }
-            const Real alpha = num/(mu*den);
+            const Real alpha = num/den;
             
             m->gn = -alpha;
             
@@ -370,7 +376,7 @@ void Workspace:: compute_velocities()
                 fp("%g %g\n",   pos.x, pos.y);
                 fp("%g %g\n\n", lp[i].r.x, lp[i].r.y );
                 
-                fp3("%g %g %g %g\n", z[i], dP[i], w[i], alpha * mu * z[i] );
+                fp3("%g %g %g %g\n", z[i]/mu, dP[i], alpha * z[i], w[i] );
             }
             fp3("\n");
             fp2("%g %g\n", pos.x+m->gn*tr->n.x, pos.y+m->gn*tr->n.y);
