@@ -18,7 +18,7 @@ void Simulation:: init_one_bubble( const char *kind )
             
             if(flag == "cc")
             {
-                Shape::Circle(bubbles.append(), center, radius);
+                Shape::Circle(bubbles.append(), center, radius/2);
                 goto PREPARE;
             }
             

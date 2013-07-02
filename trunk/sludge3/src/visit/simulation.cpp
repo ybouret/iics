@@ -133,6 +133,20 @@ void Simulation:: perform( const string &cmd, const array<string> &args)
         return;
     }
     
+    if( cmd == "Q")
+    {
+        if( args.size() >= 1 )
+        {
+            const Real q = strconv::to<Real>(args[1],"pressure");
+            for( Bubble *b = bubbles.head;b;b=b->next)
+            {
+                b->pressure = q;
+            }
+            initialize();
+        }
+        
+        return;
+    }
 #if 0
     if(cmd == "dx")
     {
