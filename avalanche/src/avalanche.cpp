@@ -395,7 +395,7 @@ int main( int argc, char *argv[] )
         size_t        Nx = 200;
         size_t        Ny = 200;
         const  Layout LL( Coord(1,1), Coord(Nx,Ny) );
-        Workspace     W(LL,0.48,5000);
+        Workspace     W(LL,0.45,3500);
         const size_t  ini      = 0;
         const size_t  iter_max = 400;
         
