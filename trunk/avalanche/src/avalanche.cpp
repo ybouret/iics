@@ -10,7 +10,7 @@
 #include "yocto/exception.hpp"
 #include "yocto/code/rand32.hpp"
 #include "yocto/code/utils.hpp"
-#include "yocto/code/hsort.hpp"
+#include "yocto/sort/heap.hpp"
 #include "yocto/math/types.hpp"
 
 #include <cstring>
@@ -53,7 +53,7 @@ public:
     Fields(0),
     Ghosts()
     {
-        Y_SPADE_FIELD(Fields, "A", IndexArray); // Belonging to
+        Y_SPADE_FIELD(Fields, "A", IndexArray); // 0 => water, otherwise: particle
         Y_SPADE_FIELD(Fields, "G", IndexArray); // Growing status
     }
     
@@ -392,8 +392,8 @@ int main( int argc, char *argv[] )
     const char *prog = vfs::get_base_name(argv[0]);
     try
     {
-        size_t        Nx = 100;
-        size_t        Ny = 80;
+        size_t        Nx = 200;
+        size_t        Ny = 200;
         const  Layout LL( Coord(1,1), Coord(Nx,Ny) );
         Workspace     W(LL,0.48,5000);
         const size_t  ini      = 0;
