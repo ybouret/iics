@@ -10,6 +10,7 @@
 #include "yocto/exception.hpp"
 #include "yocto/code/rand32.hpp"
 #include "yocto/code/utils.hpp"
+#include "yocto/code/hsort.hpp"
 #include "yocto/math/types.hpp"
 
 #include <cstring>
@@ -94,9 +95,8 @@ public:
     size_t         bubbles;   //!< #bubbles
     const size_t   Nx;
     const size_t   Ny;
-    const size_t   Nc;    //!< (Nx-2) * (Ny-2)
-    const size_t   M;
-    const Real     spontaneous_level;
+    const size_t   Nc;        //!< (Nx-2) * (Ny-2)
+    const Real     frequency; //!< one spontaneous bubble every 1/frequency step per slot
     const Real     E0;
     uniform_generator<double>  ran;
     vector<size_t> Size;  //!< Size of each particle
@@ -122,9 +122,8 @@ public:
     Nx( l.width.x ),
     Ny( l.width.y ),
     Nc( (Nx-2) * (Ny-2) ),
-    M(2),
-    spontaneous_level(1.0/(M*Nc)),
-    E0( -Log(spontaneous_level)),
+    frequency(1e-4),
+    E0( -Log(frequency) ),
     ran(),
     Size(Nc,as_capacity),
     vtk(),
@@ -171,7 +170,7 @@ public:
         E[AT_RIGHT|AT_TOP]    = scale2 * ( E[AT_RIGHT] + E[AT_TOP]    );
         E[AT_RIGHT|AT_BOTTOM] = scale2 * ( E[AT_RIGHT] + E[AT_BOTTOM] );
         E[AT_TOP|AT_BOTTOM]   = scale2 * ( E[AT_TOP]   + E[AT_BOTTOM] );
-
+        
         //----------------------------------------------------------------------
         // Three Neighbors: 4 cases case
         //----------------------------------------------------------------------
@@ -179,7 +178,7 @@ public:
         E[AT_LEFT|AT_RIGHT|AT_BOTTOM] = scale3 * ( E[AT_LEFT] + E[AT_RIGHT]  + E[AT_BOTTOM] );
         E[AT_TOP|AT_BOTTOM|AT_LEFT]   = scale3 * ( E[AT_TOP]  + E[AT_BOTTOM] + E[AT_LEFT]   );
         E[AT_TOP|AT_BOTTOM|AT_RIGHT]  = scale3 * ( E[AT_TOP]  + E[AT_BOTTOM] + E[AT_RIGHT]  );
-
+        
         
         //----------------------------------------------------------------------
         // Four Neighbors: one case
@@ -233,7 +232,7 @@ public:
         ;
     }
     
-
+    
     
     void check_owner( size_t i, size_t j, size_t *owner, size_t &owners, size_t &weight) const throw()
     {
@@ -310,29 +309,39 @@ public:
                     check_owner(i, jp, owner, owners, weight);
                 }
                 assert(flag<16);
-               
+                
                 //--------------------------------------------------------------
                 // initialize cost
                 //--------------------------------------------------------------
                 const Real alpha = ran();
                 const Real dE    = E0 - lambda * E[flag];
-                if(flag>0)
-                {
-                    std::cerr << "dE=" << dE << "/" << E0 << std::endl;
-                }
+                
+                
                 if(alpha < Exp(-dE) )
                 {
-                    std::cerr << "\t\taccepted, flag=" << flag << std::endl;
                     if(flag>0)
                     {
-                        std::cerr << "\t\t\tGrow Particle" << std::endl;
+                        //------------------------------------------------------
+                        // find the particle
+                        //------------------------------------------------------
+                        assert(owners>0);
+                        const size_t p = owner[ ran.lt(owners) ];
+                        assert(p>=1);
+                        assert(p<=particles);
+                        assert(Size.size()==particles);
+                        A[j][i] = p;
+                        G[j][i] = p;
+                        ++Size[p];
                     }
                     else
                     {
-                        std::cerr << "\t\t\tNew Particle" << std::endl;
+                        //------------------------------------------------------
+                        // create a particle
+                        //------------------------------------------------------
                         ++particles;
                         ++bubbles;
                         Size.push_back(1);
+                        assert(Size.size()==particles);
                         G[j][i] = particles;
                         A[j][i] = particles;
                     }
@@ -386,27 +395,34 @@ int main( int argc, char *argv[] )
         size_t        Nx = 100;
         size_t        Ny = 80;
         const  Layout LL( Coord(1,1), Coord(Nx,Ny) );
-        Workspace     W(LL,0.5,1000);
-        const size_t  ini = 10;
-        const size_t  iter_max = 100;
+        Workspace     W(LL,0.48,5000);
+        const size_t  ini      = 0;
+        const size_t  iter_max = 400;
         
-        //std::cerr << "W.lambda=" << W.lambda << std::endl;
-        
-        //return 0;
+        std::cerr << "W.frequency = " << W.frequency << std::endl;
+        std::cerr << "W.lambda    = " << W.lambda    << std::endl;
+        std::cerr << "W.E0        = " << W.E0        << std::endl;
+        std::cerr << "W.Ncore     = " << W.Nc        << std::endl;
         
         W.reset(ini);
-        
         W.save(0);
-        
         for(size_t iter=1;iter<=iter_max;++iter)
         {
             W.step();
             W.save(iter);
         }
-        W.save(iter_max);
-        //std::cerr << "#particles=" << W.particles << "/" << ini + double(iter_max)/W.M << std::endl;
-        std::cerr << "#particles=" << W.particles << std::endl;
         
+        std::cerr << "#particles=" << W.particles << std::endl;
+
+        hsort(W.Size);
+        W.Size.reverse();
+        {
+            ios::ocstream fp("dist.dat",false);
+            for(size_t i=1; i<= W.Size.size(); ++i )
+            {
+                fp("%g %g\n", double(i), double(W.Size[i]));
+            }
+        }
         return 0;
     }
     catch(...)

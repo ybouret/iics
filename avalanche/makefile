@@ -9,6 +9,7 @@ clean:
 	@echo "-- removing .curve" && rm -f *.curve
 	@echo "-- removing .vtk" && rm -f *.vtk
 	@echo "-- removing .ppm" && rm -f *.ppm
+	@echo "-- removing out/" && rm -Rf out/
 #	@${MAKE} -C doc clean
 
 veryclean: clean
