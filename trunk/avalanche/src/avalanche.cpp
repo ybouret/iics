@@ -9,9 +9,14 @@
 
 #include "yocto/exception.hpp"
 #include "yocto/code/rand32.hpp"
+#include "yocto/code/utils.hpp"
+#include "yocto/math/types.hpp"
+
+#include <cstring>
 
 using namespace yocto;
 using namespace spade;
+using namespace math;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -55,6 +60,12 @@ private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Parameters);
 };
 
+static inline bool if_is_vtk( const vfs::entry &ep ) throw()
+{
+    return ep.has_extension("vtk");
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Workspace: data + mesh
@@ -63,15 +74,18 @@ private:
 
 #define ACTIVE_BUBBLE -1
 
-static bool if_is_vtk( const vfs::entry &ep ) throw()
-{
-    const char *ext = ep.extension;
-    return ext && strcmp(ext,"vtk") == 0;
-}
+#define AT_RIGHT  0x01
+#define AT_TOP    0x02
+#define AT_LEFT   0x04
+#define AT_BOTTOM 0x08
+
 
 class Workspace : public Parameters, public WorkspaceBase
 {
 public:
+    Real           E[16];     //!< Energy decreasing cost
+    Real           lambda;    //!< scaling factor for E0-E
+    const  Real    rho;       //!< anisotropy factor
     Axis          &X;         //!< X axis
     Axis          &Y;         //!< Y axis
     IndexArray    &A;         //!< Array of state
@@ -83,6 +97,7 @@ public:
     const size_t   Nc;    //!< (Nx-2) * (Ny-2)
     const size_t   M;
     const Real     spontaneous_level;
+    const Real     E0;
     uniform_generator<double>  ran;
     vector<size_t> Size;  //!< Size of each particle
     vtk_writer     vtk;
@@ -90,8 +105,14 @@ public:
     string         outdir;
     vfs           &fs;
     
-    explicit Workspace( const Layout &l ) :
+    explicit Workspace(const Layout &l,
+                       const double Rho = 0.5,
+                       const double Gain = 1
+                       ) :
     WorkspaceBase(l,Fields,Ghosts),
+    E(),
+    lambda(2*Log(max_of<Real>(1,Gain))),
+    rho(clamp<Real>(0,Rho,1)),
     X( mesh.X() ),
     Y( mesh.Y() ),
     A( (*this)["A"].as<IndexArray>() ),
@@ -103,6 +124,7 @@ public:
     Nc( (Nx-2) * (Ny-2) ),
     M(2),
     spontaneous_level(1.0/(M*Nc)),
+    E0( -Log(spontaneous_level)),
     ran(),
     Size(Nc,as_capacity),
     vtk(),
@@ -118,6 +140,53 @@ public:
         fs.as_directory(outdir);
         fs.create_dir(outdir,true);
         fs.remove_files(outdir, if_is_vtk);
+        
+        memset(E,0,sizeof(E));
+        
+        const Real scale2 = 1.0/2;
+        const Real scale3 = 1.0/3;
+        const Real scale4 = 1.0/4;
+        
+        //----------------------------------------------------------------------
+        // Zero Neighbors: 1 case
+        //----------------------------------------------------------------------
+        E[0] = 0; //!< spontaneous
+        
+        //----------------------------------------------------------------------
+        // One Neighbor: 4 cases
+        //----------------------------------------------------------------------
+        const Real h_rho = rho;
+        const Real v_rho = 1-h_rho;
+        E[AT_LEFT]   = h_rho;
+        E[AT_RIGHT]  = h_rho;
+        E[AT_TOP]    = v_rho;
+        E[AT_BOTTOM] = v_rho;
+        
+        //----------------------------------------------------------------------
+        // Two Neighbors: 6 cases
+        //----------------------------------------------------------------------
+        E[AT_LEFT|AT_RIGHT]   = scale2 * ( E[AT_LEFT]  + E[AT_RIGHT]  );
+        E[AT_LEFT|AT_TOP]     = scale2 * ( E[AT_LEFT]  + E[AT_TOP]    );
+        E[AT_LEFT|AT_BOTTOM]  = scale2 * ( E[AT_LEFT]  + E[AT_BOTTOM] );
+        E[AT_RIGHT|AT_TOP]    = scale2 * ( E[AT_RIGHT] + E[AT_TOP]    );
+        E[AT_RIGHT|AT_BOTTOM] = scale2 * ( E[AT_RIGHT] + E[AT_BOTTOM] );
+        E[AT_TOP|AT_BOTTOM]   = scale2 * ( E[AT_TOP]   + E[AT_BOTTOM] );
+
+        //----------------------------------------------------------------------
+        // Three Neighbors: 4 cases case
+        //----------------------------------------------------------------------
+        E[AT_LEFT|AT_RIGHT|AT_TOP]    = scale3 * ( E[AT_LEFT] + E[AT_RIGHT]  + E[AT_TOP]    );
+        E[AT_LEFT|AT_RIGHT|AT_BOTTOM] = scale3 * ( E[AT_LEFT] + E[AT_RIGHT]  + E[AT_BOTTOM] );
+        E[AT_TOP|AT_BOTTOM|AT_LEFT]   = scale3 * ( E[AT_TOP]  + E[AT_BOTTOM] + E[AT_LEFT]   );
+        E[AT_TOP|AT_BOTTOM|AT_RIGHT]  = scale3 * ( E[AT_TOP]  + E[AT_BOTTOM] + E[AT_RIGHT]  );
+
+        
+        //----------------------------------------------------------------------
+        // Four Neighbors: one case
+        //----------------------------------------------------------------------
+        E[AT_LEFT|AT_RIGHT|AT_BOTTOM|AT_TOP] = scale4*(E[AT_TOP]  + E[AT_BOTTOM] + E[AT_RIGHT] + E[AT_LEFT] );
+        
+        
     }
     
     void save( size_t idx ) const
@@ -164,10 +233,7 @@ public:
         ;
     }
     
-#define AT_LEFT   0x01
-#define AT_RIGHT  0x02
-#define AT_TOP    0x04
-#define AT_BOTTOM 0x08
+
     
     void check_owner( size_t i, size_t j, size_t *owner, size_t &owners, size_t &weight) const throw()
     {
@@ -211,6 +277,7 @@ public:
                 //-- we are in the water
                 const size_t im=i-1;
                 const size_t ip=i+1;
+                
                 unsigned flag     = 0;
                 size_t   owner[4] = { 0 };
                 size_t   owners   = 0;
@@ -242,20 +309,27 @@ public:
                     flag |= AT_TOP;
                     check_owner(i, jp, owner, owners, weight);
                 }
-                
+                assert(flag<16);
+               
                 //--------------------------------------------------------------
                 // initialize cost
                 //--------------------------------------------------------------
-                const Real r = ran();
+                const Real alpha = ran();
+                const Real dE    = E0 - lambda * E[flag];
                 if(flag>0)
                 {
-                    
+                    std::cerr << "dE=" << dE << "/" << E0 << std::endl;
                 }
-                else
+                if(alpha < Exp(-dE) )
                 {
-                    if(r<spontaneous_level)
+                    std::cerr << "\t\taccepted, flag=" << flag << std::endl;
+                    if(flag>0)
                     {
-                        std::cerr << "New Particle" << std::endl;
+                        std::cerr << "\t\t\tGrow Particle" << std::endl;
+                    }
+                    else
+                    {
+                        std::cerr << "\t\t\tNew Particle" << std::endl;
                         ++particles;
                         ++bubbles;
                         Size.push_back(1);
@@ -312,9 +386,13 @@ int main( int argc, char *argv[] )
         size_t        Nx = 100;
         size_t        Ny = 80;
         const  Layout LL( Coord(1,1), Coord(Nx,Ny) );
-        Workspace     W(LL);
+        Workspace     W(LL,0.5,1000);
         const size_t  ini = 10;
         const size_t  iter_max = 100;
+        
+        //std::cerr << "W.lambda=" << W.lambda << std::endl;
+        
+        //return 0;
         
         W.reset(ini);
         
@@ -325,8 +403,9 @@ int main( int argc, char *argv[] )
             W.step();
             W.save(iter);
         }
-        
-        std::cerr << "#particles=" << W.particles << "/" << ini + double(iter_max)/W.M << std::endl;
+        W.save(iter_max);
+        //std::cerr << "#particles=" << W.particles << "/" << ini + double(iter_max)/W.M << std::endl;
+        std::cerr << "#particles=" << W.particles << std::endl;
         
         return 0;
     }
