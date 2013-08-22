@@ -30,26 +30,6 @@ typedef ghosts_setup                   GhostsSetup;
 typedef workspace<layout2D,rmesh,Real> WorkspaceBase;
 
 
-class URand : public rand32_kiss
-{
-public:
-    explicit URand() throw()
-    {
-        wseed();
-    }
-    
-    virtual ~URand() throw()
-    {
-    }
-    
-    inline Real operator()(void) throw()
-    {
-        return get<Real>();
-    }
-    
-private:
-    YOCTO_DISABLE_COPY_AND_ASSIGN(URand);
-};
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -67,8 +47,7 @@ public:
     Fields(0),
     Ghosts()
     {
-        Y_SPADE_FIELD(Fields, "A", Array);      // Array
-        Y_SPADE_FIELD(Fields, "B", IndexArray); // Belonging to
+        Y_SPADE_FIELD(Fields, "A", IndexArray); // Belonging to
         Y_SPADE_FIELD(Fields, "G", IndexArray); // Growing status
     }
     
@@ -95,8 +74,7 @@ class Workspace : public Parameters, public WorkspaceBase
 public:
     Axis          &X;         //!< X axis
     Axis          &Y;         //!< Y axis
-    Array         &A;         //!< Array of state
-    IndexArray    &B;         //!< Array of bubbles segementation
+    IndexArray    &A;         //!< Array of state
     IndexArray    &G;         //!< Array of Growing Particles
     size_t         particles; //!< #particles
     size_t         bubbles;   //!< #bubbles
@@ -105,7 +83,7 @@ public:
     const size_t   Nc;    //!< (Nx-2) * (Ny-2)
     const size_t   M;
     const Real     spontaneous_level;
-    URand          ran;
+    uniform_generator<double>  ran;
     vector<size_t> Size;  //!< Size of each particle
     vtk_writer     vtk;
     variables      var;
@@ -116,8 +94,7 @@ public:
     WorkspaceBase(l,Fields,Ghosts),
     X( mesh.X() ),
     Y( mesh.Y() ),
-    A( (*this)["A"].as<Array>() ),
-    B( (*this)["B"].as<IndexArray>() ),
+    A( (*this)["A"].as<IndexArray>() ),
     G( (*this)["G"].as<IndexArray>() ),
     particles(0),
     bubbles(0),
@@ -137,7 +114,6 @@ public:
         for(size_t j=1; j <= Ny; ++j ) Y[j] = j;
         
         var.append("A");
-        var.append("B");
         
         fs.as_directory(outdir);
         fs.create_dir(outdir,true);
@@ -158,9 +134,9 @@ public:
         
         particles = 0;
         bubbles   = 0;
+        
         //-- fill all with water
-        A.ld(1);
-        B.ldz();
+        A.ldz();
         G.ldz();
         Size.free();
         
@@ -170,12 +146,11 @@ public:
         {
             for(size_t i=2;i<Nx;++i)
             {
-                if( B[j][i]<=0 && ran() <= level )
+                if( A[j][i]<=0 && ran() <= level )
                 {
-                    A[j][i] = 0;
                     ++particles;
                     ++bubbles;                 // initially: one particle = one bubble
-                    B[j][i] = particles;       // a new particle
+                    A[j][i] = particles;       // a new particle
                     G[j][i] = ACTIVE_BUBBLE;   // is growing
                     Size.push_back(1);         // size of particle #bubble
                     if(particles>=initial_bubbles)
@@ -199,7 +174,7 @@ public:
         assert(owner);
         assert(owners<4);
         
-        const size_t particle_index = B[j][i];
+        const size_t particle_index = A[j][i];
         assert(particle_index>0);
         assert(particle_index<=particles);
         assert(Size.size() == particles);
@@ -230,7 +205,7 @@ public:
             for(size_t i=2;i<Nx;++i)
             {
                 //-- a bubble remains a bubble
-                if(A[j][i]<=0)
+                if(A[j][i]>0)
                     continue;
                 
                 //-- we are in the water
@@ -284,9 +259,8 @@ public:
                         ++particles;
                         ++bubbles;
                         Size.push_back(1);
-                        B[j][i] = particles;
                         G[j][i] = particles;
-                        A[j][i] = 0;
+                        A[j][i] = particles;
                     }
                 }
                 
