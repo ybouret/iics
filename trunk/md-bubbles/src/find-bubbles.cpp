@@ -200,7 +200,7 @@ public:
             (*frame)[i].parse(line, iline);
         }
         
-        hsort(*frame, Atom::Compare);
+        //hsort(*frame, Atom::Compare);
         
         return frame.yield();
     }
