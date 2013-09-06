@@ -119,6 +119,8 @@ public:
     {
         const Atom dummy;
         make(na,dummy);
+        v_ave = 0;
+        v_sig = 0;
     }
     
     void find_gas(Vertices &gas, Real vmin ) const
@@ -153,7 +155,7 @@ public:
     }
     
     
-    static Frame *LoadNext(ios::istream &fp, unsigned &iline)
+    bool load_next(ios::istream &fp, unsigned &iline)
     {
         string line;
         
@@ -161,7 +163,7 @@ public:
         if( !ReadLine(line,fp,iline) )
         {
             std::cerr << "EOF" << std::endl;
-            return 0;
+            return false;
         }
         
         // read timestep
@@ -193,27 +195,27 @@ public:
         }
         
         // parse...
-        auto_ptr<Frame> frame( new Frame );
-        frame->prepare(na);
+        Frame &frame = *this;
+        frame.prepare(na);
         
         Real vor_max = 0;
         for(unsigned i=1;i<=na;++i)
         {
             if( !ReadLine(line, fp, iline) )
                 throw exception("%u: missing atom #%u", iline, i);
-            Atom &atom = (*frame)[i];
+            Atom &atom = frame[i];
             atom.parse(line, iline);
-            frame->v_ave += atom.voronoi;
+            frame.v_ave += atom.voronoi;
             if(atom.voronoi>vor_max)
                 vor_max = atom.voronoi;
         }
         
-        frame->v_ave /= na;
+        frame.v_ave /= na;
         std::cerr << "vor_max=" << vor_max << std::endl;
         
         //hsort(*frame, Atom::Compare);
         
-        return frame.yield();
+        return true;
     }
     
 private:
@@ -242,22 +244,22 @@ int main( int argc, char *argv[] )
         
         ios::icstream fp( input_name  );
         
-        auto_ptr<Frame> frame;
         unsigned        iline = 1;
         size_t          num_frame = 0;
         
         if(frame_max>0) std::cerr << "Reading at most " << frame_max << " frames" << std::endl;
         std::cerr << "In gas <=> voronoi >= " << vmin << std::endl;
+        Frame    frame;
         Vertices gas;
-        while( frame.reset(Frame::LoadNext(fp, iline)), frame.is_valid() )
+        while( frame.load_next(fp,iline) )
         {
             ++num_frame;
             
             //------------------------------------------------------------------
             // process
             //------------------------------------------------------------------
-            frame->find_gas(gas, vmin);
-            std::cerr << "#" << num_frame << " <voronoi>=" << frame->v_ave << " : #gas=" << gas.size() << std::endl;
+            frame.find_gas(gas, vmin);
+            std::cerr << "#" << num_frame << " <voronoi>=" << frame.v_ave << " : #gas=" << gas.size() << std::endl;
             
             if(frame_max>0 && num_frame>=frame_max)
                 break;
