@@ -8,7 +8,7 @@
 #include "yocto/math/alg/delaunay.hpp"
 #include "yocto/auto-ptr.hpp"
 #include "yocto/sort/heap.hpp"
-
+#include "yocto/sys/wtime.hpp"
 #include <iostream>
 
 using namespace yocto;
@@ -95,8 +95,10 @@ private:
     Atom & operator=(const Atom &);
 };
 
-typedef vector<Atom> Atoms;
-typedef vector<V3D>  Vertices;
+YOCTO_SUPPORT_NO_DESTRUCT(Atom)
+
+typedef vector<Atom>      Atoms;
+typedef vector<V3D>       Vertices;
 typedef vector<iTriangle> Triangles;
 
 class Frame : public Atoms
@@ -106,13 +108,20 @@ public:
     Frame *prev;
     Real   v_ave;
     Real   v_sig;
+    Real   bps;
+    Real   fps;
+    wtime  chrono;
+    
     explicit Frame() throw() :
     Atoms(),
     next(0),
     prev(0),
     v_ave(0),
-    v_sig(0)
+    v_sig(0),
+    bps(0),
+    fps(0)
     {
+        chrono.start();
     }
     
     void prepare(size_t na)
@@ -121,6 +130,7 @@ public:
         ensure(na);
         v_ave = 0;
         v_sig = 0;
+        bps   = 0;
     }
     
     void find_gas(Vertices &gas, Real vmin ) const
@@ -155,9 +165,11 @@ public:
     }
     
     
-    bool load_next(ios::istream &fp, unsigned &iline)
+    bool load_next(ios::icstream &fp, unsigned &iline)
     {
-        string line;
+        string          line;
+        const Real      t_ini = chrono.query();
+        const ptrdiff_t p_ini = fp.tell();
         
         // read ITEM: TIMESTEP
         if( !ReadLine(line,fp,iline) )
@@ -211,9 +223,14 @@ public:
             if(vor>vor_max)
                 vor_max = vor;
         }
-        
+        const Real       t_end = chrono.query();
+        const ptrdiff_t  p_end = fp.tell();
+        const ptrdiff_t  nread = p_end - p_ini;
+        const Real dt    = t_end - t_ini;
+        frame.fps    = 1.0 / dt;
+        frame.bps    = (nread/dt)*1e-6;
         frame.v_ave /= na;
-        std::cerr << "vor_max=" << vor_max << std::endl;
+        //std::cerr << "vor_max=" << vor_max << std::endl;
         
         //hsort(*frame, Atom::Compare);
         
@@ -261,7 +278,13 @@ int main( int argc, char *argv[] )
             // process
             //------------------------------------------------------------------
             frame.find_gas(gas, vmin);
-            std::cerr << "#" << num_frame << " <voronoi>=" << frame.v_ave << " : #gas=" << gas.size() << std::endl;
+            std::cerr << "#" << num_frame
+            << " <voronoi>="
+            << frame.v_ave
+            << " : #gas=" << gas.size()
+            << " fps=" << frame.fps
+            << " @" << frame.bps << " MB/s"
+            << std::endl;
             
             if(frame_max>0 && num_frame>=frame_max)
                 break;
