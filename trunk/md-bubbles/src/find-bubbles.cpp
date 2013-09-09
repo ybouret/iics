@@ -117,8 +117,8 @@ public:
     
     void prepare(size_t na)
     {
-        const Atom dummy;
-        make(na,dummy);
+        free();
+        ensure(na);
         v_ave = 0;
         v_sig = 0;
     }
@@ -203,11 +203,13 @@ public:
         {
             if( !ReadLine(line, fp, iline) )
                 throw exception("%u: missing atom #%u", iline, i);
-            Atom &atom = frame[i];
-            atom.parse(line, iline);
-            frame.v_ave += atom.voronoi;
-            if(atom.voronoi>vor_max)
-                vor_max = atom.voronoi;
+            Atom atom;
+            atom.parse(line,iline);
+            frame.push_back(atom);
+            const Real vor = atom.voronoi;
+            frame.v_ave += vor;
+            if(vor>vor_max)
+                vor_max = vor;
         }
         
         frame.v_ave /= na;
