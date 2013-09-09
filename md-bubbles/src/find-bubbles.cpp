@@ -108,6 +108,7 @@ class Frame : public Atoms
 public:
     Frame *next;
     Frame *prev;
+    Real   runtime;
     Real   v_ave;
     Real   v_sig;
     Real   bps;
@@ -118,10 +119,12 @@ public:
     Atoms(),
     next(0),
     prev(0),
+    runtime(0),
     v_ave(0),
     v_sig(0),
     bps(0),
-    fps(0)
+    fps(0),
+    chrono()
     {
         chrono.start();
     }
@@ -186,6 +189,8 @@ public:
         {
             throw exception("%u: missing time step",iline);
         }
+        
+        runtime = strconv::to<Real>(line,"Time Step");
         
         // read ITEM: NUMBER OF ATOMS
         if( !ReadLine(line,fp,iline) )
@@ -291,9 +296,9 @@ int main( int argc, char *argv[] )
         
         if(frame_max>0) std::cerr << "Reading at most " << frame_max << " frames" << std::endl;
         std::cerr << "In gas <=> voronoi >= " << vmin << std::endl;
-        Frame     frame;
-        Vertices  gas(1024,as_capacity);
-        Triangles trlist(1024,as_capacity);
+        Frame          frame;
+        Vertices       gas(1024,as_capacity);
+        Triangles      trlist(1024,as_capacity);
         vector<size_t> h(1024,as_capacity); // for hull
         
         ios::ocstream::overwrite("area.dat");
@@ -322,9 +327,10 @@ int main( int argc, char *argv[] )
                 delaunay_hull(h, trlist);
                 area = delaunay<Real>::area(h, gas);
             }
+            
             {
                 ios::ocstream fa( "area.dat", true);
-                fa("%g %g\n", double(num_frame), area);
+                fa("%g %g %g\n", frame.runtime, area, Real(gas.size()));
             }
             
             if(frame_max>0 && num_frame>=frame_max)
