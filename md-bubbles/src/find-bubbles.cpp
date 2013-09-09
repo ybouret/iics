@@ -1,6 +1,8 @@
 #include "yocto/fs/local-fs.hpp"
 #include "yocto/math/v3d.hpp"
 #include "yocto/ios/icstream.hpp"
+#include "yocto/ios/ocstream.hpp"
+
 #include "yocto/string/tokenizer.hpp"
 #include "yocto/exception.hpp"
 #include "yocto/string/conv.hpp"
@@ -142,6 +144,7 @@ public:
             if(atom.voronoi>=vmin)
             {
                 gas.push_back( atom.r );
+                gas.back().z = 0;
             }
         }
     }
@@ -230,9 +233,8 @@ public:
         frame.fps    = 1.0 / dt;
         frame.bps    = (nread/dt)*1e-6;
         frame.v_ave /= na;
-        //std::cerr << "vor_max=" << vor_max << std::endl;
         
-        //hsort(*frame, Atom::Compare);
+        
         
         return true;
     }
@@ -241,6 +243,11 @@ private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Frame);
 };
 
+
+static inline bool is_vtk( const vfs::entry &ep ) throw()
+{
+    return ep.has_extension("vtk");
+}
 
 int main( int argc, char *argv[] )
 {
@@ -263,13 +270,34 @@ int main( int argc, char *argv[] )
         
         ios::icstream fp( input_name  );
         
+        //======================================================================
+        //
+        // cleanup output
+        //
+        //======================================================================
+        vfs &fs = local_fs::instance();
+        string outdir = "out";
+        fs.as_directory(outdir);
+        fs.create_dir(outdir, true);
+        fs.remove_files(outdir, is_vtk);
+        
+        //======================================================================
+        //
+        // parsing
+        //
+        //======================================================================
         unsigned        iline = 1;
-        size_t          num_frame = 0;
+        unsigned        num_frame = 0;
         
         if(frame_max>0) std::cerr << "Reading at most " << frame_max << " frames" << std::endl;
         std::cerr << "In gas <=> voronoi >= " << vmin << std::endl;
-        Frame    frame;
-        Vertices gas;
+        Frame     frame;
+        Vertices  gas(1024,as_capacity);
+        Triangles trlist(1024,as_capacity);
+        vector<size_t> h(1024,as_capacity); // for hull
+        
+        ios::ocstream::overwrite("area.dat");
+        
         while( frame.load_next(fp,iline) )
         {
             ++num_frame;
@@ -282,9 +310,22 @@ int main( int argc, char *argv[] )
             << " <voronoi>="
             << frame.v_ave
             << " : #gas=" << gas.size()
-            << " fps=" << frame.fps
+            //<< " fps=" << frame.fps
             << " @" << frame.bps << " MB/s"
             << std::endl;
+            
+            Real area = 0;
+            if(gas.size()>=3)
+            {
+                Frame::Triangulate(trlist, gas);
+                delaunay<Real>::save_vtk( outdir + vformat("gas%u.vtk",num_frame), "delaunay", trlist, gas);
+                delaunay_hull(h, trlist);
+                area = delaunay<Real>::area(h, gas);
+            }
+            {
+                ios::ocstream fa( "area.dat", true);
+                fa("%g %g\n", double(num_frame), area);
+            }
             
             if(frame_max>0 && num_frame>=frame_max)
                 break;
