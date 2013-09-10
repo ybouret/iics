@@ -11,6 +11,7 @@
 #include "yocto/auto-ptr.hpp"
 #include "yocto/sort/heap.hpp"
 #include "yocto/sys/wtime.hpp"
+#include "yocto/ordered/sorted-vector.hpp"
 #include <iostream>
 
 using namespace yocto;
@@ -99,9 +100,10 @@ private:
 
 YOCTO_SUPPORT_NO_DESTRUCT(Atom)
 
-typedef vector<Atom>      Atoms;
-typedef vector<V3D>       Vertices;
-typedef vector<iTriangle> Triangles;
+typedef vector<Atom>           Atoms;
+typedef vector<V3D>            Vertices;
+typedef vector<iTriangle>      Triangles;
+typedef sorted_vector<size_t>  Sorted;
 
 class Frame : public Atoms
 {
@@ -138,9 +140,10 @@ public:
         bps   = 0;
     }
     
-    void find_gas(Vertices &gas, Real vmin ) const
+    void find_gas(Vertices &gas, Real vmin, Sorted &gid ) const
     {
         gas.free();
+        gid.free();
         for(size_t j=size();j>0;--j)
         {
             const Atom &atom = (*this)[j];
@@ -148,6 +151,7 @@ public:
             {
                 gas.push_back( atom.r );
                 gas.back().z = 0;
+                if(!gid.insert(j)) throw exception("internal indices failure");
             }
         }
     }
@@ -239,6 +243,7 @@ public:
         frame.bps    = (nread/dt)*1e-6;
         frame.v_ave /= na;
         
+        hsort(frame, Atom::Compare );
         
         
         return true;
@@ -254,6 +259,8 @@ static inline bool is_vtk( const vfs::entry &ep ) throw()
     return ep.has_extension("vtk");
 }
 
+#include "yocto/memory/buffers.hpp"
+
 int main( int argc, char *argv[] )
 {
     const char *prog = vfs::get_base_name(argv[0]);
@@ -268,12 +275,18 @@ int main( int argc, char *argv[] )
             throw exception("usage: %s input_file vmin [#frame_max]", prog);
         
         const string  input_name = argv[1];
+        string        root_name  = vfs::get_base_name(input_name);
+        vfs::remove_extension(root_name);
+        std::cerr << "root_name=" << root_name << std::endl;
+        
         const Real    vmin       = strconv::to<Real>( argv[2], "vmin");
         size_t        frame_max  = 0;
         if(argc>3)
             frame_max = strconv::to<size_t>(argv[3],"#frame_max");
         
         ios::icstream fp( input_name  );
+        memory::buffer_of<uint8_t,memory::global> iobuf(1024*1024);
+        fp.bufferize(iobuf);
         
         //======================================================================
         //
@@ -281,9 +294,9 @@ int main( int argc, char *argv[] )
         //
         //======================================================================
         vfs &fs = local_fs::instance();
-        string outdir = "out";
-        fs.as_directory(outdir);
-        fs.create_dir(outdir, true);
+        string outdir = "out/" + root_name;
+        vfs::as_directory(outdir);
+        fs.create_sub_dir(outdir);
         fs.remove_files(outdir, is_vtk);
         
         //======================================================================
@@ -298,10 +311,14 @@ int main( int argc, char *argv[] )
         std::cerr << "In gas <=> voronoi >= " << vmin << std::endl;
         Frame          frame;
         Vertices       gas(1024,as_capacity);
+        Sorted         gid(1024,as_capacity);
         Triangles      trlist(1024,as_capacity);
         vector<size_t> h(1024,as_capacity); // for hull
         
-        ios::ocstream::overwrite("area.dat");
+        const string area_name = root_name + "-area.out";
+        const string xyz_name  = root_name + ".xyz";
+        ios::ocstream::overwrite(area_name);
+        ios::ocstream::overwrite(xyz_name);
         
         while( frame.load_next(fp,iline) )
         {
@@ -310,7 +327,7 @@ int main( int argc, char *argv[] )
             //------------------------------------------------------------------
             // process
             //------------------------------------------------------------------
-            frame.find_gas(gas, vmin);
+            frame.find_gas(gas, vmin, gid);
             std::cerr << "#" << num_frame
             << " <voronoi>="
             << frame.v_ave
@@ -323,14 +340,28 @@ int main( int argc, char *argv[] )
             if(gas.size()>=3)
             {
                 Frame::Triangulate(trlist, gas);
-                delaunay<Real>::save_vtk( outdir + vformat("gas%u.vtk",num_frame), "delaunay", trlist, gas);
+                delaunay<Real>::save_vtk( outdir + root_name + vformat("gas%u.vtk",num_frame), "delaunay", trlist, gas);
                 delaunay_hull(h, trlist);
                 area = delaunay<Real>::area(h, gas);
             }
             
             {
-                ios::ocstream fa( "area.dat", true);
+                ios::ocstream fa( area_name, true);
                 fa("%g %g %g\n", frame.runtime, area, Real(gas.size()));
+            }
+            
+            {
+                ios::ocstream xyz( xyz_name, true );
+                xyz("%u\n", unsigned( frame.size() ) );
+                xyz("t=%g\n",frame.runtime);
+                for(size_t i=1;i<=frame.size();++i)
+                {
+                    const char *name = "H";
+                    if( gid.search(i) ) name = "He";
+                    const Atom &atom = frame[i];
+                    xyz("%s %.4e %.4e %.4e\n", name, atom.r.x, atom.r.y, atom.r.z);
+                }
+                
             }
             
             if(frame_max>0 && num_frame>=frame_max)
