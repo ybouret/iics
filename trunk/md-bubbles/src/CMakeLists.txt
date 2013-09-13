@@ -11,7 +11,9 @@ SET(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/../sdk)
 
 ADD_EXECUTABLE(find-bubbles find-bubbles.cpp)
 TARGET_LINK_YOCTO(find-bubbles mk)
+INSTALL( TARGETS find-bubbles RUNTIME DESTINATION bin )
 
 ADD_EXECUTABLE(parse-data parse-data.cpp)
 TARGET_LINK_YOCTO(parse-data)
+INSTALL( TARGETS parse-data RUNTIME DESTINATION bin )
 
