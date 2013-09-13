@@ -86,7 +86,7 @@ public:
         v.x = Next<Real>(tkn, iline, "vx");
         v.y = Next<Real>(tkn, iline, "vy");
         v.z = Next<Real>(tkn, iline, "vz");
-
+        
         
         //======================================================================
         // read voronoi
@@ -285,7 +285,7 @@ int main( int argc, char *argv[] )
             frame_max = strconv::to<size_t>(argv[3],"#frame_max");
         
         ios::icstream fp( input_name  );
-        memory::buffer_of<uint8_t,memory::global> iobuf(1024*1024);
+        memory::buffer_of<uint8_t,memory::global> iobuf(32*1024*1024);
         fp.bufferize(iobuf);
         
         //======================================================================
@@ -293,11 +293,17 @@ int main( int argc, char *argv[] )
         // cleanup output
         //
         //======================================================================
+        bool save_vtk = false;
+        
         vfs &fs = local_fs::instance();
         string outdir = "out/" + root_name;
-        vfs::as_directory(outdir);
-        fs.create_sub_dir(outdir);
-        fs.remove_files(outdir, is_vtk);
+        
+        if(save_vtk)
+        {
+            vfs::as_directory(outdir);
+            fs.create_sub_dir(outdir);
+            fs.remove_files(outdir, is_vtk);
+        }
         
         //======================================================================
         //
@@ -336,29 +342,44 @@ int main( int argc, char *argv[] )
             << " @" << frame.bps << " MB/s"
             << std::endl;
             
+            //------------------------------------------------------------------
+            // area/segmenting
+            //------------------------------------------------------------------
             Real area = 0;
             if(gas.size()>=3)
             {
                 Frame::Triangulate(trlist, gas);
-                delaunay<Real>::save_vtk( outdir + root_name + vformat("gas%u.vtk",num_frame), "delaunay", trlist, gas);
+                if(save_vtk)
+                    delaunay<Real>::save_vtk( outdir + root_name + vformat("gas%u.vtk",num_frame),
+                                             "delaunay",
+                                             trlist,
+                                             gas);
                 delaunay_hull(h, trlist);
                 area = delaunay<Real>::area(h, gas);
             }
             
+            //------------------------------------------------------------------
+            // save area
+            //------------------------------------------------------------------
             {
                 ios::ocstream fa( area_name, true);
                 fa("%g %g %g\n", frame.runtime, area, Real(gas.size()));
             }
             
+            
+            //------------------------------------------------------------------
+            // save xyz/gaz
+            //------------------------------------------------------------------
             {
                 ios::ocstream xyz( xyz_name, true );
-                xyz("%u\n", unsigned( frame.size() ) );
+                xyz("%u\n", unsigned( gas.size() ) );
                 xyz("t=%g\n",frame.runtime);
-                for(size_t i=1;i<=frame.size();++i)
+                for(size_t i=1;i<=gas.size();++i)
                 {
                     const char *name = "H";
-                    if( gid.search(i) ) name = "He";
-                    const Atom &atom = frame[i];
+                    //if( gid.search(i) ) name = "He";
+                    //const Atom &atom = frame[i];
+                    const Atom &atom = frame[ gid[i] ];
                     xyz("%s %.4e %.4e %.4e\n", name, atom.r.x, atom.r.y, atom.r.z);
                 }
                 
