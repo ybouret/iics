@@ -1,0 +1,160 @@
+load "iovtk"
+verbosity=0;
+int cycle=0;
+int circle=10;
+
+real T=10000, dt=0.5;
+real Lx=12.0,Ly=12.0;
+//real V0=4;
+real a=1; //variables de la condition initiale
+real b=1.0;
+real kappa=0.1; //Darcy law
+real sigma=1; //surface tension
+int n=20; //nbre initial de points sur les bors
+int aNx=n;
+int aNy=n;
+int Nc=10*n; // sur le cercle
+real[int] Cx(Nc+1),Cy(Nc+1); // bubble interface position
+//real[int] Cx0(Nc+1),Cy0(Nc+1); // bubble interface position
+
+
+//domain definition boundaries
+border C11(t=0,Lx){x=t;y=-Ly/2+0*sin(t*2*pi/Lx); label=1;}
+border C12(t=0,Ly){x=Lx;y=-Ly/2+t; label=2;}
+border C13(t=0,Lx){x=Lx-t;y=+Ly/2; label=3;}
+border C14(t=0,Ly){x=0;y=+Ly/2-t; label=4;}
+
+//definition of the bubble shape
+for(int k=0;k<=Nc;k++)
+{		
+	real t=(k)/(Nc+0.0)*2*pi;
+	real at=2*(k)/(Nc+0.0)-1;
+	real phi=1.;
+	real px=a*(2*cos(2*t)+3)*cos(t)/3;
+	real py=a*(2*cos(2*t)+3)*sin(t)/3;
+		//ellipse
+		//Cx(k) = Lx/2.+ a*cos(2*pi*(k)/(Nc))+0.1;
+		//Cy(k) =      + b*sin(2*pi*(k)/(Nc))-0.2;
+		
+		
+		//Cassini Egg
+		Cx(k) = Lx/2.+ px*cos(phi)-py*sin(phi);
+	 	Cy(k) =      + py*cos(phi)+px*sin(phi);
+	 	
+	 	//hearth
+	 	//cout << at<<endl;
+	 	//Cx(k)=Lx/2.+8*a*sin(at)*cos(at)*log(abs(at+1e-10));
+	 	//Cy(k)=     +4*a*cos(at)*sqrt(abs(at));
+}
+
+
+//int[int] fforder2=[1,1,1,1];
+//int[int] fforder3=[1,1,1];
+
+
+
+border hole0(t=0,Nc){x=Cx(t);y=Cy(t);label=circle;};
+//plot(hole0(Nc),wait=1);
+//mesh Th=buildmesh(C11(aNx)+C12(aNy)+C13(aNx)+C14(aNy)+hole0(-Nc));
+mesh 	Th=buildmesh(C11(aNx)+C12(aNy)+C13(aNx)+C14(aNy)+hole0(-Nc));
+//plot(Th,wait=1);
+
+	real Volume;
+//	border hole(t=0,Nc){x=Cx(t);y=Cy(t);label=circle;};
+	
+	//definition of the functional space.
+	fespace Vh(Th,P2);
+	
+	//definition of the variables.
+	Vh p,pp; //pression et variable de test
+	Vh vx,vy,vxv,vyv; //vitesses et test
+	Vh Nx,Ny,K;	//Normale à la bulle et courbure.
+	Vh pold=0;
+
+
+
+
+
+	
+/************************************************************************/
+/*  Stokes problem definition  											*/
+/************************************************************************/
+	problem solveStoke(vx,vy,p,vxv,vyv,pp)=
+	int2d(Th)(  (dx(p) * dx(pp) + dy(p) * dy(pp)))
+	//+on(1,2,3,4,p=0)
+ 	//+ on(4,p=-4)
+	+on(circle,p=1.0/Volume-sigma*K)
+	+int2d(Th)((dx(vx) * dx(vxv) + dy(vx) * dy(vxv))) //equation for vx
+        +int1d(Th,circle)(vx*vxv)
+        -int1d(Th,circle)(-kappa*dx(p)*vxv)
+        +on(1,2,3,4,vx=0)
+		+int2d(Th)((dx(vy) * dx(vyv) + dy(vy) * dy(vyv))) //equation for vy
+                +int1d(Th,circle)(vy*vyv)
+        -int1d(Th,circle)(-kappa*dy(p )*vyv)
+        +on(1,2,3,4,vy=0); //right left
+/************************************************************************/
+/*  Function for  the computation of the Curvature of the bubble 							*/
+/***********************************************************************/
+func real computeCurvature()
+{
+	verbosity=0;
+	
+	//real epsilon=1e-10;
+	
+	Vh sp1; //variable d'integration
+	solve giveNx(Nx,sp1)=int2d(Th)(dx(Nx)*dx(sp1)+dy(Nx)*dy(sp1))
+						+int1d(Th,circle)(Nx*sp1)
+						-int1d(Th,circle)(N.x*sp1);  
+						
+    solve giveNy(Ny,sp1)=int2d(Th)(dx(Ny)*dx(sp1)+dy(Ny)*dy(sp1))
+    					+int1d(Th,circle)(Ny*sp1)
+    					-int1d(Th,circle)(N.y*sp1);
+        
+    solve giveCurvature(K,sp1)= int2d(Th)((dx(K)*dx(sp1)+dy(K)*dy(sp1))*pow(Nx*Nx+Ny*Ny,1.5))
+    					+int1d(Th,circle)(K*sp1*pow(Nx*Nx+Ny*Ny,1.5))
+    					-int1d(Th,circle)
+    					(
+    					(
+    						(Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))
+    						*sp1
+    					)
+    					
+    					);
+     return 0;
+}
+
+exec("rm ./data/*");
+for(real t=0;t<T;t+=dt)
+{
+	if(cycle%1==0)
+	{ 
+		Vh pold=p;
+		Th=adaptmesh(Th,p,err=0.01);
+		p=pold;
+	//	plot(Th,wait=0);
+	}
+	
+	
+	computeCurvature();
+	Volume=Lx*Ly-int2d(Th)(1.0);
+	solveStoke;
+	Th=movemesh(Th,[x+dt*vx,y+dt*vy]);
+	
+ 	if(cycle%1==0)
+ 	{
+ 	//	real radius=int1d(Th,circle)(1.0)/(2*pi);
+ 	//	real area=Lx*Ly-int2d(Th)(1.0);
+ 	//	real R1=1/(int1d(Th,circle)(K)/int1d(Th,circle)(1.0));
+ 	vx=dx(p );
+ 	vy=dy(p );
+	 	savevtk("./data/U"+cycle+".vtu",Th,[vx,vy,0],p,K,dataname="Velocity pressure curvature");
+	 	savevtk("./data/N"+cycle+".vtu",Th,[Nx,Ny,0],dataname="N");
+	 	savevtk("./data/A"+cycle+".vtu",Th,dx(vx)+dy(vy));
+	 //	Vh vel=sqrt(vx*vx+vy*vy);
+   		plot(p,Th,value=1);
+   	 //	cout <<"t="<<t<< "cycle"<< cycle<<endl;
+   	 	cout <<"Volume="<<Volume<<endl;
+ 	}
+	cycle++;
+	
+}
