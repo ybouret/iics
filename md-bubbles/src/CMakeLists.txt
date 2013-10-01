@@ -17,3 +17,7 @@ ADD_EXECUTABLE(parse-data parse-data.cpp)
 TARGET_LINK_YOCTO(parse-data)
 INSTALL( TARGETS parse-data RUNTIME DESTINATION bin )
 
+ADD_EXECUTABLE(bubble-dyn bubble-dyn.cpp)
+TARGET_LINK_YOCTO(bubble-dyn mk)
+INSTALL( TARGETS bubble-dyn RUNTIME DESTINATION bin )
+
