@@ -8,7 +8,7 @@
 #include "yocto/string/conv.hpp"
 #include "yocto/sequence/vector.hpp"
 #include "yocto/math/alg/delaunay.hpp"
-#include "yocto/auto-ptr.hpp"
+#include "yocto/ptr/auto.hpp"
 #include "yocto/sort/heap.hpp"
 #include "yocto/sys/wtime.hpp"
 #include "yocto/ordered/sorted-vector.hpp"
