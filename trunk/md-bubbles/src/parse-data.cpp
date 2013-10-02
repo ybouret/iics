@@ -25,7 +25,7 @@ static void Output( const Words &words )
     std::cout << std::endl;
 }
 
-static inline bool is_sep( char C ) { return C == ' ' || C == '\t'; }
+static inline bool is_sep( char C ) throw() { return C == ' ' || C == '\t'; }
 
 int main( int argc, char *argv[] )
 {
