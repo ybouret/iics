@@ -302,9 +302,12 @@ public:
                      const string &output_name,
                      const string &xyz_name)
     {
+        //-- find the gas particles
         find_gas(Vmax);
         delaunay<Real>::build(trlist, gas);
         delaunay_hull(hull, trlist);
+        
+        //-- compute and save the area
         const Real area = delaunay<Real>::area(hull,gas);
         
         {
@@ -312,6 +315,7 @@ public:
             output("%g %g %g\n",  runtime, area, double(gas.size()));
         }
         
+        //-- is there is some gas=>xyz
         const size_t ng = gas.size();
         if(ng>0)
         {
@@ -335,6 +339,7 @@ public:
     void process_membrane(const string &output_name,
                           const string &xyz_name)
     {
+        //-- save as XYZ
         {
             ios::ocstream xyz(xyz_name,true);
             xyz("%u\n", unsigned( size() ) );
@@ -345,7 +350,18 @@ public:
                 const Atom &atom = (*this)[ i ];
                 xyz("%s %.4e %.4e %.4e\n", name, atom.r.x, atom.r.y, atom.r.z);
             }
-            
+        }
+        
+        //-- compute barycenter and save it...
+        {
+            ios::ocstream out(output_name,true);
+            V3D G;
+            for(size_t i=size();i>0;--i)
+            {
+                G += (*this)[i].r;
+            }
+            G *= 1/Real(size());
+            out("%g %.4e %.4e %.4e\n", runtime, G.x, G.y, G.z);
         }
     }
     
