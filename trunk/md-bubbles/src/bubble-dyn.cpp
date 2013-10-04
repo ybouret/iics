@@ -378,18 +378,18 @@ int main( int argc, char *argv[])
         LoadMode      load_mode    = LoadLiquid;
         string        output_name  = input_name;
         string        xyz_name     = input_name;
-        vfs::change_extension(xyz_name,    "xyz");
+        vfs::change_extension(xyz_name,"xyz");
         switch(argc)
         {
             case 2:
                 load_mode = LoadMembrane;
-                std::cerr << "-- <Loading Membrane from " << input_name << ">" << std::endl;
+                std::cerr << "-- <Loading Membrane from " << vfs::get_base_name(input_name) << ">" << std::endl;
                 fs.change_extension(output_name, "memb.dat");
                 break;
                 
             case 3:
                 load_mode = LoadLiquid;
-                std::cerr << "-- <Loading Liquid from " << input_name << ">" << std::endl;
+                std::cerr << "-- <Loading Liquid from .../" << vfs::get_base_name(input_name) << ">" << std::endl;
                 Vmax = strconv::to<Real>(argv[2],"VoronoiCutOff");
                 fs.change_extension(output_name, "area.dat");
                 break;
@@ -397,8 +397,8 @@ int main( int argc, char *argv[])
             default:
                 throw exception("usage: %s data [ VoronoiCutOff ]",prog);
         }
-        std::cerr << "-- <Saving data into '" << output_name << "'>" << std::endl;
-        std::cerr << "-- <Saving XYZ  into '" << xyz_name << "'>" << std::endl;
+        std::cerr << "-- <Saving data into '" << vfs::get_base_name(output_name) << "'>" << std::endl;
+        std::cerr << "-- <Saving XYZ  into '" << vfs::get_base_name(xyz_name) << "'>" << std::endl;
         
         ios::ocstream::overwrite(output_name);
         ios::ocstream::overwrite(xyz_name);
