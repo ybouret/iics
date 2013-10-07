@@ -126,24 +126,36 @@ func real initialValues()
     w=W0;
     b=B0;
 }
-macro diffuse(f,ft,fold,Df) (int2d(Th)((dx(f)*dx(ft )+dy(f )*dy(ft))*dt*Df)+int2d(Th)(f*ft)-int2d(Th)(fold*ft))//
-macro rho(a,b,test,itau,Kab) (int2d(Th)(dt*itau*Kab*test)-int2d(Th)(dt*itau*a*b*test))//
+macro diffuse(f,ft,fold,Df)  (int2d(Th)((dx(f)*dx(ft )+dy(f )*dy(ft))*dt*Df)+int2d(Th)(f*ft)-int2d(Th)(fold*ft))//
+macro rho(a,b,test,itau,Kab) (-int2d(Th)(dt*itau*Kab*test)+int2d(Th)(dt*itau*a*b*test))//
 
 
  problem evolve(c,h,w,b,ct,ht,wt,bt)=
-    diffuse(c,ct,cold,Dc)
-    +rho(hold,bold,ct,-itauhb,Khb*cold)
+ 	//--------------------------------------------------------------------------
+	// CO2
+	//--------------------------------------------------------------------------
+    diffuse(c,ct,cold,Dc)                // diffusion
+    +rho(hold,bold,ct,-itauhb,Khb*cold)  // disappear by dissociation
     +on(5,c=Cb) 
     +on(2,c=C0) //end equation c
-    +diffuse(h,ht,hold,Dh)
-    +rho(hold,wold,ht,itauhw,Khw)
-    +rho(hold,bold,ht,itauhb,Khb*cold)
+    //--------------------------------------------------------------------------
+	// proton
+	//--------------------------------------------------------------------------
+    +diffuse(h,ht,hold,Dh)               // diffusion
+    +rho(hold,wold,ht,itauhw,Khw)        // appear by water dissociation
+    +rho(hold,bold,ht,itauhb,Khb*cold)   // appear by CO2 dissociation
     +on(2,h=H0) //end equation h
-    +diffuse(w,wt,wold,Dw)
-    +rho(hold,wold,wt,itauhw,Khw)
+    //--------------------------------------------------------------------------
+	// hydroxy
+	//--------------------------------------------------------------------------
+    +diffuse(w,wt,wold,Dw)               // diffusion 
+    +rho(hold,wold,wt,itauhw,Khw)        // appear by water dissociation
     +on(2,w=Khw/H0) //end equation w
-    +diffuse(b,bt,bold,Db)
-    +rho(hold,bold,bt,itauhb,Khb*cold)
+    //--------------------------------------------------------------------------
+    // Bicarbonate
+    //--------------------------------------------------------------------------
+    +diffuse(b,bt,bold,Db)               // diffusion
+    +rho(hold,bold,bt,itauhb,Khb*cold)   // appear by CO2 dissociation
     +on(2,b=B0) //end equation b
     ;
     
