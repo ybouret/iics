@@ -94,8 +94,18 @@ real Db = 1.45e3;
 real K1 = 4.45e-7;
 real B0 = K1*C0/H0;
 
-//Vh a,at; //tampon
-//Vh ha,hat; //tampon
+//==============================================================================
+// Buffer HA et A-
+//==============================================================================
+Vh a,at,aold;
+Vh ha,hat,haold;
+real Ka=pow(10.0,-6.2);
+real Ca=0.1;
+real HA0 = Ca * H0/(Ka+H0);
+real A0  = Ca * Ka/(Ka+H0);
+
+real Da  = Dh/10;
+real Dha = Dh/10;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -117,6 +127,8 @@ func real update()
     hold=h;
     wold=w;
     bold=b;
+    aold=a;
+    haold=ha;
 }
 //initial values;
 func real initialValues()
@@ -125,12 +137,15 @@ func real initialValues()
     h=H0;
     w=W0;
     b=B0;
+    a=A0;
+    ha=HA0;
 }
+
 macro diffuse(f,ft,fold,Df)  (int2d(Th)((dx(f)*dx(ft )+dy(f )*dy(ft))*dt*Df)+int2d(Th)(f*ft)-int2d(Th)(fold*ft))//
 macro rho(a,b,test,itau,Kab) (-int2d(Th)(dt*itau*Kab*test)+int2d(Th)(dt*itau*a*b*test))//
 
 
- problem evolve(c,h,w,b,ct,ht,wt,bt)=
+ problem evolve(c,h,w,b,a,ha,ct,ht,wt,bt,at,hat)=
  	//--------------------------------------------------------------------------
 	// CO2
 	//--------------------------------------------------------------------------
@@ -138,6 +153,7 @@ macro rho(a,b,test,itau,Kab) (-int2d(Th)(dt*itau*Kab*test)+int2d(Th)(dt*itau*a*b
     +rho(hold,bold,ct,-itauhb,Khb*cold)  // disappear by dissociation
     +on(5,c=Cb) 
     +on(2,c=C0) //end equation c
+  
     //--------------------------------------------------------------------------
 	// proton
 	//--------------------------------------------------------------------------
@@ -145,18 +161,32 @@ macro rho(a,b,test,itau,Kab) (-int2d(Th)(dt*itau*Kab*test)+int2d(Th)(dt*itau*a*b
     +rho(hold,wold,ht,itauhw,Khw)        // appear by water dissociation
     +rho(hold,bold,ht,itauhb,Khb*cold)   // appear by CO2 dissociation
     +on(2,h=H0) //end equation h
+  
     //--------------------------------------------------------------------------
 	// hydroxy
 	//--------------------------------------------------------------------------
     +diffuse(w,wt,wold,Dw)               // diffusion 
     +rho(hold,wold,wt,itauhw,Khw)        // appear by water dissociation
     +on(2,w=Khw/H0) //end equation w
+  
     //--------------------------------------------------------------------------
     // Bicarbonate
     //--------------------------------------------------------------------------
     +diffuse(b,bt,bold,Db)               // diffusion
     +rho(hold,bold,bt,itauhb,Khb*cold)   // appear by CO2 dissociation
     +on(2,b=B0) //end equation b
+    
+    //--------------------------------------------------------------------------
+    // Basic Buffer: A
+    //--------------------------------------------------------------------------
+    +diffuse(a,at,aold,Da) // diffusion
+    +on(2,a=A0)
+    
+    //--------------------------------------------------------------------------
+    // Acid Buffer: HA
+    //--------------------------------------------------------------------------
+	+diffuse(ha,hat,haold,Dha) // diffusion
+	+on(2,ha=HA0)
     ;
     
 initialValues();
@@ -185,8 +215,8 @@ for(t=0;t<T;t+=dt)
     if(cycle%1==0)
     {
 
-        savevtk("./data/sol"+cycle+".vtu",Th,temp,h,c,w,b,dataname="pH h c w b");
+        savevtk("./data/sol"+cycle+".vtu",Th,temp,h,c,w,b,ha,a,dataname="pH h c w b ha a");
     }
     cycle++;
-	//if(cycle>=10) break;
+	if(cycle>=10) break;
 }
