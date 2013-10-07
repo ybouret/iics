@@ -99,10 +99,10 @@ real B0 = K1*C0/H0;
 //==============================================================================
 Vh a,at,aold;
 Vh ha,hat,haold;
-real Ka=pow(10.0,-6.2);
-real Ca=0.1;
-real HA0 = Ca * H0/(Ka+H0);
-real A0  = Ca * Ka/(Ka+H0);
+real Kah=pow(10.0,-6.2);
+real Ca  = 0.001;
+real HA0 = Ca * H0/(Kah+H0);
+real A0  = Ca * Kah/(Kah+H0);
 
 real Da  = Dh/10;
 real Dha = Dh/10;
@@ -119,6 +119,8 @@ real itauhw=1.0/0.01;
 
 real itauhb=itauhw;
 real Khb=4.45e-7;
+
+real itauha=itauhw;
 
 // function for updating the fields.
 func real update()
@@ -160,6 +162,7 @@ macro rho(a,b,test,itau,Kab) (-int2d(Th)(dt*itau*Kab*test)+int2d(Th)(dt*itau*a*b
     +diffuse(h,ht,hold,Dh)               // diffusion
     +rho(hold,wold,ht,itauhw,Khw)        // appear by water dissociation
     +rho(hold,bold,ht,itauhb,Khb*cold)   // appear by CO2 dissociation
+    +rho(hold,aold,ht,itauha,Kah*haold)  // appear by HA dissociation
     +on(2,h=H0) //end equation h
   
     //--------------------------------------------------------------------------
@@ -180,12 +183,14 @@ macro rho(a,b,test,itau,Kab) (-int2d(Th)(dt*itau*Kab*test)+int2d(Th)(dt*itau*a*b
     // Basic Buffer: A
     //--------------------------------------------------------------------------
     +diffuse(a,at,aold,Da) // diffusion
+    +rho(hold,aold,at,itauha,Kah*haold) // appear by HA dissociation
     +on(2,a=A0)
     
     //--------------------------------------------------------------------------
     // Acid Buffer: HA
     //--------------------------------------------------------------------------
-	+diffuse(ha,hat,haold,Dha) // diffusion
+	+diffuse(ha,hat,haold,Dha)             // diffusion
+	+rho(hold,aold,hat,-itauha,Kah*haold)  // disappear by HA dissociation
 	+on(2,ha=HA0)
     ;
     
@@ -208,7 +213,7 @@ for(t=0;t<T;t+=dt)
     evolve;
     update();
 
-    ht=h*w;
+    //ht=h*w;
     temp=-log10(abs(h));
     //plot(temp,fill=1,value=1);
             
@@ -218,5 +223,5 @@ for(t=0;t<T;t+=dt)
         savevtk("./data/sol"+cycle+".vtu",Th,temp,h,c,w,b,ha,a,dataname="pH h c w b ha a");
     }
     cycle++;
-	if(cycle>=10) break;
+	//if(cycle>=10) break;
 }
