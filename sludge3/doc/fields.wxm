@@ -1,0 +1,13 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 12.01.0 ] */
+
+/* [wxMaxima: input   start ] */
+M : matrix(
+[3,(beta-alpha),alpha^2+\beta^2],
+[beta-alpha,alpha^2+beta^2,beta^3-alpha^3],
+[alpha^2+beta^2,beta^3-alpha^3,alpha^4+beta^4]
+);
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$
