@@ -12,6 +12,7 @@ clean:
 	@${MAKE} -C doc clean
 
 veryclean: clean
+	@rm -Rf sdk
 	@echo "-- removing out of sources builds" && cd forge && touch targets && ( cat targets | xargs rm -rf ) && rm -f targets
 
 
