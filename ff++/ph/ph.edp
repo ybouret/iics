@@ -1,0 +1,180 @@
+load "iovtk"
+
+
+
+
+////----------------------------------
+//real pH   = 7.4;
+//real H0   = pow(10,-pH);
+//real Khw = pow(10,-14);
+//real W0   = Khw/H0;
+
+//real k_henry = 29.74; // en atm/(mol/L)
+//real P_CO2  = 40;     // en mmHg
+//real C0         = (P_CO2/760)/h_henry;
+//real K1         = 4.45e-7;
+//real B0         = K1*C0/H0;
+
+//----------------------------------
+
+//nombre de points du maillage sur les bords
+int n=10;
+
+//boite rectangulaire (unite microns)
+real Lx=100;
+real Ly=120;
+
+//dimension du trou.
+real Ra=3.0;
+real Rb=7.0;
+
+//temps
+int cycle=0;
+real t=0,T=6,dt=0.02;
+
+
+
+//definition du domaine 
+border D1(t=0,Lx){x=t;y=-Ly/2+5*sin(t*2*pi/Lx); label=1;}
+border D2(t=0,Ly){x=Lx;y=-Ly/2+t; label=2;}
+border D3(t=0,Lx){x=Lx-t;y=+Ly/2+5*sin(2*t*2*pi/Lx); label=3;}
+border D4(t=0,Ly){x=0;y=+Ly/2-t;  label=4;}
+border hole0(t=0,2*pi){x=Lx*0.45+Ra*cos(t); y=10+Rb*sin(t);label=5;}
+border hole1(t=0,2*pi){x=Lx*0.25+3*Ra*cos(t); y=+Rb*sin(t);label=5;}
+border hole2(t=0,2*pi){x=Lx*0.3+1.2*Ra*cos(t); y=-20+0.5*Rb*sin(t);label=5;}
+
+//definition du maillage
+mesh     Th=buildmesh(D1(2*n)+D2(2*n)+D3(2*n)+D4(2*n)+hole0(-2*n)+hole1(-2*n)+hole2(-2*n));
+
+//definition de l'espace fonctionnel.
+fespace Vh(Th,P2); 
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// chemical species
+//
+////////////////////////////////////////////////////////////////////////////////
+
+//==============================================================================
+// proton
+//==============================================================================
+
+Vh h,ht,hold; 
+
+real Dh=9.304e3;
+real pH   = 7.4;
+real H0   = pow(10,-pH);
+
+//==============================================================================
+// hydroxide
+//==============================================================================
+Vh w,wt,wold; 
+real Dw=5.229e3;
+real Khw = pow(10,-14.0);
+real W0   = Khw/H0;
+
+
+//==============================================================================
+// CO2
+//==============================================================================
+Vh c,ct,cold; 
+real kHenry = 29.74; // en atm/(mol/L)
+real PCO2   = 40.0;  // en mmHg
+
+
+real Dc=1.9e3;
+real C0         = (PCO2/760.0)/kHenry;
+real Cb         = C0;
+
+//==============================================================================
+// HCO3-
+//==============================================================================
+Vh b,bt,bold; 
+real Db = 1.45e3;
+real K1 = 4.45e-7;
+real B0 = K1*C0/H0;
+
+//Vh a,at; //tampon
+//Vh ha,hat; //tampon
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// chemical reactions
+//
+////////////////////////////////////////////////////////////////////////////////
+
+Vh temp;
+//chemical reactions
+real itauhw=1.0/0.01;
+
+real itauhb=itauhw;
+real Khb=4.45e-7;
+
+// function for updating the fields.
+func real update()
+{
+    cold=c;
+    hold=h;
+    wold=w;
+    bold=b;
+}
+//initial values;
+func real initialValues()
+{
+    c=C0;
+    h=H0;
+    w=W0;
+    b=B0;
+}
+macro diffuse(f,ft,fold,Df) (int2d(Th)((dx(f)*dx(ft )+dy(f )*dy(ft))*dt*Df)+int2d(Th)(f*ft)-int2d(Th)(fold*ft))//
+macro rho(a,b,test,itau,Kab) (int2d(Th)(dt*itau*Kab*test)-int2d(Th)(dt*itau*a*b*test))//
+
+
+ problem evolve(c,h,w,b,ct,ht,wt,bt)=
+    diffuse(c,ct,cold,Dc)
+    +rho(hold,bold,ct,-itauhb,Khb*cold)
+    +on(5,c=Cb) 
+    +on(2,c=C0) //end equation c
+    +diffuse(h,ht,hold,Dh)
+    +rho(hold,wold,ht,itauhw,Khw)
+    +rho(hold,bold,ht,itauhb,Khb*cold)
+    +on(2,h=H0) //end equation h
+    +diffuse(w,wt,wold,Dw)
+    +rho(hold,wold,wt,itauhw,Khw)
+    +on(2,w=Khw/H0) //end equation w
+    +diffuse(b,bt,bold,Db)
+    +rho(hold,bold,bt,itauhb,Khb*cold)
+    +on(2,b=B0) //end equation b
+    ;
+    
+initialValues();
+update();
+evolve;
+
+//temp=sqrt(h*h/(H0*H0)+c*c);
+//Th=adaptmesh(Th,temp,err=0.01);
+//h=h;
+initialValues();
+
+exec("rm -f ./data/*");
+
+for(t=0;t<T;t+=dt)
+{
+    PCO2=40*(1+1.0/cosh(2*(t-2.0)));
+    PCO2=40 + 40 * tanh(t);
+    Cb= (PCO2/760)/kHenry;
+    evolve;
+    update();
+
+    ht=h*w;
+    temp=-log10(abs(h));
+    //plot(temp,fill=1,value=1);
+            
+    if(cycle%1==0)
+    {
+
+        savevtk("./data/sol"+cycle+".vtu",Th,temp,h,c,w,b,dataname="pH h c w b");
+    }
+    cycle++;
+	//if(cycle>=10) break;
+}
