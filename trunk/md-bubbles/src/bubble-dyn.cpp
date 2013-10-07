@@ -107,6 +107,7 @@ public:
         voronoi = Next<Real>(tkn, iline, "voronoi");
     }
     
+    // read membrane atom
     inline void parse_fast( const string &line, unsigned iline)
     {
         tokenizer tkn(line);
@@ -115,6 +116,7 @@ public:
         // read id
         //======================================================================
         id = Next<size_t>(tkn,iline,"id");
+        (void)Next<size_t>(tkn,iline,"type");
         
         //======================================================================
         // read position
