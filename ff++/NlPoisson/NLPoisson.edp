@@ -56,29 +56,28 @@ func real computeCurvature()
 	Vh spx,spy;
 	// \Delta Nx = 0 and Nx=N.x on the bubbles
 	solve giveNx(Nx,spx)=
-						int2d(Th)(dx(Nx)*dx(spx)+dy(Nx)*dy(spx))
+						int2d(Th)((dx(Nx)*dx(spx)+dy(Nx)*dy(spx)) )
 						+on(circle,Nx=N.x);
 						
-    // \Delta Ny = 0 and Ny=N.y on the bubbles
-    /*    solve giveNy(Ny,sp1)=int2d(Th)(dx(Ny)*dx(sp1)+dy(Ny)*dy(sp1))
-    					+int1d(Th,circle)(Ny*sp1)
-    					-int1d(Th,circle)(N.y*sp1/sqrt(N.x^2+N.y^2));
-    */
-    
+    // \Delta Ny = 0 and Ny=N.y on the bubbles    
     solve giveNy(Ny,spy)=
-						int2d(Th)(dx(Ny)*dx(spy)+dy(Ny)*dy(spy))
+						int2d(Th)((dx(Ny)*dx(spy)+dy(Ny)*dy(spy)) )
 						+on(circle,Ny=N.y);
     //     
     solve giveCurvature(K,sp1)= 
-    					 int2d(Th)((dx(K)*dx(sp1)+dy(K)*dy(sp1))*pow(Nx*Nx+Ny*Ny,1.5))    
-    					+int1d(Th,circle)(K*sp1*pow(Nx*Nx+Ny*Ny,1.5))
+    					 int2d(Th)((dx(K)*dx(sp1)+dy(K)*dy(sp1)))    
+    					+int1d(Th,circle)(K*sp1)
     					-int1d(Th,circle)
     					(
     					(
     						(Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))
-    						*sp1
+    						*sp1*pow(Nx*Nx+Ny*Ny,-1.5)
     					)
     					);
+    					//(
+    					//	(Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))
+    					//)
+    					//);
     					
     					
      return 0;
@@ -189,7 +188,7 @@ computePressureAndVelocity();
 
 //Th=adaptmesh(Th,p,err=0.01);
 exec("rm -f ./data/*");
-int[int] fforder=[1,1,1];
+int[int] fforder=[1,1,1,1,1];
 
 for(real t=0;t<T;t+=dt)
 {
@@ -199,7 +198,7 @@ for(real t=0;t<T;t+=dt)
 	computePressureAndVelocity();		
 	//Th=movemesh(Th,[x+dt*vx,y+dt*vy]);
 	//savevtk("./data/U"+cycle+".vtk",Th,[vx,vy,0],p,K,dp,dP,f(dP),[dx(p ), dy(p ), 0],[Nx,Ny,0],dataname="V P K ErrorP dP F GradP N",order=fforder);
-	savevtk("./data/U"+cycle+".vtk",Th,[Nx,Ny,0],p,K,dataname="N P K",order=fforder);
+	savevtk("./data/U"+cycle+".vtk",Th,[Nx,Ny,0],p,K,Nx,Ny,dataname="N P K Nx Ny",order=fforder);
 	cycle++;
 }
 
