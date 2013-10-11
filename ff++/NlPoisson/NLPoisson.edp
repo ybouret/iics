@@ -1,28 +1,33 @@
 load "iovtk"
 verbosity=0;
-int n=10;
-int aNx=n;
-int aNy=n;
-int Nc=10*n;
-int circle=10;
-int cycle=0;
+int  n=20;
+int  aNx=n;
+int  aNy=n;
+int  Nc=10*n;
+int  circle=10;
+int  cycle=0;
 real Lx=12.0,Ly=12.0;
 real kT=10;
 real sigma=0.0;
 real dPs=1.0;
 real T=10000, dt=1,t;
 
-real a=1;
-real b=2;
+real a=2;
+real b=1;
 int i;
+
+
 //domain definition boundaries
-border C11(t=0,Lx){x=t;y=-Ly/2+0*sin(t*2*pi/Lx); label=1;}
-border C12(t=0,Ly){x=Lx;y=-Ly/2+t; label=2;}
-border C13(t=0,Lx){x=Lx-t;y=+Ly/2; label=3;}
-border C14(t=0,Ly){x=0;y=+Ly/2-t; label=4;}
+border C11(t=0,Lx){x=t;    y=-Ly/2+0*sin(t*2*pi/Lx); label=1;}
+border C12(t=0,Ly){x=Lx;   y=-Ly/2+t;  label=2;}
+border C13(t=0,Lx){x=Lx-t; y=+Ly/2;    label=3;}
+border C14(t=0,Ly){x=0;    y=+Ly/2-t;  label=4;}
+
+int Right = 2;
 
 
 border hole0(t=0,2*pi){x=Lx*0.5+a*cos(t);y=b*sin(t);label=circle;};
+
 mesh 	Th=buildmesh(C11(aNx)+C12(aNy)+C13(aNx)+C14(aNy)+hole0(-Nc));
 
 //fespace VVh(Th,[P2,P2,P2]);
@@ -32,25 +37,38 @@ macro div(u1,u2) (dx(u1)+dy(u2))//
 real Volume;
 Vh p,q,K;
 Vh vx,vy,dP;
-//________________________________________________________________________
+Vh Nx,Ny;
+
+//______________________________________________________________________________
 //  Function for  the computation of the Curvature of the bubble 						
-//________________________________________________________________________
+//______________________________________________________________________________
 func real computeCurvature()
 {
 	verbosity=0;
 	
 	//real epsilon=1e-10;
-	
-	Vh sp1,Nx,Ny; //variable d'integration
-	solve giveNx(Nx,sp1)=
-						int2d(Th)(dx(Nx)*dx(sp1)+dy(Nx)*dy(sp1))
-						+int1d(Th,circle)(Nx*sp1)
-						-int1d(Th,circle)(N.x*sp1);  
+	//--------------------------------------------------------------------------
+	//
+	// N: defined by FreeFem as the normal vector to the interfaces
+	// Nx : scalar product N \cdot x
+	//--------------------------------------------------------------------------
+	Vh sp1; //variable d'integration
+	Vh spx,spy;
+	// \Delta Nx = 0 and Nx=N.x on the bubbles
+	solve giveNx(Nx,spx)=
+						int2d(Th)(dx(Nx)*dx(spx)+dy(Nx)*dy(spx))
+						+on(circle,Nx=N.x);
 						
-    solve giveNy(Ny,sp1)=int2d(Th)(dx(Ny)*dx(sp1)+dy(Ny)*dy(sp1))
+    // \Delta Ny = 0 and Ny=N.y on the bubbles
+    /*    solve giveNy(Ny,sp1)=int2d(Th)(dx(Ny)*dx(sp1)+dy(Ny)*dy(sp1))
     					+int1d(Th,circle)(Ny*sp1)
-    					-int1d(Th,circle)(N.y*sp1);
-        
+    					-int1d(Th,circle)(N.y*sp1/sqrt(N.x^2+N.y^2));
+    */
+    
+    solve giveNy(Ny,spy)=
+						int2d(Th)(dx(Ny)*dx(spy)+dy(Ny)*dy(spy))
+						+on(circle,Ny=N.y);
+    //     
     solve giveCurvature(K,sp1)= 
     					 int2d(Th)((dx(K)*dx(sp1)+dy(K)*dy(sp1))*pow(Nx*Nx+Ny*Ny,1.5))    
     					+int1d(Th,circle)(K*sp1*pow(Nx*Nx+Ny*Ny,1.5))
@@ -65,40 +83,46 @@ func real computeCurvature()
     					
      return 0;
 }
-//____________________________________________________________________________________
+
+//______________________________________________________________________________
 //	Function for determining the rheology
-//____________________________________________________________________________________
-macro f(p ) giveF(Grad(p )'*Grad(p ))//
-macro df(p ) givedF(Grad(p )'*Grad(p ))//
+//______________________________________________________________________________
+macro f(p )  giveF( sqrt(Grad(p )'*Grad(p )) )  //
+macro df(p ) givedF(sqrt(Grad(p )'*Grad(p )) ) //
+
 func real giveF(real adP)
 {
+	return 1;
+	
 	if(adP<1)
-			return 1e-2*sqrt(adP);
-		else
-		{
-			real idP=1.0/sqrt(adP);
+			return 1e-2; //*sqrt(adP);
+	else
+	{
+			real idP=1.0/(adP);
 			
 			return (1.0+4.5*idP-5.5*idP*idP*idP);
-		}
+	}
 }
 
 func real givedF(real adP)
 {
+	return 0;
+	
 	if(adP<1.0)
-		return 1e-2;
+		return 0; //1e-2;
 	else
 	{
-		real idP2=1.0/(adP);
+		real idP2=1.0/(adP^2);
 		return (-4.5*idP2+16.5*idP2*idP2);
 	}
 }
 
-//____________________________________________________________________________________
+//______________________________________________________________________________
 //	Function for solving the NL poisson equation for pressure
-//____________________________________________________________________________________
+//______________________________________________________________________________
 problem stokesInitial(p,q)=
 		int2d(Th)((Grad(p )'*Grad(q)))
-		+on(4,p=-1)
+		+on(Right,p=1)
 		+on(circle,p=kT/Volume-sigma*K);
 		
 	
@@ -111,24 +135,22 @@ func real computePressureAndVelocity()
 	int i;
 	verbosity=0;
 	
-	//Computation of the bubble volume
-	Volume=Lx*Ly-int2d(Th)(1.0);
-
-	computeCurvature();
-	stokesInitial;
+	Volume=Lx*Ly-int2d(Th)(1.0);	// Computation of the bubble volume
+	computeCurvature();             // curvature field
+	stokesInitial;                  // Newtonian pressure with Laplace's pressure on bubble
 
 	problem NL(dp,q)=
 			 int2d(Th)( (Grad(dp )'*Grad(q))*f(p ) ) 
 			+int2d(Th)( (Grad( p )'*Grad(q))*f(p ) )
 			+int2d(Th)( (Grad( p )'*Grad(q))*df(p )*(Grad(dp)'*Grad(p ) ))	
-			+on(1,2,3,circle,dp=0);
+			+on(1,2,3,4,circle,dp=0);
 						
 	while(error>1e-3)
 	{
 		NL;
 		error=sqrt(int2d(Th)(dp^2));
 		p=p+dp;
-			cout<< "error is "<< error<< "iterations"<<endl;
+			cout<< "error is "<< error << endl;
 		plot(p );
 		i++;
 		if(i>100)
@@ -137,7 +159,7 @@ func real computePressureAndVelocity()
 			break;
 		}
 	}
-	cout<< "Converged in "<< i<< "iterations"<<endl;
+	cout<< "Converged in "<< i<< " iterations"<<endl;
 	dP=f(p);
 	Vh af;
 	{	
@@ -155,6 +177,7 @@ func real computePressureAndVelocity()
 	}
 	return error;
 }
+
 //first test for mesh adaptation		
 Volume=Lx*Ly-int2d(Th)(1.0);
 
@@ -164,16 +187,19 @@ plot(Th);
 computePressureAndVelocity();		
 
 
-Th=adaptmesh(Th,p,err=0.01);
-exec("rm ./data/*");
+//Th=adaptmesh(Th,p,err=0.01);
+exec("rm -f ./data/*");
+int[int] fforder=[1,1,1];
+
 for(real t=0;t<T;t+=dt)
 {
 	//Th=adaptmesh(Th,K,err=0.01);
 
 	computeCurvature();
 	computePressureAndVelocity();		
-	Th=movemesh(Th,[x+dt*vx,y+dt*vy]);
-	savevtk("./data/U"+cycle+".vtu",Th,[vx,vy,0],p,K,dp,dP,f(dP),[dx(p ), dy(p ), 0],dataname="V P K ErrorP dP F GradP");
+	//Th=movemesh(Th,[x+dt*vx,y+dt*vy]);
+	//savevtk("./data/U"+cycle+".vtk",Th,[vx,vy,0],p,K,dp,dP,f(dP),[dx(p ), dy(p ), 0],[Nx,Ny,0],dataname="V P K ErrorP dP F GradP N",order=fforder);
+	savevtk("./data/U"+cycle+".vtk",Th,[Nx,Ny,0],p,K,dataname="N P K",order=fforder);
 	cycle++;
 }
 
