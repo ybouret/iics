@@ -12,8 +12,8 @@ real sigma=0.0;
 real dPs=1.0;
 real T=10000, dt=1,t;
 
-real a=2;
-real b=1;
+real a=1;
+real b=2;
 int i;
 
 
@@ -30,14 +30,15 @@ border hole0(t=0,2*pi){x=Lx*0.5+a*cos(t);y=b*sin(t);label=circle;};
 
 mesh 	Th=buildmesh(C11(aNx)+C12(aNy)+C13(aNx)+C14(aNy)+hole0(-Nc));
 
-//fespace VVh(Th,[P2,P2,P2]);
 fespace Vh(Th,P2);
 macro Grad(u)[dx(u),dy(u)]//
 macro div(u1,u2) (dx(u1)+dy(u2))//
 real Volume;
+
 Vh p,q,K;
 Vh vx,vy,dP;
 Vh Nx,Ny;
+Vh phi;
 
 //______________________________________________________________________________
 //  Function for  the computation of the Curvature of the bubble 						
@@ -45,41 +46,39 @@ Vh Nx,Ny;
 func real computeCurvature()
 {
 	verbosity=0;
-	
-	//real epsilon=1e-10;
 	//--------------------------------------------------------------------------
 	//
-	// N: defined by FreeFem as the normal vector to the interfaces
-	// Nx : scalar product N \cdot x
+	// Compute the topology field phi
+	//
 	//--------------------------------------------------------------------------
-	Vh sp1; //variable d'integration
-	Vh spx,spy;
-	// \Delta Nx = 0 and Nx=N.x on the bubbles
-	solve giveNx(Nx,spx)=
-						int2d(Th)((dx(Nx)*dx(spx)+dy(Nx)*dy(spx)) )
-						+on(circle,Nx=N.x);
-						
-    // \Delta Ny = 0 and Ny=N.y on the bubbles    
-    solve giveNy(Ny,spy)=
-						int2d(Th)((dx(Ny)*dx(spy)+dy(Ny)*dy(spy)) )
-						+on(circle,Ny=N.y);
-    //     
-    solve giveCurvature(K,sp1)= 
-    					 int2d(Th)((dx(K)*dx(sp1)+dy(K)*dy(sp1)))    
-    					+int1d(Th,circle)(K*sp1)
-    					-int1d(Th,circle)
-    					(
-    					(
-    						(Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))
-    						*sp1*pow(Nx*Nx+Ny*Ny,-1.5)
-    					)
-    					);
-    					//(
-    					//	(Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))
-    					//)
-    					//);
-    					
-    					
+
+	solve givephi(phi,q) =
+			int2d(Th)((dx(phi)*dx(q)+dy(phi)*dy(q)) )
+			+on(circle,phi=1)
+			+on(1,2,3,4,phi=0);
+			
+	//--------------------------------------------------------------------------
+	//
+	// Deduce the normal to the curves: - Grad(phi)/|Grad(phi)|
+	//
+	//--------------------------------------------------------------------------
+	Nx=-dx(phi)/sqrt(dx(phi)^2+dy(phi)^2);
+	Ny=-dy(phi)/sqrt(dx(phi)^2+dy(phi)^2);
+	
+	//--------------------------------------------------------------------------
+	//
+	// compute the curvature
+	//
+	//--------------------------------------------------------------------------
+    solve giveCurvature(K,q) =
+    	int2d(Th)((dx(K)*dx(q)+dy(K)*dy(q)))
+		+int1d(Th,circle)(K*q)
+		-int1d(Th,circle)
+			(
+				//-((Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))*q)
+				(dx(Nx)+dy(Ny))*q
+			);
+			
      return 0;
 }
 
@@ -198,7 +197,7 @@ for(real t=0;t<T;t+=dt)
 	computePressureAndVelocity();		
 	//Th=movemesh(Th,[x+dt*vx,y+dt*vy]);
 	//savevtk("./data/U"+cycle+".vtk",Th,[vx,vy,0],p,K,dp,dP,f(dP),[dx(p ), dy(p ), 0],[Nx,Ny,0],dataname="V P K ErrorP dP F GradP N",order=fforder);
-	savevtk("./data/U"+cycle+".vtk",Th,[Nx,Ny,0],p,K,Nx,Ny,dataname="N P K Nx Ny",order=fforder);
+	savevtk("./data/U"+cycle+".vtk",Th,[Nx,Ny,0],p,K,Nx,Ny,phi,dataname="N P K Nx Ny phi",order=fforder);
 	cycle++;
 }
 
