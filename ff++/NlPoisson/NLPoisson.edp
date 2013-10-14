@@ -9,7 +9,7 @@ load "iovtk"
 //______________________________________________________________________________
 // Time
 //______________________________________________________________________________
-real T=10, dt=0.1,t=0;
+real T=100, dt=1,t=0;
 
 
 //______________________________________________________________________________
@@ -27,7 +27,7 @@ real Lx=12.0,Ly=12.0;
 // Thermo
 //______________________________________________________________________________
 real kT=10;
-real sigma=0.1;
+real sigma=2.0;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -71,9 +71,15 @@ int Right = 2;
 
 int    circle=10;
 real   a=1;
-real   b=1;
+real   b=3;
+real   xc=Lx/2;
+real   yc=0;
+real   alpha=pi/4;
 
-border hole0(t=0,2*pi){x=Lx*0.5+a*cos(t);y=b*sin(t);label=circle;};
+border hole0(t=0,2*pi){
+	x=xc+(a*cos(t))*cos(alpha) - (b*sin(t))*sin(alpha);
+	y=yc+(b*sin(t))*cos(alpha) + (a*cos(t))*sin(alpha);
+	label=circle;};
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -85,7 +91,7 @@ border hole0(t=0,2*pi){x=Lx*0.5+a*cos(t);y=b*sin(t);label=circle;};
 mesh 	Th=buildmesh(C11(aNx)+C12(aNy)+C13(aNx)+C14(aNy)+hole0(-Nc));
 
 fespace Vh(Th,P2);
-macro Grad(u)[dx(u),dy(u)]//
+macro Grad(u)    [dx(u),dy(u)]//
 macro div(u1,u2) (dx(u1)+dy(u2))//
 real Volume;
 
@@ -134,10 +140,8 @@ func real computeCurvatureOld()
 	// compute the curvature
 	//
 	//--------------------------------------------------------------------------
-    real small=1e-10;
     solve giveCurvature(K,q) =
-    	//int2d(Th)((dx(K)*dx(q)+dy(K)*dy(q)))
-    	int2d(Th)(small*K*q)
+		int2d(Th)(small*(Grad(K)'*Grad(q)))
 		+int1d(Th,circle)(K*q)
 		-int1d(Th,circle)
 			(
@@ -157,15 +161,22 @@ func real computeCurvature()
 
       	real small=1e-2;
       	
+      	small=1;
         solve giveNx(Nx,q)=int2d(Th)(small*(Grad(Nx)'*Grad(q)))+int1d(Th,circle)(Nx*q)-int1d(Th,circle)(N.x*q);
         solve giveNy(Ny,q)=int2d(Th)(small*(Grad(Ny)'*Grad(q)))+int1d(Th,circle)(Ny*q)-int1d(Th,circle)(N.y*q);
 		
-
+		Vh Zx,Zy;
+		Zx=Nx/sqrt(Nx^2+Ny^2);
+		Zy=Ny/sqrt(Nx^2+Ny^2);
+		
+		Nx=Zx;
+		Ny=Zy;
+		
        	solve giveCurvature(K,q)=
-			int2d(Th)(small*Grad(K)'*Grad(q))
+			int2d(Th)(small*(Grad(K)'*Grad(q)))
 			+int1d(Th,circle)(K*q)
 			-int1d(Th,circle)(
-					(Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))*q
+					(Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))*q*pow(Nx^2+Ny^2,-1.5)
 							);
      return 0;
 }
@@ -256,7 +267,7 @@ func real computePressure()
 			converged=1;
 	}
 	cout<< "-- Converged in "<< iter << " iterations"<<endl;
-	plot(Th,p,fill=1,value=1,wait=0);
+	plot(Th,K,fill=1,value=1,wait=0);
 	return error;
 }
 
@@ -276,13 +287,14 @@ func real computePressureAndVelocity()
 				+on(1,2,3,4,vx=0)
 				+int1d(Th,circle)(q*(vx))
 				+int1d(Th,circle)(q*dx(p )*f(p ));
-				
+			
 		solve giveVelocityY(vy,q)=
 				int2d(Th)(dx(vy)*dx(q)+dy(vy)*dy(q))
 				+on(1,2,3,4,vy=0)
 				+int1d(Th,circle)(q*(vy))
 				+int1d(Th,circle)(q*dy(p )*f(p ));
 	}
+	
 	
 		
 	return error;
@@ -297,7 +309,7 @@ func real adaptMesh()
 {
 	computePressure();
 	Th=adaptmesh(Th,p,err=0.01);
-	plot(Th,wait=0);
+	//plot(Th,wait=0);
 	return 0;
 }
 
@@ -319,8 +331,6 @@ plot(Th,wait=0);
 
 
 
-
-
 int[int] fforder=[1,1,1,1,1];
 
 for(real t=0;t<T;t+=dt)
@@ -330,11 +340,11 @@ for(real t=0;t<T;t+=dt)
 		adaptMesh();
 	}
 	computePressureAndVelocity();		
-	Th=movemesh(Th,[x+dt*vx,y+dt*vy]);
+	//Th=movemesh(Th,[x+dt*vx,y+dt*vy]);
 	//savevtk("./data/nodal"+cycle+".vtk",Th,[Nx,Ny,0],p,K,Nx,Ny,phi,dataname="N P K Nx Ny phi",order=fforder);
 	savevtk("./data/zonal"+cycle+".vtu",Th,[Nx,Ny,0],p,K,Nx,Ny,phi,vx,vy,dataname="N P K Nx Ny phi vx vy");
 	cycle++;
-	//break;
+	if(cycle>=1) break;
 }
 cout << "-- Done" << endl;
 
