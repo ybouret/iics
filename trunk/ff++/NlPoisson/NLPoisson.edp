@@ -12,10 +12,15 @@ real sigma=0.0;
 real dPs=1.0;
 real T=10000, dt=1,t;
 
-real a=1;
-real b=2;
+real a=2;
+real b=3;
 int i;
 
+func real blob_radius()
+{
+	
+	return 0;	
+}
 
 //domain definition boundaries
 border C11(t=0,Lx){x=t;    y=-Ly/2+0*sin(t*2*pi/Lx); label=1;}
@@ -43,7 +48,7 @@ Vh phi;
 //______________________________________________________________________________
 //  Function for  the computation of the Curvature of the bubble 						
 //______________________________________________________________________________
-func real computeCurvature()
+func real computeCurvatureOld()
 {
 	verbosity=0;
 	//--------------------------------------------------------------------------
@@ -70,15 +75,67 @@ func real computeCurvature()
 	// compute the curvature
 	//
 	//--------------------------------------------------------------------------
+    real small=1e-10;
     solve giveCurvature(K,q) =
-    	int2d(Th)((dx(K)*dx(q)+dy(K)*dy(q)))
+    	//int2d(Th)((dx(K)*dx(q)+dy(K)*dy(q)))
+    	int2d(Th)(small*K*q)
 		+int1d(Th,circle)(K*q)
 		-int1d(Th,circle)
 			(
-				//-((Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))*q)
-				(dx(Nx)+dy(Ny))*q
+				-((Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))*q)
+				//(dx(Nx)+dy(Ny))*q
 			);
 			
+     return 0;
+}
+
+//______________________________________________________________________________
+//  Function for  the computation of the Curvature of the bubble
+//______________________________________________________________________________
+func real computeCurvature()
+{
+        verbosity=0;
+
+        //real epsilon=1e-10;
+        //--------------------------------------------------------------------------
+        //
+        // N: defined by FreeFem as the normal vector to the interfaces
+        // Nx : scalar product N \cdot x
+        //--------------------------------------------------------------------------
+        Vh sp1; //variable d'integration
+        Vh spx,spy;
+        real small=1e-2;
+        // \Delta Nx = 0 and Nx=N.x on the bubbles
+
+        /*
+        solve givephi(phi,spx)=
+                                                int2d(Th)((dx(phi)*dx(spx)+dy(phi)*dy(spx)) )
+                                                +on(circle,phi=1)
+                                                +on(1,2,3,4,phi=0);
+        Nx=dx(phi)/sqrt(dx(phi)^2+dy(phi)^2);
+        Ny=dy(phi)/sqrt(dx(phi)^2+dy(phi)^2);
+        */
+
+
+
+        solve giveNx(Nx,spx)=int2d(Th)(Nx*small*spx)+int1d(Th,circle)(Nx*spx)-int1d(Th,circle)(N.x*spx);
+        solve giveNy(Ny,spy)=int2d(Th)(Ny*small*spy)+int1d(Th,circle)(Ny*spy)-int1d(Th,circle)(N.y*spy);
+
+
+        //solve giveNx(Nx,sp1)=int2d(Th)(dx(Nx)*dx(sp1)+dy(Nx)*dy(sp1))+int1d(Th,circle)(Nx*sp1)-int1d(Th,circle)(N.x*sp1);
+        //solve giveNy(Ny,sp1)=int2d(Th)(dx(Ny)*dx(sp1)+dy(Ny)*dy(sp1))+int1d(Th,circle)(Ny*sp1)-int1d(Th,circle)(N.y*sp1);
+
+
+    solve giveCurvature(K,sp1)=
+                                //       int2d(Th)(small*K*sp1)
+                                //      int2d(Th)(small*K*sp1)
+                                        int2d(Th)(small*Grad(K)'*Grad(sp1))
+                                        +int1d(Th,circle)(K*sp1)
+                                        -int1d(Th,circle)
+                                        (
+                                                (Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))
+                                                *sp1
+                                        );
      return 0;
 }
 
