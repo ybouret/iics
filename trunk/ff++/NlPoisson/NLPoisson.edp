@@ -1,26 +1,61 @@
 load "iovtk"
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Variables
+//
+////////////////////////////////////////////////////////////////////////////////
+
+//______________________________________________________________________________
+// Time
+//______________________________________________________________________________
+real T=5, dt=0.1,t=0;
+
+
+//______________________________________________________________________________
+// Spatial
+//______________________________________________________________________________
 verbosity=0;
 int  n=20;
 int  aNx=n;
 int  aNy=n;
-int  Nc=10*n;
-int  circle=10;
+int  Nc=n;
 int  cycle=0;
 real Lx=12.0,Ly=12.0;
+
+//______________________________________________________________________________
+// Thermo
+//______________________________________________________________________________
 real kT=10;
-real sigma=0.0;
-real dPs=1.0;
-real T=10, dt=0.1,t;
+real sigma=0.1;
 
-real a=1;
-real b=1.5;
-int i;
-
+////////////////////////////////////////////////////////////////////////////////
+//
+// Geomerty
+//
+////////////////////////////////////////////////////////////////////////////////
 
 func real blobRadius(real R, real theta, real a, real b, real phi1, real phi2)
 {
 	return R*(1+a*cos(2*theta+phi1)+b*cos(3*theta+phi2));	
 }
+
+func real blobX(real R, real theta, real a, real b, real phi1, real phi2)
+{
+	return cos(theta) * blobRadius(R,theta,a,b,phi1,phi2);	
+}
+
+func real blobY(real R, real theta, real a, real b, real phi1, real phi2)
+{
+	return sin(theta) * blobRadius(R,theta,a,b,phi1,phi2);	
+}
+
+real blobR = 1.0;
+real blobA = 0.2;
+real blobB = 0.3;
+real blob1 = 0.0;
+real blob2 = 0.0;
+real bloba = 0.0;
 
 
 
@@ -32,8 +67,18 @@ border C14(t=0,Ly){x=0;    y=+Ly/2-t;  label=4;}
 
 int Right = 2;
 
+int    circle=10;
+real   a=1;
+real   b=1.5;
 
 border hole0(t=0,2*pi){x=Lx*0.5+a*cos(t);y=b*sin(t);label=circle;};
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Mesh and Functional Space
+//
+////////////////////////////////////////////////////////////////////////////////
 
 mesh 	Th=buildmesh(C11(aNx)+C12(aNy)+C13(aNx)+C14(aNy)+hole0(-Nc));
 
@@ -42,11 +87,20 @@ macro Grad(u)[dx(u),dy(u)]//
 macro div(u1,u2) (dx(u1)+dy(u2))//
 real Volume;
 
-Vh p,q,K;
-Vh vx,vy,dP;
-Vh Nx,Ny;
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Fields
+//
+////////////////////////////////////////////////////////////////////////////////
+
+Vh p;         // pressure
+Vh K;         // curvature
+Vh vx,vy;     // [vx,vy]
+Vh Nx,Ny;     // [Nx,Ny] normal
 Vh phi;
-Vh normGradP;
+Vh dp;
+Vh q;         // integration variable
 
 //______________________________________________________________________________
 //  Function for  the computation of the Curvature of the bubble 						
@@ -99,22 +153,18 @@ func real computeCurvature()
 {
         verbosity=0;
 
+      	real small=1e-2;
       	
-        Vh sp1; //variable d'integration
-        Vh spx,spy;
-        real small=1e-2;
-      	
-        solve giveNx(Nx,spx)=int2d(Th)(Nx*small*spx)+int1d(Th,circle)(Nx*spx)-int1d(Th,circle)(N.x*spx);
-        solve giveNy(Ny,spy)=int2d(Th)(Ny*small*spy)+int1d(Th,circle)(Ny*spy)-int1d(Th,circle)(N.y*spy);
+        solve giveNx(Nx,q)=int2d(Th)(Nx*small*q)+int1d(Th,circle)(Nx*q)-int1d(Th,circle)(N.x*q);
+        solve giveNy(Ny,q)=int2d(Th)(Ny*small*q)+int1d(Th,circle)(Ny*q)-int1d(Th,circle)(N.y*q);
 		
 
-       	solve giveCurvature(K,sp1)=
-                                        int2d(Th)(small*Grad(K)'*Grad(sp1))
-                                        +int1d(Th,circle)(K*sp1)
-                                        -int1d(Th,circle)
-                                        (
-                                                (Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))*sp1
-                                        );
+       	solve giveCurvature(K,q)=
+			int2d(Th)(small*Grad(K)'*Grad(q))
+			+int1d(Th,circle)(K*q)
+			-int1d(Th,circle)(
+					(Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))*q
+							);
      return 0;
 }
 
@@ -138,6 +188,9 @@ func real giveF(real adP)
 	}
 }
 
+//______________________________________________________________________________
+//	Warning: this is giveF(|gradP|)/|gradP|
+//______________________________________________________________________________
 func real givedF(real adP)
 {
 	return 0;
@@ -151,93 +204,130 @@ func real givedF(real adP)
 	}
 }
 
+
 //______________________________________________________________________________
 //	Function for solving the NL poisson equation for pressure
 //______________________________________________________________________________
-problem stokesInitial(p,q)=
+problem stokesInitialClosed(p,q)=
 		int2d(Th)((Grad(p )'*Grad(q)))
-		//+on(Right,p=-1)
 		+on(circle,p=kT/Volume-sigma*K);
 		
-	
-Vh dp;
-Vh vxv,vyv;
+problem stokesInitialPumped(p,q)=
+	int2d(Th)((Grad(p )'*Grad(q)))
+		+on(Right,p=-1)
+		+on(circle,p=kT/Volume-sigma*K);
+
 
 func real computePressureAndVelocity()
 {
-	real error=1;
-	int i;
 	verbosity=0;
 	
 	Volume=Lx*Ly-int2d(Th)(1.0);	// Computation of the bubble volume
 	computeCurvature();             // curvature field
-	stokesInitial;                  // Newtonian pressure with Laplace's pressure on bubble
+	stokesInitialClosed;            // Newtonian pressure with Laplace's pressure on bubble
 
+	//--------------------------------------------------------------------------
+	//
+	// Non linear problen
+	//
+	//--------------------------------------------------------------------------
 	problem NL(dp,q)=
 			 int2d(Th)( (Grad(dp )'*Grad(q))*f(p ) ) 
 			+int2d(Th)( (Grad( p )'*Grad(q))*f(p ) )
 			+int2d(Th)( (Grad( p )'*Grad(q))*df(p )*(Grad(dp)'*Grad(p ) ))	
 			+on(circle,dp=0);
-						
-	while(error>1e-3)
+			
+	int iter      = 0;
+	int converged = 0;
+	real error    = -1;		
+	while(!converged)
 	{
 		NL;
-		error=sqrt(int2d(Th)(dp^2));
 		p=p+dp;
-			cout<< "-- Error is "<< error << endl;
-		i++;
-		if(i>100)
+		cout<< "-- Error is "<< error << endl;
+		iter++;
+		if(iter>100)
 		{
 			cout <<"-- Convergence problem in solving pressure"<<endl;
 			break;
 		}
+		error=sqrt(int2d(Th)(dp^2));
+		if(error<1e-3)
+			converged=1;
 	}
-	cout<< "-- Converged in "<< i<< " iterations"<<endl;
-	plot(Th,p,fill=1,value=1);
-	dP=f(p);
+	cout<< "-- Converged in "<< iter << " iterations"<<endl;
+	plot(Th,p,fill=1,value=1,wait=0);
+
+	//--------------------------------------------------------------------------
+	//
+	// Mesh velocity fields
+	//
+	//--------------------------------------------------------------------------
 	{	
-		solve giveVelocityX(vx,vxv)=
-				int2d(Th)(dx(vx)*dx(vxv)+dy(vx)*dy(vxv))
+		solve giveVelocityX(vx,q)=
+				int2d(Th)(dx(vx)*dx(q)+dy(vx)*dy(q))
 				+on(1,2,3,4,vx=0)
-				+int1d(Th,circle)(vxv*(vx))
-				+int1d(Th,circle)(vxv*dx(p )*f(p ));
+				+int1d(Th,circle)(q*(vx))
+				+int1d(Th,circle)(q*dx(p )*f(p ));
 				
-		solve giveVelocityY(vy,vyv)=
-				int2d(Th)(dx(vy)*dx(vyv)+dy(vy)*dy(vyv))
+		solve giveVelocityY(vy,q)=
+				int2d(Th)(dx(vy)*dx(q)+dy(vy)*dy(q))
 				+on(1,2,3,4,vy=0)
-				+int1d(Th,circle)(vyv*(vy))
-				+int1d(Th,circle)(vyv*dy(p )*f(p ));
+				+int1d(Th,circle)(q*(vy))
+				+int1d(Th,circle)(q*dy(p )*f(p ));
 	}
+	
+		
 	return error;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// mesh adaptat proc
+//
+////////////////////////////////////////////////////////////////////////////////
+func real adaptMesh()
+{
+	computePressureAndVelocity();
+	Th=adaptmesh(Th,p,err=0.1);
+	plot(Th,wait=0);
+	return 0;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Initialize Simulation
+//
+////////////////////////////////////////////////////////////////////////////////
+cout << "-- Cleaning Previous Data" << endl;
+exec("rm -f ./data/*");
+
 //first test for mesh adaptation		
 Volume=Lx*Ly-int2d(Th)(1.0);
-
-plot(Th);
-//Th=adaptmesh(Th,p,err=0.01);
-
-computePressureAndVelocity();		
-//normGradP  = sqrt( Grad(p )'*Grad(p ) );
-//Th=adaptmesh(Th,p,err=0.01);
-
-//plot(Th,wait=1);
+cout << "Volume=" << Volume << endl;
 
 
-exec("rm -f ./data/*");
+plot(Th,wait=0);
+
+
+
+
 
 int[int] fforder=[1,1,1,1,1];
 
 for(real t=0;t<T;t+=dt)
 {
-	//Th=adaptmesh(Th,K,err=0.01);
-
+	if(0)
+	{
+		adaptMesh();
+	}
 	computePressureAndVelocity();		
 	Th=movemesh(Th,[x+dt*vx,y+dt*vy]);
-	//savevtk("./data/U"+cycle+".vtk",Th,[vx,vy,0],p,K,dp,dP,f(dP),[dx(p ), dy(p ), 0],[Nx,Ny,0],dataname="V P K ErrorP dP F GradP N",order=fforder);
 	//savevtk("./data/nodal"+cycle+".vtk",Th,[Nx,Ny,0],p,K,Nx,Ny,phi,dataname="N P K Nx Ny phi",order=fforder);
-	savevtk("./data/zonal"+cycle+".vtu",Th,[Nx,Ny,0],p,K,Nx,Ny,phi,dataname="N P K Nx Ny phi");
+	savevtk("./data/zonal"+cycle+".vtu",Th,[Nx,Ny,0],p,K,Nx,Ny,phi,vx,vy,dataname="N P K Nx Ny phi vx vy");
 	cycle++;
-	break;
+	//break;
 }
+cout << "-- Done" << endl;
 
