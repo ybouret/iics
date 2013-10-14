@@ -141,14 +141,16 @@ func real computeCurvatureOld()
 	//
 	//--------------------------------------------------------------------------
     solve giveCurvature(K,q) =
-		int2d(Th)(small*(Grad(K)'*Grad(q)))
+		int2d(Th)((Grad(K)'*Grad(q)))
 		+int1d(Th,circle)(K*q)
 		-int1d(Th,circle)
 			(
-				-((Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))*q)
-				//(dx(Nx)+dy(Ny))*q
-			);
-			
+				//-((Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))*q)
+				(dx(Nx)+dy(Ny))*q*pow(Nx^2+Ny^2,-1.5)
+			)
+		+on(1,2,3,4,K=0)
+		;
+		
      return 0;
 }
 
@@ -234,7 +236,7 @@ problem stokesInitialPumped(p,q)=
 func real computePressure()
 {
  	Volume=Lx*Ly-int2d(Th)(1.0);	// Computation of the bubble volume
-	computeCurvature();             // curvature field
+	computeCurvatureOld();             // curvature field
 	stokesInitialClosed;            // Newtonian pressure with Laplace's pressure on bubble
 
 	//--------------------------------------------------------------------------
