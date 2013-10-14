@@ -157,8 +157,8 @@ func real computeCurvature()
 
       	real small=1e-2;
       	
-        solve giveNx(Nx,q)=int2d(Th)(Nx*small*q)+int1d(Th,circle)(Nx*q)-int1d(Th,circle)(N.x*q);
-        solve giveNy(Ny,q)=int2d(Th)(Ny*small*q)+int1d(Th,circle)(Ny*q)-int1d(Th,circle)(N.y*q);
+        solve giveNx(Nx,q)=int2d(Th)(small*(Grad(Nx)'*Grad(q)))+int1d(Th,circle)(Nx*q)-int1d(Th,circle)(N.x*q);
+        solve giveNy(Ny,q)=int2d(Th)(small*(Grad(Ny)'*Grad(q)))+int1d(Th,circle)(Ny*q)-int1d(Th,circle)(N.y*q);
 		
 
        	solve giveCurvature(K,q)=
@@ -296,7 +296,7 @@ func real computePressureAndVelocity()
 func real adaptMesh()
 {
 	computePressure();
-	Th=adaptmesh(Th,p,err=0.1);
+	Th=adaptmesh(Th,p,err=0.01);
 	plot(Th,wait=0);
 	return 0;
 }
@@ -325,7 +325,7 @@ int[int] fforder=[1,1,1,1,1];
 
 for(real t=0;t<T;t+=dt)
 {
-	if(0)
+	if(1)
 	{
 		adaptMesh();
 	}
