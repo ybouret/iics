@@ -71,7 +71,7 @@ int Right = 2;
 
 int    circle=10;
 real   a=1;
-real   b=3;
+real   b=1;
 real   xc=Lx/2;
 real   yc=0;
 real   alpha=pi/4;
@@ -155,6 +155,44 @@ func real computeCurvatureOld()
 }
 
 //______________________________________________________________________________
+// Eikonal
+//______________________________________________________________________________
+func real Eikonal()
+{
+	//--------------------------------------------------------------------------
+	// initialize phi with the right values on the side
+	//--------------------------------------------------------------------------
+	solve initPhi(phi,q) = int2d(Th)( Grad(phi)'*Grad(q) ) +on(circle,phi=1)+on(1,2,3,4,phi=0);
+	phi=sqrt((x-Lx/2)^2+(y-0)^2)-1;
+	//return 0;
+	
+	//--------------------------------------------------------------------------
+	// Loop
+	//--------------------------------------------------------------------------
+	int iter      = 0;
+	int converged = 0;
+	real error    = -1;		
+	while(!converged)
+	{
+
+		solve updatePhi(dp,q) =
+			int2d(Th)(q*(Grad(phi)'*Grad(phi)-1))
+			+int2d(Th)(2*q*(Grad(phi)'*Grad(dp)))
+			+on(circle,dp=0);
+		
+		phi=phi+dp;
+		error = int2d(Th)(sqrt(dp^2));
+		cout << "-- Error Phi= " << error << endl;
+		plot(phi,fill=1,value=1,wait=0);
+		if(error<1e-3)
+			converged=1;
+	}
+		
+	return error;
+}
+
+
+//______________________________________________________________________________
 //  Function for  the computation of the Curvature of the bubble
 //______________________________________________________________________________
 func real computeCurvature()
@@ -236,7 +274,7 @@ problem stokesInitialPumped(p,q)=
 func real computePressure()
 {
  	Volume=Lx*Ly-int2d(Th)(1.0);	// Computation of the bubble volume
-	computeCurvatureOld();             // curvature field
+	computeCurvature();             // curvature field
 	stokesInitialClosed;            // Newtonian pressure with Laplace's pressure on bubble
 
 	//--------------------------------------------------------------------------
@@ -341,6 +379,9 @@ for(real t=0;t<T;t+=dt)
 	{
 		adaptMesh();
 	}
+	Eikonal();
+	plot(Th,phi,wait=1,fill=1,value=1);
+	break;
 	computePressureAndVelocity();		
 	//Th=movemesh(Th,[x+dt*vx,y+dt*vy]);
 	//savevtk("./data/nodal"+cycle+".vtk",Th,[Nx,Ny,0],p,K,Nx,Ny,phi,dataname="N P K Nx Ny phi",order=fforder);
