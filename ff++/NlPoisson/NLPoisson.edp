@@ -9,7 +9,7 @@ load "iovtk"
 //______________________________________________________________________________
 // Time
 //______________________________________________________________________________
-real T=5, dt=0.1,t=0;
+real T=10, dt=0.1,t=0;
 
 
 //______________________________________________________________________________
@@ -19,7 +19,7 @@ verbosity=0;
 int  n=20;
 int  aNx=n;
 int  aNy=n;
-int  Nc=n;
+int  Nc=4*n;
 int  cycle=0;
 real Lx=12.0,Ly=12.0;
 
@@ -67,9 +67,11 @@ border C14(t=0,Ly){x=0;    y=+Ly/2-t;  label=4;}
 
 int Right = 2;
 
+// bubble definition
+
 int    circle=10;
 real   a=1;
-real   b=1.5;
+real   b=1;
 
 border hole0(t=0,2*pi){x=Lx*0.5+a*cos(t);y=b*sin(t);label=circle;};
 
@@ -218,11 +220,9 @@ problem stokesInitialPumped(p,q)=
 		+on(circle,p=kT/Volume-sigma*K);
 
 
-func real computePressureAndVelocity()
+func real computePressure()
 {
-	verbosity=0;
-	
-	Volume=Lx*Ly-int2d(Th)(1.0);	// Computation of the bubble volume
+ 	Volume=Lx*Ly-int2d(Th)(1.0);	// Computation of the bubble volume
 	computeCurvature();             // curvature field
 	stokesInitialClosed;            // Newtonian pressure with Laplace's pressure on bubble
 
@@ -257,7 +257,14 @@ func real computePressureAndVelocity()
 	}
 	cout<< "-- Converged in "<< iter << " iterations"<<endl;
 	plot(Th,p,fill=1,value=1,wait=0);
+	return error;
+}
 
+func real computePressureAndVelocity()
+{
+		
+	real error = computePressure();
+	
 	//--------------------------------------------------------------------------
 	//
 	// Mesh velocity fields
@@ -288,7 +295,7 @@ func real computePressureAndVelocity()
 ////////////////////////////////////////////////////////////////////////////////
 func real adaptMesh()
 {
-	computePressureAndVelocity();
+	computePressure();
 	Th=adaptmesh(Th,p,err=0.1);
 	plot(Th,wait=0);
 	return 0;
