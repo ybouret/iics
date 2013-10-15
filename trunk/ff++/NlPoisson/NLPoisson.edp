@@ -71,7 +71,7 @@ int Right = 2;
 
 int    circle=10;
 real   a=1;
-real   b=1;
+real   b=2;
 real   xc=Lx/2;
 real   yc=0;
 real   alpha=pi/4;
@@ -92,7 +92,7 @@ mesh 	Th=buildmesh(C11(aNx)+C12(aNy)+C13(aNx)+C14(aNy)+hole0(-Nc));
 
 fespace Vh(Th,P2);
 macro Grad(u)    [dx(u),dy(u)]//
-macro div(u1,u2) (dx(u1)+dy(u2))//
+macro Div(u1,u2) (dx(u1)+dy(u2))//
 real Volume;
 
 
@@ -110,49 +110,6 @@ Vh phi;
 Vh dp;
 Vh q;         // integration variable
 
-//______________________________________________________________________________
-//  Function for  the computation of the Curvature of the bubble 						
-//______________________________________________________________________________
-func real computeCurvatureOld()
-{
-	verbosity=0;
-	//--------------------------------------------------------------------------
-	//
-	// Compute the topology field phi
-	//
-	//--------------------------------------------------------------------------
-
-	solve givephi(phi,q) =
-			int2d(Th)((dx(phi)*dx(q)+dy(phi)*dy(q)) )
-			+on(circle,phi=1)
-			+on(1,2,3,4,phi=0);
-			
-	//--------------------------------------------------------------------------
-	//
-	// Deduce the normal to the curves: - Grad(phi)/|Grad(phi)|
-	//
-	//--------------------------------------------------------------------------
-	Nx=-dx(phi)/sqrt(dx(phi)^2+dy(phi)^2);
-	Ny=-dy(phi)/sqrt(dx(phi)^2+dy(phi)^2);
-	
-	//--------------------------------------------------------------------------
-	//
-	// compute the curvature
-	//
-	//--------------------------------------------------------------------------
-    solve giveCurvature(K,q) =
-		int2d(Th)((Grad(K)'*Grad(q)))
-		+int1d(Th,circle)(K*q)
-		-int1d(Th,circle)
-			(
-				//-((Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))*q)
-				(dx(Nx)+dy(Ny))*q*pow(Nx^2+Ny^2,-1.5)
-			)
-		+on(1,2,3,4,K=0)
-		;
-		
-     return 0;
-}
 
 //______________________________________________________________________________
 // Eikonal
@@ -243,7 +200,7 @@ func real Eikonal()
 //______________________________________________________________________________
 //  Function for  the computation of the Curvature of the bubble
 //______________________________________________________________________________
-func real computeCurvature()
+func real computeCurvatureOld()
 {
         verbosity=0;
 
@@ -267,6 +224,32 @@ func real computeCurvature()
 					(Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))*q*pow(Nx^2+Ny^2,-1.5)
 							);
      return 0;
+}
+
+func real computeCurvature()
+{
+		
+	
+	solve giveNx(Nx,q)=int2d(Th)((Grad(Nx)'*Grad(q)))+ int1d(Th,circle,1,2,3,4)(Nx*q)-int1d(Th,circle)(N.x*q);
+	solve giveNy(Ny,q)=int2d(Th)((Grad(Ny)'*Grad(q)))+ int1d(Th,circle,1,2,3,4)(Ny*q)-int1d(Th,circle)(N.y*q);
+
+	//solve giveNx(Nx,q)=int2d(Th)((Grad(Nx)'*Grad(q)))+ on(circle,1,2,3,4,Nx=N.x);
+	//solve giveNy(Ny,q)=int2d(Th)((Grad(Ny)'*Grad(q)))+ on(circle,1,2,3,4,Ny=N.y);
+	
+	Vh Zx,Zy;
+	solve gizeZx(Zx,q)=int2d(Th)(Zx*q)-int2d(Th)(Nx/sqrt(Nx^2+Ny^2)*q);
+	solve gizeZy(Zy,q)=int2d(Th)(Zy*q)-int2d(Th)(Ny/sqrt(Nx^2+Ny^2)*q);
+	Nx=Zx;
+	Ny=Zy;
+	
+	solve giveCurvature(K,q)=
+			int2d(Th)(K*q)
+			-int2d(Th)(-Div(Zx,Ny)*q)
+			+int1d(Th,circle)(K*q)
+			-int1d(Th,circle)(-Div(Nx,Ny)*q)
+			;
+		return 0;
+
 }
 
 //______________________________________________________________________________
@@ -427,9 +410,7 @@ for(real t=0;t<T;t+=dt)
 	{
 		adaptMesh();
 	}
-	Eikonal();
-	//plot(Th,phi,wait=1,fill=1,value=1);
-	break;
+	
 	computePressureAndVelocity();		
 	//Th=movemesh(Th,[x+dt*vx,y+dt*vy]);
 	//savevtk("./data/nodal"+cycle+".vtk",Th,[Nx,Ny,0],p,K,Nx,Ny,phi,dataname="N P K Nx Ny phi",order=fforder);
