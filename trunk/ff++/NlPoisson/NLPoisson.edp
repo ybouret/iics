@@ -93,6 +93,8 @@ mesh 	Th=buildmesh(C11(aNx)+C12(aNy)+C13(aNx)+C14(aNy)+hole0(-Nc));
 fespace Vh(Th,P2);
 macro Grad(u)    [dx(u),dy(u)]//
 macro Div(u1,u2) (dx(u1)+dy(u2))//
+macro UnitDiv(Ux,Uy) ((Ux^2*dy(Uy)-Ux*Uy*(dx(Uy)+dy(Ux)) + Uy^2*dx(Ux))*pow(Ux^2+Uy^2,-1.5)) //
+
 real Volume;
 
 
@@ -226,31 +228,54 @@ func real computeCurvatureOld()
      return 0;
 }
 
-func real computeCurvature()
+
+func real computeCurvatureV2()
 {
 		
-	
-	solve giveNx(Nx,q)=int2d(Th)((Grad(Nx)'*Grad(q)))+ int1d(Th,circle,1,2,3,4)(Nx*q)-int1d(Th,circle)(N.x*q);
-	solve giveNy(Ny,q)=int2d(Th)((Grad(Ny)'*Grad(q)))+ int1d(Th,circle,1,2,3,4)(Ny*q)-int1d(Th,circle)(N.y*q);
-
-	//solve giveNx(Nx,q)=int2d(Th)((Grad(Nx)'*Grad(q)))+ on(circle,1,2,3,4,Nx=N.x);
-	//solve giveNy(Ny,q)=int2d(Th)((Grad(Ny)'*Grad(q)))+ on(circle,1,2,3,4,Ny=N.y);
-	
 	Vh Zx,Zy;
-	solve gizeZx(Zx,q)=int2d(Th)(Zx*q)-int2d(Th)(Nx/sqrt(Nx^2+Ny^2)*q);
-	solve gizeZy(Zy,q)=int2d(Th)(Zy*q)-int2d(Th)(Ny/sqrt(Nx^2+Ny^2)*q);
+	solve giveZx(Zx,q)=int2d(Th)((Grad(Zx)'*Grad(q)))+ int1d(Th,circle,1,2,3,4)(Zx*q)-int1d(Th,circle,1,2,3,4)(N.x*q);
+	solve giveZy(Zy,q)=int2d(Th)((Grad(Zy)'*Grad(q)))+ int1d(Th,circle,1,2,3,4)(Zy*q)-int1d(Th,circle,1,2,3,4)(N.y*q);
+	
 	Nx=Zx;
 	Ny=Zy;
+	//solve giveNx(Nx,q)=int2d(Th)(Nx*q)-int2d(Th)(Zx*q/sqrt(Zx^2+Zy^2))+on(circle,1,2,3,4,Nx=Zx/sqrt(Zx^2+Zy^2));
+	//solve giveNy(Ny,q)=int2d(Th)(Ny*q)-int2d(Th)(Zy*q/sqrt(Zx^2+Zy^2))+on(circle,1,2,3,4,Ny=Zy/sqrt(Zx^2+Zy^2));
+		
 	
-	solve giveCurvature(K,q)=
-			int2d(Th)(K*q)
-			-int2d(Th)(-Div(Zx,Ny)*q)
-			+int1d(Th,circle)(K*q)
-			-int1d(Th,circle)(-Div(Nx,Ny)*q)
-			;
+
+	solve giveK(K,q)=
+		int2d(Th)(K*q)+int2d(Th)(q*UnitDiv(Zx,Zy))
+		+on(circle,1,2,3,4,K=UnitDiv(Zx,Zy))
+	;
+	
+	
+		
+	//solve giveCurvature(K,q)=
+	//		int2d(Th)(K*q)
+	//		-int2d(Th)(-Div(Zx,Ny)*q)
+	//		+int1d(Th,circle)(K*q)
+	//		-int1d(Th,circle)(-Div(Nx,Ny)*q)
+	//		;
 		return 0;
 
 }
+
+func real computeCurvature()
+{
+	solve givePhi(phi,q)=int2d(Th)(Grad(phi)'*Grad(q))+on(circle,phi=1)+on(1,2,3,4,phi=0);
+	
+	solve giveNx(Nx,q)=int2d(Th)(Nx*q)-int2d(Th)(dx(phi)*q)+on(circle,1,2,3,4,Nx=dx(phi));
+	solve giveNy(Ny,q)=int2d(Th)(Ny*q)-int2d(Th)(dy(phi)*q)+on(circle,1,2,3,4,Ny=dy(phi));
+
+	
+	solve giveK(K,q)=//int2d(Th)(K*q)-int2d(Th)(UnitDiv(Nx,Ny)*q)
+		int2d(Th)(Grad(K)'*Grad(q))
+		+on(1,2,3,4,K=0)
+		+on(circle,K=-UnitDiv(Nx,Ny))
+		;
+	
+}
+
 
 //______________________________________________________________________________
 //	Function for determining the rheology
@@ -338,7 +363,7 @@ func real computePressure()
 			converged=1;
 	}
 	cout<< "-- Converged in "<< iter << " iterations"<<endl;
-	plot(Th,K,fill=1,value=1,wait=0);
+	plot(Th,K,fill=1,value=1,wait=0,dim=3);
 	return error;
 }
 
@@ -380,7 +405,6 @@ func real adaptMesh()
 {
 	computePressure();
 	Th=adaptmesh(Th,p,err=0.01);
-	//plot(Th,wait=0);
 	return 0;
 }
 
@@ -406,7 +430,7 @@ int[int] fforder=[1,1,1,1,1];
 
 for(real t=0;t<T;t+=dt)
 {
-	if(1)
+	if(0)
 	{
 		adaptMesh();
 	}
