@@ -1,12 +1,11 @@
 load "iovtk"
 int n=20;
-int circle=10;
 real Lx=12;
 real Ly=12;
 real dt=0.1;
 int cycle;
-real a=1.1;
-real b=1;
+
+
 real kappa=1;
 real sigma=0.1;
 real kt=10;
@@ -14,7 +13,20 @@ border bottom(t=0,Lx){x=-Lx*0.5+t;    y=-Ly/2  ; label=1;}
 border right(t=0,Ly){x=Lx*0.5;   y=-Ly/2+t;  label=2;}
 border top(t=0,Lx){x=Lx*0.5-t; y=+Ly/2;    label=3;}
 border left(t=0,Ly){x=-Lx*0.5;    y=+Ly/2-t;  label=4;}
-border hole(t=0,2*pi){x=a*cos(t);y=b*sin(t);label=circle;}
+
+real   a=2;
+real   b=1;
+real   xc=0;
+real   yc=0;
+real   alpha =0.0;;
+int    circle=10;
+
+border hole(t=0,2*pi){
+	x=xc+(a*cos(t))*cos(alpha) - (b*sin(t))*sin(alpha);
+	y=yc+(b*sin(t))*cos(alpha) + (a*cos(t))*sin(alpha);
+	label=circle;}
+
+
 mesh 	Th=buildmesh(bottom(n)+right(n)+top(n)+left(n)+hole(2*n));
 fespace Vhb(Th,P2b);
 fespace Vh(Th,P2);
@@ -35,7 +47,8 @@ func real computeCurvature()
 					(
     						(Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))
     					));
- 	K=K*(phi>-0.2);		
+ 	K=K*(phi>-0.2);	
+ 	plot(K,fill=1,value=1,dim=3);	
 	return 1;
 }
 func real computePressure()
@@ -63,7 +76,7 @@ func real computePressure()
 	
 computePressure();
 //computeCurvature();	
-exec("rm ./data/*");
+exec("rm -f ./data/*");
 phiOld=phi;
 for(cycle=0;cycle<1000;cycle++)
 {
@@ -73,8 +86,9 @@ for(cycle=0;cycle<1000;cycle++)
   	phi=convect([vx,vy],-dt,phiOld);
   	Th=movemesh(Th,[x+dt*vx,y+dt*vy]);
   	
-	int[int] fforder=[1,1,1,1,1,1];
+	int[int] fforder=[1,1,1,1,1,1,1,1,1,1,1,1,1,1];
 //	Vhb dxp=dx(p ),dyp=dy(p );
-	if(cycle%10)
-		savevtk("./data/U"+cycle+".vtu",Th,p,phi,K,[vx,vy,0],vx,vy,dataname="P phi K V vx vy",order=fforder);
+	if(0==(cycle%10))
+		savevtk("./data/U"+cycle+".vtu",Th,p,phi,K,[vx,vy,0],vx,vy,[Nx,Ny,0],Nx,Ny,dataname="P phi K V vx vy N Nx Ny",order=fforder);
+	break;
 }
