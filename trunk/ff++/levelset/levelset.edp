@@ -2,7 +2,7 @@ load "iovtk"
 int n=20;
 real Lx=12;
 real Ly=12;
-real dt=0.1;
+real dt=0.05;
 int cycle;
 
 
@@ -14,7 +14,7 @@ border right(t=0,Ly){x=Lx*0.5;   y=-Ly/2+t;  label=2;}
 border top(t=0,Lx){x=Lx*0.5-t; y=+Ly/2;    label=3;}
 border left(t=0,Ly){x=-Lx*0.5;    y=+Ly/2-t;  label=4;}
 
-real   a=2;
+real   a=1.5;
 real   b=1;
 real   xc=0;
 real   yc=0;
@@ -38,6 +38,7 @@ macro Grad(u)[dx(u),dy(u)]//
 Vh Nx,Ny,q;
 //solve givePhi(phi,phit)=int2d(Th)(Grad(phi)'*Grad(phit))+on(circle,phi=0)+on(bottom,top,right,left,phi=2);
 phi=(x/a)^2+(y/b)^2-1;
+plot(phi);
 
 func real computeCurvature()
 {
@@ -48,10 +49,11 @@ func real computeCurvature()
 					(
     						(Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))
     					));
- 	K=K*(phi>-0.2);	
+ 	K=K*(phi>-0.5);	
  	plot(K,fill=1,value=1,dim=3);	
 	return 1;
 }
+
 func real computePressure()
 {
 		Vhb pt;
@@ -75,13 +77,15 @@ func real computePressure()
 						 
 }
 	
-computePressure();
+
+
+
 //computeCurvature();	
 exec("rm -f ./data/*");
 phiOld=phi;
 for(cycle=0;cycle<1000;cycle++)
 {
-	dt=-0.1;
+	dt=-0.05;
   	computePressure();
   	phiOld=phi;
   	phi=convect([vx,vy],-dt,phiOld);
@@ -89,7 +93,7 @@ for(cycle=0;cycle<1000;cycle++)
   	
 	int[int] fforder=[1,1,1,1,1,1,1,1,1,1,1,1,1,1];
 //	Vhb dxp=dx(p ),dyp=dy(p );
-	if(0==(cycle%10))
+	//if(0==(cycle%10))
 		savevtk("./data/U"+cycle+".vtu",Th,p,phi,K,[vx,vy,0],vx,vy,[Nx,Ny,0],Nx,Ny,dataname="P phi K V vx vy N Nx Ny",order=fforder);
-	break;
+	//break;
 }
