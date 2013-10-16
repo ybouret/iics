@@ -16,10 +16,10 @@ real T=100, dt=1,t=0;
 // Spatial
 //______________________________________________________________________________
 verbosity=0;
-int  n=10;
+int  n=20;
 int  aNx=n;
 int  aNy=n;
-int  Nc=20*n;
+int  Nc=10*n;
 int  cycle=0;
 real Lx=12.0,Ly=12.0;
 
@@ -60,7 +60,7 @@ real bloba = 0.0;
 
 
 //domain definition boundaries
-border C11(t=0,Lx){x=t;    y=-Ly/2+0*sin(t*2*pi/Lx); label=1;}
+border C11(t=0,Lx){x=t;    y=-Ly/2; label=1;}
 border C12(t=0,Ly){x=Lx;   y=-Ly/2+t;  label=2;}
 border C13(t=0,Lx){x=Lx-t; y=+Ly/2;    label=3;}
 border C14(t=0,Ly){x=0;    y=+Ly/2-t;  label=4;}
@@ -91,7 +91,8 @@ border hole0(t=0,2*pi){
 ////////////////////////////////////////////////////////////////////////////////
 
 //plot(C11(aNx)+C12(aNy)+C13(aNx)+C14(aNy)+hole0(-Nc)+hole1(-Nc));
-	mesh 	Th=buildmesh(C11(aNx)+C12(aNy)+C13(aNx)+C14(aNy)+hole0(-Nc));
+mesh 	Th=buildmesh(C11(aNx)+C12(aNy)+C13(aNx)+C14(aNy));
+
 
 fespace Vh(Th,P2);
 macro Grad(u)    [dx(u),dy(u)]//
@@ -122,63 +123,30 @@ func real s(real g)
 	else
 		return 1;
 }
-func real computeCurvature()
+
+
+func real computeCurvature2()
 {
-	verbosity=0;
-	real error=1;
-	real epsilon=0.1;
-	Vh dNx,dNy,dphi,sp1;     // [Nx,Ny] normal
+		Vh q;
+	//solve giveNx(Nx,q)=int2d(Th)(Nx*q)+int2d(Th)(q*dx(phi)/sqrt(dx(phi)^2+dy(phi)^2));
+	//solve giveNy(Ny,q)=int2d(Th)(Ny*q)-int2d(Th)(q*dy(phi)/sqrt(dx(phi)^2+dy(phi)^2));
 
-	//--------------------------------------------------------------------------
-	//
-	// Compute the topology field phi
-	//
-	//--------------------------------------------------------------------------
 
-	solve givephi(phi,q) =
-			int2d(Th)(epsilon*(dx(phi)*dx(q)+dy(phi)*dy(q)) )
-			//s+int2d(Th)(epsilon*)
-			+on(circle,phi=0)
-			+on(1,2,3,4,phi=0.1);
-	phi=sqrt((x-Lx*0.5)^2+y^2)-1;
-	//plot(phi,wait=1);
-	macro norm(u) 	sqrt(Grad(phi)'*Grad(phi))//
-	while(error>1e-6)
-	{
-		Vh Gradphi=sqrt(Grad(phi)'*Grad(phi));
-		solve givedphi(dphi,q)=	
-								int2d(Th)(-q*(1-norm(phi)))
-								+int2d(Th)(q*Grad(dphi)'*Grad(phi)/norm(phi))
-								+int2d(Th)(epsilon*Grad(phi)'*Grad(q))
-								+int2d(Th)(epsilon*Grad(dphi)'*Grad(q))
-								+on(1,2,3,4,circle);
-;
-		error=sqrt(int2d(Th)(dphi^2));
-		phi=phi+dphi;
-		//error=sqrt(int1d(Th,circle)(dx(phi)^2+dy(phi)^2)-1);
-
-		plot(phi,value=1,fill=1,dim=3);
-
-		cout<<"--error="<<error<<endl;
-	}
-	//solve giveNx(Nx,q)=int2d(Th)(Nx*q*norm(phi))-int2d(Th)(q*dx(phi));
-	//solve giveNy(Ny,q)=int2d(Th)(Ny*q*norm(phi))-int2d(Th)(q*dy(phi));
-	
-	solve giveNx(Nx,q)=int2d(Th)(Nx*q)-int2d(Th)(q*dx(phi));
+	solve giveNx(Nx,q)=int2d(Th)(Nx*q)+int2d(Th)(q*dx(phi));
 	solve giveNy(Ny,q)=int2d(Th)(Ny*q)-int2d(Th)(q*dy(phi));
 
-	solve giveK(K,q)  =int2d(Th)(K*q) -int2d(Th)(q*(dx(Nx)+dy(Ny)));
-	//K=(y>0);
-	//K=dx(Nx)+dy(Ny);
-	//plot(phi,dim=3,value=1,fill=1);
-	
 
-	return 0;
+	solve giveK(K,q)  =int2d(Th)(K*q)-int2d(Th)(q*(dx(Nx)+dy(Ny)));
+	return 1;
 }
-int[int] fforder=[1,1,1];
+	phi=sqrt((x-Lx*0.5)^2+y^2)-1;
+	computeCurvature2();
 
-computeCurvature();
-cout<< "mean Curvature="<<int1d(Th,circle)(K)/int1d(Th,circle)(1.0)<<endl;
-savevtk("./data/nodal"+cycle+".vtk",Th,K,phi,[Nx,Ny,0],dataname="K phi N",order=fforder);
+	plot(phi);
+
+int[int] fforder=[1,1,1,1,1];
+
+//cout<< "mean Curvature="<<int1d(Th,circle)(K)/int1d(Th,circle)(1.0)<<endl;
+savevtk("./data/nodal"+cycle+".vtk",Th,K,phi,Nx,Ny,[Nx,Ny,0],dataname="K phi Nx Ny N",order=fforder);
 //savevtk("./data/zonal"+cycle+".vtk",Th,phi,[Nx,Ny,0],K,dataname="phi N K");
 
