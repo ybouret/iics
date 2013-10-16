@@ -1,0 +1,93 @@
+load "isoline"
+load "iovtk"
+int bubbleTag=10; //tag for the bubble border
+int ni=100;
+int n=20;
+real Lx=12;
+real Ly=12;
+real a=3;
+real b=1;
+
+int cycle=0;
+
+border bottom(t=0,Lx){x=-Lx*0.5+t;    y=-Ly/2  ; label=1;}
+border right(t=0,Ly){x=Lx*0.5;   y=-Ly/2+t;      label=2;}
+border top(t=0,Lx){x=Lx*0.5-t; y=+Ly/2;          label=3;}
+border left(t=0,Ly){x=-Lx*0.5;    y=+Ly/2-t;      label=4;}
+mesh 	Th=buildmesh(bottom(ni)+right(ni)+top(ni)+left(ni));
+fespace Vh(Th,P2b);
+fespace Vhn(Th,P2);
+
+Vh phi,p,K;
+
+
+real[int,int] xy(3,1);
+	int[int] be(1);
+border bubble(t=0,1) 
+	{
+		int c =1; 
+		int i0 = be[2*c], i1 = be[2*c+1]-1;   
+	  	P=Curve(xy,i0,i1,t); 
+	  	label=bubbleTag; 
+	} 
+//--------------------------------------------------------------------------------
+// function qui calcul l'iso de phi=0 et remaille autour des bulles.
+//--------------------------------------------------------------------------------
+func real remesh()
+{
+	{
+		//for plotting iso
+		real[int] viso=[0];
+		plot(phi,viso=viso,Th,wait=1);		
+	}
+	//computing iso
+	int nbc= isoline(Th,phi,xy,close=1,iso=0,beginend=be,smoothing=0.0);
+
+//construction du mesh avec trou
+//	Th=buildmesh(bottom(n)+right(n)+top(n)+left(n)+bubble(5*n));
+//construction du mesh sans trou
+	Th=buildmesh(bottom(n)+right(n)+top(n)+left(n)+bubble(-5*n));
+	return 1;
+}
+//--------------------------------------------------------------------------------
+// function qui calcule la courbure
+//--------------------------------------------------------------------------------
+func real computeCurvature()
+{
+	Vhn Nx,Ny,qn;
+	Vh q;
+
+	solve giveNx(Nx,qn)=int2d(Th)(Nx*qn)-int2d(Th)(qn*dx(phi)/sqrt(dx(phi)^2+dy(phi)^2));
+	solve giveNy(Ny,qn)=int2d(Th)(Ny*qn)-int2d(Th)(qn*dy(phi)/sqrt(dx(phi)^2+dy(phi)^2));
+	solve giveK(K,q)=int2d(Th)(K*q)+int2d(Th)(q*
+					(
+    						(Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))
+    					));
+ 	K=K*(phi>-0.2);		
+	return 1;
+}
+//--------------------------------------------------------------------------------
+// function qui calcule la pression
+//--------------------------------------------------------------------------------
+macro Grad(u)[dx(u),dy(u)]//
+
+func real givePressure()
+{
+	Vh pt;
+	solve giveP(p,pt)=int2d(Th)(Grad(p )'*Grad(pt ))
+	+on(bubbleTag,p=2)
+	+on(right,p=3);
+	return 1;
+}
+//int[int] fforder=[1,1,1];
+//phi=sqrt(((x-0.5)/a)^2+((y)/b)^2)-1;
+phi=((x-0.5)/a)^2+((y)/b)^2-1;
+//savevtk("./data/avant.vtu",Th,phi,dataname="phi",order=[1]);
+remesh();
+
+givePressure();
+computeCurvature();
+plot(p );
+int[int] fforder=[1,1,1];
+savevtk("./data/apres.vtu",Th,phi,p,K,dataname="phi p K",order=fforder);
+
