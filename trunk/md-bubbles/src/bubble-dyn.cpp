@@ -384,7 +384,7 @@ int main( int argc, char *argv[])
     const char *prog = vfs::get_base_name(argv[0]);
     try
     {
-        vfs &fs = local_fs::instance();
+        vfs &fs   = local_fs::instance();
         Real Vmax = 0;
         
         //======================================================================
