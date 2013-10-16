@@ -1,0 +1,36 @@
+load "iovtk"
+int n=20;
+int circle=10;
+real Lx=12;
+real Ly=12;
+
+real a=1;
+real b=1;
+border bottom(t=0,Lx){x=-Lx*0.5+t;    y=-Ly/2  ; label=1;}
+border right(t=0,Ly){x=Lx*0.5;   y=-Ly/2+t;  label=2;}
+border top(t=0,Lx){x=Lx*0.5-t; y=+Ly/2;    label=3;}
+border left(t=0,Ly){x=-Lx*0.5;    y=+Ly/2-t;  label=4;}
+border hole(t=0,2*pi){x=a*cos(t);y=b*sin(t);label=circle;}
+mesh    Th=buildmesh(bottom(n)+right(n)+top(n)+left(n)+hole(4*n));
+fespace Vhb(Th,P2b);
+fespace Vh(Th,P2);
+Vhb phi=sqrt((x/a)^2+(y/b)^2)-1;
+Vhb K,qb;
+
+
+Vh Nx,Ny,q;
+solve giveNx(Nx,q)=int2d(Th)(Nx*q)-int2d(Th)(q*dx(phi)/sqrt(dx(phi)^2+dy(phi)^2));
+solve giveNy(Ny,q)=int2d(Th)(Ny*q)-int2d(Th)(q*dy(phi)/sqrt(dx(phi)^2+dy(phi)^2));
+solve giveK(K,qb)=int2d(Th)(K*qb)-int2d(Th)(qb*
+                                        (
+                                                (Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))
+                                        ));
+
+
+
+
+Vhb kPlot=(phi>-0.2)*K;
+plot(kPlot);
+int[int] fforder=[1,1,1];
+
+savevtk("./data/U.vtu",Th,phi,kPlot,[Nx,Ny,0],dataname="phi K N",order=fforder);
