@@ -41,9 +41,10 @@ phi=(x/a)^2+(y/b)^2-1;
 
 func real computeCurvature()
 {
+	real small=1e-10;
 	solve giveNx(Nx,q)=int2d(Th)(Nx*q)-int2d(Th)(q*dx(phi)/sqrt(dx(phi)^2+dy(phi)^2));
 	solve giveNy(Ny,q)=int2d(Th)(Ny*q)-int2d(Th)(q*dy(phi)/sqrt(dx(phi)^2+dy(phi)^2));
-	solve giveK(K,qb)=int2d(Th)(K*qb)+int2d(Th)(qb*
+	solve giveK(K,qb)=int2d(Th)(K*qb*pow(Nx^2+Ny^2,1.5))+int2d(Th)(qb*
 					(
     						(Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))
     					));
