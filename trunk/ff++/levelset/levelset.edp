@@ -1,0 +1,80 @@
+load "iovtk"
+int n=20;
+int circle=10;
+real Lx=12;
+real Ly=12;
+real dt=0.1;
+int cycle;
+real a=1.1;
+real b=1;
+real kappa=1;
+real sigma=0.1;
+real kt=10;
+border bottom(t=0,Lx){x=-Lx*0.5+t;    y=-Ly/2  ; label=1;}
+border right(t=0,Ly){x=Lx*0.5;   y=-Ly/2+t;  label=2;}
+border top(t=0,Lx){x=Lx*0.5-t; y=+Ly/2;    label=3;}
+border left(t=0,Ly){x=-Lx*0.5;    y=+Ly/2-t;  label=4;}
+border hole(t=0,2*pi){x=a*cos(t);y=b*sin(t);label=circle;}
+mesh 	Th=buildmesh(bottom(n)+right(n)+top(n)+left(n)+hole(2*n));
+fespace Vhb(Th,P2b);
+fespace Vh(Th,P2);
+Vhb phi,phit,phiOld,p;
+Vh K,qb;
+Vh vx,vy;
+macro Grad(u)[dx(u),dy(u)]//
+
+Vh Nx,Ny,q;
+//solve givePhi(phi,phit)=int2d(Th)(Grad(phi)'*Grad(phit))+on(circle,phi=0)+on(bottom,top,right,left,phi=2);
+phi=(x/a)^2+(y/b)^2-1;
+
+func real computeCurvature()
+{
+	solve giveNx(Nx,q)=int2d(Th)(Nx*q)-int2d(Th)(q*dx(phi)/sqrt(dx(phi)^2+dy(phi)^2));
+	solve giveNy(Ny,q)=int2d(Th)(Ny*q)-int2d(Th)(q*dy(phi)/sqrt(dx(phi)^2+dy(phi)^2));
+	solve giveK(K,qb)=int2d(Th)(K*qb)+int2d(Th)(qb*
+					(
+    						(Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))
+    					));
+ 	K=K*(phi>-0.2);		
+	return 1;
+}
+func real computePressure()
+{
+		Vhb pt;
+		Vh 	vxt,vyt;
+		real Volume=int2d(Th)((phi<0));
+		cout<<"Volume"<<Volume<<endl;
+		computeCurvature();
+		solve giveP(vx,vy,p,vxt,vyt,pt)=
+						//p
+						int2d(Th)(Grad(p )'*Grad(pt))//+on(right,p=1)
+						+on(circle,p=kt/Volume-sigma*K)
+						//vx
+						+int2d(Th)(Grad(vx )'*Grad(vxt))
+						+int1d(Th,circle)(vx*vxt)-int1d(Th,circle)(-kappa*dx(p )*vxt)
+						+on(top,bottom,right,left,vx=0)
+						//vy
+						+int2d(Th)(Grad(vy )'*Grad(vyt))
+						+int1d(Th,circle)(vy*vyt)-int1d(Th,circle)(-kappa*dy(p )*vyt)
+						+on(top,bottom,right,left,vy=0);
+						 
+						 
+}
+	
+computePressure();
+//computeCurvature();	
+exec("rm ./data/*");
+phiOld=phi;
+for(cycle=0;cycle<1000;cycle++)
+{
+	dt=-0.1;
+  	computePressure();
+  	phiOld=phi;
+  	phi=convect([vx,vy],-dt,phiOld);
+  	Th=movemesh(Th,[x+dt*vx,y+dt*vy]);
+  	
+	int[int] fforder=[1,1,1,1,1,1];
+//	Vhb dxp=dx(p ),dyp=dy(p );
+	if(cycle%10)
+		savevtk("./data/U"+cycle+".vtu",Th,p,phi,K,[vx,vy,0],vx,vy,dataname="P phi K V vx vy",order=fforder);
+}
