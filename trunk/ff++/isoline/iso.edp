@@ -1,12 +1,15 @@
+load "Element_P3"
 load "isoline"
 load "iovtk"
 int bubbleTag=10; //tag for the bubble border
-int ni=100;
+int ni=30;
 int n=20;
 real Lx=12;
 real Ly=12;
-real a=3;
-real b=1;
+real a=1;
+real b=3;
+
+real sigma=0.1;
 
 int cycle=0;
 
@@ -14,11 +17,14 @@ border bottom(t=0,Lx){x=-Lx*0.5+t;    y=-Ly/2  ; label=1;}
 border right(t=0,Ly){x=Lx*0.5;   y=-Ly/2+t;      label=2;}
 border top(t=0,Lx){x=Lx*0.5-t; y=+Ly/2;          label=3;}
 border left(t=0,Ly){x=-Lx*0.5;    y=+Ly/2-t;      label=4;}
-mesh 	Th=buildmesh(bottom(ni)+right(ni)+top(ni)+left(ni));
-fespace Vh(Th,P2b);
-fespace Vhn(Th,P2);
+border hole(t=0,2*pi){x=1.1*a*cos(t); y=1.1*b*sin(t);label=bubbleTag;}
+mesh 	Th=buildmesh(bottom(ni)+right(ni)+top(ni)+left(ni)+hole(4*ni));
+//mesh 	Th=buildmesh(bottom(ni)+right(ni)+top(ni)+left(ni));
+fespace Vh(Th,P3);
+fespace Vhn(Th,P3);
 
 Vh phi,p,K;
+Vhn vx,vy;
 
 
 real[int,int] xy(3,1);
@@ -35,34 +41,31 @@ border bubble(t=0,1)
 //--------------------------------------------------------------------------------
 func real remesh()
 {
-	{
-		//for plotting iso
-		real[int] viso=[0];
-		plot(phi,viso=viso,Th,wait=1);		
-	}
 	//computing iso
 	int nbc= isoline(Th,phi,xy,close=1,iso=0,beginend=be,smoothing=0.0);
 
 //construction du mesh avec trou
 //	Th=buildmesh(bottom(n)+right(n)+top(n)+left(n)+bubble(5*n));
 //construction du mesh sans trou
-	Th=buildmesh(bottom(n)+right(n)+top(n)+left(n)+bubble(-5*n));
+	Th=buildmesh(bottom(n)+right(n)+top(n)+left(n)+bubble(5*n));
 	return 1;
 }
 //--------------------------------------------------------------------------------
 // function qui calcule la courbure
 //--------------------------------------------------------------------------------
+Vhn Nx,Ny,qn;
+
 func real computeCurvature()
 {
-	Vhn Nx,Ny,qn;
 	Vh q;
 
 	solve giveNx(Nx,qn)=int2d(Th)(Nx*qn)-int2d(Th)(qn*dx(phi)/sqrt(dx(phi)^2+dy(phi)^2));
 	solve giveNy(Ny,qn)=int2d(Th)(Ny*qn)-int2d(Th)(qn*dy(phi)/sqrt(dx(phi)^2+dy(phi)^2));
-	solve giveK(K,q)=int2d(Th)(K*q)+int2d(Th)(q*
+	solve giveK(K,q)=int2d(Th)(K*q*pow(Nx^2+Ny^2,1.5))+int2d(Th)(q*
 					(
     						(Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))
     					));
+    plot(K,fill=1);
  	K=K*(phi>-0.2);		
 	return 1;
 }
@@ -74,20 +77,39 @@ macro Grad(u)[dx(u),dy(u)]//
 func real givePressure()
 {
 	Vh pt;
-	solve giveP(p,pt)=int2d(Th)(Grad(p )'*Grad(pt ))
-	+on(bubbleTag,p=2)
-	+on(right,p=3);
+	Vhn vxn,vyn;
+	solve giveP(vx,vy,p,vxn,vyn,pt)=
+									//pressure
+									int2d(Th)(Grad(p )'*Grad(pt ))
+									+on(bubbleTag,p=2-sigma*K)
+									//+on(right,p=3)
+									//vx
+									+int2d(Th)(vx*vxn)-int2d(Th)(-dx(p )*vxn)+on(top,bottom,right,left,vx=0)
+									//vy
+									+int2d(Th)(vy*vyn)-int2d(Th)(-dy(p )*vyn)+on(top,bottom,right,left,vy=0);
+
 	return 1;
 }
+
+exec("rm ./data/*");
 //int[int] fforder=[1,1,1];
 //phi=sqrt(((x-0.5)/a)^2+((y)/b)^2)-1;
-phi=((x-0.5)/a)^2+((y)/b)^2-1;
-//savevtk("./data/avant.vtu",Th,phi,dataname="phi",order=[1]);
-remesh();
+Vh pt;
+solve givePhi(phi,pt)=int2d(Th)(Grad(phi)'*Grad(pt))+on(bubbleTag,phi=0)+on(top,bottom,right,left,phi=1);
 
-givePressure();
+
+//phi=((x-0.5)/a)^2+((y)/b)^2-1;
+//remesh();
 computeCurvature();
-plot(p );
+
+//Th=adaptmesh(Th,K,err=0.01);
+//givePressure();
+
 int[int] fforder=[1,1,1];
-savevtk("./data/apres.vtu",Th,phi,p,K,dataname="phi p K",order=fforder);
+//vx=1;
+
+//savevtk("./data/zut.vtk",Th,phi,p,K,vx,dataname="phi p K vx",order=fforder);
+savevtk("./data/zut.vtk",Th,phi,p,K,Nx,Ny,dataname="phi p K Nx Ny");
+//savevtk("./data/U.vtk",Th,[vx,vy],dataname="V ",order=fforder);
+//plot([vx,vy],Th);
 
