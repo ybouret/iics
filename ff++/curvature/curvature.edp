@@ -1,0 +1,122 @@
+load "iovtk"
+load "Element_P3"
+int n=20;
+int nb=10*n;
+real Lx=12;
+real Ly=12;
+real a=2;
+real b=1;
+int cycle;
+real dt=0.1;
+real kt=0.0;
+real sigma=0.1;
+
+border bottom(t=0,Lx){x=-Lx*0.5+t;    y=-Ly/2  ; label=1;}
+border right(t=0,Ly){x=Lx*0.5;   y=-Ly/2+t;      label=2;}
+border top(t=0,Lx){x=Lx*0.5-t; y=+Ly/2;          label=3;}
+border left(t=0,Ly){x=-Lx*0.5;    y=+Ly/2-t;      label=4;}
+border hole(t=0,2*pi){x=1.1*a*cos(t)+0.1; y=1.1*b*sin(t);}
+/*border hole(t=0,2*pi){
+					x=a*(2*cos(2*t)+3)*cos(t)/3;
+					y=b*(2*cos(2*t)+3)*sin(t)/3;
+					}
+					*/
+mesh 	Th=buildmesh(bottom(n)+right(n)+top(n)+left(n)+hole(-nb));
+
+fespace Vh(Th,P1);   //the field is defined on the grid.
+fespace Vhb(Th,P1b); //the field is defined inside the element
+
+Vh Nx,Ny,Nt; //normal vector to the bubble
+Vh K,Kt;	//curvature
+Vh vx,vy,vt; //mesh velocity
+Vhb Vx,Vy;   //fluid velocity
+macro Grad(u) [dx(u),dy(u)]//
+Vhb p,pt;
+//-------------------------------------------------------------------------------------
+// for computing pressure and velocities
+//
+//-------------------------------------------------------------------------------------
+func real givePressure()
+{
+	real volume=Lx*Ly-int2d(Th)(1.0);
+	solve givePressure(p,pt)=
+			int2d(Th)(Grad(p )'*Grad(pt))
+			// in order to smooth the pressure
+			+int1d(Th,hole)(pt*p)-int1d(Th,hole)(pt*(kt/volume-sigma*K));
+			//+on(top,p=4)
+			//+on(hole,p=2);
+	//mesh velocity		
+	solve givevx(vx,vt)=
+			int2d(Th)(Grad(vx)'*Grad(vt))
+			+on(top,bottom,right,left,vx=0)
+			+int1d(Th,hole)(vt*vx)-int1d(Th,hole)(-vt*dx(p ));
+			
+	solve givevy(vy,vt)=
+			int2d(Th)(Grad(vy)'*Grad(vt))
+			+on(top,bottom,right,left,vy=0)
+			+int1d(Th,hole)(vt*vy)-int1d(Th,hole)(-vt*dy(p ));			
+	//fluid velocity		
+	Vhb vt;
+	solve giveVx(Vx,vt)=int2d(Th)(Vx*vt)-int2d(Th)(-dx(p )*vt);
+	solve giveVy(Vy,vt)=int2d(Th)(Vy*vt)-int2d(Th)(-dy(p )*vt);	
+	return 1;
+}
+//-------------------------------------------------------------------------------------
+// for computing the curvature
+//
+//-------------------------------------------------------------------------------------
+func real computeCurvature()
+{
+	real small=1e-20;
+	//We compute N on the border only.
+	// we do not use the cond on(...) because N.x is not defined on the grid.
+	solve giveNx(Nx,Nt)=
+					int2d(Th)(Nx*Nt*small)
+					+int1d(Th,hole)(Nx*Nt)-int1d(Th,hole)(Nt*N.x/sqrt(N.x^2+N.y^2));
+	solve giveNy(Ny,Nt)= 
+					int2d(Th)(Ny*Nt*small)
+					+int1d(Th,hole)(Ny*Nt)-int1d(Th,hole)(Nt*N.y/sqrt(N.x^2+N.y^2));
+	
+	//We compute K on the border only.				
+	solve giveK(K,Kt)= 
+					int2d(Th)(K*Kt*small)
+					+int1d(Th,hole)(Kt*K)
+					-int1d(Th,hole)(
+						pow(Nx^2+Ny^2,-1.5)*
+    						Kt*(Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))
+    					);
+    return 1;
+}
+exec("rm ./data/*");
+
+// first iteration to have a better mesh.
+computeCurvature(); 
+givePressure();
+Th=adaptmesh(Th,p,err=0.01);
+computeCurvature(); 
+givePressure();
+
+for(cycle=0;cycle<5000;cycle++)
+{
+	verbosity=0;
+	if(cycle%10==0)
+	{
+		int[int] fforder=[1,1,1,1];
+		savevtk("./data/fields"+cycle+".vtu",Th,p,K,[Vx,Vy,0],dataname="P K V",order=fforder);
+		plot(Th,value=1,fill=1);
+
+	}
+	
+	Th=movemesh(Th,[x+dt*vx,y+dt*vy]);
+	
+	computeCurvature();
+	givePressure();
+	//mesh adaptation to the pressure.
+	if(cycle%10==0)
+	{
+		Th=adaptmesh(Th,p,err=0.01);	
+	}
+}
+
+
+
