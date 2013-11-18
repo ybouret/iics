@@ -1,0 +1,45 @@
+func
+real ellipse(real Ra, real Rb, real alpha)
+{
+	int i;
+	real phase = randreal3() * 2*pi;
+	real ca    = cos(alpha);
+	real sa    = sin(alpha);
+	for(i=0;i<=ni;++i)
+	{
+		real phi = (2*pi*i)/ni + phase;
+		real XX  = Ra * cos(phi);
+		real YY  = Rb * sin(phi);
+		bx(i) = ca*XX - sa*YY + R/10.0;
+		by(i) = sa*XX + ca*YY;
+	}
+	return 0;
+}
+
+
+func
+real blob(real Radius,real alpha)
+{
+	int i;
+	real phase = randreal3() * 2*pi;
+	real ca    = cos(alpha);
+	real sa    = sin(alpha);
+	real Rho   = 0.55 + 0.4* randreal3();
+	real A     = randreal3();
+	real B     = (1.0-A) * randreal3();
+	A          = A * Rho;
+	B          = B * Rho;
+	real Phi1  = randreal3() * 2*pi;
+	real Phi2  = randreal3() * 2*pi;
+	for(i=0;i<=ni;++i)
+	{
+		real phi = (2*pi*i)/ni+phase;
+		real RR  = Radius*(1.0+A*cos(2*phi+Phi1)+B*cos(3*phi+Phi2));
+		real XX  = RR * cos(phi);
+		real YY  = RR * sin(phi);
+		bx(i) = ca*XX - sa*YY+R/10.0;
+		by(i) = sa*XX + ca*YY;
+	}
+	return 0;
+
+}
