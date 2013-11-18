@@ -66,7 +66,8 @@ func real computeCurvature()
     						(Ny*Nx*dx(Ny)-Ny*Ny*dx(Nx)-Nx*Nx*dy(Ny)+Nx*Ny*dy(Nx))
     					));
     plot(K,fill=1);
- 	K=K*(phi>-0.2);		
+ 	K=K*(phi>-0.2);	
+ 	//plot([Nx,Ny],fill=1);	
 	return 1;
 }
 //--------------------------------------------------------------------------------
@@ -91,7 +92,7 @@ func real givePressure()
 	return 1;
 }
 
-exec("rm ./data/*");
+exec("rm -f ./data/*");
 //int[int] fforder=[1,1,1];
 //phi=sqrt(((x-0.5)/a)^2+((y)/b)^2)-1;
 Vh pt;

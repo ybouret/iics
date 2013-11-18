@@ -1,0 +1,48 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+
+\begin{document}
+In this project we aim at computing the solution of the following problem
+\begin{align}
+    0=-\nabla P+\nu \Delta  \mathbf u, \\
+    \nabla.{\mathbf u}=0
+\end{align}
+in the fluid domain.
+In the weak formulation, this system becomes:
+
+\begin{equation}
+\int {\mathbf v}\nabla P d\Omega+\nu\int \left({\mathbf \nabla} u_x {\mathbf \nabla} v_x + {\mathbf \nabla} u_y {\mathbf \nabla} v_y \right)d\Omega
+-\nu \int v_x\partial_n u_x d\Omega_b-\nu \int v_y\partial_n u_y d\Omega_b=0
+\end{equation}
+with the dynamic boundary conditions $(\sigma.n)n=-P_b+\gamma \kappa$ and $(\sigma.n).\tau=0$, where $n$ and $\tau$ are respectively the vectors normal and tangent to the bubble.
+The stress tensor is
+\begin{equation}
+    \sigma=\left(
+    \begin{array}{cc}
+    -P +2\nu \partial_x u_x &\nu(\partial_x u_y+\partial_y u_x)\cr
+    \nu(\partial_x u_y+\partial_y u_x) &-P +2\nu \partial_y u_y
+    \end{array}
+    \right)
+\end{equation}
+
+We have
+\begin{align}
+    \partial_n u_x=\partial_x u_x n_x+\partial_y u_x n_y\\
+    \partial_n u_y=\partial_x u_y n_x+\partial_y u_y n_y
+\end{align}
+
+We then obtain:
+\begin{align}
+    \partial_x u_x=\left(\partial_n u_x -n_y \partial_y u_x\right)/n_x\\
+    \partial_y u_y=\left(\partial_n u_y-n_x \partial_x u_y\right)/n_y
+\end{align}
+inserting the above relations into the normal and tangential boundary conditions, we get:
+\begin{align}
+    \partial_n u_x=\frac{1}{2}\left(n_x(P-P_b)+n_y\left(\partial_y u_x-\partial_y u_x\right))\right)\\
+    \partial_n u_y=\frac{1}{2}\left(n_y(P-P_b)+n_x\left(\partial_y u_y-\partial_x u_y\right))\right)
+\end{align}
+
+
+
+
+\end{document}

@@ -1,0 +1,189 @@
+load "iovtk"
+load "Element_Mixte"
+load "Element_P3"
+load "ffrandom"
+
+verbosity=0;
+
+int[int] fforder=[1,1,1,1,1,1,1,1,1,1];
+real a=1.0;
+real b=3.5;
+real R=10;
+real kt=2*pi;
+real dt=0.05;
+int n=20;
+int ni=50;
+int cycle=0,i;
+
+//------------------------------------------------------------------------
+// random
+//------------------------------------------------------------------------
+srandomdev();
+randinit(random());
+
+//------------------------------------------------------------------------
+// bubble definition
+//------------------------------------------------------------------------
+real [int] bx(ni+1),by(ni+1);
+include "shapes.edp"
+
+//ellipse(a,b,2*pi*randreal3());	
+blob(2.5,2*pi*randreal3());
+//ellipse(4,4,0);
+
+border hole(t=0,ni){x=bx(t);    y=by(t);}	
+border container(t=0,2*pi){x=R*cos(t-sqrt(0.0));y=R*sin(t-sqrt(0.0));}
+//border hole(t=0,2*pi){x=a*cos(t+sqrt(2));y=b*sin(t+sqrt(2));}
+
+
+mesh    Th=buildmesh(container(n)+hole(-ni));
+mesh 	th=buildmesh(hole(ni)); //the mesh for computing the curvature.
+
+
+fespace Ph(Th,P2);
+Ph P,Q,K,Kt;
+
+//fespace Vh(Th,RT1);
+fespace Vh(Th,[P3,P3]);
+Vh [Ux,Uy],[Vx,Vy];
+
+real volume =0;
+
+func real  ComputeVolume()
+{
+	// todo for each bubble
+	th=buildmesh(hole(ni));
+	volume = int2d(th)(1.0);
+	return 0;
+}
+
+func real  ComputeFuild()
+{
+	real penality=1e-10;
+
+	
+	Th=buildmesh(container(n)+hole(-ni));
+	
+	ComputeVolume();
+	//th=buildmesh(hole(ni)); //the mesh for computing the curvature.
+	//volume=int2d(th)(1.0);
+		
+	th=emptymesh(th);
+	
+	
+	fespace Nh(th,P1);
+	Nh nx,ny,q;
+	Nh anx,any;
+	
+	
+
+	fespace Kh(th,P1);
+	Nh k,kt;
+
+
+
+	//functions which give the normals
+	solve giveNx(nx,q)=int2d(th)(penality*nx*q)+int1d(th,hole)(q*N.x)-int1d(th,hole)(q*nx);
+	solve giveNy(ny,q)=int2d(th)(penality*ny*q)+int1d(th,hole)(q*N.y)-int1d(th,hole)(q*ny);
+	
+	anx=nx;
+	any=ny;
+	nx=anx/sqrt(anx^2+any^2);
+	ny=any/sqrt(anx^2+any^2);
+	
+	macro UnitDiv(Ux,Uy) ((Ux^2*dy(Uy)-Ux*Uy*(dx(Uy)+dy(Ux)) + Uy^2*dx(Ux))*pow(Ux^2+Uy^2,-1.5)) //
+	//macro UnitDiv(Ux,Uy) ((Ux^2*dy(Uy)-Ux*Uy*(dx(Uy)+dy(Ux)) + Uy^2*dx(Ux))) //
+	macro Grad(u)[dx(u),dy(u)]//
+
+
+	solve givek(k,kt,eps=-1e-14)=
+		int1d(th,hole)(k*kt)
+		-int1d(th,hole)(UnitDiv(nx,ny)*kt)
+		+int2d(th)(penality*k*kt)
+		;
+	solve giveK(K,Kt)=int2d(Th)(penality*K*Kt)+on(hole,K=k);
+	real sparadrap=1e-3;
+	
+	
+	solve giveP([Ux,Uy,P],[Vx,Vy,Q])  =int2d(Th)(Grad(Ux)'*Grad(Vx)+(Grad(Uy)'*Grad(Vy)))
+						-int1d(Th,hole)(Vx*N.x*0.5*P)+int1d(Th,hole)(Vx*0.5*N.x*(kt/volume-K))
+						-int1d(Th,hole)(Vy*N.y*0.5*P)+int1d(Th,hole)(Vy*0.5*N.y*(kt/volume-K))
+						-int1d(Th,hole)(Vy*0.5*(N.x*dx(Uy)-N.x*dy(Ux)))
+						-int1d(Th,hole)(Vx*0.5*(N.y*dy(Ux)-N.y*dx(Uy)))
+						+int2d(Th)(dx(P)*Vx+dy(P)*Vy)
+						+int2d(Th)(Q*(dx(Ux)+dy(Uy)))
+						+on(container,Ux=0,Uy=0)
+						;
+						
+						
+}
+
+func real RescaleShape(real alpha)
+{
+	real Gx = 0;
+	real Gy = 0;
+	for(i=0;i<=ni;++i)
+	{
+		Gx = Gx + bx(i);
+		Gy = Gy + by(i);
+	}
+	Gx = Gx/(ni+1);
+	Gy = Gy/(ni+1);
+	for(i=0;i<=ni;++i)
+	{
+		bx(i) = Gx + alpha*(bx(i)-Gx);
+		by(i) = Gy + alpha*(by(i)-Gy);	
+	}
+	return 0;
+}
+
+
+exec("rm -f ./data/*");
+ofstream fp("./data/area.txt");
+
+
+
+for(cycle=0;cycle<200;cycle++)
+{
+	
+//	Vh XX,YY;
+	
+	ComputeFuild();
+	real oldVolume = volume;
+	fp << cycle << " " << volume << endl;
+	Th=adaptmesh(Th,[Ux,Uy],err=0.01);
+//	P=P+1;
+	savevtk("./data/VP"+cycle+".vtu",Th,P,[Ux,Uy,0],dataname="P V",order=fforder);
+	
+	//-- moving
+	for(i=0;i<=ni;i++)
+	{
+		real bxo2=bx(i),byo2=by(i);
+		bx(i)=bxo2+dt*Ux(bxo2,byo2);
+		by(i)=byo2+dt*Uy(bxo2,byo2);
+	}
+	
+	//-- rescale if needed
+	if(true)
+	{
+		//cout << "-- oldVolume = " << oldVolume << endl;
+		ComputeVolume();
+		//cout << " -- newVolume = " << volume << endl;
+		real rescaleFactor = pow(oldVolume/volume,1.0/2);
+		cout << "-- rescaling by " << rescaleFactor << endl;
+		RescaleShape( rescaleFactor );
+	}
+	
+	ofstream out("./data/bubble"+cycle+".txt"); 
+	for(i=0;i<ni+1;i++)
+	{
+		//out<<i<<"\t"<<bx(i)<<"\t"<<by(i)<<"\t"<<Ux(bxo2,byo2)<<"\t"<<Uy(bxo2,byo2)<<"\n";	
+		out << i << " " << bx(i) << " " << by(i) << endl;
+	}
+	out<<endl;
+	
+	
+	plot(Th,P,dim=2,fill=1,value=1,cmm="cycle "+cycle);
+	Q=sqrt(Ux^2+Uy^2);
+//	plot(Th,Q,fill=1,value=1);
+}
