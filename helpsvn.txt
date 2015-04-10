@@ -8,3 +8,5 @@ svn checkout https://iics.googlecode.com/svn/trunk/ iics --username mederic.arge
 
 #status du svn
 svn status
+
+#Welcome back
