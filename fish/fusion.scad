@@ -24,11 +24,8 @@ union()
 	//Holder();
 }
 */
+	
+%scale([2,2,2])  import("fish_head.stl");
+%scale([2,2,2])  import("fish_tail.stl");
 
-difference()
-{
-	scale([2,2,2]) import("fish_tail.stl");
-	cube(50,center=true);
-}
-
-//Holder();
+Holder();

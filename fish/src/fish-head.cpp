@@ -136,6 +136,28 @@ void Fish:: generateHead(  double Zmax, size_t N, double thickness)
 
     }
 
+#if 0
+    // NEW VERSION
+    // closing points
+    pPoint pN( new Point() );
+    points.push_back(pN);
+    pN->r.z = slices.back()->z;
+
+    {
+        const Slice &slice = *slices[N];
+        for(size_t i=1;i<=M;++i)
+        {
+            size_t   ip = i+1;
+            if(ip>M) ip = 1;
+            Triangle tr(pN,slice.points[i],slice.points[ip]);
+            tr.inverse();
+            triangles.push_back(tr);
+        }
+    }
+
+    return ;
+#endif
+
     //--------------------------------------------------------------------------
     //
     // Inner Shell
@@ -287,11 +309,13 @@ void Fish:: generateHead(  double Zmax, size_t N, double thickness)
                 {
                     const Triangle tr(P00,P01,P11);
                     triangles.push_back(tr);
+                    triangles.back().inverse();
                 }
                 
                 {
                     const Triangle tr(P00,P10,P11);
                     triangles.push_back(tr);
+                    triangles.back().inverse();
                 }
             }
         }

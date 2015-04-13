@@ -13,5 +13,5 @@ width,height = W_effc, H_effc;
 
 N         = 50;
 Length    = 100;
-thickness = 0.1;
+thickness = 0.05;
 head_size = 0.3;
