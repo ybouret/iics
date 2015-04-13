@@ -287,7 +287,11 @@ void Triangle:: recompute() throw()
     n.normalize();
 }
 
-
+void Triangle:: inverse() throw()
+{
+    b.swap_with(c);
+    n = -n;
+}
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Fish

@@ -127,7 +127,10 @@ public:
 
     //! after a scaling...
     void recompute() throw();
-    
+
+    //! change orientation
+    void inverse() throw();
+
 private:
     YOCTO_DISABLE_ASSIGN(Triangle);
 };
@@ -153,7 +156,7 @@ public:
     //! rescale all, assuming initial z\in[0:1]
     void centerAndRescaleBy( double Length );
 
-    void generateHead( double Zmax, size_t N );
+    void generateHead( double Zmax, size_t N, double thickness );
 
 
     void save_vtk( const string &filename ) const;

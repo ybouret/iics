@@ -49,7 +49,7 @@ YOCTO_PROGRAM_START()
     fish.save_vtk("fish_shell.vtk");
 
 
-    fish.generateHead(0.33, 10);
+    fish.generateHead(0.33, 10, 0.05);
     fish.save_vtk("fish_head.vtk");
 
 }
