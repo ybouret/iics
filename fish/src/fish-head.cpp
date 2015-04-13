@@ -121,19 +121,19 @@ void Fish:: generateHead(  double Zmax, size_t N, double thickness)
                 const pPoint  &P01 = P0[ip];
                 const pPoint  &P10 = P1[i];
                 const pPoint  &P11 = P1[ip];
-                
+
                 {
                     const Triangle tr(P00,P01,P11);
                     triangles.push_back(tr);
                 }
-                
+
                 {
                     const Triangle tr(P00,P10,P11);
                     triangles.push_back(tr);
                 }
             }
         }
-        
+
     }
 
     //--------------------------------------------------------------------------
@@ -196,7 +196,7 @@ void Fish:: generateHead(  double Zmax, size_t N, double thickness)
                 slice.points.push_back(pp);
                 inner_points.push_back(pp);
             }
-            
+
         }
 
         std::cerr << "-- Computing Inner Triangles" << std::endl;
@@ -262,6 +262,40 @@ void Fish:: generateHead(  double Zmax, size_t N, double thickness)
             inner_tr[i].inverse();
             triangles.push_back( inner_tr[i] );
         }
+
+        //______________________________________________________________________
+        //
+        // closing the shell
+        //______________________________________________________________________
+        std::cerr << "-- Closing the shell" << std::endl;
+        const Slice &S_out = *slices.back();
+        const Slice &S_ins  = *inner_slices.back();
+        {
+            const array<pPoint> &P0 = S_out.points;
+            const array<pPoint> &P1 = S_ins.points;
+
+            // loop over quads
+            for(size_t i=1;i<=M;++i)
+            {
+                size_t   ip = i+1;
+                if(ip>M) ip = 1;
+                const pPoint  &P00 = P0[i];
+                const pPoint  &P01 = P0[ip];
+                const pPoint  &P10 = P1[i];
+                const pPoint  &P11 = P1[ip];
+                
+                {
+                    const Triangle tr(P00,P01,P11);
+                    triangles.push_back(tr);
+                }
+                
+                {
+                    const Triangle tr(P00,P10,P11);
+                    triangles.push_back(tr);
+                }
+            }
+        }
+        
     }
     
 }
