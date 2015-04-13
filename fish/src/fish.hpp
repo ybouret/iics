@@ -18,6 +18,7 @@ typedef CubicApproximation<double,v3d> CubiXBase;
 typedef CubiXBase::vtx_t                   vtx_t;
 
 
+//! Cubic BSplines Approximation
 class CubiX : public CubiXBase
 {
 public:
@@ -36,6 +37,8 @@ private:
 
 };
 
+
+//! Profile Metrics
 class Profile : public object
 {
 public:
@@ -48,7 +51,10 @@ public:
     
     static const size_t NZ = 1001;
 
+    //! required Z position for a given ratio of arc
     double getZ( const double ratio );
+
+    double computePerimeter( const double z );
 
 private:
     CubiX width;
@@ -64,7 +70,7 @@ public:
 
 
 
-
+//! a data point
 class Point : public counted_object
 {
 public:
@@ -80,6 +86,7 @@ private:
 typedef arc_ptr<Point> pPoint;
 
 
+//! an elliptical slice
 class Slice : public counted_object
 {
 public:
@@ -119,6 +126,17 @@ private:
     YOCTO_DISABLE_ASSIGN(Triangle);
 };
 
+
+class Fish : public Profile
+{
+public:
+    explicit Fish( lua_State *L );
+    virtual ~Fish() throw();
+
+
+private:
+    YOCTO_DISABLE_COPY_AND_ASSIGN(Fish);
+};
 
 
 #endif

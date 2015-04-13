@@ -67,7 +67,7 @@ void LoadCoordinates( sequence<vtx_t> &beta, lua_State *L, const string &name)
 
 CubiX::CubiX( lua_State *L, const string &table_name, const size_t iCoord ) :
 CubiXBase(),
-solv(1e-4),
+solv(0),
 zfcn(this, & CubiXBase::Z, 0),
 indx(clamp<size_t>(0,iCoord,1))
 {
@@ -92,9 +92,7 @@ double CubiX:: GetValue( const double z )
         else
         {
             zfcn.target = z;
-            const double  u      = solv(zfcn.call,0,1);
-            result = Compute(u);
-
+            result = Compute(solv(zfcn.call,0,1));
         }
     }
     const double *q = &result.x;
@@ -110,9 +108,9 @@ double CubiX:: GetValue( const double z )
 Profile:: ~Profile() throw() {}
 
 Profile:: Profile( lua_State *L ) :
-W(  &width, & CubiX::GetValue ),
+W(  &width,  & CubiX::GetValue ),
 H(  &height, & CubiX::GetValue ),
-width(L,"width",0),
+width( L,"width", 0),
 height(L,"height",1),
 zarr(NZ,0),
 rmax(NZ,0),
@@ -174,6 +172,13 @@ double Profile:: getZ( const double ratio )
     }
 }
 
+double Profile:: computePerimeter( const double z )
+{
+    const double a = W(z);
+    const double b = H(z);
+    const double h2 = a*a + b*b;
+    return numeric<double>::pi * sqrt(h2+h2);
+}
 
 
 
