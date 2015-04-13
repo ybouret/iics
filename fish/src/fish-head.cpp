@@ -177,7 +177,7 @@ void Fish:: generateHead(  double Zmax, size_t N, double thickness)
 
             double w = W(slice.z);
             double h = H(slice.z);
-            const double r = Hypotenuse(w, h);
+            const double r   = Hypotenuse(w, h);
             const double fac = (r-thickness)/r;
 
             w *= fac;
