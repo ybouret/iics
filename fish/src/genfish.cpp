@@ -54,5 +54,11 @@ YOCTO_PROGRAM_START()
     fish.save_vtk("fish_head.vtk");
     fish.save_stl("fish_head.stl");
 
+    fish.generateTail(0.33, 20, 0.05);
+    fish.centerAndRescaleBy( Lua::Config::Get<lua_Number>(L,"Length"));
+    fish.save_vtk("fish_tail.vtk");
+    fish.save_stl("fish_tail.stl");
+
+
 }
 YOCTO_PROGRAM_END()

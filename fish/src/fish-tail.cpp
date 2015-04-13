@@ -1,33 +1,42 @@
 #include "fish.hpp"
 #include "yocto/exception.hpp"
 
-void Fish:: generateShell( size_t N )
+void Fish:: generateTail( double Zmax, size_t N, double thickness)
 {
 
     // clean up
     clear();
 
-    // compute the ratio steps
+    if(Zmax<=0||Zmax>0.5)
+        throw exception("Invalid Zmax=%g",Zmax);
+
+    zfunction<double> rfn( this, & Profile::getZ, Zmax);
+    zfind<double>     solve(0);
+    const double      rho_max =  solve(rfn.call,0,1);
+    std::cerr << "rho_max=" << rho_max << std::endl;
     N = max_of<size_t>(1,N);
-    const double delta = 1.0/(N+1);
 
-    // compute the slices position
-    for(size_t i=1;i<=N;++i)
-    {
-        const double ratio = i*delta;
-        const pSlice pS( new Slice( getZ(ratio) ) );
-        slices.push_back(pS);
-    }
-
-    // compute the number of points per slice M = 2*n+2;
+    const double delta = (1-rho_max) / N;
     const size_t n = max_of<size_t>(2,ceil(maxP/delta))-2;
     const size_t M = 2+2*n;
     std::cerr << "\tn=" << n << ", M=" << M << std::endl;
 
 
+    // compute the slices position
+    for(size_t i=1;i<=N;++i)
+    {
+        const double ratio = rho_max + (i-1)*delta;
+        const pSlice pS( new Slice( getZ(ratio) ) );
+        slices.push_back(pS);
+    }
+
+
+
     // head point
     pPoint p0( new Point() );
     points.push_back(p0);
+
+    p0->r.z = slices.front()->z;
 
     // body points
     for(size_t i=1;i<=N;++i)

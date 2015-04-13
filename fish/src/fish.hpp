@@ -157,7 +157,7 @@ public:
     void centerAndRescaleBy( double Length );
 
     void generateHead( double Zmax, size_t N, double thickness );
-
+    void generateTail( double Zmax, size_t N, double thickness );
 
     void save_vtk( const string &filename ) const;
     void save_stl( const string &filename ) const;
