@@ -5,12 +5,60 @@
 #include "yocto/math/v3d.hpp"
 #include "yocto/counted-object.hpp"
 #include "yocto/ptr/arc.hpp"
+#include "yocto/lua/lua-state.hpp"
+#include "yocto/lua/lua-config.hpp"
+#include "yocto/math/fcn/zfind.hpp"
+
+
 
 using namespace yocto;
 using namespace math;
 
-typedef CubicApproximation<double,v3d> CubiX;
-typedef CubiX::vtx_t                   vtx_t;
+typedef CubicApproximation<double,v3d> CubiXBase;
+typedef CubiXBase::vtx_t                   vtx_t;
+
+
+class CubiX : public CubiXBase
+{
+public:
+    explicit CubiX(lua_State    *L,
+                   const string &table_name,
+                   const size_t  iCoord);
+    virtual ~CubiX() throw();
+
+    double  GetValue(const double z); //! X or Y
+
+private:
+    zfind<double>     solv; //!< solver
+    zfunction<double> zfcn; //!< for inversion
+    const size_t      indx; //!< 0 -> X, 1->Y
+    YOCTO_DISABLE_COPY_AND_ASSIGN(CubiX);
+
+};
+
+class Profile : public object
+{
+public:
+    numeric<double>::function width;
+    numeric<double>::function height;
+
+    explicit Profile(lua_State *L );
+    virtual ~Profile() throw();
+
+    
+    static const size_t NZ = 1001;
+
+private:
+    CubiX W;
+    CubiX H;
+public:
+    vector<double> zarr; //!< support points
+    vector<double> rmax; //!< max radius at this point
+    YOCTO_DISABLE_COPY_AND_ASSIGN(Profile);
+};
+
+
+
 
 class Point : public counted_object
 {
@@ -65,6 +113,7 @@ public:
 private:
     YOCTO_DISABLE_ASSIGN(Triangle);
 };
+
 
 
 #endif
