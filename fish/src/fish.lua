@@ -11,5 +11,5 @@ H_effc = { 1.6e-1, 2.6e-1, 2.8e-1, 3.0e-1, 2.3e-1, 2.1e-1 };
 
 width,height = W_effc, H_effc;
 
-N = 100;
+N      = 30;
 Length = 100;

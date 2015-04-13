@@ -84,8 +84,10 @@ public:
     explicit Point() throw();
     virtual ~Point() throw();
 
-private:
     static size_t Index;
+    
+private:
+    YOCTO_DISABLE_COPY_AND_ASSIGN(Point);
 };
 
 typedef arc_ptr<Point> pPoint;
@@ -96,10 +98,9 @@ class Slice : public counted_object
 {
 public:
     const double   z;
-    const double   perimeter;
     vector<pPoint> points;
 
-    explicit Slice(double zz,double pr) throw();
+    explicit Slice(double zz) throw();
     virtual ~Slice() throw();
 
 private:
@@ -138,6 +139,25 @@ public:
     explicit Fish( lua_State *L );
     virtual ~Fish() throw();
 
+    vector<pSlice>   slices;
+    vector<pPoint>   points;
+    vector<Triangle> triangles;
+
+    void clear() throw();
+    
+
+
+    //! generate shell between a and b
+    void generateShell( size_t N );
+
+    //! rescale all, assuming initial z\in[0:1]
+    void centerAndRescaleBy( double Length );
+
+    void generateHead( double Zmax, size_t N );
+
+
+    void save_vtk( const string &filename ) const;
+    void save_stl( const string &filename ) const;
 
 private:
     YOCTO_DISABLE_COPY_AND_ASSIGN(Fish);
