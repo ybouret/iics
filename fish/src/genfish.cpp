@@ -21,7 +21,7 @@ YOCTO_PROGRAM_START()
         for(size_t i=0;i<=NP;++i)
         {
             const double z = double(i)/NP;
-            fp("%g %g %g\n", z, pro.width(z), pro.height(z));
+            fp("%g %g %g\n", z, pro.W(z), pro.H(z));
         }
     }
 
@@ -29,8 +29,18 @@ YOCTO_PROGRAM_START()
         ios::ocstream fp("rmax.dat",false);
         for(size_t i=1;i<=pro.zarr.size();++i)
         {
-            fp("%g %g\n", pro.zarr[i], pro.rmax[i]);
+            fp("%g %g %g\n", pro.zarr[i], pro.rmax[i], pro.arcL[i]);
         }
     }
+
+    {
+        ios::ocstream fp("zpos.dat",false);
+        for(size_t i=0;i<=100;++i)
+        {
+            const double ratio = i/100.0;
+            fp("%g %g\n", ratio, pro.getZ(ratio));
+        }
+    }
+
 }
 YOCTO_PROGRAM_END()

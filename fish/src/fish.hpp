@@ -39,8 +39,8 @@ private:
 class Profile : public object
 {
 public:
-    numeric<double>::function width;
-    numeric<double>::function height;
+    numeric<double>::function W;
+    numeric<double>::function H;
 
     explicit Profile(lua_State *L );
     virtual ~Profile() throw();
@@ -48,12 +48,17 @@ public:
     
     static const size_t NZ = 1001;
 
+    double getZ( const double ratio );
+
 private:
-    CubiX W;
-    CubiX H;
+    CubiX width;
+    CubiX height;
+
 public:
-    vector<double> zarr; //!< support points
-    vector<double> rmax; //!< max radius at this point
+    vector<double> zarr;   //!< support points
+    vector<double> rmax;   //!< max radius at this point
+    vector<double> arcL;   //!< arc length, 0->1
+    const double   maxL;   //!< max arc length
     YOCTO_DISABLE_COPY_AND_ASSIGN(Profile);
 };
 

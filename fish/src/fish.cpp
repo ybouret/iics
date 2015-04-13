@@ -110,20 +110,68 @@ double CubiX:: GetValue( const double z )
 Profile:: ~Profile() throw() {}
 
 Profile:: Profile( lua_State *L ) :
-width(  &W, & CubiX::GetValue ),
-height( &H, & CubiX::GetValue ),
-W(L,"width",0),
-H(L,"height",1),
+W(  &width, & CubiX::GetValue ),
+H(  &height, & CubiX::GetValue ),
+width(L,"width",0),
+height(L,"height",1),
 zarr(NZ,0),
-rmax(NZ,0)
+rmax(NZ,0),
+arcL(NZ,0),
+maxL(0)
 {
     for(size_t i=1;i<=NZ;++i)
     {
         const double zz = double(i-1)/(NZ-1);
         zarr[i]  = zz;
-        rmax[i]  = max_of<double>( Fabs( width(zz)), Fabs( height(zz) ) );
+        rmax[i]  = max_of<double>( Fabs( W(zz)), Fabs( H(zz) ) );
     }
+    arcL[1] = 0;
+    for(size_t i=2;i<=NZ;++i)
+    {
+        const double dr = rmax[i] - rmax[i-1];
+        const double dz = zarr[i] - zarr[i-1];
+        arcL[i] = arcL[i-1] + Hypotenuse(dr, dz);
+    }
+    (double &)maxL = arcL[NZ];
+    for(size_t i=2;i<NZ;++i) { arcL[i] /= maxL; }
+    arcL[NZ] = 1;
 
+    if(maxL<=0)
+        throw exception("Invalid Profile");
+}
+
+double Profile:: getZ( const double ratio )
+{
+    if(ratio<=0)
+    {
+        return 0;
+    }
+    else
+    {
+        if(ratio>=1)
+        {
+            return 1;
+        }
+        else
+        {
+            size_t jlo = 1;
+            size_t jhi = NZ;
+            while(jhi-jlo>1)
+            {
+                const size_t jmid = (jlo+jhi)>>1;
+                const double amid = arcL[jmid];
+                if(amid<ratio)
+                {
+                    jlo = jmid;
+                }
+                else
+                {
+                    jhi = jmid;
+                }
+            }
+            return zarr[jlo] + (zarr[jhi]-zarr[jlo]) * (ratio-arcL[jlo]) / (arcL[jhi]-arcL[jlo]);
+        }
+    }
 }
 
 
