@@ -54,17 +54,22 @@ public:
     //! required Z position for a given ratio of arc
     double getZ( const double ratio );
 
+    //! compute the perimeter
     double computePerimeter( const double z );
+
+
 
 private:
     CubiX width;
     CubiX height;
-
+    double minusPerimeter( const double );
+    
 public:
     vector<double> zarr;   //!< support points
     vector<double> rmax;   //!< max radius at this point
     vector<double> arcL;   //!< arc length, 0->1
     const double   maxL;   //!< max arc length
+    const double   maxP;   //!< max perimeter
     YOCTO_DISABLE_COPY_AND_ASSIGN(Profile);
 };
 

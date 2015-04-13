@@ -29,7 +29,7 @@ YOCTO_PROGRAM_START()
         ios::ocstream fp("rmax.dat",false);
         for(size_t i=1;i<=pro.zarr.size();++i)
         {
-            fp("%g %g %g\n", pro.zarr[i], pro.rmax[i], pro.arcL[i]);
+            fp("%g %g %g %g\n", pro.zarr[i], pro.rmax[i], pro.arcL[i], pro.computePerimeter(pro.zarr[i]));
         }
     }
 

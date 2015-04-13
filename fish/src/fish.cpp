@@ -107,6 +107,9 @@ double CubiX:: GetValue( const double z )
 
 Profile:: ~Profile() throw() {}
 
+
+#include "yocto/math/opt/minimize.hpp"
+
 Profile:: Profile( lua_State *L ) :
 W(  &width,  & CubiX::GetValue ),
 H(  &height, & CubiX::GetValue ),
@@ -115,7 +118,8 @@ height(L,"height",1),
 zarr(NZ,0),
 rmax(NZ,0),
 arcL(NZ,0),
-maxL(0)
+maxL(0),
+maxP(0)
 {
     for(size_t i=1;i<=NZ;++i)
     {
@@ -136,6 +140,16 @@ maxL(0)
 
     if(maxL<=0)
         throw exception("Invalid Profile");
+
+    std::cerr << "Max Arc Length=" << maxL << std::endl;
+
+    numeric<double>::function optP(this, &Profile::minusPerimeter);
+    triplet<double> ZZ = {0, 0.5, 1.0};
+    triplet<double> PP = { optP(ZZ.a), optP(ZZ.b), optP(ZZ.c) };
+    minimize<double>(optP, ZZ, PP, 0);
+
+    (double &)maxP = computePerimeter(ZZ.b);
+    std::cerr << "Max Perimeter=" << maxP << " @" << ZZ.b << std::endl;
 }
 
 double Profile:: getZ( const double ratio )
@@ -180,6 +194,11 @@ double Profile:: computePerimeter( const double z )
     return numeric<double>::pi * sqrt(h2+h2);
 }
 
+
+double Profile::minusPerimeter(const double z)
+{
+    return -computePerimeter(z);
+}
 
 
 
