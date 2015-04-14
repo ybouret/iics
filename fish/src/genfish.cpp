@@ -68,6 +68,8 @@ YOCTO_PROGRAM_START()
     fish.save_vtk("fish_tail.vtk");
     fish.save_stl("fish_tail.stl");
 
+    fish.generateJunction(head_size,thickness);
+
 
 }
 YOCTO_PROGRAM_END()

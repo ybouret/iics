@@ -12,8 +12,9 @@ SET(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/../)
 ADD_LIBRARY(fish STATIC fish.hpp fish.cpp
 	fish-shell.cpp
 	fish-head.cpp
-    fish-tail.cpp
+	fish-tail.cpp
 	fish-output.cpp
+	fish-junc.cpp
 )
 ADD_EXECUTABLE(genfish genfish.cpp fish.lua)
 TARGET_LINK_LIBRARIES(genfish fish)

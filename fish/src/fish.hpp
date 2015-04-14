@@ -184,6 +184,8 @@ public:
 
     void generateTail( double Zmax, size_t N );
 
+    void generateJunction( double Zmax, double thickness );
+
 
     void save_vtk( const string &filename ) const;
     void save_stl( const string &filename ) const;
