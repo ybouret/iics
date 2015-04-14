@@ -54,6 +54,7 @@ YOCTO_PROGRAM_START()
 
     const double thickness = Lua::Config::Get<lua_Number>(L,"thickness");
     const double head_size = clamp<double>(0.1,Lua::Config::Get<lua_Number>(L,"head_size"),0.9);
+    const double junc_size = Lua::Config::Get<lua_Number>(L,"junc_size");
 
     const size_t NH = ceil(head_size*N);
     fish.generateHead(head_size, NH, thickness);
@@ -68,7 +69,10 @@ YOCTO_PROGRAM_START()
     fish.save_vtk("fish_tail.vtk");
     fish.save_stl("fish_tail.stl");
 
-    fish.generateJunction(head_size,thickness);
+    fish.generateJunction(head_size,thickness,junc_size);
+    fish.centerAndRescaleBy(Length);
+    fish.save_vtk("fish_junc.vtk");
+    fish.save_stl("fish_junc.stl");
 
 
 }

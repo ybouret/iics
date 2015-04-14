@@ -24,8 +24,25 @@ union()
 	//Holder();
 }
 */
-	
-//scale([2,2,2])  import("fish_head.stl");
-scale([2,2,2])  import("fish_tail.stl");
 
-//Holder();
+module FishHead()
+{
+	union()
+	{
+		import("fish_head.stl");
+		import("fish_junc.stl");
+	}	
+}
+
+module FishTail()
+{
+	difference()
+	{
+		render() import("fish_tail.stl");
+		import("fish_junc.stl");
+	}	
+}
+	
+//FishTail();
+FishHead();
+translate([10,0,0]) rotate([0,90,0]) translate([0,0,20]) FishTail();
