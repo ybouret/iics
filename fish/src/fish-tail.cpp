@@ -1,7 +1,7 @@
 #include "fish.hpp"
 #include "yocto/exception.hpp"
 
-void Fish:: generateTail( double Zmax, size_t N, double thickness)
+void Fish:: generateTail( double Zmax, size_t N )
 {
 
     // clean up
@@ -83,7 +83,8 @@ void Fish:: generateTail( double Zmax, size_t N, double thickness)
         {
             size_t   ip = i+1;
             if(ip>M) ip = 1;
-            const Triangle tr(p0,slice.points[i],slice.points[ip]);
+            Triangle tr(p0,slice.points[i],slice.points[ip]);
+            if(tr.n.z>=0) tr.inverse();
             triangles.push_back(tr);
         }
     }

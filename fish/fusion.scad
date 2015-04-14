@@ -25,7 +25,7 @@ union()
 }
 */
 	
-%scale([2,2,2])  import("fish_head.stl");
-%scale([2,2,2])  import("fish_tail.stl");
+//scale([2,2,2])  import("fish_head.stl");
+scale([2,2,2])  import("fish_tail.stl");
 
-Holder();
+//Holder();

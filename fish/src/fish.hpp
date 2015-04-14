@@ -18,7 +18,11 @@ typedef CubicApproximation<double,v3d> CubiXBase;
 typedef CubiXBase::vtx_t                   vtx_t;
 
 
+//==============================================================================
+//
 //! Cubic BSplines Approximation
+//
+//==============================================================================
 class CubiX : public CubiXBase
 {
 public:
@@ -37,8 +41,11 @@ private:
 
 };
 
-
+//==============================================================================
+//
 //! Profile Metrics
+//
+//==============================================================================
 class Profile : public object
 {
 public:
@@ -74,8 +81,11 @@ public:
 };
 
 
-
+//==============================================================================
+//
 //! a data point
+//
+//==============================================================================
 class Point : public counted_object
 {
 public:
@@ -93,7 +103,11 @@ private:
 typedef arc_ptr<Point> pPoint;
 
 
+//==============================================================================
+//
 //! an elliptical slice
+//
+//==============================================================================
 class Slice : public counted_object
 {
 public:
@@ -109,7 +123,12 @@ private:
 
 typedef arc_ptr<Slice> pSlice;
 
-// Triangle with normal out w.r.t [0 0 0.5]
+
+//==============================================================================
+//
+//! Triangle with normal out w.r.t [0 0 0.5]
+//
+//==============================================================================
 class Triangle
 {
 public:
@@ -136,6 +155,11 @@ private:
 };
 
 
+//==============================================================================
+//
+//!
+//
+//==============================================================================
 class Fish : public Profile
 {
 public:
@@ -157,7 +181,9 @@ public:
     void centerAndRescaleBy( double Length );
 
     void generateHead( double Zmax, size_t N, double thickness );
-    void generateTail( double Zmax, size_t N, double thickness );
+
+    void generateTail( double Zmax, size_t N );
+
 
     void save_vtk( const string &filename ) const;
     void save_stl( const string &filename ) const;

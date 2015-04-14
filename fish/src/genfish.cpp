@@ -63,7 +63,7 @@ YOCTO_PROGRAM_START()
 
     const size_t NT = ceil((1.0-head_size)*N);
 
-    fish.generateTail(head_size, NT, thickness);
+    fish.generateTail(head_size, NT );
     fish.centerAndRescaleBy(Length);
     fish.save_vtk("fish_tail.vtk");
     fish.save_stl("fish_tail.stl");

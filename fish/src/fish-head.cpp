@@ -6,7 +6,7 @@ void Fish:: generateHead(  double Zmax, size_t N, double thickness)
 {
     //--------------------------------------------------------------------------
     //
-    // Setup
+    // Setup: find the ratio of the last slice
     //
     //--------------------------------------------------------------------------
 
@@ -21,8 +21,8 @@ void Fish:: generateHead(  double Zmax, size_t N, double thickness)
     N = max_of<size_t>(1,N);
 
     const double delta = rho_max / (N);
-    const size_t n = max_of<size_t>(2,ceil(maxP/delta))-2;
-    const size_t M = 2+2*n;
+    const size_t n     = max_of<size_t>(2,ceil(maxP/delta))-2;
+    const size_t M     = 2+2*n;
     std::cerr << "\tn=" << n << ", M=" << M << std::endl;
 
     //--------------------------------------------------------------------------
@@ -41,13 +41,6 @@ void Fish:: generateHead(  double Zmax, size_t N, double thickness)
             const pSlice pS( new Slice( getZ(ratio) ) );
             slices.push_back(pS);
         }
-
-        //______________________________________________________________________
-        //
-        // compute the number of points per slice M = 2*n+2;
-        //______________________________________________________________________
-
-
 
         //______________________________________________________________________
         //
@@ -136,27 +129,6 @@ void Fish:: generateHead(  double Zmax, size_t N, double thickness)
 
     }
 
-#if 0
-    // NEW VERSION
-    // closing points
-    pPoint pN( new Point() );
-    points.push_back(pN);
-    pN->r.z = slices.back()->z;
-
-    {
-        const Slice &slice = *slices[N];
-        for(size_t i=1;i<=M;++i)
-        {
-            size_t   ip = i+1;
-            if(ip>M) ip = 1;
-            Triangle tr(pN,slice.points[i],slice.points[ip]);
-            tr.inverse();
-            triangles.push_back(tr);
-        }
-    }
-
-    return ;
-#endif
 
     //--------------------------------------------------------------------------
     //
@@ -281,7 +253,12 @@ void Fish:: generateHead(  double Zmax, size_t N, double thickness)
 
         for(size_t i=1;i<=inner_tr.size();++i)
         {
-            inner_tr[i].inverse();
+            //inner_tr[i].inverse();
+            Triangle &tr = inner_tr[i];
+            if(tr.n.z<=0)
+            {
+                tr.inverse();
+            }
             triangles.push_back( inner_tr[i] );
         }
 
