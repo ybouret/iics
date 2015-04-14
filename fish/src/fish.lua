@@ -13,8 +13,8 @@ width,height = W_effc, H_effc;
 
 
 thickness = 0.03;
-head_size = 0.3;
-junc_size = 0.2;
+head_size = 0.25;
+junc_size = 0.1;
 
 N         = 50;
 Length    = 100;
