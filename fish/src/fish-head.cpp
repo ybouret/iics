@@ -25,7 +25,6 @@ void Fish:: generateHead(  double Zmax, size_t N, double thickness)
     const size_t M     = 2+2*n;
     std::cerr << "\tn=" << n << ", M=" << M << std::endl;
 
-#if 1
     //--------------------------------------------------------------------------
     //
     // Outer Shell
@@ -129,8 +128,27 @@ void Fish:: generateHead(  double Zmax, size_t N, double thickness)
         }
 
     }
-#endif
 
+    pPoint pN( new Point);
+    pN->r.z = Zmax;
+    points.push_back(pN);
+
+    // tail
+    {
+        const Slice &slice = *slices[N];
+        for(size_t i=1;i<=M;++i)
+        {
+            size_t   ip = i+1;
+            if(ip>M) ip = 1;
+            Triangle tr(pN,slice.points[i],slice.points[ip]);
+            tr.inverse();
+            triangles.push_back(tr);
+        }
+    }
+
+
+
+#if 0
     //--------------------------------------------------------------------------
     //
     // Inner Shell
@@ -263,7 +281,6 @@ void Fish:: generateHead(  double Zmax, size_t N, double thickness)
         //
         // closing the shell
         //______________________________________________________________________
-#if 1
         std::cerr << "-- Closing the shell" << std::endl;
         const Slice &S_out = *slices.back();
         const Slice &S_ins  = *inner_slices.back();
@@ -295,8 +312,8 @@ void Fish:: generateHead(  double Zmax, size_t N, double thickness)
                 }
             }
         }
-#endif
-        
+
     }
+#endif
     
 }
