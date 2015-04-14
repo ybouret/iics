@@ -251,9 +251,11 @@ union()
 }
 
 Toto(); 
+/*
 translate(v) 
 { 
 	Servo(); 
 	translate([0,0,50]) B_Piece();
 }
+*/
 
