@@ -4,7 +4,7 @@ CREATE := $(YROOT)/share/yocto/create.sh
 all:
 
 clean:
-	@echo "-- removing temporary files" && rm -f *.bin *.dat *.silo *.vtk *.xyz *.stl *.vtk
+	@echo "-- removing temporary files" && rm -f *.bin *.dat *.silo *.vtk *.xyz *.vtk
 
 veryclean: clean
 	@echo "-- removing out of sources builds" && cd forge && touch targets && ( cat targets | xargs rm -rf ) && rm -f targets
