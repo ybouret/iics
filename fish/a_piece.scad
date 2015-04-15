@@ -34,7 +34,7 @@ module A_Profile()
 
 module A_Screw()
 {
-	translate([0,HolderBulk/2,-ScrewHoleDepth]) cylinder(h=ScrewHoleDepth,d=ScrewHoleDiameter,$fn=30);
+	translate([0,HolderBulk/2,-ScrewHoleDepth]) cylinder(h=ScrewHoleDepth,d=ScrewHoleDiameter,$fn=Resolution);
 }
 
 module A_Piece()

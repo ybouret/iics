@@ -26,9 +26,9 @@ module B_Profile(tolerance=0)
 module B_Screw1()
 {
 	translate([0,HolderBulk/2,0])
-	cylinder(h=ScrewGuard,d=ScrewHoleDiameter+0.5,$fn=30);
+	cylinder(h=ScrewGuard,d=ScrewHoleDiameter+0.5,$fn=Resolution);
 	translate([0,HolderBulk/2,ScrewGuard])
-	cylinder(h=MountX-ScrewGuard,d=ScrewHeadDiameter,$fn=30);
+	cylinder(h=MountX-ScrewGuard,d=ScrewHeadDiameter,$fn=Resolution);
 }	
 
 // To Attach servo
@@ -37,7 +37,7 @@ ServoScrewDiameter=1;
 module B_Screw2()
 {
 	translate([0,HolderBulk+HolderY,2])
-	rotate([90,0,0]) cylinder(h=5,d=ServoScrewDiameter,$fn=30);
+	rotate([90,0,0]) cylinder(h=5,d=ServoScrewDiameter,$fn=Resolution);
 }
 
 // To Attach BackBone
@@ -47,7 +47,7 @@ module B_Screw3()
 {
 	translate([0,HolderBulk+HolderY+RailY,RailX+Platform/2])
 	rotate([90,0,0]) 
-	cylinder(h=5,d=AxisDiameter,$fn=30);
+	cylinder(h=5,d=AxisDiameter,$fn=Resolution);
 }
 
 

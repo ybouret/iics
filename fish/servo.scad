@@ -14,14 +14,14 @@ module Servo()
 //////////////////////////////////////////////
 
 ServoArmDiameter =25;
-ServoArmThickness=5;
+ServoArmThickness=8;
 ServoArmCenter   =16;
 
 module ServoArm()
 {
-	translate([0,ServoY+HolderBulk,-ServoArmCenter])
+	translate([0,ServoY+HolderBulk-ServoArmThickness/2,-ServoArmCenter])
 	rotate([-90,0,0])
-	cylinder(h=ServoArmThickness,d=ServoArmDiameter,$fn=30);
+	cylinder(h=ServoArmThickness,d=ServoArmDiameter,$fn=Resolution);
 }
 
 module ServoSpace()

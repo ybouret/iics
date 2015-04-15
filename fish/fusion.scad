@@ -1,3 +1,4 @@
+Resolution=60;
 
 module FishHead()
 {
@@ -22,7 +23,7 @@ include <b_piece.scad>
 include <servo.scad>
 
 
-module AB_Hull()
+module AB_Hull_Old()
 {
 	rotate([0,-90,0])
 	linear_extrude(height=HolderSpace,center=true)
@@ -36,7 +37,23 @@ module AB_Hull()
 	);
 }
 
-
+module AB_Hull()
+{
+	hull()
+	{
+		A_Piece();
+		rotate([0,-90,0])
+		linear_extrude(height=HolderSpace,center=true)
+		polygon(
+			[
+				[MountX,0],
+				[MountX,HolderBulk+ServoY],
+				[0,HolderBulk+ServoY],
+				[0,0]
+			]	
+		);
+	}
+}
 
 
 //////////////////////////////////////////////
@@ -48,17 +65,21 @@ module BackBoneAttach()
 {
 	color("yellow")
 	translate([0,HolderBulk+HolderY+RailY+BackBoneAttachDiameter/2,RailX])
-	cylinder(h=Platform,d=BackBoneAttachDiameter,$fn=30);
+	cylinder(h=Platform,d=BackBoneAttachDiameter,$fn=Resolution);
 }
 
 
 //////////////////////////////////////////////
 // Move In Face of the backbone
 //////////////////////////////////////////////
-MoveToOrigin=[0,-(HolderBulk+HolderY+RailY+BackBoneDiameter/2),-MountX];
+ToOrigin=[0,-(HolderBulk+HolderY+RailY+BackBoneDiameter/2),-MountX];
 
+//////////////////////////////////////////////
+// Negative Space
+//////////////////////////////////////////////
 module BigHole()
 {
+	translate(ToOrigin)
 	union()
 	{
 		AB_Hull();
@@ -72,48 +93,28 @@ module BigHole()
 
 }
 
-translate(MoveToOrigin)
+
+//////////////////////////////////////////////
+// Carved Head
+//////////////////////////////////////////////
+module CarvedHead(zoom=1)
 {
-//BigHole();
+	union()
+	{
+		difference()
+		{
+			scale(zoom) FishHead();
+			BigHole();
+		}
+		translate(ToOrigin) A_Piece();
+	}
+}
+
 A_Piece();
-B_Piece(tolerance=-1);
-BackBoneAttach();
-Servo();
+Tuba=5;
 
-}
-scale(2.4) 
-{
-	FishTail();
-   %FishHead();
-}
 
-v=[0,-40,-77];
+//CarvedHead(zoom=2.4);
+//translate(ToOrigin) Servo();
+//translate(ToOrigin) B_Piece(tolerance=-1);
 
-module Toto()
-{
-
-union()
-{
-	difference()
-	{
-		scale(2.5) FishHead();
-		translate(v)
-		BigHole();
-	}
-
-	translate(v)
-	{
-		A_Piece();
-	}
-}
-}
-
-//%Toto(); 
-
-translate(v) 
-{ 
-	//Servo(); 
-	//translate([0,0,50]) B_Piece();
-}
-
-//translate([0,0,20]) scale(2.5) FishTail();
