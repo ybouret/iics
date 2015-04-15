@@ -1,10 +1,13 @@
+
+include <a_piece.scad>
+
 //////////////////////////////////////////////
 // Piece B
 //////////////////////////////////////////////
 Platform         = 10;
 MountX           = RailX+Platform;
-ScrewGuard       = 3;
-ScrewHeadDiameter=3;
+ScrewGuard       = 2;
+ScrewHeadDiameter= 4;
 
 module B_Profile(tolerance=0)
 {
@@ -25,10 +28,10 @@ module B_Profile(tolerance=0)
 // To stick with A_Piece()
 module B_Screw1()
 {
-	translate([0,HolderBulk/2,0])
-	cylinder(h=ScrewGuard,d=ScrewHoleDiameter+0.5,$fn=Resolution);
+	translate([0,HolderBulk/2,-1])
+	cylinder(h=ScrewGuard+2,d=ScrewHoleDiameter+0.5,$fn=Resolution);
 	translate([0,HolderBulk/2,ScrewGuard])
-	cylinder(h=MountX-ScrewGuard,d=ScrewHeadDiameter,$fn=Resolution);
+	cylinder(h=MountX-ScrewGuard+1,d=ScrewHeadDiameter,$fn=Resolution);
 }	
 
 // To Attach servo
@@ -36,8 +39,8 @@ ServoScrewDiameter=1;
 
 module B_Screw2()
 {
-	translate([0,HolderBulk+HolderY,2])
-	rotate([90,0,0]) cylinder(h=5,d=ServoScrewDiameter,$fn=Resolution);
+	translate([0,HolderBulk+HolderY+1,2])
+	rotate([90,0,0]) cylinder(h=5+1,d=ServoScrewDiameter,$fn=Resolution);
 }
 
 // To Attach BackBone
@@ -45,9 +48,9 @@ AxisDiameter=1;
 
 module B_Screw3()
 {
-	translate([0,HolderBulk+HolderY+RailY,RailX+Platform/2])
+	translate([0,HolderBulk+HolderY+RailY+1,RailX+Platform/2])
 	rotate([90,0,0]) 
-	cylinder(h=5,d=AxisDiameter,$fn=Resolution);
+	cylinder(h=5+1,d=AxisDiameter,$fn=Resolution);
 }
 
 
@@ -62,4 +65,6 @@ module B_Piece(tolerance=0)
 		B_Screw3();
 	}
 }
+
+
 

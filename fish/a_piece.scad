@@ -12,10 +12,10 @@ HolderSpace=13;
 ScrewHoleDiameter=1;
 ScrewHoleDepth   =10;
 
-module A_Profile()
+module A_Profile(tolerance=0)
 {
 	rotate([0,-90,0])
-	linear_extrude(height=HolderSpace,center=true)
+	linear_extrude(height=HolderSpace+tolerance,center=true)
 	polygon([ 
 		[0,0], 
 		[0,HolderBulk], 
@@ -34,16 +34,16 @@ module A_Profile()
 
 module A_Screw()
 {
-	translate([0,HolderBulk/2,-ScrewHoleDepth]) cylinder(h=ScrewHoleDepth,d=ScrewHoleDiameter,$fn=Resolution);
+	translate([0,HolderBulk/2,-ScrewHoleDepth+1]) cylinder(h=ScrewHoleDepth+1,d=ScrewHoleDiameter,$fn=Resolution);
 }
 
-module A_Piece()
+module A_Piece(tolerance=0)
 {
 	difference()
 	{
-		A_Profile();
+		A_Profile(tolerance);
 		A_Screw();
 	}
 }
 
-//A_Piece();
+//A_Piece(tolerance=10);

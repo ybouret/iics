@@ -18,7 +18,6 @@ module FishTail()
 	}	
 }
 
-include <a_piece.scad>
 include <b_piece.scad>
 include <servo.scad>
 
@@ -97,7 +96,7 @@ module BigHole()
 
 
 TubaDiameter   = 5;
-TubaTorus      = HolderBulk;
+TubaTorus      = HolderBulk+2;
 TubaHeight     = 100;
 
 module TubaCut()
@@ -146,38 +145,29 @@ module CarvedHead(zoom=1)
 			difference()
 			{
 				scale(zoom) FishHead();
+				translate([0,0,MountX])
 				BigHole();
 			}
-			translate(ToOrigin) A_Piece();
+			translate([0,0,MountX]) translate(ToOrigin) A_Piece(tolerance=1);
 		}
-		translate(ToOrigin) Tuba();
+		translate([0,0,MountX+1]) translate(ToOrigin) Tuba();
 	}
 }
 
-//CarvedHead(2.4);
-/*
-%scale(1.6)
-{ 
-	//FishHead();
-	FishTail();
-}
-translate([0,0,MountX])
+module CarvedTail(zoom=1)
 {
-translate(ToOrigin)
-{
-	A_Piece();
-	color("red") B_Piece();
-	BackBoneAttach();
-	Tuba();
-	Servo();
-	ServoSpace();
+	difference()
+	{
+		scale(zoom) FishTail();
+		translate([0,0,MountX])
+				BigHole();
+		translate([0,0,MountX-1]) cylinder(h=45,r1=5,r2=2,$fn=Resolution);
+	}
 }
-	cylinder(h=50,r1=5,r2=2,$fn=60);
-}
-*/
-difference()
-{
-	scale(1.6) FishTail();
-	translate([0,0,MountX]) BigHole();
-	cylinder(h=50,r1=5,r2=2,$fn=60);
-}
+
+//CarvedHead(1.6);
+//translate([0,0,MountX]) translate(ToOrigin) Servo();
+CarvedTail(1.6);
+
+//B_Piece();
+

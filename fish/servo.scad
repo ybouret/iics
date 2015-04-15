@@ -29,7 +29,7 @@ module ServoSpace()
 	hull()
 	{
 		ServoArm();
-		translate([0,0,ServoArmCenter+RailX+Platform/2])
+		translate([0,0,ServoArmCenter+RailX+Platform/2-15])
 		ServoArm();
 	}
 }
