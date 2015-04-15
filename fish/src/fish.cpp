@@ -315,16 +315,19 @@ void Fish:: clear() throw()
 }
 
 
-void Fish:: centerAndRescaleBy( double Length )
+void Fish:: centerAndRescale( double Zmax, double Length )
 {
     for(size_t i=points.size();i>0;--i)
     {
         vtx_t &r = points[i]->r;
         r.z -= 0.5;
-
+        
         r.x *= Length;
         r.y *= Length;
         r.z *= Length;
+        
+        const double trans = (Zmax-0.5) * Length;
+        r.z -= trans;
     }
 
     for(size_t j=triangles.size();j>0;--j)

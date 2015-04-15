@@ -45,32 +45,33 @@ YOCTO_PROGRAM_START()
 
     const size_t N      = Lua::Config::Get<lua_Number>(L,"N");
     const double Length = Lua::Config::Get<lua_Number>(L,"Length");
-
+    const double thickness = Lua::Config::Get<lua_Number>(L,"thickness");
+    const double head_size = clamp<double>(0.1,Lua::Config::Get<lua_Number>(L,"head_size"),0.9);
+    const double junc_size = Lua::Config::Get<lua_Number>(L,"junc_size");
+    
     fish.generateShell(  N );
-    fish.centerAndRescaleBy(Length);
+    fish.centerAndRescale(head_size,Length);
 
     fish.save_vtk("fish_shell.vtk");
 
 
-    const double thickness = Lua::Config::Get<lua_Number>(L,"thickness");
-    const double head_size = clamp<double>(0.1,Lua::Config::Get<lua_Number>(L,"head_size"),0.9);
-    const double junc_size = Lua::Config::Get<lua_Number>(L,"junc_size");
+   
 
     const size_t NH = ceil(head_size*N);
     fish.generateHead(head_size, NH, thickness);
-    fish.centerAndRescaleBy(Length);
+    fish.centerAndRescale(head_size,Length);
     fish.save_vtk("fish_head.vtk");
     fish.save_stl("fish_head.stl");
 
     const size_t NT = ceil((1.0-head_size)*N);
 
     fish.generateTail(head_size, NT );
-    fish.centerAndRescaleBy(Length);
+    fish.centerAndRescale(head_size,Length);
     fish.save_vtk("fish_tail.vtk");
     fish.save_stl("fish_tail.stl");
 
     fish.generateJunction(head_size,thickness,junc_size);
-    fish.centerAndRescaleBy(Length);
+    fish.centerAndRescale(head_size,Length);
     fish.save_vtk("fish_junc.vtk");
     fish.save_stl("fish_junc.stl");
 

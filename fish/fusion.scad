@@ -78,8 +78,14 @@ translate(MoveToOrigin)
 A_Piece();
 B_Piece(tolerance=-1);
 BackBoneAttach();
+Servo();
+
 }
-FishTail();
+scale(2.4) 
+{
+	FishTail();
+   %FishHead();
+}
 
 v=[0,-40,-77];
 

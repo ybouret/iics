@@ -178,7 +178,7 @@ public:
     void generateShell( size_t N );
 
     //! rescale all, assuming initial z\in[0:1]
-    void centerAndRescaleBy( double Length );
+    void centerAndRescale( double Zmax, double Length );
 
     void generateHead( double Zmax, size_t N, double thickness );
 
