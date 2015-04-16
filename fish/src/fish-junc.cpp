@@ -19,7 +19,7 @@ double ReverseMax(const double               U,
             break;
     }
 
-    return max_of<double>(z_ini + (z-z_ini)/2,0.0);
+    return max_of<double>(z_ini + 0.8*(z-z_ini),0.0);
 }
 
 static inline
@@ -41,7 +41,7 @@ double ForwardMax(const double               U,
             break;
     }
 
-    return min_of<double>(z_ini + (z-z_ini)/2,1.0);
+    return min_of<double>(z_ini + 0.8*(z-z_ini),1.0);
 }
 
 static inline void GenTr(vector<Triangle>    &triangles,
