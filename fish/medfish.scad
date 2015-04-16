@@ -311,7 +311,7 @@ module ServoAttach()
 // Hole to attach EdgeBody to BackBone
 //
 ////////////////////////////////////////////////////////////////////////////////
-BBAttachDiameter=2;
+BBAttachDiameter=1;
 BBAttachDepth   =10;
 
 module BBAttach()
@@ -350,7 +350,7 @@ BBDiameter=12;
 BBTip     =4;
 
 BBSpace   = 1;
-BBDepth   = 45;
+BBDepth   = 46;
 
 BBHeight  = CraddleTopBase+BBDiameter/2;
 
@@ -413,6 +413,7 @@ module TryTail(zoom=1)
 
 module CarvedHead(zoom=1)
 {
+	render()
 	difference()
 	{
 		render()
@@ -428,15 +429,71 @@ module CarvedHead(zoom=1)
 
 module TryHead(zoom=1)
 {
+	%FishHead(zoom);
+	translate(ToOrigin) color("orange") Craddle();
+	translate(ToOrigin) color("lightgreen") Tuba();
+}
+
+
+
+//TryHead(1.5);
+//TryTail(1.5);
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// The long Awaited BackBone
+//
+////////////////////////////////////////////////////////////////////////////////
+BBGuideDiameter=2;
+BBGuideRatio   =0.25;
+
+module BBGuide(factor=0.2)
+{
+	render()
+	translate([0,BBHeight,-1+CraddleRailExpand])
+	linear_extrude(height=PlatformDepth+BBDepth+2,convexity=10,scale=BBTip/BBDiameter) 
+	translate([BBDiameter*factor,0])
+	circle(d=BBGuideDiameter,$fn=8);
+}
+
+module BBScrew()
+{
+	
+}
+
+module BB()
+{
+	difference()
 	{
-		%FishHead(1.5);
-		translate(ToOrigin) color("orange")     Craddle();
-		translate(ToOrigin) color("lightgreen") Tuba();
-		translate(ToOrigin) color("red")      Edge();
+		hull()
+		{
+			translate([0,BBHeight,CraddleRailExpand])
+			cylinder(h=PlatformDepth,d=BBDiameter,$fn=Resolution);
+			
+			translate([0,BBHeight,CraddleRailExpand+PlatformDepth])
+			linear_extrude(height=BBDepth,scale=BBTip/BBDiameter,convexity=10)
+			circle(d=BBDiameter,$fn=Resolution);
+		}
+		BBGuide(factor=BBGuideRatio);
+		BBGuide(factor=-BBGuideRatio);
+		union()
+		{
+			translate([0,CraddleTopBase+EdgeGuardDepth+1,CraddleRailExpand+PlatformDepth/2])
+rotate([90,0,0])
+cylinder(h=EdgeGuardDepth+2,d=EdgeGuardDiameter,$fn=Resolution);
+
+translate([0,CraddleTopBase+EdgeGuardDepth,CraddleRailExpand+PlatformDepth/2])
+rotate([-90,0,0])
+cylinder(h=BBDiameter-EdgeGuardDepth+1,d=ScrewHeadDiameter,$fn=Resolution);
+
+		}
 	}
 }
 
 
-TryHead(1.5);
 
+
+
+BB();
+Edge();
 
