@@ -398,23 +398,45 @@ module CarvedTail(zoom=1)
 	}
 }
 
+module TryTail(zoom=1)
+{
+	%FishTail(zoom);
+	translate(ToOrigin) BBCraddle();
+}
 
 
-//%CarvedTail(1.5); translate(ToOrigin) color("red") Edge();
+////////////////////////////////////////////////////////////////////////////////
+//
+// Carved Head
+//
+////////////////////////////////////////////////////////////////////////////////
 
 module CarvedHead(zoom=1)
 {
-	render()
 	difference()
 	{
-		FishHead(zoom);
-		translate(ToOrigin) Craddle();
+		render()
+		difference()
+		{
+			FishHead(zoom);
+			translate(ToOrigin) Craddle();
+		}
+		translate(ToOrigin) Tuba();
 	}
 }
 
-%FishHead(1.5);
-translate(ToOrigin) color("orange")     Craddle();
-translate(ToOrigin) color("lightgreen") Tuba();
-translate(ToOrigin) color("brick")      Edge();
+
+module TryHead(zoom=1)
+{
+	{
+		%FishHead(1.5);
+		translate(ToOrigin) color("orange")     Craddle();
+		translate(ToOrigin) color("lightgreen") Tuba();
+		translate(ToOrigin) color("red")      Edge();
+	}
+}
+
+
+TryHead(1.5);
 
 
