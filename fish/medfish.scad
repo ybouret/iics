@@ -346,7 +346,7 @@ module Edge()
 // BackBone parameters
 //
 ////////////////////////////////////////////////////////////////////////////////
-BBDiameter=12;
+BBDiameter=20;
 BBTip     =4;
 
 BBSpace   = 1;
@@ -493,7 +493,15 @@ cylinder(h=BBDiameter-EdgeGuardDepth+1,d=ScrewHeadDiameter,$fn=Resolution);
 
 
 
-
-BB();
+//%CarvedHead(1.5);
+translate(ToOrigin)
+{
+	//color("yellow") Servo();
+	//color("red")    Edge();
+	//color("blue")   BB();
+}
+//CarvedTail(1.5);
+Servo();
+%BBSocket();
 Edge();
-
+BB();
