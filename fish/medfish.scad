@@ -1,5 +1,53 @@
 Resolution=60;
 
+CraddleBodyDepth  = 24;
+CraddleBodyHeight = 16;
+CraddleBodyWidth  = 13;
+
+CraddleRailHeight = 2;
+CraddleRailExpand = 5;
+CraddleRailDepth  = CraddleBodyDepth+2*CraddleRailExpand;
+
+CraddleTopBase    = CraddleBodyHeight+CraddleRailHeight;
+CraddleTopHeight = 12;
+CraddleTopDepth  = CraddleBodyDepth+1;
+
+ArmBase   = CraddleBodyHeight+CraddleRailHeight+CraddleTopHeight-4;
+ArmRadius = 13;
+ArmHeight = 8;
+ArmOffset = -16;
+
+PlatformScrewDiameter=2;
+PlatformScrewDepth   =5;
+PlatformScrewOffset  =PlatformScrewDiameter+2;
+
+PlatformDepth     = 10;
+EdgeDepth         = PlatformDepth+CraddleRailExpand;
+EdgeHeight        = 8;
+ScrewHeadDiameter = 5;
+
+
+
+
+BBAttachDiameter=1;
+BBAttachDepth   =10;
+
+BBDiameter=10;
+BBTip     =4;
+
+BBSpace   = 1;
+BBDepth   = 46;
+
+BBRadius  = BBDiameter/2;
+BBHeight  = CraddleTopBase+BBRadius;
+
+ToOrigin  = [0,-BBHeight,0];
+
+EdgeBeamWidth  = 0.8*BBRadius;
+EdgeBeamHeight = 0.5*BBRadius;
+EdgeBeamDepth  = 0.75*PlatformDepth;
+EdgeBeamOffset = CraddleRailExpand + (PlatformDepth-EdgeBeamDepth)/2;
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Computed Data: default=100mm, 
@@ -41,9 +89,7 @@ module FishTail(zoom=1)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-CraddleBodyDepth  = 24;
-CraddleBodyHeight = 16;
-CraddleBodyWidth  = 13;
+
 
 module CraddleBody()
 {
@@ -78,9 +124,7 @@ module Servo()
 // Negative Space for the Servo: Craddle Rail
 //
 ////////////////////////////////////////////////////////////////////////////////
-CraddleRailHeight = 2;
-CraddleRailExpand = 5;
-CraddleRailDepth  = CraddleBodyDepth+2*CraddleRailExpand;
+
 
 module CraddleRail(expand=0)
 {
@@ -95,9 +139,6 @@ module CraddleRail(expand=0)
 // Negative Space for the Servo: Craddle Top, to be able to insert servo
 //
 ////////////////////////////////////////////////////////////////////////////////
-CraddleTopBase    = CraddleBodyHeight+CraddleRailHeight;
-CraddleTopHeight = 12;
-CraddleTopDepth  = CraddleBodyDepth+1;
 
 module CraddleTop()
 {
@@ -119,10 +160,7 @@ module CraddleTop()
 // Negative Space for the Arm
 //
 ////////////////////////////////////////////////////////////////////////////////
-ArmBase   = CraddleBodyHeight+CraddleRailHeight+CraddleTopHeight-4;
-ArmRadius = 10;
-ArmHeight = 8;
-ArmOffset = -16;
+
 
 module ArmSpace()
 {
@@ -142,9 +180,7 @@ module ArmSpace()
 // Screw Hole for Platform
 //
 ////////////////////////////////////////////////////////////////////////////////
-PlatformScrewDiameter=2;
-PlatformScrewDepth   =5;
-PlatformScrewOffset  =PlatformScrewDiameter+2;
+
 
 module PlatformScrew()
 {
@@ -223,19 +259,16 @@ module Craddle()
 	}
 }
 
-//%Craddle();
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Platform To Fix BackBone And Attach Servo => EdgeBody
 //
 ////////////////////////////////////////////////////////////////////////////////
-
-PlatformDepth = 10;
-EdgeDepth     = PlatformDepth+CraddleRailExpand;
-EdgeHeight    = 8;
-
+module EdgeBeam(extra=0)
+{
+	translate([-EdgeBeamWidth/2,CraddleTopBase-1,EdgeBeamOffset-extra]) cube([EdgeBeamWidth,EdgeBeamHeight+1,EdgeBeamDepth+extra]);
+}
 
 module EdgeContour(extra=0)
 {
@@ -245,7 +278,7 @@ module EdgeContour(extra=0)
 			union()
 			{
 				translate([0,-PlatformScrewOffset,-extra])
-				cylinder(h=EdgeDepth+extra,d=CraddleBodyWidth,$fn=Resolution);
+				cylinder(h=EdgeDepth+extra,d=ScrewHeadDiameter+2,$fn=Resolution);
 				
 				translate([0,CraddleBodyHeight+CraddleRailHeight-EdgeHeight,-extra])
 				translate([0,EdgeHeight/2,(EdgeDepth+extra)/2])
@@ -254,13 +287,19 @@ module EdgeContour(extra=0)
 		}
 }
 
+
 module EdgeBody()
 {
 	render()
-	difference()
+	union()
 	{
-		EdgeContour(extra=0);
-		CraddleRail(expand=1);
+		render()
+		difference()
+		{
+			EdgeContour(extra=0);
+			CraddleRail(expand=1);
+		}
+		EdgeBeam();
 	}
 }
 
@@ -270,9 +309,8 @@ module EdgeBody()
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-EdgeGuardDepth=2;
-EdgeGuardDiameter=2;
-ScrewHeadDiameter=5;
+GuardDepth=2;
+GuardDiameter=2;
 
 
 module EdgeAttach()
@@ -281,9 +319,9 @@ module EdgeAttach()
 	union()
 	{
 		translate([0,-PlatformScrewOffset,-1])
-		cylinder(h=EdgeGuardDepth+2,d=EdgeGuardDiameter,$fn=Resolution);
-		translate([0,-PlatformScrewOffset,EdgeGuardDepth])
-		cylinder(h=EdgeDepth+1-EdgeGuardDepth,d=ScrewHeadDiameter,$fn=Resolution);
+		cylinder(h=GuardDepth+2,d=GuardDiameter,$fn=Resolution);
+		translate([0,-PlatformScrewOffset,GuardDepth])
+		cylinder(h=EdgeDepth+1-GuardDepth,d=ScrewHeadDiameter,$fn=Resolution);
 	}
 }
 
@@ -311,15 +349,14 @@ module ServoAttach()
 // Hole to attach EdgeBody to BackBone
 //
 ////////////////////////////////////////////////////////////////////////////////
-BBAttachDiameter=1;
-BBAttachDepth   =10;
+
 
 module BBAttach()
 {
 	render()
-	translate([0,CraddleTopBase-BBAttachDepth,CraddleRailExpand+PlatformDepth/2])
-	rotate([-90,0,0])
-	cylinder(h=BBAttachDepth+1,d=BBAttachDiameter,$fn=Resolution);
+	translate([0,CraddleTopBase+EdgeBeamHeight+1,EdgeBeamOffset+EdgeBeamDepth/2])
+	rotate([90,0,0])
+	cylinder(h=BBAttachDepth,d=BBAttachDiameter,$fn=Resolution);
 }
 
 
@@ -339,22 +376,14 @@ module Edge()
 		BBAttach();
 	}
 }
-
+Edge();
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // BackBone parameters
 //
 ////////////////////////////////////////////////////////////////////////////////
-BBDiameter=20;
-BBTip     =4;
 
-BBSpace   = 1;
-BBDepth   = 46;
-
-BBHeight  = CraddleTopBase+BBDiameter/2;
-
-ToOrigin  = [0,-BBHeight,0];
 
 module BBSocket()
 {
@@ -378,9 +407,11 @@ module BBCraddle()
 	union()
 	{
 		EdgeContour(extra=1);
+		EdgeBeam(extra=PlatformDepth+CraddleRailExpand);
 		BBSocket();
 	}
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -456,13 +487,10 @@ module BBGuide(factor=0.2)
 	circle(d=BBGuideDiameter,$fn=8);
 }
 
-module BBScrew()
-{
-	
-}
 
 module BB()
 {
+	render()
 	difference()
 	{
 		hull()
@@ -476,32 +504,31 @@ module BB()
 		}
 		BBGuide(factor=BBGuideRatio);
 		BBGuide(factor=-BBGuideRatio);
-		union()
-		{
-			translate([0,CraddleTopBase+EdgeGuardDepth+1,CraddleRailExpand+PlatformDepth/2])
-rotate([90,0,0])
-cylinder(h=EdgeGuardDepth+2,d=EdgeGuardDiameter,$fn=Resolution);
-
-translate([0,CraddleTopBase+EdgeGuardDepth,CraddleRailExpand+PlatformDepth/2])
-rotate([-90,0,0])
-cylinder(h=BBDiameter-EdgeGuardDepth+1,d=ScrewHeadDiameter,$fn=Resolution);
-
-		}
+		//screw hole
+		//union()
+//		{
+//			translate([0,CraddleTopBase+EdgeGuardDepth+1,CraddleRailExpand+PlatformDepth/2])
+//			rotate([90,0,0])
+//			cylinder(h=EdgeGuardDepth+2,d=EdgeGuardDiameter,$fn=Resolution);
+//
+//			translate([0,CraddleTopBase+EdgeGuardDepth,CraddleRailExpand+PlatformDepth/2])
+//			rotate([-90,0,0])
+//			cylinder(h=BBDiameter-EdgeGuardDepth+1,d=ScrewHeadDiameter,$fn=Resolution);
+//		}
 	}
 }
 
 
 
+//CarvedHead(1.42);
+//translate(ToOrigin)
+//{
+//	color("orange")  Craddle();
+//	color("green") Tuba();
+//}
+//%CarvedTail(1.42);
+//translate(ToOrigin)
+//{
+//	color("red") Edge();
+//}
 
-//%CarvedHead(1.5);
-translate(ToOrigin)
-{
-	//color("yellow") Servo();
-	//color("red")    Edge();
-	//color("blue")   BB();
-}
-//CarvedTail(1.5);
-Servo();
-%BBSocket();
-Edge();
-BB();
