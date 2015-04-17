@@ -14,8 +14,8 @@ CraddleTopDepth  = CraddleBodyDepth+1;
 
 ArmBase   = CraddleBodyHeight+CraddleRailHeight+CraddleTopHeight-4;
 ArmRadius = 13;
-ArmHeight = 8;
-ArmOffset = -16;
+ArmHeight = 8.5;
+ArmOffset = -17.5;
 
 PlatformScrewDiameter=2;
 PlatformScrewDepth   =5;
@@ -36,7 +36,7 @@ BBDiameter=10;
 BBTip     =4;
 
 BBSpace   = 1;
-BBDepth   = 46;
+BBDepth   = 35;
 
 BBRadius  = BBDiameter/2;
 BBHeight  = CraddleTopBase+BBRadius;
@@ -114,9 +114,15 @@ module CraddleBody()
 ////////////////////////////////////////////////////////////////////////////////
 module Servo()
 {
-	render()
-	translate([0,0,-CraddleBodyDepth/2])
-	rotate([0,90,0]) scale(10) import("data/microservo.stl");
+	{
+		translate([0,0,-CraddleBodyDepth/2])
+		rotate([0,90,0]) scale(10) import("data/microservo.stl");
+		
+		translate([0,CraddleTopBase+8,ArmOffset])
+		translate([0,4,0])
+		rotate([-90,0,0])
+		import("data/custom_arm.stl");
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -168,10 +174,10 @@ module ArmSpace()
 	translate([0,ArmBase,0])
 	hull()
 	{
-	translate([0,0,ArmOffset])
-	rotate([-90,0,0])
-	cylinder(h=ArmHeight,r=ArmRadius,$fn=Resolution);
-	translate([0,ArmHeight/2,0]) cube([2*ArmRadius,ArmHeight,2],center=true);
+		translate([0,0,ArmOffset])
+		rotate([-90,0,0])
+		cylinder(h=ArmHeight,r=ArmRadius,$fn=Resolution);
+		translate([0,ArmHeight/2,0]) cube([2*ArmRadius,ArmHeight,2],center=true);
 	}
 }
 
@@ -478,7 +484,7 @@ module TryHead(zoom=1)
 //
 ////////////////////////////////////////////////////////////////////////////////
 BBGuideDiameter=2;
-BBGuideRatio   =0.25;
+BBGuideRatio   =0.3;
 
 module BBGuide(factor=0.2)
 {
@@ -486,7 +492,7 @@ module BBGuide(factor=0.2)
 	translate([0,BBHeight,-1+CraddleRailExpand])
 	linear_extrude(height=PlatformDepth+BBDepth+2,convexity=10,scale=BBTip/BBDiameter) 
 	translate([BBDiameter*factor,0])
-	circle(d=BBGuideDiameter,$fn=8);
+	circle(d=BBGuideDiameter,$fn=16);
 }
 
 BBGuardDepth=BBRadius;
@@ -508,6 +514,38 @@ module BBScrewGuard()
 	
 }
 
+
+BBCutterDepth= 5;
+BBBeam       = 0.4*BBRadius;
+BBTipDepth   = 3;
+
+module BBCutter()
+{
+	translate([0,BBHeight,BBCutterDepth/2+EdgeDepth])
+	union()
+	{
+		translate([BBRadius/2+BBBeam/2,0,0])
+		cube([BBRadius,BBDiameter+4,BBCutterDepth],center=true);
+		translate([-(BBRadius/2+BBBeam/2),0,0])
+		cube([BBRadius,BBDiameter+4,BBCutterDepth],center=true);
+	}
+}
+
+
+BBCutDepth=BBDepth - BBTipDepth;
+BBNumCutters=5;
+BBCutSpace=(BBCutDepth-BBNumCutters*BBCutterDepth)/(BBNumCutters-1);
+BBCutOffset=BBCutterDepth+BBCutSpace;
+
+module BBCutters()
+{
+	for( i = [0:BBNumCutters-1] )
+	{
+		translate([0,0,i*BBCutOffset]) BBCutter();
+	}
+}
+
+
 module BB()
 {
 	render()
@@ -528,26 +566,37 @@ module BB()
 		BBGuide(factor=BBGuideRatio);
 		BBGuide(factor=-BBGuideRatio);
 		EdgeBeam();
-		BBScrewGuard();		
+		BBScrewGuard();
+		BBCutters();		
 	}
 }
 
-%BB();
-color("red") Edge();
 
 
+//Servo();
+//ArmSpace();
 
-
-
-//CarvedHead(1.42);
+//
+//%CarvedHead(1.42);
 //translate(ToOrigin)
 //{
-//	color("orange")  Craddle();
-//	color("green") Tuba();
+//	color("yellow") Servo();
+//	//color("green") Tuba();
 //}
+//
+//rotate([0,45,0])
+//translate([0,0,30])
+//{
 //%CarvedTail(1.42);
 //translate(ToOrigin)
 //{
 //	color("red") Edge();
+//	color("orchid") BB();
 //}
+//}
+
+//Edge();
+
+//BB();
+CarvedHead(1.42);
 

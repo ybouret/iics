@@ -16,5 +16,5 @@ thickness = 0.03; -- virtual thickness, to place the junction
 head_size = 0.35;  -- where the head end
 junc_size = 0.16; -- junction size
 
-N         = 50;
+N         = 100;
 Length    = 100;
