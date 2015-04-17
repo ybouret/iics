@@ -44,8 +44,8 @@ BBHeight  = CraddleTopBase+BBRadius;
 ToOrigin  = [0,-BBHeight,0];
 
 EdgeBeamWidth  = 0.8*BBRadius;
-EdgeBeamHeight = 0.5*BBRadius;
-EdgeBeamDepth  = 0.75*PlatformDepth;
+EdgeBeamHeight = 0.6*BBRadius;
+EdgeBeamDepth  = 0.7*PlatformDepth;
 EdgeBeamOffset = CraddleRailExpand + (PlatformDepth-EdgeBeamDepth)/2;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -267,6 +267,7 @@ module Craddle()
 ////////////////////////////////////////////////////////////////////////////////
 module EdgeBeam(extra=0)
 {
+	render()
 	translate([-EdgeBeamWidth/2,CraddleTopBase-1,EdgeBeamOffset-extra]) cube([EdgeBeamWidth,EdgeBeamHeight+1,EdgeBeamDepth+extra]);
 }
 
@@ -350,11 +351,12 @@ module ServoAttach()
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+BBAttachOffset = CraddleRailExpand+PlatformDepth/2;
 
 module BBAttach()
 {
 	render()
-	translate([0,CraddleTopBase+EdgeBeamHeight+1,EdgeBeamOffset+EdgeBeamDepth/2])
+	translate([0,CraddleTopBase+EdgeBeamHeight+1,BBAttachOffset])
 	rotate([90,0,0])
 	cylinder(h=BBAttachDepth,d=BBAttachDiameter,$fn=Resolution);
 }
@@ -376,7 +378,7 @@ module Edge()
 		BBAttach();
 	}
 }
-Edge();
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -487,36 +489,53 @@ module BBGuide(factor=0.2)
 	circle(d=BBGuideDiameter,$fn=8);
 }
 
+BBGuardDepth=BBRadius;
+module BBScrewGuard()
+{
+	render()
+	union()
+	{
+		render()
+		translate([0,CraddleTopBase+EdgeBeamHeight-1,BBAttachOffset])
+		rotate([-90,0,0])
+		cylinder(h=BBGuardDepth+2,d=GuardDiameter,$fn=Resolution);
+
+		render()
+		translate([0,CraddleTopBase+EdgeBeamHeight+BBGuardDepth-1,BBAttachOffset])
+		rotate([-90,0,0])
+		cylinder(h=BBRadius,d=ScrewHeadDiameter+1,$fn=Resolution);
+	}
+	
+}
 
 module BB()
 {
 	render()
 	difference()
 	{
+		render()
 		hull()
 		{
+			render()
 			translate([0,BBHeight,CraddleRailExpand])
 			cylinder(h=PlatformDepth,d=BBDiameter,$fn=Resolution);
 			
+			render()
 			translate([0,BBHeight,CraddleRailExpand+PlatformDepth])
 			linear_extrude(height=BBDepth,scale=BBTip/BBDiameter,convexity=10)
 			circle(d=BBDiameter,$fn=Resolution);
 		}
 		BBGuide(factor=BBGuideRatio);
 		BBGuide(factor=-BBGuideRatio);
-		//screw hole
-		//union()
-//		{
-//			translate([0,CraddleTopBase+EdgeGuardDepth+1,CraddleRailExpand+PlatformDepth/2])
-//			rotate([90,0,0])
-//			cylinder(h=EdgeGuardDepth+2,d=EdgeGuardDiameter,$fn=Resolution);
-//
-//			translate([0,CraddleTopBase+EdgeGuardDepth,CraddleRailExpand+PlatformDepth/2])
-//			rotate([-90,0,0])
-//			cylinder(h=BBDiameter-EdgeGuardDepth+1,d=ScrewHeadDiameter,$fn=Resolution);
-//		}
+		EdgeBeam();
+		BBScrewGuard();		
 	}
 }
+
+%BB();
+color("red") Edge();
+
+
 
 
 
