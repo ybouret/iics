@@ -576,27 +576,30 @@ module BB()
 //Servo();
 //ArmSpace();
 
-//
-//%CarvedHead(1.42);
-//translate(ToOrigin)
-//{
-//	color("yellow") Servo();
-//	//color("green") Tuba();
-//}
-//
-//rotate([0,45,0])
-//translate([0,0,30])
-//{
-//%CarvedTail(1.42);
-//translate(ToOrigin)
-//{
-//	color("red") Edge();
-//	color("orchid") BB();
-//}
-//}
+
+%CarvedHead(1.42);
+translate(ToOrigin)
+{
+	color("yellow") Servo();
+	//color("green") Tuba();
+}
+
+rotate([0,45,0])
+translate([0,0,30])
+{
+%CarvedTail(1.42);
+translate(ToOrigin)
+{
+	color("red") Edge();
+	color("orchid") BB();
+}
+}
 
 //Edge();
 
-//BB();
-CarvedHead(1.42);
+
+//%BB();
+//color("aqua")   Edge();
+
+//CarvedHead(1.42);
 
