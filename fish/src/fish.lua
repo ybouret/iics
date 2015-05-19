@@ -12,9 +12,9 @@ H_effc = { 1.6e-1, 2.6e-1, 2.8e-1, 3.0e-1, 2.3e-1, 2.1e-1 };
 width,height = W_effc, H_effc;
 
 
-thickness = 0.03; -- virtual thickness, to place the junction
-head_size = 0.35;  -- where the head end
-junc_size = 0.16; -- junction size
+thickness = 0.05; -- virtual thickness, to place the junction
+head_size = 0.35; -- where the head end
+junc_size = 0.5; -- junction size
 
-N         = 100;
+N         = 25;
 Length    = 100;

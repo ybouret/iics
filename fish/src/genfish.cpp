@@ -43,8 +43,8 @@ YOCTO_PROGRAM_START()
     }
 
 
-    const size_t N      = Lua::Config::Get<lua_Number>(L,"N");
-    const double Length = Lua::Config::Get<lua_Number>(L,"Length");
+    const size_t N         = Lua::Config::Get<lua_Number>(L,"N");
+    const double Length    = Lua::Config::Get<lua_Number>(L,"Length");
     const double thickness = Lua::Config::Get<lua_Number>(L,"thickness");
     const double head_size = clamp<double>(0.1,Lua::Config::Get<lua_Number>(L,"head_size"),0.9);
     const double junc_size = Lua::Config::Get<lua_Number>(L,"junc_size");

@@ -19,7 +19,7 @@ double ReverseMax(const double               U,
             break;
     }
 
-    return max_of<double>(z_ini + 0.8*(z-z_ini),0.0);
+    return max_of<double>(z_ini + 0.9*(z-z_ini),0.0);
 }
 
 static inline

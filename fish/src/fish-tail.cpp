@@ -76,6 +76,7 @@ void Fish:: generateTail( double Zmax, size_t N )
     std::cerr << "-- Computing Triangles" << std::endl;
     std::cerr << "\t Head..." << std::endl;
 
+#if 1
     // head
     {
         const Slice &slice = *slices[1];
@@ -88,7 +89,8 @@ void Fish:: generateTail( double Zmax, size_t N )
             triangles.push_back(tr);
         }
     }
-
+#endif
+    
     std::cerr << "\t Body..." << std::endl;
     // inside
     for(size_t j=1;j<N;++j)
