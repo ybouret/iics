@@ -157,11 +157,13 @@ module Craddle()
 	}
 }
 
-
+ToOrigin = [0,-25,-CraddleBodyDepth/2+0.5];
 
 %FishHead(1.42);
-Servo();
-%Craddle();
+translate(ToOrigin)
+{
+	//Servo();
+	color("red") Craddle();
+}
 //Arm();
-ArmSpace();
 
