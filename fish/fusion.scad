@@ -167,7 +167,7 @@ module CarvedTail(zoom=1)
 
 //CarvedHead(1.6);
 //translate([0,0,MountX]) translate(ToOrigin) Servo();
-CarvedTail(1.6);
+//CarvedTail(1.6);
 
-//B_Piece();
+B_Piece();
 

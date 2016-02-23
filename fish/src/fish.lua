@@ -18,3 +18,7 @@ junc_size = 0.5; -- junction size
 
 N         = 25;
 Length    = 100;
+
+
+
+ 
