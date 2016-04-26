@@ -9,6 +9,7 @@ LINK_DIRECTORIES(    ${YROOT}/lib     )
 
 SET(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/../)
 
-ADD_EXECUTABLE(genpiv genpiv.cpp)
+ADD_EXECUTABLE(genpiv genpiv.cpp sample.lua)
 
-YOCTO_LINK_TARGET(genpiv graphics jpeg png)
+TARGET_LINK_YOCTO(genpiv graphics jpeg png z lua lua++)
+INSTALL( TARGETS genpiv RUNTIME DESTINATION bin )
